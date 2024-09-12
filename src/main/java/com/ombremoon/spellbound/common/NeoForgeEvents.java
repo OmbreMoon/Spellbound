@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.common;
 
 import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -13,7 +14,7 @@ public class NeoForgeEvents {
     @SubscribeEvent
     public static void testEvent(LivingEvent.LivingJumpEvent event) {
         if (event.getEntity() instanceof Player player && !player.level().isClientSide) {
-            SpellUtil.getSpellHandler(player).switchMode(true);
+            player.getData(DataInit.SPELL_HANDLER).switchMode(true);
             Constants.LOG.info("{}", SpellUtil.getSpellHandler(player).inCastMode());
         }
     }

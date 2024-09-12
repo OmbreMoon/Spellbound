@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound;
 
+import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.ItemInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import net.minecraft.resources.ResourceLocation;
@@ -11,6 +12,7 @@ public class CommonClass {
     public static void init(IEventBus modEventBus) {
         ItemInit.register(modEventBus);
         SpellInit.register(modEventBus);
+        DataInit.ATTACHMENT_TYPES.register(modEventBus);
     }
 
     public static boolean isDevEnv() {

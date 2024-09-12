@@ -2,8 +2,11 @@ package com.ombremoon.spellbound.networking;
 
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.networking.clientbound.ClientPayloadHandler;
+import com.ombremoon.spellbound.networking.clientbound.ClientSyncSpellPacket;
 import com.ombremoon.spellbound.networking.serverbound.ServerPayloadHandler;
 import com.ombremoon.spellbound.networking.serverbound.SwitchModePayload;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -28,6 +31,12 @@ public class PayloadHandler {
                         ClientPayloadHandler::handleMainSwitchMode,
                         ServerPayloadHandler::handleNetworkSwitchMode
                 )
+        );
+
+        registrar.playToClient(
+                ClientSyncSpellPacket.TYPE,
+                ClientSyncSpellPacket.STREAM_CODEC,
+                ClientSyncSpellPacket::handleData
         );
     }
 }

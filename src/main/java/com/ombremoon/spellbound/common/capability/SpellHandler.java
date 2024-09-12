@@ -1,21 +1,27 @@
 package com.ombremoon.spellbound.common.capability;
 
+import com.mojang.serialization.Codec;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 
 public class SpellHandler implements ISpellHandler, INBTSerializable<CompoundTag> {
-    protected final LivingEntity livingEntity;
     protected boolean castMode;
     protected LinkedHashSet<SpellType<?>> spellSet = new LinkedHashSet<>();
     protected ObjectOpenHashSet<AbstractSpell> activeSpells = new ObjectOpenHashSet<>();
@@ -24,13 +30,8 @@ public class SpellHandler implements ISpellHandler, INBTSerializable<CompoundTag
     private boolean channelling;
     protected boolean initialized = false;
 
-    public SpellHandler(LivingEntity livingEntity) {
-        this.livingEntity = livingEntity;
+    public SpellHandler() {
     }
-
-//    public void initStatus(LivingEntity livingEntity) {
-//        this.livingEntity = livingEntity;
-//    }
 
     public boolean isInitialized() {
         return this.initialized = true;
@@ -39,6 +40,10 @@ public class SpellHandler implements ISpellHandler, INBTSerializable<CompoundTag
     @Override
     public boolean inCastMode() {
         return this.castMode;
+    }
+
+    public void switchMode() {
+        this.castMode = !castMode;
     }
 
     @Override

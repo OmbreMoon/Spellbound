@@ -3,6 +3,8 @@ package com.ombremoon.spellbound.client.event;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.Spellbound;
 import com.ombremoon.spellbound.client.KeyBinds;
+import com.ombremoon.spellbound.common.capability.SpellHandler;
+import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
@@ -31,9 +33,8 @@ public class ClientEvents {
         public static void onKeyInput(InputEvent.Key event) {
             Player player = Minecraft.getInstance().player;
             if (KeyBinds.SWITCH_MODE_BINDING.consumeClick()) {
-                Constants.LOG.info("{}", player.getCapability(Spellbound.ENTITY));
-                player.getCapability(Spellbound.ENTITY).switchMode(true);
-                PayloadHandler.switchMode(true);
+                SpellHandler handler = player.getData(DataInit.SPELL_HANDLER);
+                handler.switchMode();
             }
         }
     }
