@@ -1,11 +1,12 @@
 package com.ombremoon.spellbound;
 
+import com.ombremoon.spellbound.client.event.SpellCastEvents;
 import com.ombremoon.spellbound.common.capability.ISpellHandler;
 import com.ombremoon.spellbound.common.capability.SpellHandler;
 import com.ombremoon.spellbound.common.init.SpellInit;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.EntityType;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -23,6 +24,7 @@ public class Spellbound {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::registerCapabilities);
         modEventBus.addListener(this::registerRegistry);
+        NeoForge.EVENT_BUS.addListener(SpellCastEvents::onSpellCast);
         CommonClass.init(modEventBus);
     }
 
@@ -32,6 +34,7 @@ public class Spellbound {
 
     private void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerEntity(ENTITY, EntityType.PLAYER, ((player, context) -> new SpellHandler(player)));
+        Constants.LOG.info("fuck this");
     }
 
     private void registerRegistry(NewRegistryEvent event) {

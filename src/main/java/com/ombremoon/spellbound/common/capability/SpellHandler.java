@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.capability;
 
+import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -15,6 +16,7 @@ import java.util.LinkedHashSet;
 
 public class SpellHandler implements ISpellHandler, INBTSerializable<CompoundTag> {
     protected final LivingEntity livingEntity;
+    protected boolean castMode;
     protected LinkedHashSet<SpellType<?>> spellSet = new LinkedHashSet<>();
     protected ObjectOpenHashSet<AbstractSpell> activeSpells = new ObjectOpenHashSet<>();
     protected SpellType<?> selectedSpell;
@@ -32,6 +34,16 @@ public class SpellHandler implements ISpellHandler, INBTSerializable<CompoundTag
 
     public boolean isInitialized() {
         return this.initialized = true;
+    }
+
+    @Override
+    public boolean inCastMode() {
+        return this.castMode;
+    }
+
+    @Override
+    public void switchMode(boolean castMode) {
+        this.castMode = castMode;
     }
 
     public LinkedHashSet<SpellType<?>> getSpellSet() {
@@ -68,18 +80,12 @@ public class SpellHandler implements ISpellHandler, INBTSerializable<CompoundTag
 
     public void defineEntityData(LivingEntity livingEntity) {
         this.initialized = true;
-//        livingEntity.getEntityData().define(POISON, 0);
-//        livingEntity.getEntityData().define(SCARLET_ROT, 0);
-//        livingEntity.getEntityData().define(BLOOD_LOSS, 0);
-//        livingEntity.getEntityData().define(FROSTBITE, 0);
-//        livingEntity.getEntityData().define(SLEEP, 0);
-//        livingEntity.getEntityData().define(MADNESS, 0);
-//        livingEntity.getEntityData().define(DEATH_BLIGHT, 0);
     }
 
     @Override
     public @UnknownNullability CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag compoundTag = new CompoundTag();
+        compoundTag.putBoolean("CastMode", this.castMode);
         ListTag spellList = new ListTag();
 
         if (this.selectedSpell != null)
@@ -95,8 +101,13 @@ public class SpellHandler implements ISpellHandler, INBTSerializable<CompoundTag
 
     @Override
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
+        if (nbt.contains("CastMode", 99)) {
+            this.castMode = nbt.getBoolean("CastMode");
+        }
         if (nbt.contains("SelectedSpell", 8)) {
             this.selectedSpell = AbstractSpell.getSpellByName(SpellUtil.getSpellId(nbt, "SelectedSpell"));
+        } else {
+            this.selectedSpell = SpellInit.TEST_SPELL.get();
         }
         if (nbt.contains("Spells", 9)) {
             ListTag spellList = nbt.getList("Spells", 10);
