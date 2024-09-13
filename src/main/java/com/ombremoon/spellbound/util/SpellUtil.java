@@ -1,16 +1,16 @@
 package com.ombremoon.spellbound.util;
 
+import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
-import com.ombremoon.spellbound.common.capability.SpellHandler;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellType;
-import com.ombremoon.spellbound.networking.clientbound.ClientSyncSpellPacket;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.PacketDistributor;
+
+import java.util.Collection;
+import java.util.Iterator;
 
 public class SpellUtil {
 
@@ -36,13 +36,31 @@ public class SpellUtil {
         var handler = getSpellHandler(livingEntity);
         handler.getActiveSpells().add(abstractSpell);
         handler.setRecentlyActivatedSpell(abstractSpell);
+        livingEntity.setData(DataInit.MANA.get(), livingEntity.getData(DataInit.MANA.get()) - abstractSpell.getManaCost());
     }
 
-    public static void syncToClient(Player player) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player,
-                new ClientSyncSpellPacket(
-                        player.getData(DataInit.SPELL_HANDLER)
-                                .serializeNBT(player.level().registryAccess())
-                ));
+    public static boolean canCastSpell(Player player, AbstractSpell spell) {
+        return player.getData(DataInit.MANA.get()) >= spell.getManaCost();
+    }
+
+    public static <T extends SpellType<?>> void cycle(SpellHandler handler, T activeSpell) {
+        var spellType = findNextSpellInList(handler.getSpellList(), activeSpell);
+        if (spellType != activeSpell) {
+            handler.setSelectedSpell(spellType);
+        }
+    }
+
+    private static  <T> T findNextSpellInList(Collection<T> spellList, T currentSpell) {
+        Iterator<T> iterator = spellList.iterator();
+
+        while (iterator.hasNext()) {
+            if (iterator.next().equals(currentSpell)) {
+                if (iterator.hasNext()) {
+                    return iterator.next();
+                }
+                return spellList.iterator().next();
+            }
+        }
+        return iterator.next();
     }
 }

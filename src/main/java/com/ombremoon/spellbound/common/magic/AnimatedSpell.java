@@ -13,7 +13,6 @@ public abstract class AnimatedSpell extends AbstractSpell {
 
     public AnimatedSpell(SpellType<?> spellType, Builder<?> builder) {
         super(spellType, builder);
-//        builder = EventFactory.getAnimatedBuilder(spellType, builder);
     }
 
     @Override
@@ -26,28 +25,18 @@ public abstract class AnimatedSpell extends AbstractSpell {
         public Builder() {
         }
 
-        public Builder<T> setFPCost(int fpCost) {
-            this.fpCost = fpCost;
+        public Builder<T> setManaCost(int fpCost) {
+            this.manaCost = fpCost;
             return this;
         }
 
-        public Builder<T> setStaminaCost(int staminaCost) {
-            this.staminaCost = staminaCost;
+        public Builder<T> setCastTime(int castTime) {
+            this.castTime = castTime;
             return this;
         }
 
         public Builder<T> setDuration(int duration) {
             this.duration = duration;
-            return this;
-        }
-
-        public Builder<T> setMotionValue(float motionValue) {
-            this.motionValue = motionValue;
-            return this;
-        }
-
-        public Builder<T> setChargedMotionValue(float motionValue) {
-            this.chargedMotionValue = motionValue;
             return this;
         }
 

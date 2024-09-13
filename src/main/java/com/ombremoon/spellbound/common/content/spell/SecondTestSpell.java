@@ -7,19 +7,19 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
-public class TestSpell extends AnimatedSpell {
+public class SecondTestSpell extends AnimatedSpell {
 
     public static Builder<AnimatedSpell> createTestBuilder() {
-        return createSimpleSpellBuilder();
+        return createSimpleSpellBuilder().setCastTime(20);
     }
 
-    public TestSpell() {
-        super(SpellInit.TEST_SPELL.get(), createTestBuilder());
+    public SecondTestSpell() {
+        super(SpellInit.SECOND_TEST_SPELL.get(), createTestBuilder());
     }
 
     @Override
     protected void onSpellStart(LivingEntity livingEntityPatch, Level level, BlockPos blockPos) {
         super.onSpellStart(livingEntityPatch, level, blockPos);
-        Constants.LOG.info("Working");
+        Constants.LOG.info("Second Working");
     }
 }

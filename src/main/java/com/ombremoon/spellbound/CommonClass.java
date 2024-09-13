@@ -12,7 +12,7 @@ public class CommonClass {
     public static void init(IEventBus modEventBus) {
         ItemInit.register(modEventBus);
         SpellInit.register(modEventBus);
-        DataInit.ATTACHMENT_TYPES.register(modEventBus);
+        DataInit.register(modEventBus);
     }
 
     public static boolean isDevEnv() {

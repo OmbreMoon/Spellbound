@@ -1,12 +1,10 @@
 package com.ombremoon.spellbound.client.event;
 
 import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.Spellbound;
 import com.ombremoon.spellbound.client.KeyBinds;
-import com.ombremoon.spellbound.common.capability.SpellHandler;
+import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.networking.PayloadHandler;
-import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
@@ -35,6 +33,7 @@ public class ClientEvents {
             if (KeyBinds.SWITCH_MODE_BINDING.consumeClick()) {
                 SpellHandler handler = player.getData(DataInit.SPELL_HANDLER);
                 handler.switchMode();
+                PayloadHandler.switchMode();
             }
         }
     }

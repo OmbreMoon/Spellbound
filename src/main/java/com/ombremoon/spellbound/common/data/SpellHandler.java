@@ -1,57 +1,57 @@
-package com.ombremoon.spellbound.common.capability;
+package com.ombremoon.spellbound.common.data;
 
-import com.mojang.serialization.Codec;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.Set;
 
-public class SpellHandler implements ISpellHandler, INBTSerializable<CompoundTag> {
+public class SpellHandler implements INBTSerializable<CompoundTag> {
+    public Player caster;
     protected boolean castMode;
-    protected LinkedHashSet<SpellType<?>> spellSet = new LinkedHashSet<>();
+    protected Set<SpellType<?>> spellSet = new LinkedHashSet<>();
     protected ObjectOpenHashSet<AbstractSpell> activeSpells = new ObjectOpenHashSet<>();
     protected SpellType<?> selectedSpell;
     protected AbstractSpell recentlyActivatedSpell;
+    public int castTick;
     private boolean channelling;
     protected boolean initialized = false;
 
     public SpellHandler() {
+
+    }
+
+    public void initData(Player player) {
+        this.caster = player;
+        this.initialized = true;
     }
 
     public boolean isInitialized() {
         return this.initialized = true;
     }
 
-    @Override
+    public Player getCaster() {
+        return this.caster;
+    }
+
     public boolean inCastMode() {
         return this.castMode;
     }
 
     public void switchMode() {
-        this.castMode = !castMode;
+        this.castMode = !this.castMode;
     }
 
-    @Override
-    public void switchMode(boolean castMode) {
-        this.castMode = castMode;
-    }
-
-    public LinkedHashSet<SpellType<?>> getSpellSet() {
+    public Set<SpellType<?>> getSpellList() {
         return this.spellSet;
     }
 
@@ -68,7 +68,7 @@ public class SpellHandler implements ISpellHandler, INBTSerializable<CompoundTag
     }
 
     public SpellType<?> getSelectedSpell() {
-        return this.selectedSpell;
+        return this.selectedSpell != null ? this.selectedSpell : !getSpellList().isEmpty() && getSpellList().iterator().hasNext() ? getSpellList().iterator().next() : null;
     }
 
     public void setSelectedSpell(SpellType<?> selectedSpell) {
@@ -83,10 +83,6 @@ public class SpellHandler implements ISpellHandler, INBTSerializable<CompoundTag
         this.channelling = channelling;
     }
 
-    public void defineEntityData(LivingEntity livingEntity) {
-        this.initialized = true;
-    }
-
     @Override
     public @UnknownNullability CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag compoundTag = new CompoundTag();
@@ -96,8 +92,11 @@ public class SpellHandler implements ISpellHandler, INBTSerializable<CompoundTag
         if (this.selectedSpell != null)
             compoundTag.putString("SelectedSpell", this.selectedSpell.getResourceLocation().toString());
 
-        for (SpellType<?> spellType : spellSet) {
-            spellList.add(SpellUtil.storeSpell(spellType));
+        if (!spellSet.isEmpty()) {
+            for (SpellType<?> spellType : spellSet) {
+                if (spellType != null)
+                    spellList.add(SpellUtil.storeSpell(spellType));
+            }
         }
         compoundTag.put("Spells", spellList);
 
@@ -110,7 +109,8 @@ public class SpellHandler implements ISpellHandler, INBTSerializable<CompoundTag
             this.castMode = nbt.getBoolean("CastMode");
         }
         if (nbt.contains("SelectedSpell", 8)) {
-            this.selectedSpell = AbstractSpell.getSpellByName(SpellUtil.getSpellId(nbt, "SelectedSpell"));
+            SpellType<?> spellType = AbstractSpell.getSpellByName(SpellUtil.getSpellId(nbt, "SelectedSpell"));
+            this.selectedSpell = spellType != null ? spellType : SpellInit.TEST_SPELL.get();
         } else {
             this.selectedSpell = SpellInit.TEST_SPELL.get();
         }

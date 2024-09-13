@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.common.magic;
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.SpellInit;
+import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -15,29 +16,20 @@ import org.slf4j.Logger;
 
 public abstract class AbstractSpell {
     protected static final Logger LOGGER = Constants.LOG;
-    protected static int DEFAULT_CAST_TIME = 1;
-    protected static int INSTANT_SPELL_DURATION = 10;
     private final SpellType<?> spellType;
-    private final int fpCost;
-    private final int staminaCost;
+    private final int manaCost;
     private final int duration;
-    private final float motionValue;
-    private final float chargedMotionValue;
-    private final int chargeTick;
+    private final int castTime;
     private final CastType castType;
     private final SoundEvent castSound;
     protected Level level;
     private LivingEntity caster;
     private BlockPos blockPos;
     private String descriptionId;
-    protected float catalystBoost;
-    private float chargeAmount = 1.0F;
     private int ticks = 0;
-    private boolean wasCharged = false;
     private int channelTicks = 0;
     public boolean isInactive = false;
     public boolean init = false;
-    public float magicScaling;
 
     public static Builder<AbstractSpell> createBuilder() {
         return new Builder<>();
@@ -45,13 +37,9 @@ public abstract class AbstractSpell {
 
     public AbstractSpell(SpellType<?> spellType, Builder<? extends AbstractSpell> builder) {
         this.spellType = spellType;
-//        builder = EventFactory.getBuilder(spellType, builder);
-        this.fpCost = builder.fpCost;
-        this.staminaCost = builder.staminaCost;
+        this.manaCost = builder.manaCost;
         this.duration = builder.duration;
-        this.motionValue = builder.motionValue;
-        this.chargedMotionValue = builder.chargedMotionValue;
-        this.chargeTick = builder.chargeTick;
+        this.castTime = builder.castTime;
         this.castType = builder.castType;
         this.castSound = builder.castSound;
     }
@@ -60,28 +48,12 @@ public abstract class AbstractSpell {
         return this.spellType;
     }
 
-    public int getFpCost(LivingEntity caster) {
-        return this.fpCost;
-    }
-
-    public int getStaminaCost(LivingEntity caster) {
-        return this.staminaCost;
+    public int getManaCost() {
+        return this.manaCost;
     }
 
     public int getDuration() {
         return this.duration;
-    }
-
-    public float getMotionValue() {
-        return this.motionValue;
-    }
-
-    public float getChargedMotionValue() {
-        return this.chargedMotionValue;
-    }
-
-    public int getChargeTick() {
-        return this.chargeTick;
     }
 
     protected SoundEvent getCastSound() {
@@ -92,7 +64,9 @@ public abstract class AbstractSpell {
         return this.castType;
     }
 
-    public abstract int getCastTime();
+    public int getCastTime() {
+        return this.castTime;
+    }
 
     public ResourceLocation getId() {
         return SpellInit.REGISTRY.getKey(this.spellType);
@@ -128,7 +102,7 @@ public abstract class AbstractSpell {
             if (init) {
                 this.startSpell();
             } else if (!isInactive) {
-                if (this.shouldTickEffect(ticks)) {
+                if (this.shouldTickEffect()) {
                     this.tickSpell();
                 }
                 if (this.getCastType() != CastType.CHANNEL && ticks % duration == 0) {
@@ -141,27 +115,23 @@ public abstract class AbstractSpell {
     private void startSpell() {
         this.init = false;
         this.onSpellStart(this.caster, this.level, this.blockPos);
-//        EventFactory.onSpellStart(this, this.caster, this.level, this.blockPos, this.scaledWeapon);
     }
 
     //TODO: ADD CAN CAST SPELL CHECK
     private void tickSpell() {
         this.onSpellTick(this.caster, this.level, this.blockPos);
         if (this.caster instanceof Player player) {
-//            if (SpellUtil.isChannelling(player))
-//                this.channelTicks++;
+            var handler = SpellUtil.getSpellHandler(player);
+            if (handler.isChannelling())
+                this.channelTicks++;
         }
-
-//        EventFactory.onSpellTick(this, this.caster, this.level, this.blockPos, this.scaledWeapon, this.ticks);
     }
 
     protected void endSpell() {
         this.onSpellStop(this.caster, this.level, this.blockPos);
-//        EventFactory.onSpellStop(this, this.caster, this.level, this.blockPos, this.scaledWeapon);
         this.init = false;
         this.isInactive = true;
         this.ticks = 0;
-        this.wasCharged = false;
         this.channelTicks = 0;
     }
 
@@ -177,7 +147,7 @@ public abstract class AbstractSpell {
     protected void onHurtTick(LivingEntity caster, LivingEntity targetEntity, Level level) {
     }
 
-    protected boolean shouldTickEffect(int duration) {
+    protected boolean shouldTickEffect() {
         return true;
     }
 
@@ -185,25 +155,13 @@ public abstract class AbstractSpell {
         return this.channelTicks > 0;
     }
 
-    public float getChargeAmount() {
-        return this.chargeAmount;
-    }
-
-    public void setChargeAmount(float chargeAmount) {
-        this.chargeAmount = chargeAmount;
-    }
-
     public static float getPowerForTime(AbstractSpell spell, int pCharge) {
-        if (spell.getCastType() == CastType.CHARGING) {
-            float f = (float) pCharge / 20.0F;
-            f = (f * f + f * 2.0F) / 3.0F;
-            if (f > 1.0F) {
-                f = 1.0F;
-            }
-            return f;
-        } else {
-            return 1.0F;
+        float f = (float) pCharge / 20.0F;
+        f = (f * f + f * 2.0F) / 3.0F;
+        if (f > 1.0F) {
+            f = 1.0F;
         }
+        return f;
     }
 
 //    protected DamageInstance createDamageInstance() {
@@ -214,34 +172,24 @@ public abstract class AbstractSpell {
         return this.caster;
     }
 
-    public void initSpell(LivingEntity livingEntity, Level level, BlockPos blockPos, boolean wasCharged) {
+    public void initSpell(LivingEntity livingEntity, Level level, BlockPos blockPos) {
         this.level = level;
         this.caster = livingEntity;
         this.blockPos = blockPos;
-        this.wasCharged = wasCharged;
 
-//        SpellUtil.activateSpell(livingEntity.getOriginal(), this);
+        SpellUtil.activateSpell(livingEntity, this);
         this.init = true;
     }
 
     public static class Builder<T extends AbstractSpell> {
-        protected int duration = 1;
-        protected int fpCost;
-        protected int staminaCost;
-        protected float motionValue;
-        protected float chargedMotionValue;
-        protected int chargeTick;
-        protected boolean canCharge;
+        protected int duration = 10;
+        protected int manaCost;
+        protected int castTime = 1;
         protected CastType castType = CastType.INSTANT;
         protected SoundEvent castSound;
 
-        public Builder<T> setFPCost(int fpCost) {
-            this.fpCost = fpCost;
-            return this;
-        }
-
-        public Builder<T> setStaminaCost(int staminaCost) {
-            this.staminaCost = staminaCost;
+        public Builder<T> setManaCost(int fpCost) {
+            this.manaCost = fpCost;
             return this;
         }
 
@@ -250,18 +198,8 @@ public abstract class AbstractSpell {
             return this;
         }
 
-        public Builder<T> setMotionValue(float motionValue) {
-            this.motionValue = motionValue;
-            return this;
-        }
-
-        public Builder<T> setChargedMotionValue(float motionValue) {
-            this.chargedMotionValue = motionValue;
-            return this;
-        }
-
-        public Builder<T> setChargeTick(int chargeTick) {
-            this.chargeTick = chargeTick;
+        public Builder<T> setCastTime(int castTime) {
+            this.castTime = castTime;
             return this;
         }
 

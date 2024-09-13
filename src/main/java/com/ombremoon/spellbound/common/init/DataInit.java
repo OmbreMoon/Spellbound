@@ -1,7 +1,9 @@
 package com.ombremoon.spellbound.common.init;
 
+import com.mojang.serialization.Codec;
 import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.common.capability.SpellHandler;
+import com.ombremoon.spellbound.common.data.SpellHandler;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
@@ -16,4 +18,11 @@ public class DataInit {
     public static final Supplier<AttachmentType<SpellHandler>> SPELL_HANDLER = ATTACHMENT_TYPES.register(
             "spell_handler", () -> AttachmentType.serializable(SpellHandler::new).build()
     );
+    public static final Supplier<AttachmentType<Float>> MANA = ATTACHMENT_TYPES.register(
+            "mana", () -> AttachmentType.builder(() -> 0.0F).serialize(Codec.FLOAT).build()
+    );
+
+    public static void register(IEventBus modEventBus) {
+        DataInit.ATTACHMENT_TYPES.register(modEventBus);
+    }
 }
