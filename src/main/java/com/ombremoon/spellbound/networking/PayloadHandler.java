@@ -5,10 +5,7 @@ import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.networking.clientbound.ClientPayloadHandler;
 import com.ombremoon.spellbound.networking.clientbound.ClientSyncSpellPayload;
-import com.ombremoon.spellbound.networking.serverbound.CastSpellPayload;
-import com.ombremoon.spellbound.networking.serverbound.CycleSpellPayload;
-import com.ombremoon.spellbound.networking.serverbound.ServerPayloadHandler;
-import com.ombremoon.spellbound.networking.serverbound.SwitchModePayload;
+import com.ombremoon.spellbound.networking.serverbound.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -31,6 +28,10 @@ public class PayloadHandler {
 
     public static void cycleSpell() {
         PacketDistributor.sendToServer(new CycleSpellPayload());
+    }
+
+    public static void stopChannel() {
+        PacketDistributor.sendToServer(new StopChannelPayload());
     }
 
     public static void syncToClient(Player player) {
@@ -58,6 +59,11 @@ public class PayloadHandler {
                 CycleSpellPayload.TYPE,
                 CycleSpellPayload.CODEC,
                 ServerPayloadHandler::handleNetworkCycleSpell
+        );
+        registrar.playToServer(
+                StopChannelPayload.TYPE,
+                StopChannelPayload.CODEC,
+                ServerPayloadHandler::handleNetworkStopChannel
         );
 
         registrar.playToClient(

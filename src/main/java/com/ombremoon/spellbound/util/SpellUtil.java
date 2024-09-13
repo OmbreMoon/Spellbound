@@ -36,11 +36,11 @@ public class SpellUtil {
         var handler = getSpellHandler(livingEntity);
         handler.getActiveSpells().add(abstractSpell);
         handler.setRecentlyActivatedSpell(abstractSpell);
-        livingEntity.setData(DataInit.MANA.get(), livingEntity.getData(DataInit.MANA.get()) - abstractSpell.getManaCost());
+        handler.consumeMana(abstractSpell.getManaCost(), true);
     }
 
     public static boolean canCastSpell(Player player, AbstractSpell spell) {
-        return player.getData(DataInit.MANA.get()) >= spell.getManaCost();
+        return getSpellHandler(player).consumeMana(spell.getManaCost(), false);
     }
 
     public static <T extends SpellType<?>> void cycle(SpellHandler handler, T activeSpell) {

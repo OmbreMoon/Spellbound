@@ -1,13 +1,21 @@
 package com.ombremoon.spellbound.client.event;
 
+import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
+import dev.kosmx.playerAnim.api.layered.IAnimation;
+import dev.kosmx.playerAnim.api.layered.KeyframeAnimationPlayer;
+import dev.kosmx.playerAnim.api.layered.ModifierLayer;
+import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
+import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
+import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -46,8 +54,7 @@ public class SpellCastEvents {
 
     @SubscribeEvent
     public static void onChargeOrChannelSpell(ClientTickEvent.Post event) {
-        if (!isAbleToSpellCast())
-            return;
+        if (!isAbleToSpellCast()) return;
 
         Player player = Minecraft.getInstance().player;
         if (player == null) return;
@@ -59,21 +66,19 @@ public class SpellCastEvents {
         if (spellType == null) return;
 
         if (player.tickCount % 40 == 0) Constants.LOG.info("Mode");
-        if (!handler.isChannelling()) {
-            if (KeyBinds.getSpellCastMapping().isDown()) {
-                AbstractSpell spell = spellType.createSpell();
-                int castTime = spell.getCastTime();
-                if (handler.castTick >= castTime) {
-                    KeyBinds.getSpellCastMapping().setDown(false);
-                    castSpell(player, spellType);
-                    handler.castTick = 0;
-                } else {
-                    handler.castTick++;
-                }
+        if (KeyBinds.getSpellCastMapping().isDown()) {
+            AbstractSpell spell = spellType.createSpell();
+            int castTime = spell.getCastTime();
+            if (handler.castTick >= castTime && !handler.isChannelling()) {
+                if (spell.getCastType() != AbstractSpell.CastType.CHANNEL) KeyBinds.getSpellCastMapping().setDown(false);
+                castSpell(player, spellType);
+                handler.castTick = 0;
+            } else {
+                handler.castTick++;
             }
-        } else {
-            if (!KeyBinds.getSpellCastMapping().isDown())
-                handler.setChannelling(false);
+        } else if (handler.isChannelling()) {
+            handler.setChannelling(false);
+            PayloadHandler.stopChannel();
         }
     }
 
@@ -100,6 +105,7 @@ public class SpellCastEvents {
         return minecraft.isWindowActive();
     }
 
+    @SuppressWarnings("unchecked")
     public static void castSpell(Player player, SpellType<?> spellType) {
         AbstractSpell spell = spellType.createSpell();
         if (player.isSpectator()) return;
@@ -107,5 +113,8 @@ public class SpellCastEvents {
         if (!SpellUtil.canCastSpell(player, spell)) return;
 
         PayloadHandler.castSpell(spellType);
+        var animation = (ModifierLayer<IAnimation>) PlayerAnimationAccess.getPlayerAssociatedData((AbstractClientPlayer) player).get(CommonClass.customLocation("animation"));
+        if (animation != null)
+            animation.setAnimation(new KeyframeAnimationPlayer((KeyframeAnimation) PlayerAnimationRegistry.getAnimation(CommonClass.customLocation("waving"))));
     }
 }

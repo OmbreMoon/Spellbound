@@ -1,5 +1,7 @@
-package com.ombremoon.spellbound.common.magic;
+package com.ombremoon.spellbound.common.magic.api;
 
+import com.ombremoon.spellbound.common.magic.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.SpellType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,7 +18,7 @@ public abstract class AnimatedSpell extends AbstractSpell {
     }
 
     @Override
-    protected void onSpellStart(LivingEntity livingEntityPatch, Level level, BlockPos blockPos) {
+    protected void onSpellStart(LivingEntity caster, Level level, BlockPos blockPos) {
 
     }
 

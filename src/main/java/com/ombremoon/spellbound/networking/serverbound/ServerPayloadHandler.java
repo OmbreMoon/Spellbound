@@ -21,4 +21,9 @@ public class ServerPayloadHandler {
         var handler = SpellUtil.getSpellHandler(context.player());
         SpellUtil.cycle(handler, handler.getSelectedSpell());
     }
+
+    public static void handleNetworkStopChannel(final StopChannelPayload payload, final IPayloadContext context) {
+        var handler = SpellUtil.getSpellHandler(context.player());
+        handler.setChannelling(false);
+    }
 }

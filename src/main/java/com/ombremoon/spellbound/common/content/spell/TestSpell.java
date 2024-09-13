@@ -2,7 +2,7 @@ package com.ombremoon.spellbound.common.content.spell;
 
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.SpellInit;
-import com.ombremoon.spellbound.common.magic.AnimatedSpell;
+import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;

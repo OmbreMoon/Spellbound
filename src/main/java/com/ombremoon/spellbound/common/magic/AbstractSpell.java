@@ -27,7 +27,6 @@ public abstract class AbstractSpell {
     private BlockPos blockPos;
     private String descriptionId;
     private int ticks = 0;
-    private int channelTicks = 0;
     public boolean isInactive = false;
     public boolean init = false;
 
@@ -117,14 +116,8 @@ public abstract class AbstractSpell {
         this.onSpellStart(this.caster, this.level, this.blockPos);
     }
 
-    //TODO: ADD CAN CAST SPELL CHECK
     private void tickSpell() {
         this.onSpellTick(this.caster, this.level, this.blockPos);
-        if (this.caster instanceof Player player) {
-            var handler = SpellUtil.getSpellHandler(player);
-            if (handler.isChannelling())
-                this.channelTicks++;
-        }
     }
 
     protected void endSpell() {
@@ -132,7 +125,6 @@ public abstract class AbstractSpell {
         this.init = false;
         this.isInactive = true;
         this.ticks = 0;
-        this.channelTicks = 0;
     }
 
     protected void onSpellTick(LivingEntity caster, Level level, BlockPos blockPos) {
@@ -149,10 +141,6 @@ public abstract class AbstractSpell {
 
     protected boolean shouldTickEffect() {
         return true;
-    }
-
-    public boolean isChannelling() {
-        return this.channelTicks > 0;
     }
 
     public static float getPowerForTime(AbstractSpell spell, int pCharge) {
