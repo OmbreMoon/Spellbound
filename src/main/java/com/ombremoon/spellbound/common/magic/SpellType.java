@@ -7,8 +7,10 @@ import javax.annotation.Nullable;
 public class SpellType<S extends AbstractSpell> {
     private final ResourceLocation resourceLocation;
     private final SpellFactory<S> factory;
+    public final SpellPath path;
 
-    public SpellType(ResourceLocation resourceLocation, SpellFactory<S> factory) {
+    public SpellType(ResourceLocation resourceLocation, SpellPath path, SpellFactory<S> factory) {
+        this.path = path;
         this.factory = factory;
         this.resourceLocation = resourceLocation;
     }
