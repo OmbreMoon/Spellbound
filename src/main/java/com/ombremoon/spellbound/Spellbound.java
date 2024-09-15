@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound;
 
 import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.init.SkillInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import dev.kosmx.playerAnim.api.layered.IAnimation;
 import dev.kosmx.playerAnim.api.layered.ModifierLayer;
@@ -45,5 +46,6 @@ public class Spellbound {
 
     private void registerRegistry(NewRegistryEvent event) {
         event.register(SpellInit.REGISTRY);
+        event.register(SkillInit.REGISTRY);
     }
 }

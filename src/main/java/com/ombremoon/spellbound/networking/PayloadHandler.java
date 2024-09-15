@@ -4,6 +4,7 @@ import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.networking.clientbound.ClientPayloadHandler;
+import com.ombremoon.spellbound.networking.clientbound.ClientSyncSkillPayload;
 import com.ombremoon.spellbound.networking.clientbound.ClientSyncSpellPayload;
 import com.ombremoon.spellbound.networking.serverbound.*;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,7 +13,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 @EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
@@ -34,10 +34,18 @@ public class PayloadHandler {
         PacketDistributor.sendToServer(new StopChannelPayload());
     }
 
-    public static void syncToClient(Player player) {
+    public static void syncSpellsToClient(Player player) {
         PacketDistributor.sendToPlayer((ServerPlayer) player,
                 new ClientSyncSpellPayload(
                         player.getData(DataInit.SPELL_HANDLER)
+                                .serializeNBT(player.level().registryAccess())
+                ));
+    }
+
+    public static void syncSkillsToClient(Player player) {
+        PacketDistributor.sendToPlayer((ServerPlayer) player,
+                new ClientSyncSkillPayload(
+                        player.getData(DataInit.SKILL_HANDLER)
                                 .serializeNBT(player.level().registryAccess())
                 ));
     }
@@ -67,9 +75,14 @@ public class PayloadHandler {
         );
 
         registrar.playToClient(
+                ClientSyncSkillPayload.TYPE,
+                ClientSyncSkillPayload.CODEC,
+                ClientPayloadHandler::handleClientSkillSync
+        );
+        registrar.playToClient(
                 ClientSyncSpellPayload.TYPE,
-                ClientSyncSpellPayload.STREAM_CODEC,
-                ClientPayloadHandler::handleClientDataSync
+                ClientSyncSpellPayload.CODEC,
+                ClientPayloadHandler::handleClientSpellSync
         );
     }
 }

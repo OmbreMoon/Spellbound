@@ -18,7 +18,7 @@ public class NeoForgeEvents {
             if (livingEntity instanceof Player player) {
                 if (!player.level().isClientSide) {
                     var handler = player.getData(DataInit.SPELL_HANDLER.get());
-                    PayloadHandler.syncToClient(player);
+                    PayloadHandler.syncSpellsToClient(player);
                     handler.initData(player);
                 }
             }

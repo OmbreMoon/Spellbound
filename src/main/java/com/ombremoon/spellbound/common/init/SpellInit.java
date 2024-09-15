@@ -15,6 +15,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.RegistryBuilder;
 
+import java.util.Set;
 import java.util.function.Supplier;
 
 public class SpellInit {
@@ -26,7 +27,7 @@ public class SpellInit {
     public static final Supplier<SpellType<AnimatedSpell>> SECOND_TEST_SPELL = registerSpell("second_test_spell", SecondTestSpell::new);
 
     private static <T extends AbstractSpell> Supplier<SpellType<T>> registerSpell(String name, SpellType.SpellFactory<T> factory) {
-        return SPELL_TYPES.register(name, () -> new SpellType<>(CommonClass.customLocation(name), SpellPath.RUIN, factory));
+        return SPELL_TYPES.register(name, () -> new SpellType<>(CommonClass.customLocation(name), SpellPath.RUIN, Set.of(), factory));
     }
 
     public static void register(IEventBus modEventBus) {
