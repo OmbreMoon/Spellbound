@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common.content.skill;
+package com.ombremoon.spellbound.common.magic.skills;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;

@@ -1,5 +1,7 @@
 package com.ombremoon.spellbound.common.magic;
 
+import com.ombremoon.spellbound.common.data.SkillHandler;
+import com.ombremoon.spellbound.common.init.DataInit;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -14,6 +16,7 @@ public class SpellContext {
     private final ItemStack itemStack;
     @Nullable
     private final LivingEntity target;
+    private final SkillHandler skillHandler;
 
     public SpellContext(Player player, LivingEntity target) {
         this(player, player.level(), player.getOnPos(), player.getOffhandItem(), target);
@@ -29,6 +32,11 @@ public class SpellContext {
         this.blockPos = blockPos;
         this.itemStack = itemStack;
         this.target = target;
+        this.skillHandler = player.getData(DataInit.SKILL_HANDLER);
+    }
+
+    public SkillHandler getSkillHandler() {
+        return skillHandler;
     }
 
     public Player getPlayer() {

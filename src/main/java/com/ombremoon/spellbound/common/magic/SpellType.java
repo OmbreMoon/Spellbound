@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.magic;
 
-import com.ombremoon.spellbound.common.content.skill.Skill;
+import com.ombremoon.spellbound.common.magic.skills.Skill;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;

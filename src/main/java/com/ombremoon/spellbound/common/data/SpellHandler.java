@@ -1,20 +1,27 @@
 package com.ombremoon.spellbound.common.data;
 
+import com.ibm.icu.impl.Pair;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
+import it.unimi.dsi.fastutil.io.FastBufferedInputStream;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
+import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.UnknownNullability;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 public class SpellHandler implements INBTSerializable<CompoundTag> {
     public Player caster;
@@ -23,7 +30,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     protected Set<SpellType<?>> spellSet = new LinkedHashSet<>();
     protected ObjectOpenHashSet<AbstractSpell> activeSpells = new ObjectOpenHashSet<>();
     protected SpellType<?> selectedSpell;
-    protected AbstractSpell recentlyActivatedSpell;
+    protected Map<Integer, Set<Integer>> activeSummons = new HashMap<>();
     public int castTick;
     private boolean channelling;
     protected boolean initialized = false;
@@ -32,9 +39,34 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     }
 
+    public void save(Player player) {
+        player.setData(DataInit.SPELL_HANDLER, this);
+        PayloadHandler.syncSpellsToClient(player);
+    }
+
     public void initData(Player player) {
         this.caster = player;
         this.initialized = true;
+    }
+
+    public Set<Integer> getSummonsForRemoval(int tickCount) {
+        Set<Integer> expiredSummons = activeSummons.get(tickCount);
+        activeSummons.remove(tickCount);
+        return expiredSummons == null ? Set.of() : expiredSummons;
+    }
+
+    public void clearAllSummons(ServerLevel level) {
+        for (Set<Integer> summons : activeSummons.values()) {
+            for (int mob : summons) {
+                if (level.getEntity(mob) == null) continue;
+                level.getEntity(mob).kill();
+            }
+        }
+        activeSummons = new HashMap<>();
+    }
+
+    public void addSummons(int expirationTime, Set<Integer> mobIds) {
+        activeSummons.put(expirationTime, mobIds);
     }
 
     public boolean isInitialized() {
@@ -67,14 +99,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     public ObjectOpenHashSet<AbstractSpell> getActiveSpells() {
         return this.activeSpells;
-    }
-
-    public AbstractSpell getRecentlyActivatedSpell() {
-        return this.recentlyActivatedSpell;
-    }
-
-    public void setRecentlyActivatedSpell(AbstractSpell recentlyActivatedSpell) {
-        this.recentlyActivatedSpell = recentlyActivatedSpell;
     }
 
     public SpellType<?> getSelectedSpell() {
@@ -126,6 +150,21 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         }
         compoundTag.put("Spells", spellList);
 
+        ListTag activeSumms = new ListTag();
+        for (int time : activeSummons.keySet()) {
+            CompoundTag summonTag = new CompoundTag();
+            summonTag.putInt("Time", time);
+            ListTag summons = new ListTag();
+            for (int summon : activeSummons.get(time)) {
+                CompoundTag tag = new CompoundTag();
+                tag.putInt("Summon", summon);
+                summons.add(tag);
+            }
+            summonTag.put("Summons", summons);
+            activeSumms.add(summonTag);
+        }
+        compoundTag.put("Summons", activeSumms);
+
         return compoundTag;
     }
 
@@ -148,6 +187,17 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
             for (int i = 0; i < spellList.size(); i++) {
                 CompoundTag compoundTag = spellList.getCompound(i);
                 this.spellSet.add(AbstractSpell.getSpellByName(SpellUtil.getSpellId(compoundTag, "Spell")));
+            }
+        }
+        if (nbt.contains("Summons", Tag.TAG_LIST)) {
+            ListTag activeSumms = nbt.getList("Summons", Tag.TAG_LIST);
+            for (int i = 0; i < activeSumms.size(); i++) {
+                CompoundTag tag = activeSumms.getCompound(i);
+                Set<Integer> summonSet = Set.of();
+                for (int j = 0; j < tag.getList("Summons", Tag.TAG_LIST).size(); j++) {
+                    summonSet.add(tag.getList("Summons", Tag.TAG_LIST).getInt(j));
+                }
+                this.activeSummons.put(tag.getInt("Time"), summonSet);
             }
         }
     }

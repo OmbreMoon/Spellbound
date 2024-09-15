@@ -1,21 +1,17 @@
 package com.ombremoon.spellbound.common.data;
 
-import com.ombremoon.spellbound.common.content.skill.Skill;
+import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.init.SkillInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
-import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.util.INBTSerializable;
-import org.checkerframework.checker.units.qual.C;
-import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
