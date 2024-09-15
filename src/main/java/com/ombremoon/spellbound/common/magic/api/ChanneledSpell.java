@@ -30,7 +30,7 @@ public abstract class ChanneledSpell extends AnimatedSpell {
         Player player = context.getPlayer();
         var handler = player.getData(DataInit.SPELL_HANDLER.get());
         handler.setChannelling(true);
-        PayloadHandler.syncToClient(player);
+        PayloadHandler.syncSpellsToClient((Player) caster);
     }
 
     @Override
@@ -49,7 +49,7 @@ public abstract class ChanneledSpell extends AnimatedSpell {
         Player player = context.getPlayer();
         var handler = SpellUtil.getSpellHandler(player);
         handler.setChannelling(false);
-        PayloadHandler.syncToClient(player);
+        PayloadHandler.syncSpellsToClient((Player) caster);
     }
 
     public static class Builder<T extends ChanneledSpell> extends AnimatedSpell.Builder<T> {
