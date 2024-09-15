@@ -123,7 +123,6 @@ public abstract class AbstractSpell {
 
     private void startSpell() {
         this.init = false;
-        this.context = new SpellContext(this.caster, this.level, this.blockPos, this.getTargetEntity(8));
         this.onSpellStart(this.context);
     }
 
@@ -150,6 +149,10 @@ public abstract class AbstractSpell {
     protected void onHurtTick(SpellContext context) {
     }
 
+    public void whenCasting(SpellContext context, int castTime) {
+        Constants.LOG.info("{}", castTime);
+    }
+
     protected boolean shouldTickEffect() {
         return true;
     }
@@ -168,22 +171,26 @@ public abstract class AbstractSpell {
 //    }
 
     protected @Nullable LivingEntity getTargetEntity(double range) {
-        Vec3 eyePosition = caster.getEyePosition(1.0F);
-        Vec3 lookVec = caster.getViewVector(1.0F);
-        Vec3 maxLength = eyePosition.add(lookVec.x * range, lookVec.y * range, lookVec.z * range);
-        AABB aabb = caster.getBoundingBox().expandTowards(lookVec.scale(range)).inflate(2.0);
+        return getTargetEntity(this.caster, range);
+    }
 
-        EntityHitResult hitResult = ProjectileUtil.getEntityHitResult(caster, eyePosition, maxLength, aabb, EntitySelector.NO_CREATIVE_OR_SPECTATOR, range * range);
+    public @Nullable LivingEntity getTargetEntity(LivingEntity livingEntity, double range) {
+        Vec3 eyePosition = livingEntity.getEyePosition(1.0F);
+        Vec3 lookVec = livingEntity.getViewVector(1.0F);
+        Vec3 maxLength = eyePosition.add(lookVec.x * range, lookVec.y * range, lookVec.z * range);
+        AABB aabb = livingEntity.getBoundingBox().expandTowards(lookVec.scale(range)).inflate(2.0);
+
+        EntityHitResult hitResult = ProjectileUtil.getEntityHitResult(livingEntity, eyePosition, maxLength, aabb, EntitySelector.NO_CREATIVE_OR_SPECTATOR, range * range);
 
         if (hitResult == null)
             return null;
 
         if (hitResult.getEntity() instanceof LivingEntity targetEntity) {
-            BlockHitResult blockHitResult = level.clip(setupRayTraceContext(caster, range, ClipContext.Fluid.NONE));
+            BlockHitResult blockHitResult = livingEntity.level().clip(setupRayTraceContext(livingEntity, range, ClipContext.Fluid.NONE));
 
             if (!blockHitResult.getType().equals(BlockHitResult.Type.MISS)) {
                 double blockDistance = blockHitResult.getLocation().distanceTo(eyePosition);
-                if (blockDistance > targetEntity.distanceTo(caster)) {
+                if (blockDistance > targetEntity.distanceTo(livingEntity)) {
                     return targetEntity;
                 }
             } else {
@@ -193,10 +200,10 @@ public abstract class AbstractSpell {
         return null;
     }
 
-    private ClipContext setupRayTraceContext(Player player, double distance, ClipContext.Fluid fluidContext) {
-        float pitch = player.getXRot();
-        float yaw = player.getYRot();
-        Vec3 fromPos = player.getEyePosition(1.0F);
+    private ClipContext setupRayTraceContext(LivingEntity livingEntity, double distance, ClipContext.Fluid fluidContext) {
+        float pitch = livingEntity.getXRot();
+        float yaw = livingEntity.getYRot();
+        Vec3 fromPos = livingEntity.getEyePosition(1.0F);
         float float_3 = Mth.cos(-yaw * 0.017453292F - 3.1415927F);
         float float_4 = Mth.sin(-yaw * 0.017453292F - 3.1415927F);
         float float_5 = -Mth.cos(-pitch * 0.017453292F);
@@ -205,13 +212,14 @@ public abstract class AbstractSpell {
         float zComponent = float_3 * float_5;
         Vec3 toPos = fromPos.add((double) xComponent * distance, (double) yComponent * distance,
                 (double) zComponent * distance);
-        return new ClipContext(fromPos, toPos, ClipContext.Block.OUTLINE, fluidContext, player);
+        return new ClipContext(fromPos, toPos, ClipContext.Block.OUTLINE, fluidContext, livingEntity);
     }
 
     public void initSpell(Player player, Level level, BlockPos blockPos) {
         this.level = level;
         this.caster = player;
         this.blockPos = blockPos;
+        this.context = new SpellContext(this.caster, this.level, this.blockPos, this.getTargetEntity(8));
 
         SpellUtil.activateSpell(player, this);
         this.init = true;
@@ -221,7 +229,7 @@ public abstract class AbstractSpell {
         protected int duration = 10;
         protected int manaCost;
         protected int castTime = 1;
-        protected CastType castType = CastType.INSTANT;
+        protected CastType castType = CastType.CHARGING;
         protected SoundEvent castSound;
 
         public Builder<T> setManaCost(int fpCost) {

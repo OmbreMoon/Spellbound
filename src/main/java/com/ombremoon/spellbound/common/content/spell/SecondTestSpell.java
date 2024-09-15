@@ -26,6 +26,12 @@ public class SecondTestSpell extends ChanneledSpell {
     }
 
     @Override
+    public void whenCasting(SpellContext context, int castTime) {
+        super.whenCasting(context, castTime);
+        Constants.LOG.info("Casting");
+    }
+
+    @Override
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
         Constants.LOG.info(String.valueOf(this.getTargetEntity(8)));
