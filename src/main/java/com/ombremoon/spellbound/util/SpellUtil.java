@@ -32,8 +32,8 @@ public class SpellUtil {
         return ResourceLocation.tryParse(compoundTag.getString(tagKey));
     }
 
-    public static void activateSpell(LivingEntity livingEntity, AbstractSpell abstractSpell) {
-        var handler = getSpellHandler(livingEntity);
+    public static void activateSpell(Player player, AbstractSpell abstractSpell) {
+        var handler = getSpellHandler(player);
         handler.getActiveSpells().add(abstractSpell);
         handler.setRecentlyActivatedSpell(abstractSpell);
         handler.consumeMana(abstractSpell.getManaCost(), true);

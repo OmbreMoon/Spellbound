@@ -9,9 +9,18 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 public abstract class AbstractSpell {
@@ -22,10 +31,11 @@ public abstract class AbstractSpell {
     private final int castTime;
     private final CastType castType;
     private final SoundEvent castSound;
-    protected Level level;
-    private LivingEntity caster;
+    private Level level;
+    private Player caster;
     private BlockPos blockPos;
     private String descriptionId;
+    private SpellContext context;
     private int ticks = 0;
     public boolean isInactive = false;
     public boolean init = false;
@@ -113,30 +123,34 @@ public abstract class AbstractSpell {
 
     private void startSpell() {
         this.init = false;
-        this.onSpellStart(this.caster, this.level, this.blockPos);
+        this.onSpellStart(this.context);
     }
 
     private void tickSpell() {
-        this.onSpellTick(this.caster, this.level, this.blockPos);
+        this.onSpellTick(this.context);
     }
 
     protected void endSpell() {
-        this.onSpellStop(this.caster, this.level, this.blockPos);
+        this.onSpellStop(this.context);
         this.init = false;
         this.isInactive = true;
         this.ticks = 0;
     }
 
-    protected void onSpellTick(LivingEntity caster, Level level, BlockPos blockPos) {
+    protected void onSpellTick(SpellContext context) {
     }
 
-    protected void onSpellStart(LivingEntity caster, Level level, BlockPos blockPos) {
+    protected void onSpellStart(SpellContext context) {
     }
 
-    protected void onSpellStop(LivingEntity caster, Level level, BlockPos blockPos) {
+    protected void onSpellStop(SpellContext context) {
     }
 
-    protected void onHurtTick(LivingEntity caster, LivingEntity targetEntity, Level level) {
+    protected void onHurtTick(SpellContext context) {
+    }
+
+    public void whenCasting(SpellContext context, int castTime) {
+        Constants.LOG.info("{}", castTime);
     }
 
     protected boolean shouldTickEffect() {
@@ -156,16 +170,58 @@ public abstract class AbstractSpell {
 //        return null;
 //    }
 
-    public LivingEntity getCaster() {
-        return this.caster;
+    protected @Nullable LivingEntity getTargetEntity(double range) {
+        return getTargetEntity(this.caster, range);
     }
 
-    public void initSpell(LivingEntity livingEntity, Level level, BlockPos blockPos) {
-        this.level = level;
-        this.caster = livingEntity;
-        this.blockPos = blockPos;
+    public @Nullable LivingEntity getTargetEntity(LivingEntity livingEntity, double range) {
+        Vec3 eyePosition = livingEntity.getEyePosition(1.0F);
+        Vec3 lookVec = livingEntity.getViewVector(1.0F);
+        Vec3 maxLength = eyePosition.add(lookVec.x * range, lookVec.y * range, lookVec.z * range);
+        AABB aabb = livingEntity.getBoundingBox().expandTowards(lookVec.scale(range)).inflate(2.0);
 
-        SpellUtil.activateSpell(livingEntity, this);
+        EntityHitResult hitResult = ProjectileUtil.getEntityHitResult(livingEntity, eyePosition, maxLength, aabb, EntitySelector.NO_CREATIVE_OR_SPECTATOR, range * range);
+
+        if (hitResult == null)
+            return null;
+
+        if (hitResult.getEntity() instanceof LivingEntity targetEntity) {
+            BlockHitResult blockHitResult = livingEntity.level().clip(setupRayTraceContext(livingEntity, range, ClipContext.Fluid.NONE));
+
+            if (!blockHitResult.getType().equals(BlockHitResult.Type.MISS)) {
+                double blockDistance = blockHitResult.getLocation().distanceTo(eyePosition);
+                if (blockDistance > targetEntity.distanceTo(livingEntity)) {
+                    return targetEntity;
+                }
+            } else {
+                return targetEntity;
+            }
+        }
+        return null;
+    }
+
+    private ClipContext setupRayTraceContext(LivingEntity livingEntity, double distance, ClipContext.Fluid fluidContext) {
+        float pitch = livingEntity.getXRot();
+        float yaw = livingEntity.getYRot();
+        Vec3 fromPos = livingEntity.getEyePosition(1.0F);
+        float float_3 = Mth.cos(-yaw * 0.017453292F - 3.1415927F);
+        float float_4 = Mth.sin(-yaw * 0.017453292F - 3.1415927F);
+        float float_5 = -Mth.cos(-pitch * 0.017453292F);
+        float xComponent = float_4 * float_5;
+        float yComponent = Mth.sin(-pitch * 0.017453292F);
+        float zComponent = float_3 * float_5;
+        Vec3 toPos = fromPos.add((double) xComponent * distance, (double) yComponent * distance,
+                (double) zComponent * distance);
+        return new ClipContext(fromPos, toPos, ClipContext.Block.OUTLINE, fluidContext, livingEntity);
+    }
+
+    public void initSpell(Player player, Level level, BlockPos blockPos) {
+        this.level = level;
+        this.caster = player;
+        this.blockPos = blockPos;
+        this.context = new SpellContext(this.caster, this.level, this.blockPos, this.getTargetEntity(8));
+
+        SpellUtil.activateSpell(player, this);
         this.init = true;
     }
 
@@ -173,7 +229,7 @@ public abstract class AbstractSpell {
         protected int duration = 10;
         protected int manaCost;
         protected int castTime = 1;
-        protected CastType castType = CastType.INSTANT;
+        protected CastType castType = CastType.CHARGING;
         protected SoundEvent castSound;
 
         public Builder<T> setManaCost(int fpCost) {

@@ -73,8 +73,9 @@ public class SpellCastEvents {
                 if (spell.getCastType() != AbstractSpell.CastType.CHANNEL) KeyBinds.getSpellCastMapping().setDown(false);
                 castSpell(player, spellType);
                 handler.castTick = 0;
-            } else {
+            } else if (!handler.isChannelling()){
                 handler.castTick++;
+                PayloadHandler.whenCasting(spellType, handler.castTick);
             }
         } else if (handler.isChannelling()) {
             handler.setChannelling(false);

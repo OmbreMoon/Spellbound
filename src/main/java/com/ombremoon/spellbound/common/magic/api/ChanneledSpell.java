@@ -1,15 +1,12 @@
 package com.ombremoon.spellbound.common.magic.api;
 
-import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
-import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 
 public abstract class ChanneledSpell extends AnimatedSpell {
     protected int manaTickCost;
@@ -28,26 +25,29 @@ public abstract class ChanneledSpell extends AnimatedSpell {
     }
 
     @Override
-    protected void onSpellStart(LivingEntity caster, Level level, BlockPos blockPos) {
-        super.onSpellStart(caster, level, blockPos);
-        var handler = caster.getData(DataInit.SPELL_HANDLER.get());
+    protected void onSpellStart(SpellContext context) {
+        super.onSpellStart(context);
+        Player player = context.getPlayer();
+        var handler = player.getData(DataInit.SPELL_HANDLER.get());
         handler.setChannelling(true);
         PayloadHandler.syncSpellsToClient((Player) caster);
     }
 
     @Override
-    protected void onSpellTick(LivingEntity caster, Level level, BlockPos blockPos) {
-        super.onSpellTick(caster, level, blockPos);
-        var handler = SpellUtil.getSpellHandler(caster);
+    protected void onSpellTick(SpellContext context) {
+        super.onSpellTick(context);
+        Player player = context.getPlayer();
+        var handler = SpellUtil.getSpellHandler(player);
         if (!handler.consumeMana(this.manaTickCost, true) || !handler.isChannelling()) {
             this.endSpell();
         }
     }
 
     @Override
-    protected void onSpellStop(LivingEntity caster, Level level, BlockPos blockPos) {
-        super.onSpellStop(caster, level, blockPos);
-        var handler = SpellUtil.getSpellHandler(caster);
+    protected void onSpellStop(SpellContext context) {
+        super.onSpellStop(context);
+        Player player = context.getPlayer();
+        var handler = SpellUtil.getSpellHandler(player);
         handler.setChannelling(false);
         PayloadHandler.syncSpellsToClient((Player) caster);
     }

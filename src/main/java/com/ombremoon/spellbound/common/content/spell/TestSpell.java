@@ -2,10 +2,8 @@ package com.ombremoon.spellbound.common.content.spell;
 
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.SpellInit;
+import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.Level;
 
 public class TestSpell extends AnimatedSpell {
 
@@ -18,8 +16,8 @@ public class TestSpell extends AnimatedSpell {
     }
 
     @Override
-    protected void onSpellStart(LivingEntity livingEntityPatch, Level level, BlockPos blockPos) {
-        super.onSpellStart(livingEntityPatch, level, blockPos);
+    protected void onSpellStart(SpellContext context) {
+        super.onSpellStart(context);
         Constants.LOG.info("Working");
     }
 }

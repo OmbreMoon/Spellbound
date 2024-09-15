@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.networking.serverbound;
 
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -20,6 +21,12 @@ public class ServerPayloadHandler {
     public static void handleNetworkCycleSpell(final CycleSpellPayload payload, final IPayloadContext context) {
         var handler = SpellUtil.getSpellHandler(context.player());
         SpellUtil.cycle(handler, handler.getSelectedSpell());
+    }
+
+    public static void handleNetworkCasting(final CastingPayload payload, final IPayloadContext context) {
+        AbstractSpell spell = payload.spellType().createSpell();
+        var spellContext = new SpellContext(context.player(), spell.getTargetEntity(context.player(), 8));
+        spell.whenCasting(spellContext, payload.castTime());
     }
 
     public static void handleNetworkStopChannel(final StopChannelPayload payload, final IPayloadContext context) {
