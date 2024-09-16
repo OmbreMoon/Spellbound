@@ -35,7 +35,6 @@ public class SpellUtil {
     public static void activateSpell(Player player, AbstractSpell abstractSpell) {
         var handler = getSpellHandler(player);
         handler.getActiveSpells().add(abstractSpell);
-        handler.setRecentlyActivatedSpell(abstractSpell);
         handler.consumeMana(abstractSpell.getManaCost(), true);
     }
 
@@ -61,6 +60,6 @@ public class SpellUtil {
                 return spellList.iterator().next();
             }
         }
-        return iterator.next();
+        return currentSpell;
     }
 }

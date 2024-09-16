@@ -65,6 +65,14 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         activeSummons = new HashMap<>();
     }
 
+    public Set<Integer> getAllSummons() {
+        Set<Integer> toReturn = new HashSet<>();
+        for (Set<Integer> mobs : activeSummons.values()) {
+            toReturn.addAll(mobs);
+        }
+        return toReturn;
+    }
+
     public void addSummons(int expirationTime, Set<Integer> mobIds) {
         activeSummons.put(expirationTime, mobIds);
     }
@@ -95,6 +103,10 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     public Set<SpellType<?>> getSpellList() {
         return this.spellSet;
+    }
+
+    public void learnSpell(SpellType<?> spellType) {
+        this.spellSet.add(spellType);
     }
 
     public ObjectOpenHashSet<AbstractSpell> getActiveSpells() {

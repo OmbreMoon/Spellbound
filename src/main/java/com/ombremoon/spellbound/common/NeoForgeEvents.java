@@ -1,19 +1,30 @@
 package com.ombremoon.spellbound.common;
 
+import com.google.gson.annotations.Since;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
+import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.NoteBlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+
+import javax.xml.crypto.Data;
+import java.util.Set;
+import java.util.UUID;
 
 @EventBusSubscriber(modid = Constants.MOD_ID)
 public class NeoForgeEvents {
@@ -32,15 +43,29 @@ public class NeoForgeEvents {
     }
 
     @SubscribeEvent
-    public static void onPlayerTickPost(PlayerTickEvent.Post event) {
-        if (event.getEntity().level() instanceof ServerLevel level) {
-            Player player = event.getEntity();
+    public static void onLivingDamage(LivingDamageEvent.Post event) {
+        if (event.getEntity().level().isClientSide || event.getSource().getEntity() == null) return;
+
+        if (event.getEntity() instanceof Player player && event.getSource().getEntity() instanceof LivingEntity newTarget) {
             SpellHandler handler = player.getData(DataInit.SPELL_HANDLER);
-            for (int mob : handler.getSummonsForRemoval(player.tickCount)) {
-                if (level.getEntity(mob) != null) level.getEntity(mob).kill();
-            }
-            handler.save(player);
+            setSummonsTarget(player.level(), handler.getAllSummons(), newTarget);
+        } else if (event.getSource().getEntity() instanceof Player player
+                && !event.getEntity().getData(DataInit.OWNER_UUID).equals(player.getUUID().toString())) {
+            SpellHandler handler = player.getData(DataInit.SPELL_HANDLER);
+            setSummonsTarget(player.level(), handler.getAllSummons(), event.getEntity());
         }
+    }
+
+    @SubscribeEvent
+    public static void onChangeTarget(LivingChangeTargetEvent event) {
+        if (event.getNewAboutToBeSetTarget() == null) return;
+        if (event.getEntity().getData(DataInit.OWNER_UUID).isEmpty()) return;
+
+        int targetId = event.getEntity().getData(DataInit.TARGET_ID);
+
+        if (targetId == 0) event.setNewAboutToBeSetTarget(null);
+        else if (targetId != event.getNewAboutToBeSetTarget().getId())
+            event.setNewAboutToBeSetTarget((LivingEntity) event.getEntity().level().getEntity(targetId));
     }
 
     @SubscribeEvent
@@ -57,5 +82,14 @@ public class NeoForgeEvents {
         SpellHandler handler = player.getData(DataInit.SPELL_HANDLER);
         handler.clearAllSummons(level);
         handler.save(player);
+    }
+
+    private static void setSummonsTarget(Level level, Set<Integer> summons, LivingEntity target) {
+        for (int mobId : summons) {
+            if (level.getEntity(mobId) instanceof Monster monster) {
+                monster.setData(DataInit.TARGET_ID, target.getId());
+                monster.setTarget(target);
+            }
+        }
     }
 }

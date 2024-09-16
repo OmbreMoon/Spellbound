@@ -21,6 +21,6 @@ public class ClientPayloadHandler {
             SkillHandler handler = new SkillHandler();
             handler.deserializeNBT(context.player().level().registryAccess(), packet.tag());
             context.player().setData(DataInit.SKILL_HANDLER, handler);
-        })
+        });
     }
 }
