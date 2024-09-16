@@ -6,6 +6,7 @@ import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -144,9 +145,6 @@ public abstract class AbstractSpell {
     }
 
     protected void onSpellStop(SpellContext context) {
-    }
-
-    protected void onHurtTick(SpellContext context) {
     }
 
     public void whenCasting(SpellContext context, int castTime) {

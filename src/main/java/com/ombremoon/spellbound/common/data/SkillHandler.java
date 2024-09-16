@@ -31,12 +31,12 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         return pathXp.get(path);
     }
 
-    public float getSpellXp(Supplier<SpellType<?>> spellType) {
+    public float getSpellXp(Supplier<? extends SpellType<?>> spellType) {
         if (spellXp.get(spellType.get()) == null) return 0;
         return spellXp.get(spellType.get());
     }
 
-    public void awardSpellXp(Supplier<SpellType<?>> spellType, float xp) {
+    public void awardSpellXp(Supplier<? extends SpellType<?>> spellType, float xp) {
         spellXp.put(spellType.get(), getSpellXp(spellType) + xp);
         pathXp.put(spellType.get().path, getPathXp(spellType.get().path) + xp);
     }

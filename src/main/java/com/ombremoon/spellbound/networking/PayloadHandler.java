@@ -84,14 +84,14 @@ public class PayloadHandler {
         );
 
         registrar.playToClient(
-                ClientSyncSkillPayload.TYPE,
-                ClientSyncSkillPayload.CODEC,
-                ClientPayloadHandler::handleClientSkillSync
-        );
-        registrar.playToClient(
                 ClientSyncSpellPayload.TYPE,
                 ClientSyncSpellPayload.CODEC,
                 ClientPayloadHandler::handleClientSpellSync
+        );
+        registrar.playToClient(
+                ClientSyncSkillPayload.TYPE,
+                ClientSyncSkillPayload.CODEC,
+                ClientPayloadHandler::handleClientSkillSync
         );
     }
 }

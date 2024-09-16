@@ -3,6 +3,8 @@ package com.ombremoon.spellbound.common;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.magic.SpellEventListener;
+import com.ombremoon.spellbound.common.magic.events.PlayerJumpEvent;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -11,6 +13,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.NoteBlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -39,7 +42,8 @@ public class NeoForgeEvents {
             for (int mob : handler.getSummonsForRemoval(player.tickCount)) {
                 if (level.getEntity(mob) != null) level.getEntity(mob).kill();
             }
-            handler.save(player);
+            //TODO: FIX DUCK
+            //handler.save(player);
         }
     }
 
@@ -57,5 +61,13 @@ public class NeoForgeEvents {
         SpellHandler handler = player.getData(DataInit.SPELL_HANDLER);
         handler.clearAllSummons(level);
         handler.save(player);
+    }
+
+    @SubscribeEvent
+    public static void onPlayerJump(LivingEvent.LivingJumpEvent event) {
+        if (event.getEntity().level().isClientSide) return;
+
+        if (event.getEntity() instanceof Player player)
+            player.getData(DataInit.SPELL_HANDLER).getListener().fireEvent(SpellEventListener.Event.JUMP, new PlayerJumpEvent(player, event));
     }
 }

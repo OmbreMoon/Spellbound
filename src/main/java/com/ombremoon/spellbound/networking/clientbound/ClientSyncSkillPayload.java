@@ -9,7 +9,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 public record ClientSyncSkillPayload(CompoundTag tag) implements CustomPacketPayload {
     public static final CustomPacketPayload.Type<ClientSyncSkillPayload> TYPE =
-            new CustomPacketPayload.Type<>(CommonClass.customLocation("client_spell_sync"));
+            new CustomPacketPayload.Type<>(CommonClass.customLocation("client_skill_sync"));
 
     public static final StreamCodec<ByteBuf, ClientSyncSkillPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.COMPOUND_TAG,

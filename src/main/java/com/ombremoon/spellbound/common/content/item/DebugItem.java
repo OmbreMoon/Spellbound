@@ -17,10 +17,10 @@ public class DebugItem extends Item {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+        var handler = player.getData(DataInit.SPELL_HANDLER.get());
         if (!level.isClientSide) {
 //            PayloadHandler.syncToClient(player);
         }
-        var handler = player.getData(DataInit.SPELL_HANDLER.get());
         Constants.LOG.info("{}", handler.getSpellList().stream().map(SpellType::getResourceLocation).toList());
         return super.use(level, player, usedHand);
     }

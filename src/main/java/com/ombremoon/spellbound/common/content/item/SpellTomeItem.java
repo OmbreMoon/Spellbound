@@ -1,5 +1,7 @@
 package com.ombremoon.spellbound.common.content.item;
 
+import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.init.StatInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -28,17 +30,18 @@ public class SpellTomeItem extends Item {
         if (!level.isClientSide) {
             var handler = SpellUtil.getSpellHandler(player);
             if (handler.getSpellList().contains(this.spellType.get())) {
-                //DO SOMETHING
+                //NOTIFY FAILURE
+                player.getData(DataInit.SKILL_HANDLER.get()).awardSpellXp(this.spellType, 10);
                 return InteractionResultHolder.fail(itemStack);
             }
 
-            //DO ANOTHER THING
+            //NOTIFY SUCCESS
             handler.getSpellList().add(this.spellType.get());
             itemStack.shrink(1);
         }
 
         player.awardStat(Stats.ITEM_USED.get(this));
-//        player.awardStat(Stats.SPELLS_LEARNED.get(this));
+        player.awardStat(StatInit.SPELLS_LEARNED.get());
         player.gameEvent(GameEvent.ITEM_INTERACT_FINISH);
         return InteractionResultHolder.sidedSuccess(itemStack, level.isClientSide);
     }
