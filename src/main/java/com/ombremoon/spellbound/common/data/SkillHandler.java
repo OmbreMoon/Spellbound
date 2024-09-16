@@ -53,10 +53,10 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
 
         Set<Skill> unlocked = unlockedSkills.get(spellType.get());
         for (Skill prereq : skill.getPrereqs()) {
-            if (!unlocked.contains(prereq)) return false;
+            if (unlocked.contains(prereq)) return true;
         }
 
-        return true;
+        return false;
     }
 
     public boolean hasSkill(Supplier<SpellType<?>> spellType, Skill skill) {
