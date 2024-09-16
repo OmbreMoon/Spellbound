@@ -4,6 +4,8 @@ import com.google.gson.annotations.Since;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.magic.SpellEventListener;
+import com.ombremoon.spellbound.common.magic.events.PlayerJumpEvent;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -75,7 +77,10 @@ public class NeoForgeEvents {
 
     @SubscribeEvent
     public static void onPlayerLogOut(PlayerEvent.PlayerLoggedOutEvent event) {
-        if (event.getEntity().level() instanceof ServerLevel level) clearSummons(level, event.getEntity());
+        if (event.getEntity().level() instanceof ServerLevel level) {
+            event.getEntity().getData(DataInit.SPELL_HANDLER).getActiveSpells().clear();
+            clearSummons(level, event.getEntity());
+        }
     }
 
     private static void clearSummons(ServerLevel level, Player player) {
@@ -91,5 +96,14 @@ public class NeoForgeEvents {
                 monster.setTarget(target);
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerJump(LivingEvent.LivingJumpEvent event) {
+        if (event.getEntity().level().isClientSide) return;
+
+        if (event.getEntity() instanceof Player player)
+            player.getData(DataInit.SPELL_HANDLER).getListener().fireEvent(SpellEventListener.Event.JUMP, new PlayerJumpEvent(player, event));
+
     }
 }

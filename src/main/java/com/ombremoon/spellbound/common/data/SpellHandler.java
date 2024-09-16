@@ -1,29 +1,26 @@
 package com.ombremoon.spellbound.common.data;
 
-import com.ibm.icu.impl.Pair;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
-import it.unimi.dsi.fastutil.io.FastBufferedInputStream;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
-import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.*;
 
 public class SpellHandler implements INBTSerializable<CompoundTag> {
+    private SpellEventListener listener;
     public Player caster;
     protected boolean castMode;
     protected float mana;
@@ -46,6 +43,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     public void initData(Player player) {
         this.caster = player;
+        this.listener = new SpellEventListener(player);
         this.initialized = true;
     }
 
@@ -101,6 +99,21 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.mana = mana;
     }
 
+    public boolean consumeMana(float amount, boolean forceConsume) {
+        float currentFP = this.getMana();
+        if (this.caster instanceof Player player && player.getAbilities().instabuild) {
+            return true;
+        } else if (currentFP < amount) {
+            return false;
+        } else {
+            if (forceConsume) {
+                float fpCost = currentFP - amount;
+                this.setMana(fpCost);
+            }
+            return true;
+        }
+    }
+
     public Set<SpellType<?>> getSpellList() {
         return this.spellSet;
     }
@@ -129,19 +142,8 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.channelling = channelling;
     }
 
-    public boolean consumeMana(float amount, boolean forceConsume) {
-        float currentFP = this.getMana();
-        if (this.caster instanceof Player player && player.getAbilities().instabuild) {
-            return true;
-        } else if (currentFP < amount) {
-            return false;
-        } else {
-            if (forceConsume) {
-                float fpCost = currentFP - amount;
-                this.setMana(fpCost);
-            }
-            return true;
-        }
+    public SpellEventListener getListener() {
+        return this.listener;
     }
 
     @Override

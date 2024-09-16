@@ -30,7 +30,7 @@ public abstract class ChanneledSpell extends AnimatedSpell {
         Player player = context.getPlayer();
         var handler = player.getData(DataInit.SPELL_HANDLER.get());
         handler.setChannelling(true);
-        PayloadHandler.syncSpellsToClient(context.getPlayer());
+        PayloadHandler.syncSpellsToClient(player);
     }
 
     @Override
@@ -38,7 +38,7 @@ public abstract class ChanneledSpell extends AnimatedSpell {
         super.onSpellTick(context);
         Player player = context.getPlayer();
         var handler = SpellUtil.getSpellHandler(player);
-        if (!handler.consumeMana(this.manaTickCost, true) || !handler.isChannelling()) {
+        if ((this.ticks % 20 == 0 && !handler.consumeMana(this.manaTickCost, true)) || !handler.isChannelling()) {
             this.endSpell();
         }
     }
@@ -49,7 +49,7 @@ public abstract class ChanneledSpell extends AnimatedSpell {
         Player player = context.getPlayer();
         var handler = SpellUtil.getSpellHandler(player);
         handler.setChannelling(false);
-        PayloadHandler.syncSpellsToClient(context.getPlayer());
+        PayloadHandler.syncSpellsToClient(player);
     }
 
     public static class Builder<T extends ChanneledSpell> extends AnimatedSpell.Builder<T> {

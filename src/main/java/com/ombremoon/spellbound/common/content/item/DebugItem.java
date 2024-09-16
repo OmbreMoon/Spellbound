@@ -18,13 +18,12 @@ public class DebugItem extends Item {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+        var handler = player.getData(DataInit.SPELL_HANDLER.get());
         if (!level.isClientSide) {
-            var handler = player.getData(DataInit.SPELL_HANDLER.get());
             handler.learnSpell(SpellInit.SUMMON_UNDEAD_SPELL.get());
             handler.learnSpell(SpellInit.TEST_SPELL.get());
             handler.save(player);
         }
-        var handler = player.getData(DataInit.SPELL_HANDLER.get());
         Constants.LOG.info("{}", handler.getSpellList().stream().map(SpellType::getResourceLocation).toList());
         return super.use(level, player, usedHand);
     }
