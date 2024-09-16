@@ -37,7 +37,7 @@ public abstract class AbstractSpell {
     private BlockPos blockPos;
     private String descriptionId;
     private SpellContext context;
-    private int ticks = 0;
+    public int ticks = 0;
     public boolean isInactive = false;
     public boolean init = false;
 

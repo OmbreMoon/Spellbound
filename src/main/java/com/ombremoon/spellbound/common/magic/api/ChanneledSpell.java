@@ -38,7 +38,7 @@ public abstract class ChanneledSpell extends AnimatedSpell {
         super.onSpellTick(context);
         Player player = context.getPlayer();
         var handler = SpellUtil.getSpellHandler(player);
-        if (!handler.consumeMana(this.manaTickCost, true) || !handler.isChannelling()) {
+        if ((this.ticks % 20 == 0 && !handler.consumeMana(this.manaTickCost, true)) || !handler.isChannelling()) {
             this.endSpell();
         }
     }

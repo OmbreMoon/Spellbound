@@ -54,7 +54,10 @@ public class NeoForgeEvents {
 
     @SubscribeEvent
     public static void onPlayerLogOut(PlayerEvent.PlayerLoggedOutEvent event) {
-        if (event.getEntity().level() instanceof ServerLevel level) clearSummons(level, event.getEntity());
+        if (event.getEntity().level() instanceof ServerLevel level) {
+            event.getEntity().getData(DataInit.SPELL_HANDLER).getActiveSpells().clear();
+            clearSummons(level, event.getEntity());
+        }
     }
 
     private static void clearSummons(ServerLevel level, Player player) {
