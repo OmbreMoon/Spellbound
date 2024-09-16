@@ -1,5 +1,8 @@
 package com.ombremoon.spellbound.common.magic.skills;
 
+import com.ombremoon.spellbound.common.init.SkillInit;
+import com.ombremoon.spellbound.common.init.SpellInit;
+import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -9,6 +12,7 @@ public class Skill {
     private final int xpCost;
     private final Set<Skill> prerequisites;
     private final ResourceLocation resourceLocation;
+    private String descriptionId;
 
     public Skill(ResourceLocation resLoc, int xpCost, Set<Skill> prerequisites) {
         this.xpCost = xpCost;
@@ -28,11 +32,26 @@ public class Skill {
         return prerequisites;
     }
 
-    public Component getName() {
-        return Component.translatable("skill_name." + resourceLocation.getNamespace() + "." + resourceLocation.getPath());
+    protected String getOrCreateDescriptionId() {
+        if (this.descriptionId == null) {
+            this.descriptionId = Util.makeDescriptionId("skill", this.getId());
+        }
+        return this.descriptionId;
     }
 
-    public Component getDescription() {
-        return Component.translatable("skill_description." + resourceLocation.getNamespace() + "." + resourceLocation.getPath());
+    public ResourceLocation getId() {
+        return SkillInit.REGISTRY.getKey(this);
+    }
+
+    public String getDescriptionId() {
+        return this.getOrCreateDescriptionId();
+    }
+
+    public Component getSkillName() {
+        return Component.translatable(this.getDescriptionId());
+    }
+
+    public Component getSkillDescription() {
+        return Component.translatable(Util.makeDescriptionId("skill.description", this.getId()));
     }
 }
