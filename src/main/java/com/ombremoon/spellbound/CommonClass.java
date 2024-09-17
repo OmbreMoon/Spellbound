@@ -1,9 +1,6 @@
 package com.ombremoon.spellbound;
 
-import com.ombremoon.spellbound.common.init.DataInit;
-import com.ombremoon.spellbound.common.init.ItemInit;
-import com.ombremoon.spellbound.common.init.SpellInit;
-import com.ombremoon.spellbound.common.init.StatInit;
+import com.ombremoon.spellbound.common.init.*;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.loading.FMLLoader;
@@ -15,6 +12,7 @@ public class CommonClass {
         SpellInit.register(modEventBus);
         DataInit.register(modEventBus);
         StatInit.register(modEventBus);
+        EntityInit.register(modEventBus);
     }
 
     public static boolean isDevEnv() {

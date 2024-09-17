@@ -20,6 +20,7 @@ public class DebugItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         var handler = player.getData(DataInit.SPELL_HANDLER.get());
         if (!level.isClientSide) {
+            handler.learnSpell(SpellInit.WILD_MUSHROOM_SPELL.get());
             handler.learnSpell(SpellInit.SUMMON_UNDEAD_SPELL.get());
             handler.learnSpell(SpellInit.TEST_SPELL.get());
             handler.save(player);

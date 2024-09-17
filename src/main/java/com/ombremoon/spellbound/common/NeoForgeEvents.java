@@ -8,6 +8,7 @@ import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.events.PlayerJumpEvent;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.Zombie;
@@ -22,9 +23,11 @@ import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.NoteBlockEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import javax.xml.crypto.Data;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -73,6 +76,14 @@ public class NeoForgeEvents {
     @SubscribeEvent
     public static void onPlayerLeaveWorld(EntityLeaveLevelEvent event) {
         if (event.getEntity() instanceof Player player && player.level() instanceof ServerLevel level) clearSummons(level, player);
+    }
+
+    @SubscribeEvent
+    public static void onWorldEnd(ServerStoppingEvent event) {
+        List<ServerPlayer> players = event.getServer().getPlayerList().getPlayers();
+        for (ServerPlayer player : players) {
+            player.getData(DataInit.SPELL_HANDLER).clearAllSummons((ServerLevel) player.level());
+        }
     }
 
     @SubscribeEvent

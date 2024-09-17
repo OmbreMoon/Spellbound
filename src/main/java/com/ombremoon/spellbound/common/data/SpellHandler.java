@@ -1,10 +1,12 @@
 package com.ombremoon.spellbound.common.data;
 
+import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -27,7 +29,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     protected Set<SpellType<?>> spellSet = new LinkedHashSet<>();
     protected ObjectOpenHashSet<AbstractSpell> activeSpells = new ObjectOpenHashSet<>();
     protected SpellType<?> selectedSpell;
-    protected Map<Integer, Set<Integer>> activeSummons = new HashMap<>();
+    protected Map<SummonSpell, Set<Integer>> activeSummons = new HashMap<>();
     public int castTick;
     private boolean channelling;
     protected boolean initialized = false;
@@ -47,9 +49,9 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.initialized = true;
     }
 
-    public Set<Integer> getSummonsForRemoval(int tickCount) {
-        Set<Integer> expiredSummons = activeSummons.get(tickCount);
-        activeSummons.remove(tickCount);
+    public Set<Integer> getSummonsForRemoval(SummonSpell spell) {
+        Set<Integer> expiredSummons = activeSummons.get(spell);
+        activeSummons.remove(spell);
         return expiredSummons == null ? Set.of() : expiredSummons;
     }
 
@@ -57,7 +59,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         for (Set<Integer> summons : activeSummons.values()) {
             for (int mob : summons) {
                 if (level.getEntity(mob) == null) continue;
-                level.getEntity(mob).kill();
+                level.getEntity(mob).discard();
             }
         }
         activeSummons = new HashMap<>();
@@ -71,8 +73,8 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         return toReturn;
     }
 
-    public void addSummons(int expirationTime, Set<Integer> mobIds) {
-        activeSummons.put(expirationTime, mobIds);
+    public void addSummons(SummonSpell spell, Set<Integer> mobIds) {
+        activeSummons.put(spell, mobIds);
     }
 
     public boolean isInitialized() {
@@ -132,6 +134,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     public void setSelectedSpell(SpellType<?> selectedSpell) {
         this.selectedSpell = selectedSpell;
+        Constants.LOG.debug("Selected spell: {}", selectedSpell);
     }
 
     public boolean isChannelling() {
@@ -164,21 +167,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         }
         compoundTag.put("Spells", spellList);
 
-        ListTag activeSumms = new ListTag();
-        for (int time : activeSummons.keySet()) {
-            CompoundTag summonTag = new CompoundTag();
-            summonTag.putInt("Time", time);
-            ListTag summons = new ListTag();
-            for (int summon : activeSummons.get(time)) {
-                CompoundTag tag = new CompoundTag();
-                tag.putInt("Summon", summon);
-                summons.add(tag);
-            }
-            summonTag.put("Summons", summons);
-            activeSumms.add(summonTag);
-        }
-        compoundTag.put("Summons", activeSumms);
-
         return compoundTag;
     }
 
@@ -201,17 +189,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
             for (int i = 0; i < spellList.size(); i++) {
                 CompoundTag compoundTag = spellList.getCompound(i);
                 this.spellSet.add(AbstractSpell.getSpellByName(SpellUtil.getSpellId(compoundTag, "Spell")));
-            }
-        }
-        if (nbt.contains("Summons", Tag.TAG_LIST)) {
-            ListTag activeSumms = nbt.getList("Summons", Tag.TAG_LIST);
-            for (int i = 0; i < activeSumms.size(); i++) {
-                CompoundTag tag = activeSumms.getCompound(i);
-                Set<Integer> summonSet = Set.of();
-                for (int j = 0; j < tag.getList("Summons", Tag.TAG_LIST).size(); j++) {
-                    summonSet.add(tag.getList("Summons", Tag.TAG_LIST).getInt(j));
-                }
-                this.activeSummons.put(tag.getInt("Time"), summonSet);
             }
         }
     }
