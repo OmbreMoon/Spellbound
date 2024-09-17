@@ -27,7 +27,6 @@ public class ItemInit {
     public static final Supplier<Item> SOUL_SHARD = registerSimpleItem("soul_shard");
 
     public static final Supplier<Item> TEST_SPELL_TOME = registerSpellTome("test_spell_tome", SpellInit.TEST_SPELL);
-    public static final Supplier<Item> SECOND_TEST_SPELL_TOME = registerSpellTome("second_test_spell_tome", SpellInit.SECOND_TEST_SPELL);
 
     public static final Supplier<CreativeModeTab> SPELL_TAB = CREATIVE_MODE_TABS.register("spell_tab", () -> CreativeModeTab.builder(CreativeModeTab.Row.TOP,0)
             .displayItems(

@@ -2,7 +2,6 @@ package com.ombremoon.spellbound.common.init;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.common.content.spell.SecondTestSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.SummonUndeadSpell;
 import com.ombremoon.spellbound.common.content.spell.TestSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.WildMushroomSpell;
@@ -25,7 +24,6 @@ public class SpellInit {
     public static final DeferredRegister<SpellType<?>> SPELL_TYPES = DeferredRegister.create(REGISTRY, Constants.MOD_ID);
 
     public static final Supplier<SpellType<AnimatedSpell>> TEST_SPELL = registerSpell("test_spell", TestSpell::new);
-    public static final Supplier<SpellType<AnimatedSpell>> SECOND_TEST_SPELL = registerSpell("second_test_spell", SecondTestSpell::new);
 
     //Summons
     public static final Supplier<SpellType<AnimatedSpell>> SUMMON_UNDEAD_SPELL = registerSpell("summon_undead", SummonUndeadSpell::new);

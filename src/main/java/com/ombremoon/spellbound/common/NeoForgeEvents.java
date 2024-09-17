@@ -1,6 +1,5 @@
 package com.ombremoon.spellbound.common;
 
-import com.google.gson.annotations.Since;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
@@ -11,7 +10,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -22,14 +20,10 @@ import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.level.NoteBlockEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
-import javax.xml.crypto.Data;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 @EventBusSubscriber(modid = Constants.MOD_ID)
 public class NeoForgeEvents {
@@ -114,7 +108,7 @@ public class NeoForgeEvents {
         if (event.getEntity().level().isClientSide) return;
 
         if (event.getEntity() instanceof Player player)
-            player.getData(DataInit.SPELL_HANDLER).getListener().fireEvent(SpellEventListener.Event.JUMP, new PlayerJumpEvent(player, event));
+            player.getData(DataInit.SPELL_HANDLER).getListener().fireEvent(SpellEventListener.Events.JUMP, new PlayerJumpEvent(player, event));
 
     }
 }

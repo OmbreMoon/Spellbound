@@ -23,9 +23,10 @@ public class DebugItem extends Item {
             handler.learnSpell(SpellInit.WILD_MUSHROOM_SPELL.get());
             handler.learnSpell(SpellInit.SUMMON_UNDEAD_SPELL.get());
             handler.learnSpell(SpellInit.TEST_SPELL.get());
+            Constants.LOG.info("{}", handler.getActiveSpells().stream().map(spell -> spell.getSpellName().getString()).toList());
             handler.save(player);
         }
-        Constants.LOG.info("{}", handler.getSpellList().stream().map(SpellType::getResourceLocation).toList());
+//        Constants.LOG.info("{}", handler.getSpellList().stream().map(SpellType::getResourceLocation).toList());
         return super.use(level, player, usedHand);
     }
 }
