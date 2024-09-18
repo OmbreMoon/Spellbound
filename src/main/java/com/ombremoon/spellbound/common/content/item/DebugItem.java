@@ -3,7 +3,6 @@ package com.ombremoon.spellbound.common.content.item;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
-import com.ombremoon.spellbound.common.magic.SpellType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -28,7 +27,7 @@ public class DebugItem extends Item {
             skillHandler.resetSpellXP(SpellInit.WILD_MUSHROOM_SPELL.get());
             player.sendSystemMessage(Component.literal("Rest Wild Mushroom XP"));
             Constants.LOG.info("{}", handler.getActiveSpells().stream().map(spell -> spell.getSpellName().getString()).toList());
-            handler.save(player);
+            handler.sync(player);
         } else if (!level.isClientSide && player.isCrouching()) {
             player.sendSystemMessage(Component.literal("Wild mushrooms has: " + skillHandler.getSpellXp(SpellInit.WILD_MUSHROOM_SPELL) + " XP"));
         }

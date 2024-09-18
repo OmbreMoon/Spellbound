@@ -50,6 +50,9 @@ public class SpellEventListener {
 
     public static class Events implements IEvent {
         public static Events JUMP = new Events(false);
+        public static Events POST_DAMAGE = new Events(false);
+        public static Events PRE_DAMAGE = new Events(false);
+        public static Events TARGETING_EVENT = new Events(false);
 
         private final boolean isClientSide;
 

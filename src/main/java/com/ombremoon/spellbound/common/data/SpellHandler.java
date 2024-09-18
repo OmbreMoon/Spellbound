@@ -1,7 +1,6 @@
 package com.ombremoon.spellbound.common.data;
 
 import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
@@ -37,8 +36,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     }
 
-    public void save(Player player) {
-        player.setData(DataInit.SPELL_HANDLER, this);
+    public void sync(Player player) {
         PayloadHandler.syncSpellsToClient(player);
     }
 
