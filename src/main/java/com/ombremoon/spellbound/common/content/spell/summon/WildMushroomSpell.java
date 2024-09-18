@@ -54,11 +54,9 @@ public class WildMushroomSpell extends SummonSpell {
         SkillHandler skillHandler = context.getSkillHandler();
         double radius = skillHandler.hasSkill(getSpellType(), SkillInit.VILE_INFLUENCE) ? 3D : 2D;
         this.explosionInterval = skillHandler.hasSkill(getSpellType(), SkillInit.HASTENED_GROWTH) ? 40 : 60;
-        this.poisonDuration = skillHandler.hasSkill(getSpellType(), SkillInit.HASTENED_GROWTH) ? 80 : 60;
+        this.poisonDuration = skillHandler.hasSkill(getSpellType(), SkillInit.ENVENOM) ? 80 : 60;
 
         this.aoeZone = mushroom.getBoundingBox().inflate(radius, 0, radius);
-        Constants.LOG.debug("Mushroom: {} // {}", mushroom.getBoundingBox().getMinPosition(), mushroom.getBoundingBox().getMaxPosition());
-        Constants.LOG.debug("AOE: {} // {}", aoeZone.getMinPosition(), aoeZone.getMaxPosition());
     }
 
     @Override

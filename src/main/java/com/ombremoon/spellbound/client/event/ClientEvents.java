@@ -1,10 +1,12 @@
 package com.ombremoon.spellbound.client.event;
 
+import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.entity.ModelLayers;
 import com.ombremoon.spellbound.client.entity.models.MushroomModel;
 import com.ombremoon.spellbound.client.entity.renderers.MushroomRenderer;
+import com.ombremoon.spellbound.client.gui.SelectedSpellOverlay;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.EntityInit;
@@ -17,9 +19,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.*;
 
 public class ClientEvents {
 
@@ -39,6 +39,13 @@ public class ClientEvents {
         @SubscribeEvent
         public static void registerLayerDefs(EntityRenderersEvent.RegisterLayerDefinitions event) {
             event.registerLayerDefinition(ModelLayers.WILD_MUSHROOM, MushroomModel::createBodyLayer);
+        }
+
+        @SubscribeEvent
+        public static void registerGuisOverlays(RegisterGuiLayersEvent event) {
+            event.registerAboveAll(CommonClass.customLocation("selected_spell_overlay"),
+                    SelectedSpellOverlay::new);
+
         }
     }
 
