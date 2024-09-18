@@ -27,11 +27,12 @@ public class DebugItem extends Item {
             handler.learnSpell(SpellInit.TEST_SPELL.get());
             skillHandler.resetSpellXP(SpellInit.WILD_MUSHROOM_SPELL.get());
             player.sendSystemMessage(Component.literal("Rest Wild Mushroom XP"));
+            Constants.LOG.info("{}", handler.getActiveSpells().stream().map(spell -> spell.getSpellName().getString()).toList());
             handler.save(player);
         } else if (!level.isClientSide && player.isCrouching()) {
             player.sendSystemMessage(Component.literal("Wild mushrooms has: " + skillHandler.getSpellXp(SpellInit.WILD_MUSHROOM_SPELL) + " XP"));
         }
-        Constants.LOG.info("{}", handler.getSpellList().stream().map(SpellType::getResourceLocation).toList());
+//        Constants.LOG.info("{}", handler.getSpellList().stream().map(SpellType::getResourceLocation).toList());
         return super.use(level, player, usedHand);
     }
 }

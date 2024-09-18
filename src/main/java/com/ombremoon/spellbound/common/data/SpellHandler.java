@@ -13,7 +13,6 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
@@ -134,7 +133,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     public void setSelectedSpell(SpellType<?> selectedSpell) {
         this.selectedSpell = selectedSpell;
-        Constants.LOG.debug("Selected spell: {}", selectedSpell);
+        Constants.LOG.debug("Selected spell: {}", selectedSpell != null ? selectedSpell.createSpell().getSpellName().getString() : null);
     }
 
     public boolean isChannelling() {

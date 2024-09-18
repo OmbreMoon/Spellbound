@@ -17,12 +17,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.*;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
+
+//TODO: Recast callback
+//TODO: Cast condition
+//TODO: Block raycast
 
 public abstract class AbstractSpell {
     protected static final Logger LOGGER = Constants.LOG;
@@ -179,12 +180,13 @@ public abstract class AbstractSpell {
         AABB aabb = livingEntity.getBoundingBox().expandTowards(lookVec.scale(range)).inflate(2.0);
 
         EntityHitResult hitResult = ProjectileUtil.getEntityHitResult(livingEntity, eyePosition, maxLength, aabb, EntitySelector.NO_CREATIVE_OR_SPECTATOR, range * range);
+        BlockHitResult blockHitResult = livingEntity.level().clip(setupRayTraceContext(livingEntity, range, ClipContext.Fluid.NONE));
 
         if (hitResult == null)
             return null;
 
+
         if (hitResult.getEntity() instanceof LivingEntity targetEntity) {
-            BlockHitResult blockHitResult = livingEntity.level().clip(setupRayTraceContext(livingEntity, range, ClipContext.Fluid.NONE));
 
             if (!blockHitResult.getType().equals(BlockHitResult.Type.MISS)) {
                 double blockDistance = blockHitResult.getLocation().distanceTo(eyePosition);
