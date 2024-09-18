@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.common.magic;
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.SpellInit;
+import com.ombremoon.spellbound.common.init.StatInit;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -20,10 +21,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.*;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
-
-//TODO: Recast callback
-//TODO: Cast condition
-//TODO: Block raycast
 
 public abstract class AbstractSpell {
     protected static final Logger LOGGER = Constants.LOG;
@@ -222,6 +219,7 @@ public abstract class AbstractSpell {
         this.context = new SpellContext(this.caster, this.level, this.blockPos, this.getTargetEntity(8));
 
         SpellUtil.activateSpell(player, this);
+        player.awardStat(StatInit.SPELLS_CAST.get());
         this.init = true;
     }
 

@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.networking;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.networking.clientbound.ClientOpenWorkbenchPayload;
 import com.ombremoon.spellbound.networking.clientbound.ClientPayloadHandler;
 import com.ombremoon.spellbound.networking.clientbound.ClientSyncSkillPayload;
 import com.ombremoon.spellbound.networking.clientbound.ClientSyncSpellPayload;
@@ -54,6 +55,10 @@ public class PayloadHandler {
                 ));
     }
 
+    public static void openWorkbenchScreen(Player player) {
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new ClientOpenWorkbenchPayload());
+    }
+
     @SubscribeEvent
     public static void register(final RegisterPayloadHandlersEvent event) {
         final PayloadRegistrar registrar = event.registrar("1");
@@ -92,6 +97,11 @@ public class PayloadHandler {
                 ClientSyncSkillPayload.TYPE,
                 ClientSyncSkillPayload.CODEC,
                 ClientPayloadHandler::handleClientSkillSync
+        );
+        registrar.playToClient(
+                ClientOpenWorkbenchPayload.TYPE,
+                ClientOpenWorkbenchPayload.CODEC,
+                ClientPayloadHandler::handleClientOpenWorkbenchScreen
         );
     }
 }

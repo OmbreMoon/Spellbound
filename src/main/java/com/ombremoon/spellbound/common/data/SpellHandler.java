@@ -45,35 +45,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.listener = new SpellEventListener(player);
         this.initialized = true;
     }
-
-    public Set<Integer> getSummonsForRemoval(SummonSpell spell) {
-        Set<Integer> expiredSummons = activeSummons.get(spell);
-        activeSummons.remove(spell);
-        return expiredSummons == null ? Set.of() : expiredSummons;
-    }
-
-    public void clearAllSummons(ServerLevel level) {
-        for (Set<Integer> summons : activeSummons.values()) {
-            for (int mob : summons) {
-                if (level.getEntity(mob) == null) continue;
-                level.getEntity(mob).discard();
-            }
-        }
-        activeSummons = new HashMap<>();
-    }
-
-    public Set<Integer> getAllSummons() {
-        Set<Integer> toReturn = new HashSet<>();
-        for (Set<Integer> mobs : activeSummons.values()) {
-            toReturn.addAll(mobs);
-        }
-        return toReturn;
-    }
-
-    public void addSummons(SummonSpell spell, Set<Integer> mobIds) {
-        activeSummons.put(spell, mobIds);
-    }
-
     public boolean isInitialized() {
         return this.initialized = true;
     }
@@ -140,6 +111,34 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     public void setChannelling(boolean channelling) {
         this.channelling = channelling;
+    }
+
+    public Set<Integer> getSummonsForRemoval(SummonSpell spell) {
+        Set<Integer> expiredSummons = activeSummons.get(spell);
+        activeSummons.remove(spell);
+        return expiredSummons == null ? Set.of() : expiredSummons;
+    }
+
+    public void clearAllSummons(ServerLevel level) {
+        for (Set<Integer> summons : activeSummons.values()) {
+            for (int mob : summons) {
+                if (level.getEntity(mob) == null) continue;
+                level.getEntity(mob).discard();
+            }
+        }
+        activeSummons = new HashMap<>();
+    }
+
+    public Set<Integer> getAllSummons() {
+        Set<Integer> toReturn = new HashSet<>();
+        for (Set<Integer> mobs : activeSummons.values()) {
+            toReturn.addAll(mobs);
+        }
+        return toReturn;
+    }
+
+    public void addSummons(SummonSpell spell, Set<Integer> mobIds) {
+        activeSummons.put(spell, mobIds);
     }
 
     public SpellEventListener getListener() {

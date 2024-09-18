@@ -9,10 +9,11 @@ public class CommonClass {
 
     public static void init(IEventBus modEventBus) {
         ItemInit.register(modEventBus);
+        BlockInit.register(modEventBus);
+        EntityInit.register(modEventBus);
         SpellInit.register(modEventBus);
         DataInit.register(modEventBus);
         StatInit.register(modEventBus);
-        EntityInit.register(modEventBus);
     }
 
     public static boolean isDevEnv() {

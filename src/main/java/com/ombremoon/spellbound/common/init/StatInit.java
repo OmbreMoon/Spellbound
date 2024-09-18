@@ -14,6 +14,7 @@ public class StatInit {
 
     public static final Supplier<ResourceLocation> SPELLS_LEARNED = registerStat("spells_learned");
     public static final Supplier<ResourceLocation> SPELLS_CAST = registerStat("spells_cast");
+    public static final Supplier<ResourceLocation> INTERACT_WITH_BENCH = registerStat("interact_with_bench");
 
     public static Supplier<ResourceLocation> registerStat(String name) {
         return STATS.register(name, () -> CommonClass.customLocation(name));

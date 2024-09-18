@@ -7,6 +7,8 @@ import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.networking.PayloadHandler;
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -19,9 +21,9 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 public class SkillHandler implements INBTSerializable<CompoundTag> {
-    protected final Map<SpellPath, Float> pathXp = new HashMap<>();
-    protected final Map<SpellType<?>, Float> spellXp = new HashMap<>();
-    protected final Map<SpellType<?>, Set<Skill>> unlockedSkills = new HashMap<>();
+    protected final Map<SpellPath, Float> pathXp = new Object2FloatOpenHashMap<>();
+    public final Map<SpellType<?>, Float> spellXp = new Object2FloatOpenHashMap<>();
+    protected final Map<SpellType<?>, Set<Skill>> unlockedSkills = new Object2ObjectOpenHashMap<>();
 
     public void sync(Player player) {
         PayloadHandler.syncSkillsToClient(player);
@@ -41,14 +43,18 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         return pathXp.get(path);
     }
 
-    public float getSpellXp(Supplier<? extends SpellType<?>> spellType) {
-        if (spellXp.get(spellType.get()) == null) return 0;
-        return spellXp.get(spellType.get());
+    public float getSpellLevel(SpellType<?> spellType) {
+        return (int) Math.floor((double) getSpellXp(spellType) / 10); //TODO: What Duck said
+    }
+
+    public float getSpellXp(SpellType<?> spellType) {
+        spellXp.putIfAbsent(spellType, 0F);
+        return spellXp.get(spellType);
     }
 
     public void awardSpellXp(SpellType<?> spellType, float xp) {
-        spellXp.put(spellType, getSpellXp(() -> spellType) + xp);
-        pathXp.put(spellType.path, getPathXp(spellType.path) + xp);
+        spellXp.put(spellType, getSpellXp(spellType) + xp);
+        pathXp.put(spellType.getPath(), getPathXp(spellType.getPath()) + xp);
     }
 
     public void unlockSkill(Supplier<SpellType<?>> spellType, Skill skill) {
@@ -57,11 +63,11 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         unlockedSkills.put(spellType.get(), unlocked);
     }
 
-    public boolean canUnlockSkill(Supplier<SpellType<?>> spellType, Skill skill) {
+    public boolean canUnlockSkill(SpellType<?> spellType, Skill skill) {
         if ((float) skill.getXpCost() > getSpellXp(spellType)) return false;
         if (hasSkill(spellType, skill)) return false;
 
-        Set<Skill> unlocked = unlockedSkills.get(spellType.get());
+        Set<Skill> unlocked = unlockedSkills.get(spellType);
         for (Skill prereq : skill.getPrereqs()) {
             if (unlocked.contains(prereq)) return true;
         }
@@ -69,9 +75,9 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         return false;
     }
 
-    public boolean hasSkill(Supplier<SpellType<?>> spellType, Skill skill) {
-        if (unlockedSkills.get(spellType.get()) == null) return false;
-        return unlockedSkills.get(spellType.get()).contains(skill);
+    public boolean hasSkill(SpellType<?> spellType, Skill skill) {
+        if (unlockedSkills.get(spellType) == null) return false;
+        return unlockedSkills.get(spellType).contains(skill);
     }
 
     @Override
@@ -117,9 +123,9 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
 
     @Override
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag compoundTag) {
-        ListTag pathTag = compoundTag.getList("PathXp", ListTag.TAG_LIST);
-        ListTag spellTag = compoundTag.getList("SpellXp", ListTag.TAG_LIST);
-        ListTag skillTag = compoundTag.getList("Skills", ListTag.TAG_LIST);
+        ListTag pathTag = compoundTag.getList("PathXp", 10);
+        ListTag spellTag = compoundTag.getList("SpellXp", 10);
+        ListTag skillTag = compoundTag.getList("Skills", 10);
 
         for (int i = 0; i < pathTag.size(); i++) {
             CompoundTag tag = pathTag.getCompound(i);

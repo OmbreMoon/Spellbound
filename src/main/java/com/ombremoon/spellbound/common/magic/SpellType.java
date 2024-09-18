@@ -9,7 +9,7 @@ import java.util.Set;
 public class SpellType<S extends AbstractSpell> {
     private final ResourceLocation resourceLocation;
     private final SpellFactory<S> factory;
-    public final SpellPath path;
+    private final SpellPath path;
     private final Set<Skill> availableSkills;
 
     public SpellType(ResourceLocation resourceLocation, SpellPath path, Set<Skill> skills, SpellFactory<S> factory) {
@@ -21,6 +21,10 @@ public class SpellType<S extends AbstractSpell> {
 
     public ResourceLocation getResourceLocation() {
         return this.resourceLocation;
+    }
+
+    public SpellPath getPath() {
+        return this.path;
     }
 
     public Set<Skill> getSkills() {

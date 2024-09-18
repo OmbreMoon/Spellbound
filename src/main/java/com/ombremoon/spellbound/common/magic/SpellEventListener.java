@@ -9,7 +9,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public class SpellEventListener {
-    private final Multimap<IEvent, EventInstance<? extends SpellEvent>> events = ArrayListMultimap.create();
+    public final Multimap<IEvent, EventInstance<? extends SpellEvent>> events = ArrayListMultimap.create();
     private final Player player;
 
     public SpellEventListener(Player player) {
@@ -18,7 +18,6 @@ public class SpellEventListener {
 
     public <T extends SpellEvent> void addListener(IEvent event, UUID uuid, Consumer<T> consumer) {
         if (checkSide(event)) return;
-        this.removeListener(event, uuid);
         this.events.put(event, new EventInstance<>(uuid, consumer));
     }
 

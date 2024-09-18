@@ -23,14 +23,18 @@ public class SpellInit {
     public static final Registry<SpellType<?>> REGISTRY = new RegistryBuilder<>(SPELL_TYPE_REGISTRY_KEY).sync(true).create();
     public static final DeferredRegister<SpellType<?>> SPELL_TYPES = DeferredRegister.create(REGISTRY, Constants.MOD_ID);
 
-    public static final Supplier<SpellType<AnimatedSpell>> TEST_SPELL = registerSpell("test_spell", TestSpell::new);
+    public static final Supplier<SpellType<AnimatedSpell>> TEST_SPELL = registerRuinSpell("test_spell", TestSpell::new);
 
     //Summons
-    public static final Supplier<SpellType<AnimatedSpell>> SUMMON_UNDEAD_SPELL = registerSpell("summon_undead", SummonUndeadSpell::new);
-    public static final Supplier<SpellType<AnimatedSpell>> WILD_MUSHROOM_SPELL = registerSpell("wild_mushroom", WildMushroomSpell::new);
+    public static final Supplier<SpellType<AnimatedSpell>> SUMMON_UNDEAD_SPELL = registerSummonSpell("summon_undead", SummonUndeadSpell::new);
+    public static final Supplier<SpellType<AnimatedSpell>> WILD_MUSHROOM_SPELL = registerSummonSpell("wild_mushroom", WildMushroomSpell::new);
 
-    private static <T extends AbstractSpell> Supplier<SpellType<T>> registerSpell(String name, SpellType.SpellFactory<T> factory) {
+    private static <T extends AbstractSpell> Supplier<SpellType<T>> registerRuinSpell(String name, SpellType.SpellFactory<T> factory) {
         return SPELL_TYPES.register(name, () -> new SpellType<>(CommonClass.customLocation(name), SpellPath.RUIN, Set.of(), factory));
+    }
+
+    private static <T extends AbstractSpell> Supplier<SpellType<T>> registerSummonSpell(String name, SpellType.SpellFactory<T> factory) {
+        return SPELL_TYPES.register(name, () -> new SpellType<>(CommonClass.customLocation(name), SpellPath.SUMMONS, Set.of(), factory));
     }
 
     public static void register(IEventBus modEventBus) {

@@ -3,15 +3,16 @@ package com.ombremoon.spellbound.common.init;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.content.item.DebugItem;
 import com.ombremoon.spellbound.common.content.item.SpellTomeItem;
-import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredItem;
+import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ public class ItemInit {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Constants.MOD_ID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Constants.MOD_ID);
     public static final List<Supplier<? extends Item>> SIMPLE_ITEM_LIST = new ArrayList<>();
+    public static final List<Supplier<? extends Item>> BLOCK_ITEM_LIST = new ArrayList<>();
 
     public static final Supplier<Item> DEBUG = ITEMS.register("debug", () -> new DebugItem(getItemProperties()));
     public static final Supplier<Item> SOUL_SHARD = registerSimpleItem("soul_shard");
@@ -45,6 +47,12 @@ public class ItemInit {
     public static Supplier<Item> registerSimpleItem(String name) {
         Supplier<Item> item = ITEMS.register(name, () -> new Item(getItemProperties()));
         SIMPLE_ITEM_LIST.add(item);
+        return item;
+    }
+
+    public static Supplier<Item> registerBlockItem(String name, DeferredBlock<? extends Block> block) {
+        Supplier<Item> item = ITEMS.register(name, () -> new BlockItem(block.get(), getItemProperties()));
+        BLOCK_ITEM_LIST.add(item);
         return item;
     }
 

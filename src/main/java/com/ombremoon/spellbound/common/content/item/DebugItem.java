@@ -21,15 +21,12 @@ public class DebugItem extends Item {
         var handler = player.getData(DataInit.SPELL_HANDLER.get());
         var skillHandler = player.getData(DataInit.SKILL_HANDLER.get());
         if (!level.isClientSide && !player.isCrouching()) {
-            handler.learnSpell(SpellInit.WILD_MUSHROOM_SPELL.get());
-            handler.learnSpell(SpellInit.SUMMON_UNDEAD_SPELL.get());
-            handler.learnSpell(SpellInit.TEST_SPELL.get());
-            skillHandler.resetSpellXP(SpellInit.WILD_MUSHROOM_SPELL.get());
-            player.sendSystemMessage(Component.literal("Rest Wild Mushroom XP"));
-            Constants.LOG.info("{}", handler.getActiveSpells().stream().map(spell -> spell.getSpellName().getString()).toList());
             handler.sync(player);
+            skillHandler.sync(player);
         } else if (!level.isClientSide && player.isCrouching()) {
-            player.sendSystemMessage(Component.literal("Wild mushrooms has: " + skillHandler.getSpellXp(SpellInit.WILD_MUSHROOM_SPELL) + " XP"));
+            skillHandler.awardSpellXp(SpellInit.TEST_SPELL.get(), 10F);
+            player.sendSystemMessage(Component.literal("Wild mushrooms has: " + skillHandler.getSpellXp(SpellInit.WILD_MUSHROOM_SPELL.get()) + " XP"));
+            player.sendSystemMessage(Component.literal("Test Spell has: " + skillHandler.getSpellXp(SpellInit.TEST_SPELL.get()) + " XP"));
         }
 //        Constants.LOG.info("{}", handler.getSpellList().stream().map(SpellType::getResourceLocation).toList());
         return super.use(level, player, usedHand);
