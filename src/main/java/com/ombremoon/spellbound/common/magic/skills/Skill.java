@@ -7,14 +7,15 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Set;
+import java.util.function.Supplier;
 
 public class Skill {
     private final int xpCost;
-    private final Set<Skill> prerequisites;
+    private final Set<Supplier<Skill>> prerequisites;
     private final ResourceLocation resourceLocation;
     private String descriptionId;
 
-    public Skill(ResourceLocation resLoc, int xpCost, Set<Skill> prerequisites) {
+    public Skill(ResourceLocation resLoc, int xpCost, Set<Supplier<Skill>> prerequisites) {
         this.xpCost = xpCost;
         this.resourceLocation = resLoc;
         this.prerequisites = prerequisites;
@@ -28,7 +29,7 @@ public class Skill {
         return resourceLocation;
     }
 
-    public Set<Skill> getPrereqs() {
+    public Set<Supplier<Skill>> getPrereqs() {
         return prerequisites;
     }
 

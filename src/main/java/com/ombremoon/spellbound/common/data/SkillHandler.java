@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.common.data;
 
 import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.init.SkillInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
@@ -16,6 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -57,27 +59,32 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         pathXp.put(spellType.getPath(), getPathXp(spellType.getPath()) + xp);
     }
 
-    public void unlockSkill(Supplier<SpellType<?>> spellType, Skill skill) {
+    public <T extends AbstractSpell> void resetSkills(Supplier<SpellType<T>> spellType) {
+        this.unlockedSkills.put(spellType.get(), new HashSet<>());
+    }
+
+    public <T extends AbstractSpell> void unlockSkill(Supplier<SpellType<T>> spellType, Skill skill) {
         Set<Skill> unlocked = unlockedSkills.get(spellType.get());
+        if (unlocked == null) unlocked = new HashSet<>();
         unlocked.add(skill);
         unlockedSkills.put(spellType.get(), unlocked);
     }
 
-    public boolean canUnlockSkill(SpellType<?> spellType, Skill skill) {
-        if ((float) skill.getXpCost() > getSpellXp(spellType)) return false;
+    public boolean canUnlockSkill(SpellType<?> spellType, Supplier<Skill> skill) {
+        if ((float) skill.get().getXpCost() > getSpellXp(spellType)) return false;
         if (hasSkill(spellType, skill)) return false;
 
         Set<Skill> unlocked = unlockedSkills.get(spellType);
-        for (Skill prereq : skill.getPrereqs()) {
-            if (unlocked.contains(prereq)) return true;
+        for (Supplier<Skill> prereq : skill.get().getPrereqs()) {
+            if (unlocked.contains(prereq.get())) return true;
         }
 
         return false;
     }
 
-    public boolean hasSkill(SpellType<?> spellType, Skill skill) {
+    public boolean hasSkill(SpellType<?> spellType, Supplier<Skill> skill) {
         if (unlockedSkills.get(spellType) == null) return false;
-        return unlockedSkills.get(spellType).contains(skill);
+        return unlockedSkills.get(spellType).contains(skill.get());
     }
 
     @Override
@@ -139,7 +146,7 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
 
         for (int i = 0; i < skillTag.size(); i++) {
             CompoundTag tag = skillTag.getCompound(i);
-            Set<Skill> skills = Set.of();
+            Set<Skill> skills = new HashSet<>();
             ListTag skillList = tag.getList("Skills", ListTag.TAG_LIST);
             for (int j = 0; j < skillList.size(); j++) {
                 skills.add(SkillInit.REGISTRY.get(ResourceLocation.tryParse(skillList.getString(j))));

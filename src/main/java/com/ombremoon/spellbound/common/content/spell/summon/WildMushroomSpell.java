@@ -1,7 +1,11 @@
 package com.ombremoon.spellbound.common.content.spell.summon;
 
+import com.mojang.datafixers.kinds.Const;
 import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.common.data.SkillHandler;
+import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.EntityInit;
+import com.ombremoon.spellbound.common.init.SkillInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
@@ -10,8 +14,11 @@ import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.FastColor;
+import net.minecraft.util.valueproviders.UniformFloat;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -22,6 +29,8 @@ import java.util.List;
 public class WildMushroomSpell extends SummonSpell {
     private AABB aoeZone;
     private int awardedXp = 0;
+    private int explosionInterval;
+    private int poisonDuration;
     private static final int MAX_XP = 5;
 
     public static Builder<AnimatedSpell> createMushroomBuilder() {
@@ -36,26 +45,33 @@ public class WildMushroomSpell extends SummonSpell {
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
         var mobs = addMobs(context, EntityInit.MUSHROOM.get(), 1);
-        if (mobs == null) {
+        if (mobs == null || !mobs.iterator().hasNext()) {
             endSpell();
             return;
             //TODO: refund mana
         }
-        int mushroomId = mobs.iterator().next();
-        aoeZone = context.getLevel().getEntity(mushroomId).getBoundingBox().inflate(3d, 0, 3d);
+        Entity mushroom = context.getLevel().getEntity(mobs.iterator().next());
+        SkillHandler skillHandler = context.getSkillHandler();
+        double radius = skillHandler.hasSkill(getSpellType(), SkillInit.VILE_INFLUENCE) ? 3D : 2D;
+        this.explosionInterval = skillHandler.hasSkill(getSpellType(), SkillInit.HASTENED_GROWTH) ? 40 : 60;
+        this.poisonDuration = skillHandler.hasSkill(getSpellType(), SkillInit.HASTENED_GROWTH) ? 80 : 60;
+
+        this.aoeZone = mushroom.getBoundingBox().inflate(radius, 0, radius);
+        Constants.LOG.debug("Mushroom: {} // {}", mushroom.getBoundingBox().getMinPosition(), mushroom.getBoundingBox().getMaxPosition());
+        Constants.LOG.debug("AOE: {} // {}", aoeZone.getMinPosition(), aoeZone.getMaxPosition());
     }
 
     @Override
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
         Constants.LOG.debug("{}", context.getLevel().isClientSide);
-        if (ticks % 60 == 0) {
+        if (ticks % explosionInterval == 0) {
             Player caster = context.getPlayer();
             List<LivingEntity> entities = caster.level().getEntitiesOfClass(
                     LivingEntity.class, aoeZone, entity -> !entity.is(caster) && !entity.isInvulnerable());
 
             for (LivingEntity entity : entities) {
-                entity.addEffect(new MobEffectInstance(MobEffects.POISON, 60), caster);
+                entity.addEffect(new MobEffectInstance(MobEffects.POISON, poisonDuration), caster);
                 if (awardedXp < MAX_XP) {
                     awardedXp++;
                     context.getSkillHandler().awardSpellXp(getSpellType(), 1);
@@ -65,14 +81,24 @@ public class WildMushroomSpell extends SummonSpell {
 
             Vec3 minPos = aoeZone.getMinPosition();
             Vec3 maxPos = aoeZone.getMaxPosition();
-            for (double i = minPos.x; i < maxPos.x; i++) {
-                for (double j = minPos.z; j < maxPos.z; j++) {
+            for (double i = minPos.x; i <= maxPos.x; i++) {
+                for (double j = minPos.z; j <= maxPos.z; j++) {
                     ((ServerLevel) context.getLevel()).sendParticles(
                             ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, FastColor.ARGB32.color(255, 8889187)),
                             i, aoeZone.maxY - 0.5d, j,
                             1, 0, 0, 0, 0);
                 }
             }
+        }
+    }
+
+    @Override
+    protected void onSpellStop(SpellContext context) {
+        super.onSpellStop(context);
+        if (context.getSkillHandler().hasSkill(getSpellType(), SkillInit.CIRCLE_OF_LIFE)) {
+            SpellHandler handler = context.getSpellHandler();
+            handler.setMana(handler.getMana() + UniformFloat.of(52f, 60f).sample(context.getPlayer().getRandom()));
+            handler.sync(context.getPlayer());
         }
     }
 }

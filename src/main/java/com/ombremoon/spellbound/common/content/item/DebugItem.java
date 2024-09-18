@@ -2,7 +2,9 @@ package com.ombremoon.spellbound.common.content.item;
 
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.init.SkillInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
+import com.ombremoon.spellbound.common.magic.SpellType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -21,12 +23,16 @@ public class DebugItem extends Item {
         var handler = player.getData(DataInit.SPELL_HANDLER.get());
         var skillHandler = player.getData(DataInit.SKILL_HANDLER.get());
         if (!level.isClientSide && !player.isCrouching()) {
+            skillHandler.unlockSkill(SpellInit.WILD_MUSHROOM_SPELL, SkillInit.VILE_INFLUENCE.get());
             handler.sync(player);
             skillHandler.sync(player);
+            player.sendSystemMessage(Component.literal("Has vile influence: " + skillHandler.hasSkill(SpellInit.WILD_MUSHROOM_SPELL.get(), SkillInit.VILE_INFLUENCE)));
         } else if (!level.isClientSide && player.isCrouching()) {
             skillHandler.awardSpellXp(SpellInit.TEST_SPELL.get(), 10F);
+            skillHandler.resetSkills(SpellInit.WILD_MUSHROOM_SPELL);
             player.sendSystemMessage(Component.literal("Wild mushrooms has: " + skillHandler.getSpellXp(SpellInit.WILD_MUSHROOM_SPELL.get()) + " XP"));
             player.sendSystemMessage(Component.literal("Test Spell has: " + skillHandler.getSpellXp(SpellInit.TEST_SPELL.get()) + " XP"));
+            player.sendSystemMessage(Component.literal("Has vile influence: " + skillHandler.hasSkill(SpellInit.WILD_MUSHROOM_SPELL.get(), SkillInit.VILE_INFLUENCE)));
         }
 //        Constants.LOG.info("{}", handler.getSpellList().stream().map(SpellType::getResourceLocation).toList());
         return super.use(level, player, usedHand);
