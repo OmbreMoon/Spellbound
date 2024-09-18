@@ -1,16 +1,18 @@
 package com.ombremoon.spellbound.common.data;
 
+import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.init.SkillInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.networking.PayloadHandler;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -21,9 +23,17 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
     protected final Map<SpellType<?>, Float> spellXp = new HashMap<>();
     protected final Map<SpellType<?>, Set<Skill>> unlockedSkills = new HashMap<>();
 
+    public void sync(Player player) {
+        PayloadHandler.syncSkillsToClient(player);
+    }
+
+    public void resetSpellXP(SpellType<?> spellType) {
+        spellXp.put(spellType, 0f);
+    }
+
     public int getPathLevel(SpellPath path) {
         if (pathXp.get(path) == null) return 0;
-        return (int) Math.floor((double) pathXp.get(path) / 100D);
+        return (int) Math.floor((double) pathXp.get(path) / 100D); //TODO: Sort xp per level
     }
 
     public float getPathXp(SpellPath path) {
@@ -36,9 +46,9 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         return spellXp.get(spellType.get());
     }
 
-    public void awardSpellXp(Supplier<? extends SpellType<?>> spellType, float xp) {
-        spellXp.put(spellType.get(), getSpellXp(spellType) + xp);
-        pathXp.put(spellType.get().path, getPathXp(spellType.get().path) + xp);
+    public void awardSpellXp(SpellType<?> spellType, float xp) {
+        spellXp.put(spellType, getSpellXp(() -> spellType) + xp);
+        pathXp.put(spellType.path, getPathXp(spellType.path) + xp);
     }
 
     public void unlockSkill(Supplier<SpellType<?>> spellType, Skill skill) {

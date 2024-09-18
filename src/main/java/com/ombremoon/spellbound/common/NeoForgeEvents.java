@@ -48,68 +48,6 @@ public class NeoForgeEvents {
     }
 
     @SubscribeEvent
-    public static void onLivingDamage(LivingDamageEvent.Post event) {
-        if (event.getEntity().level().isClientSide || event.getSource().getEntity() == null) return;
-
-        if (event.getEntity() instanceof Player player && event.getSource().getEntity() instanceof LivingEntity newTarget) {
-            SpellHandler handler = player.getData(DataInit.SPELL_HANDLER);
-            setSummonsTarget(player.level(), handler.getAllSummons(), newTarget);
-        } else if (event.getSource().getEntity() instanceof Player player
-                && !event.getEntity().getData(DataInit.OWNER_UUID).equals(player.getUUID().toString())) {
-            SpellHandler handler = player.getData(DataInit.SPELL_HANDLER);
-            setSummonsTarget(player.level(), handler.getAllSummons(), event.getEntity());
-        }
-    }
-
-    @SubscribeEvent
-    public static void onChangeTarget(LivingChangeTargetEvent event) {
-        if (event.getNewAboutToBeSetTarget() == null) return;
-        if (event.getEntity().getData(DataInit.OWNER_UUID).isEmpty()) return;
-
-        int targetId = event.getEntity().getData(DataInit.TARGET_ID);
-
-        if (targetId == 0) event.setNewAboutToBeSetTarget(null);
-        else if (targetId != event.getNewAboutToBeSetTarget().getId())
-            event.setNewAboutToBeSetTarget((LivingEntity) event.getEntity().level().getEntity(targetId));
-    }
-
-    @SubscribeEvent
-    public static void onPlayerLeaveWorld(EntityLeaveLevelEvent event) {
-        if (event.getEntity() instanceof Player player && player.level() instanceof ServerLevel level) clearSummons(level, player);
-    }
-
-    @SubscribeEvent
-    public static void onWorldEnd(ServerStoppingEvent event) {
-        List<ServerPlayer> players = event.getServer().getPlayerList().getPlayers();
-        for (ServerPlayer player : players) {
-            player.getData(DataInit.SPELL_HANDLER).clearAllSummons((ServerLevel) player.level());
-        }
-    }
-
-    @SubscribeEvent
-    public static void onPlayerLogOut(PlayerEvent.PlayerLoggedOutEvent event) {
-        if (event.getEntity().level() instanceof ServerLevel level) {
-            event.getEntity().getData(DataInit.SPELL_HANDLER).getActiveSpells().clear();
-            clearSummons(level, event.getEntity());
-        }
-    }
-
-    private static void clearSummons(ServerLevel level, Player player) {
-        SpellHandler handler = player.getData(DataInit.SPELL_HANDLER);
-        handler.clearAllSummons(level);
-        handler.save(player);
-    }
-
-    private static void setSummonsTarget(Level level, Set<Integer> summons, LivingEntity target) {
-        for (int mobId : summons) {
-            if (level.getEntity(mobId) instanceof Monster monster) {
-                monster.setData(DataInit.TARGET_ID, target.getId());
-                monster.setTarget(target);
-            }
-        }
-    }
-
-    @SubscribeEvent
     public static void onPlayerJump(LivingEvent.LivingJumpEvent event) {
         if (event.getEntity().level().isClientSide) return;
 

@@ -6,8 +6,10 @@ import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
+import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,6 +21,8 @@ import java.util.List;
 
 public class WildMushroomSpell extends SummonSpell {
     private AABB aoeZone;
+    private int awardedXp = 0;
+    private static final int MAX_XP = 5;
 
     public static Builder<AnimatedSpell> createMushroomBuilder() {
         return createSimpleSpellBuilder().setDuration(180);
@@ -31,7 +35,13 @@ public class WildMushroomSpell extends SummonSpell {
     @Override
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
-        int mushroomId = addMobs(context, EntityInit.MUSHROOM.get(), 1).iterator().next();
+        var mobs = addMobs(context, EntityInit.MUSHROOM.get(), 1);
+        if (mobs == null) {
+            endSpell();
+            return;
+            //TODO: refund mana
+        }
+        int mushroomId = mobs.iterator().next();
         aoeZone = context.getLevel().getEntity(mushroomId).getBoundingBox().inflate(3d, 0, 3d);
     }
 
@@ -42,10 +52,15 @@ public class WildMushroomSpell extends SummonSpell {
         if (ticks % 60 == 0) {
             Player caster = context.getPlayer();
             List<LivingEntity> entities = caster.level().getEntitiesOfClass(
-                    LivingEntity.class, aoeZone, entity -> true);
+                    LivingEntity.class, aoeZone, entity -> !entity.is(caster) && !entity.isInvulnerable());
 
             for (LivingEntity entity : entities) {
-                entity.addEffect(new MobEffectInstance(MobEffects.POISON, 200, 1, true, true), caster);
+                entity.addEffect(new MobEffectInstance(MobEffects.POISON, 60), caster);
+                if (awardedXp < MAX_XP) {
+                    awardedXp++;
+                    context.getSkillHandler().awardSpellXp(getSpellType(), 1);
+                    context.getSkillHandler().sync(caster);
+                }
             }
 
             Vec3 minPos = aoeZone.getMinPosition();
@@ -53,8 +68,8 @@ public class WildMushroomSpell extends SummonSpell {
             for (double i = minPos.x; i < maxPos.x; i++) {
                 for (double j = minPos.z; j < maxPos.z; j++) {
                     ((ServerLevel) context.getLevel()).sendParticles(
-                            ParticleTypes.EFFECT,
-                            i, aoeZone.maxY, j,
+                            ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, FastColor.ARGB32.color(255, 8889187)),
+                            i, aoeZone.maxY - 0.5d, j,
                             1, 0, 0, 0, 0);
                 }
             }

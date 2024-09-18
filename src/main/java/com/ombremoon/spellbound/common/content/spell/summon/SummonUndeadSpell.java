@@ -18,6 +18,7 @@ public class SummonUndeadSpell extends SummonSpell {
     @Override
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
-        addMobs(context, EntityType.ZOMBIE, 1);
+        var success = addMobs(context, EntityType.ZOMBIE, 1);
+        if (success == null) endSpell(); //TODO: refund mana
     }
 }

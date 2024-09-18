@@ -31,7 +31,7 @@ public class SpellTomeItem extends Item {
             var handler = SpellUtil.getSpellHandler(player);
             if (handler.getSpellList().contains(this.spellType.get())) {
                 //NOTIFY FAILURE
-                player.getData(DataInit.SKILL_HANDLER.get()).awardSpellXp(this.spellType, 10);
+                player.getData(DataInit.SKILL_HANDLER.get()).awardSpellXp(this.spellType.get(), 10);
                 return InteractionResultHolder.fail(itemStack);
             }
 
