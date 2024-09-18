@@ -58,7 +58,7 @@ public class ClientEvents {
             if (KeyBinds.SWITCH_MODE_BINDING.consumeClick()) {
                 SpellHandler handler = player.getData(DataInit.SPELL_HANDLER);
                 handler.switchMode();
-                player.sendSystemMessage(Component.literal("Switched to " + (handler.inCastMode() ? "Cast mode" : "Normal mode")));
+                player.displayClientMessage(Component.literal("Switched to " + (handler.inCastMode() ? "Cast mode" : "Normal mode")), true);
                 PayloadHandler.switchMode();
             }
         }
