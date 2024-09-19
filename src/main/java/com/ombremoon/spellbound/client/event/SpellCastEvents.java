@@ -114,8 +114,6 @@ public class SpellCastEvents {
         if (!SpellUtil.canCastSpell(player, spell)) return;
 
         PayloadHandler.castSpell(spellType);
-        CameraEngine cameraEngine = CameraEngine.getOrAssignEngine(player);
-        cameraEngine.shakeScreen(player.getRandom().nextInt(), 10, 1, 100);
         var animation = (ModifierLayer<IAnimation>) PlayerAnimationAccess.getPlayerAssociatedData((AbstractClientPlayer) player).get(CommonClass.customLocation("animation"));
         if (animation != null)
             animation.setAnimation(new KeyframeAnimationPlayer((KeyframeAnimation) PlayerAnimationRegistry.getAnimation(CommonClass.customLocation("waving"))));

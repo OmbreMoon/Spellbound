@@ -3,10 +3,7 @@ package com.ombremoon.spellbound.networking;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.SpellType;
-import com.ombremoon.spellbound.networking.clientbound.ClientOpenWorkbenchPayload;
-import com.ombremoon.spellbound.networking.clientbound.ClientPayloadHandler;
-import com.ombremoon.spellbound.networking.clientbound.ClientSyncSkillPayload;
-import com.ombremoon.spellbound.networking.clientbound.ClientSyncSpellPayload;
+import com.ombremoon.spellbound.networking.clientbound.*;
 import com.ombremoon.spellbound.networking.serverbound.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -41,7 +38,7 @@ public class PayloadHandler {
 
     public static void syncSpellsToClient(Player player) {
         PacketDistributor.sendToPlayer((ServerPlayer) player,
-                new ClientSyncSpellPayload(
+                new SyncSpellPayload(
                         player.getData(DataInit.SPELL_HANDLER)
                                 .serializeNBT(player.level().registryAccess())
                 ));
@@ -49,14 +46,18 @@ public class PayloadHandler {
 
     public static void syncSkillsToClient(Player player) {
         PacketDistributor.sendToPlayer((ServerPlayer) player,
-                new ClientSyncSkillPayload(
+                new SyncSkillPayload(
                         player.getData(DataInit.SKILL_HANDLER)
                                 .serializeNBT(player.level().registryAccess())
                 ));
     }
 
     public static void openWorkbenchScreen(Player player) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player, new ClientOpenWorkbenchPayload());
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new OpenWorkbenchPayload());
+    }
+
+    public static void shakeScreen(Player player, int duration, float intensity, float maxOffset, int freq) {
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new ShakeScreenPayload(duration, intensity, maxOffset, freq));
     }
 
     @SubscribeEvent
@@ -89,19 +90,24 @@ public class PayloadHandler {
         );
 
         registrar.playToClient(
-                ClientSyncSpellPayload.TYPE,
-                ClientSyncSpellPayload.CODEC,
+                SyncSpellPayload.TYPE,
+                SyncSpellPayload.CODEC,
                 ClientPayloadHandler::handleClientSpellSync
         );
         registrar.playToClient(
-                ClientSyncSkillPayload.TYPE,
-                ClientSyncSkillPayload.CODEC,
+                SyncSkillPayload.TYPE,
+                SyncSkillPayload.CODEC,
                 ClientPayloadHandler::handleClientSkillSync
         );
         registrar.playToClient(
-                ClientOpenWorkbenchPayload.TYPE,
-                ClientOpenWorkbenchPayload.CODEC,
+                OpenWorkbenchPayload.TYPE,
+                OpenWorkbenchPayload.CODEC,
                 ClientPayloadHandler::handleClientOpenWorkbenchScreen
+        );
+        registrar.playToClient(
+                ShakeScreenPayload.TYPE,
+                ShakeScreenPayload.CODEC,
+                ClientPayloadHandler::handleClientShakeScreen
         );
     }
 }

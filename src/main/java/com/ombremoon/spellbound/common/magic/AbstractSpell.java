@@ -5,6 +5,7 @@ import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.init.StatInit;
+import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -172,6 +173,22 @@ public abstract class AbstractSpell {
             f = 1.0F;
         }
         return f;
+    }
+
+    protected void addScreenShake(Player player) {
+        addScreenShake(player, 10);
+    }
+
+    protected void addScreenShake(Player player, int duration) {
+        addScreenShake(player, duration, 1);
+    }
+
+    protected void addScreenShake(Player player, int duration, float intensity) {
+        addScreenShake(player, duration, intensity, 0.25F);
+    }
+
+    protected void addScreenShake(Player player, int duration, float intensity, float maxOffset) {
+        PayloadHandler.shakeScreen(player, duration, intensity, maxOffset, 10);
     }
 
     protected @Nullable LivingEntity getTargetEntity(double range) {

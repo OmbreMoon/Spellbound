@@ -2,16 +2,14 @@ package com.ombremoon.spellbound.networking.clientbound;
 
 import com.ombremoon.spellbound.CommonClass;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-public record ClientOpenWorkbenchPayload() implements CustomPacketPayload {
-    public static final Type<ClientOpenWorkbenchPayload> TYPE =
+public record OpenWorkbenchPayload() implements CustomPacketPayload {
+    public static final Type<OpenWorkbenchPayload> TYPE =
             new Type<>(CommonClass.customLocation("open_workbench"));
 
-    public static final StreamCodec<ByteBuf, ClientOpenWorkbenchPayload> CODEC = StreamCodec.unit(new ClientOpenWorkbenchPayload());
+    public static final StreamCodec<ByteBuf, OpenWorkbenchPayload> CODEC = StreamCodec.unit(new OpenWorkbenchPayload());
 
     @Override
     public Type<? extends CustomPacketPayload> type() {

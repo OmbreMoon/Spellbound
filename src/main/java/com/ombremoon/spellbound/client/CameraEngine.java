@@ -84,14 +84,14 @@ public class CameraEngine {
     }
 
     public void shakeScreen(int seed, int duration, float intensity) {
-        shakeScreen(seed, duration, intensity, 10);
+        shakeScreen(seed, duration, intensity, 0.25F);
     }
 
-    public void shakeScreen(int seed, int duration, float intensity, int freq) {
-        shakeScreen(seed, duration, intensity, freq, 0.25F);
+    public void shakeScreen(int seed, int duration, float intensity, float maxOffset) {
+        shakeScreen(seed, duration, intensity, maxOffset, 10);
     }
 
-    public void shakeScreen(int seed, int duration, float intensity, int freq, float maxOffset) {
+    public void shakeScreen(int seed, int duration, float intensity, float maxOffset, int freq) {
         this.seed = seed;
         this.shakeDuration = duration;
         this.shakeIntensity = Mth.clamp(intensity, 0.0F, MAX_INTENSITY);
