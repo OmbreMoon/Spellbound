@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.client.gui;
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.data.SkillHandler;
+import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
@@ -73,10 +74,11 @@ public class WorkbenchScreen extends Screen {
     private void renderBg(GuiGraphics guiGraphics, Player player, int xPos, int yPos, int mouseX, int mouseY, float partialTick) {
         int textColor = 16777215;
         guiGraphics.blit(TEXTURE, xPos, yPos, 0, 0, WIDTH, HEIGHT);
+        var spellHandler = player.getData(DataInit.SPELL_HANDLER);
+        var skillHandler = player.getData(DataInit.SKILL_HANDLER);
 
         for (int i = 0; i < 4; i++) {
             guiGraphics.blit(TEXTURE, xPos + 5, yPos + 26 + (i * 28), 110, 228, 73, 28);
-            var spellHandler = player.getData(DataInit.SPELL_HANDLER);
             var spellList = spellHandler.getSpellList().stream().filter(spellType -> spellType.getPath().ordinal() == pageIndex).toList();
             if (spellList.size() > i + scrollIndex) {
                 var spellType = spellList.get(i + scrollIndex);
@@ -90,9 +92,10 @@ public class WorkbenchScreen extends Screen {
                 }
             }
         }
-        var skillHandler = player.getData(DataInit.SKILL_HANDLER);
+
+        renderScaledXPBars(guiGraphics, skillHandler, xPos, yPos, textColor);
         guiGraphics.drawCenteredString(this.font, this.selectedSpell != null ? this.selectedSpell.createSpell().getSpellName() : Component.empty(), xPos + 62, yPos + 148, textColor);
-        guiGraphics.drawCenteredString(this.font, this.selectedSpell != null ? Component.literal(String.valueOf((int)skillHandler.getSpellLevel(selectedSpell))) : Component.empty(), xPos + 14, yPos + 148, textColor);
+        guiGraphics.drawCenteredString(this.font, this.selectedSpell != null ? Component.literal(String.valueOf(skillHandler.getSpellLevel(selectedSpell))) : Component.empty(), xPos + 14, yPos + 148, textColor);
         guiGraphics.drawCenteredString(this.font, SpellPath.values()[pageIndex].toString(), xPos + 41, yPos + 8, SpellPath.values()[pageIndex].getColor());
     }
 
@@ -105,7 +108,28 @@ public class WorkbenchScreen extends Screen {
         }
     }
 
-    protected boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY) {
+    private void renderScaledXPBars(GuiGraphics guiGraphics, SkillHandler skillHandler, int xPos, int yPos, int textColor) {
+        float pathXP = skillHandler.getPathXp(SpellPath.values()[this.pageIndex]);
+        int pathLevel = skillHandler.getPathLevel(SpellPath.values()[this.pageIndex]);
+        if (pathXP > 0) {
+            int xpGoal = 100 * (pathLevel + 1);
+            int scale = RenderUtil.getScaledRender(pathXP - (100 * pathLevel), xpGoal - (100 * pathLevel), 141);
+            guiGraphics.blit(TEXTURE, xPos + 82, yPos + 5, 115, 188, scale, 5);
+        }
+
+        if (this.selectedSpell == null) return;
+
+        float spellXP = skillHandler.getSpellXp(this.selectedSpell);
+        int spellLevel = skillHandler.getSpellLevel(this.selectedSpell);
+        if (spellXP > 0) {
+            int xpGoal = Math.min(100 * (spellLevel + 1), 500);
+            int scale = RenderUtil.getScaledRender(spellXP - (100 * spellLevel), xpGoal - (100 * spellLevel), 122);
+            guiGraphics.drawCenteredString(this.font, Component.literal((int )spellXP + " / " + xpGoal), xPos + 163, yPos + 143, textColor);
+            guiGraphics.blit(TEXTURE, xPos + 103, yPos + 153, 134, 194, spellXP != 500 ? scale : 122, 5);
+        }
+    }
+
+    private boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY) {
         int i = this.leftPos;
         int j = this.topPos;
         double d0 = pMouseX - (double)(i + pX);

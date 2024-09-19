@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.client.event;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.client.CameraEngine;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellType;
@@ -65,7 +66,6 @@ public class SpellCastEvents {
         var spellType = handler.getSelectedSpell();
         if (spellType == null) return;
 
-        if (player.tickCount % 40 == 0) Constants.LOG.info("Mode");
         if (KeyBinds.getSpellCastMapping().isDown()) {
             AbstractSpell spell = spellType.createSpell();
             int castTime = spell.getCastTime();
@@ -114,6 +114,8 @@ public class SpellCastEvents {
         if (!SpellUtil.canCastSpell(player, spell)) return;
 
         PayloadHandler.castSpell(spellType);
+        CameraEngine cameraEngine = CameraEngine.getOrAssignEngine(player);
+        cameraEngine.shakeScreen(player.getRandom().nextInt(), 10, 1, 100);
         var animation = (ModifierLayer<IAnimation>) PlayerAnimationAccess.getPlayerAssociatedData((AbstractClientPlayer) player).get(CommonClass.customLocation("animation"));
         if (animation != null)
             animation.setAnimation(new KeyframeAnimationPlayer((KeyframeAnimation) PlayerAnimationRegistry.getAnimation(CommonClass.customLocation("waving"))));

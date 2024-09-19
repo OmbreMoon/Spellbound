@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.magic;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.init.StatInit;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -22,12 +23,16 @@ import net.minecraft.world.phys.*;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
+
 public abstract class AbstractSpell {
     protected static final Logger LOGGER = Constants.LOG;
     private final SpellType<?> spellType;
     private final int manaCost;
     private final int duration;
     private final int castTime;
+    private BiPredicate<Player, AbstractSpell> castPredicate;
     private final CastType castType;
     private final SoundEvent castSound;
     private Level level;
@@ -35,6 +40,7 @@ public abstract class AbstractSpell {
     private BlockPos blockPos;
     private String descriptionId;
     private SpellContext context;
+    private boolean isRecast;
     public int ticks = 0;
     public boolean isInactive = false;
     public boolean init = false;
@@ -48,6 +54,7 @@ public abstract class AbstractSpell {
         this.manaCost = builder.manaCost;
         this.duration = builder.duration;
         this.castTime = builder.castTime;
+        this.castPredicate = builder.castPredicate;
         this.castType = builder.castType;
         this.castSound = builder.castSound;
     }
@@ -123,6 +130,8 @@ public abstract class AbstractSpell {
     private void startSpell() {
         this.init = false;
         this.onSpellStart(this.context);
+        if (this.isRecast)
+            this.onSpellRecast(this.context);
     }
 
     private void tickSpell() {
@@ -140,6 +149,9 @@ public abstract class AbstractSpell {
     }
 
     protected void onSpellStart(SpellContext context) {
+    }
+
+    protected void onSpellRecast(SpellContext context) {
     }
 
     protected void onSpellStop(SpellContext context) {
@@ -161,10 +173,6 @@ public abstract class AbstractSpell {
         }
         return f;
     }
-
-//    protected DamageInstance createDamageInstance() {
-//        return null;
-//    }
 
     protected @Nullable LivingEntity getTargetEntity(double range) {
         return getTargetEntity(this.caster, range);
@@ -218,6 +226,10 @@ public abstract class AbstractSpell {
         this.blockPos = blockPos;
         this.context = new SpellContext(this.caster, this.level, this.blockPos, this.getTargetEntity(8));
 
+        var list = player.getData(DataInit.SPELL_HANDLER).getActiveSpells().stream().map(AbstractSpell::getId).toList();
+        if (list.contains(getId())) this.isRecast = true;
+
+        if (!this.castPredicate.test(player, this)) return;
         SpellUtil.activateSpell(player, this);
         player.awardStat(StatInit.SPELLS_CAST.get());
         this.init = true;
@@ -227,6 +239,7 @@ public abstract class AbstractSpell {
         protected int duration = 10;
         protected int manaCost;
         protected int castTime = 1;
+        protected BiPredicate<Player, AbstractSpell> castPredicate = (player, spell) -> true;
         protected CastType castType = CastType.CHARGING;
         protected SoundEvent castSound;
 

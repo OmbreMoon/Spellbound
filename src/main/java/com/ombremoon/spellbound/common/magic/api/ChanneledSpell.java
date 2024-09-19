@@ -1,12 +1,16 @@
 package com.ombremoon.spellbound.common.magic.api;
 
 import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.player.Player;
+
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 public abstract class ChanneledSpell extends AnimatedSpell {
     protected int manaTickCost;
@@ -71,6 +75,11 @@ public abstract class ChanneledSpell extends AnimatedSpell {
 
         public Builder<T> setCastTime(int castTime) {
             this.castTime = castTime;
+            return this;
+        }
+
+        public Builder<T> castCondition(BiPredicate<Player, AbstractSpell> castCondition) {
+            this.castPredicate = castCondition;
             return this;
         }
 

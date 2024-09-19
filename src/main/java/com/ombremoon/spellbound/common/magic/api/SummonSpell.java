@@ -53,7 +53,7 @@ public abstract class SummonSpell extends AnimatedSpell {
                 if (level.getEntity(mob) != null) level.getEntity(mob).discard();
                 LogUtils.getLogger().debug("{}", level.getEntity(mob));
             }
-            handler.sync(player);
+            handler.sync();
         }
 
         context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.POST_DAMAGE, DAMAGE_EVENT);
@@ -79,7 +79,7 @@ public abstract class SummonSpell extends AnimatedSpell {
         }
 
         handler.addSummons(this, summonedMobs);
-        handler.sync(player);
+        handler.sync();
         return summonedMobs;
     }
 

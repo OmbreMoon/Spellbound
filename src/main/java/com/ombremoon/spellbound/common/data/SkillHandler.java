@@ -45,8 +45,8 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         return pathXp.get(path);
     }
 
-    public float getSpellLevel(SpellType<?> spellType) {
-        return (int) Math.floor((double) getSpellXp(spellType) / 10); //TODO: What Duck said
+    public int getSpellLevel(SpellType<?> spellType) {
+        return (int) Math.min(Math.floor((double) getSpellXp(spellType) / 100), 5); //TODO: What Duck said
     }
 
     public float getSpellXp(SpellType<?> spellType) {
@@ -55,8 +55,8 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
     }
 
     public void awardSpellXp(SpellType<?> spellType, float xp) {
-        spellXp.put(spellType, getSpellXp(spellType) + xp);
-        pathXp.put(spellType.getPath(), getPathXp(spellType.getPath()) + xp);
+        spellXp.put(spellType, Math.min(getSpellXp(spellType) + xp, 500));
+        pathXp.put(spellType.getPath(), getPathXp(spellType.getPath()) + (xp / 2));
     }
 
     public <T extends AbstractSpell> void resetSkills(Supplier<SpellType<T>> spellType) {

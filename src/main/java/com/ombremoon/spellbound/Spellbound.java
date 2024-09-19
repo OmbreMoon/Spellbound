@@ -17,9 +17,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 
 //TODO: General - Discuss Path Shards with team
-//TODO: AbstractSpell - Recast callback
-//TODO: AbstractSpell - Cast condition
-//TODO: AbstractSpell - Block raycast
 
 @Mod(Constants.MOD_ID)
 public class Spellbound {

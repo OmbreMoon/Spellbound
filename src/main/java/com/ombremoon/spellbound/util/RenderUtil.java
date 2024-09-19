@@ -15,4 +15,8 @@ public class RenderUtil {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         RenderSystem.setShaderTexture(0, resourceLocation);
     }
+
+    public static int getScaledRender(float current, int max, int size) {
+        return max != 0 && current != 0 ? (int) (current * size / max) : 0;
+    }
 }

@@ -15,7 +15,7 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.client.event.CustomizeGuiOverlayEvent;
 
 public class SelectedSpellOverlay implements LayeredDraw.Layer {
-    private static final ResourceLocation BACKGROUND = CommonClass.customLocation("textures/icons/spell_background.png");
+    private static final ResourceLocation BACKGROUND = CommonClass.customLocation("textures/gui/spells/spell_background.png");
 
     public SelectedSpellOverlay(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         render(guiGraphics, deltaTracker);
@@ -32,8 +32,7 @@ public class SelectedSpellOverlay implements LayeredDraw.Layer {
         SpellType<?> spell = handler.getSelectedSpell();
         if (spell == null) return;
 
-        ResourceLocation spellLoc = spell.getResourceLocation();
-        ResourceLocation texture = ResourceLocation.fromNamespaceAndPath(spellLoc.getNamespace(), "textures/icons/" + spellLoc.getPath() + ".png");
+        ResourceLocation texture = spell.createSpell().getSpellTexture();
 
         guiGraphics.blit(BACKGROUND, x-5, y-5, 0, 0, 34, 34, 34, 34);
         guiGraphics.blit(texture, x, y, 0, 0, 24, 24, 24, 24);

@@ -33,8 +33,10 @@ public class NeoForgeEvents {
             if (livingEntity instanceof Player player) {
                 if (!player.level().isClientSide) {
                     var handler = player.getData(DataInit.SPELL_HANDLER.get());
-                    PayloadHandler.syncSpellsToClient(player);
+                    var skillHandler = player.getData(DataInit.SKILL_HANDLER);
                     handler.initData(player);
+                    handler.sync();
+                    skillHandler.sync(player);
                 }
             }
         }
@@ -45,7 +47,7 @@ public class NeoForgeEvents {
         if (event.getEntity() instanceof Player player && player.level() instanceof ServerLevel level) {
             SpellHandler handler = player.getData(DataInit.SPELL_HANDLER);
             handler.clearAllSummons(level);
-            handler.sync(player);
+            handler.sync();
         };
     }
 
@@ -63,7 +65,7 @@ public class NeoForgeEvents {
             event.getEntity().getData(DataInit.SPELL_HANDLER).getActiveSpells().clear();
             SpellHandler handler = event.getEntity().getData(DataInit.SPELL_HANDLER);
             handler.clearAllSummons(level);
-            handler.sync(event.getEntity());
+            handler.sync();
         }
     }
 
