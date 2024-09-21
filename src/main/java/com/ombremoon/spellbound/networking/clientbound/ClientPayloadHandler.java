@@ -34,6 +34,12 @@ public class ClientPayloadHandler {
         });
     }
 
+    public static void handleClientUpdateTree(UpdateTreePayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            Minecraft.getInstance().player.getData(DataInit.SKILL_HANDLER).update(payload);
+        });
+    }
+
     public static void handleClientShakeScreen(ShakeScreenPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             CameraEngine cameraEngine = CameraEngine.getOrAssignEngine(context.player());

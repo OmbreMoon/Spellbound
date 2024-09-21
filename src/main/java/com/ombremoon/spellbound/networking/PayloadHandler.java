@@ -3,8 +3,10 @@ package com.ombremoon.spellbound.networking;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.networking.clientbound.*;
 import com.ombremoon.spellbound.networking.serverbound.*;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -12,6 +14,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+
+import java.util.List;
+import java.util.Set;
 
 @EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class PayloadHandler {
@@ -54,6 +59,10 @@ public class PayloadHandler {
 
     public static void openWorkbenchScreen(Player player) {
         PacketDistributor.sendToPlayer((ServerPlayer) player, new OpenWorkbenchPayload());
+    }
+
+    public static void updateTree(Player player, boolean reset, List<Skill> added, Set<ResourceLocation> removed) {
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new UpdateTreePayload(reset, added, removed));
     }
 
     public static void shakeScreen(Player player, int duration, float intensity, float maxOffset, int freq) {
@@ -103,6 +112,11 @@ public class PayloadHandler {
                 OpenWorkbenchPayload.TYPE,
                 OpenWorkbenchPayload.CODEC,
                 ClientPayloadHandler::handleClientOpenWorkbenchScreen
+        );
+        registrar.playToClient(
+                UpdateTreePayload.TYPE,
+                UpdateTreePayload.CODEC,
+                ClientPayloadHandler::handleClientUpdateTree
         );
         registrar.playToClient(
                 ShakeScreenPayload.TYPE,

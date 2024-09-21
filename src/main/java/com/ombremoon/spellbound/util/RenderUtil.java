@@ -1,8 +1,13 @@
 package com.ombremoon.spellbound.util;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 
 public class RenderUtil {
 
@@ -18,5 +23,16 @@ public class RenderUtil {
 
     public static int getScaledRender(float current, int max, int size) {
         return max != 0 && current != 0 ? (int) (current * size / max) : 0;
+    }
+
+    public static void drawWordWrap(GuiGraphics guiGraphics, Font font, FormattedText text, int x, int y, int lineWidth, int color) {
+        for (FormattedCharSequence formattedcharsequence : font.split(text, lineWidth)) {
+            drawCenteredString(guiGraphics, font, formattedcharsequence, x, y, color);
+            y += 9;
+        }
+    }
+
+    public static void drawCenteredString(GuiGraphics guiGraphics, Font font, FormattedCharSequence text, int x, int y, int color) {
+        guiGraphics.drawString(font, text, x - font.width(text) / 2, y - font.lineHeight / 2, color);
     }
 }

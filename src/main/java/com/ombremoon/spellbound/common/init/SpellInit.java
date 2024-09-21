@@ -3,8 +3,8 @@ package com.ombremoon.spellbound.common.init;
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.content.spell.summon.SummonUndeadSpell;
-import com.ombremoon.spellbound.common.content.spell.TestSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.WildMushroomSpell;
+import com.ombremoon.spellbound.common.content.spell.test.*;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
@@ -24,6 +24,11 @@ public class SpellInit {
     public static final DeferredRegister<SpellType<?>> SPELL_TYPES = DeferredRegister.create(REGISTRY, Constants.MOD_ID);
 
     public static final Supplier<SpellType<AnimatedSpell>> TEST_SPELL = registerRuinSpell("test_spell", TestSpell::new);
+    public static final Supplier<SpellType<AnimatedSpell>> TEST_SPELL1 = registerRuinSpell("test_spell1", TestSpell1::new);
+    public static final Supplier<SpellType<AnimatedSpell>> TEST_SPELL2 = registerRuinSpell("test_spell2", TestSpell2::new);
+    public static final Supplier<SpellType<AnimatedSpell>> TEST_SPELL3 = registerRuinSpell("test_spell3", TestSpell3::new);
+    public static final Supplier<SpellType<AnimatedSpell>> TEST_SPELL4 = registerRuinSpell("test_spell4", TestSpell4::new);
+    public static final Supplier<SpellType<AnimatedSpell>> TEST_SPELL5 = registerRuinSpell("test_spell5", TestSpell5::new);
 
     //Summons
     public static final Supplier<SpellType<AnimatedSpell>> SUMMON_UNDEAD_SPELL = registerSummonSpell("summon_undead", SummonUndeadSpell::new);

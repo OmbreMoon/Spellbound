@@ -188,7 +188,11 @@ public abstract class AbstractSpell {
     }
 
     protected void addScreenShake(Player player, int duration, float intensity, float maxOffset) {
-        PayloadHandler.shakeScreen(player, duration, intensity, maxOffset, 10);
+        addScreenShake(player, duration, intensity, maxOffset, 10);
+    }
+
+    protected void addScreenShake(Player player, int duration, float intensity, float maxOffset, int freq) {
+        PayloadHandler.shakeScreen(player, duration, intensity, maxOffset, freq);
     }
 
     protected @Nullable LivingEntity getTargetEntity(double range) {

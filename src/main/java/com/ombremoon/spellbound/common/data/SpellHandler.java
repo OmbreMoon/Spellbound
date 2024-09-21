@@ -103,6 +103,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     public void learnSpell(SpellType<?> spellType) {
         this.spellSet.add(spellType);
+        //TODO: CALL UPDATE ON CLIENT IN SKILLHANDLER
     }
 
     public ObjectOpenHashSet<AbstractSpell> getActiveSpells() {

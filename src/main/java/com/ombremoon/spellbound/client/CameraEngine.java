@@ -6,7 +6,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Camera;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -104,7 +103,7 @@ public class CameraEngine {
         Player player = event.getEntity();
         if (!player.level().isClientSide) return;
 
-        CameraEngine cameraEngine = CameraEngine.getOrAssignEngine(player);
+        CameraEngine cameraEngine = getOrAssignEngine(player);
         if (cameraEngine.shouldShakeCamera()) {
             cameraEngine.tickDuration();
         }
@@ -113,7 +112,7 @@ public class CameraEngine {
     @SubscribeEvent
     public static void onComputeCameraAngles(ViewportEvent.ComputeCameraAngles event) {
         Camera camera = event.getCamera();
-        CameraEngine cameraEngine = CameraEngine.getOrAssignEngine((Player) camera.getEntity());
+        CameraEngine cameraEngine = getOrAssignEngine((Player) camera.getEntity());
         int time = camera.getEntity().tickCount;
         if (cameraEngine != null && cameraEngine.shouldShakeCamera()) {
             int seed = cameraEngine.getSeed();
