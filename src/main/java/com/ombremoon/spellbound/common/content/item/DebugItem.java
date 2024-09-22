@@ -8,8 +8,11 @@ import com.ombremoon.spellbound.common.init.SkillInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
 import com.ombremoon.spellbound.networking.PayloadHandler;
+import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -27,8 +30,9 @@ public class DebugItem extends Item {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
-        var handler = player.getData(DataInit.SPELL_HANDLER.get());
+        var handler = SpellUtil.getSpellHandler(player);
         var skillHandler = player.getData(DataInit.SKILL_HANDLER.get());
+        ombreDebug(level, player, usedHand, handler, skillHandler);
         if (!level.isClientSide && !player.isCrouching()) {
             skillHandler.unlockSkill(SpellInit.WILD_MUSHROOM_SPELL.get(), SkillInit.VILE_INFLUENCE.value());
             handler.sync();
@@ -41,17 +45,21 @@ public class DebugItem extends Item {
             handler.sync();
             skillHandler.sync(player);
         }
-        ombreDebug(level, player, usedHand, handler, skillHandler);
         return super.use(level, player, usedHand);
     }
 
     private void ombreDebug(Level level, Player player, InteractionHand usedHand, SpellHandler spellHandler, SkillHandler skillHandler) {
+        UpgradeTree tree = player.getData(DataInit.UPGRADE_TREE);
         if (!level.isClientSide) {
-            PayloadHandler.updateTree(player, false, List.of(SkillInit.WILD_MUSHROOM.value(), SkillInit.VILE_INFLUENCE.value(), SkillInit.HASTENED_GROWTH.value()), Set.of());
+//            tree.clear(player);
+//            spellHandler.removeSpell(SpellInit.WILD_MUSHROOM_SPELL.get());
+//            spellHandler.learnSpell(SpellInit.WILD_MUSHROOM_SPELL.get());
+//            Constants.LOG.info("{}", spellHandler.getSpellList().stream().map(SpellType::getResourceLocation).map(ResourceLocation::getPath).toList());
+
         } else {
-            Constants.LOG.info("{}", skillHandler.upgradeTree.nodes());
-            Constants.LOG.info("{}", skillHandler.upgradeTree.children());
-            Constants.LOG.info("{}", skillHandler.upgradeTree.roots());
+            Constants.LOG.info("{}", tree.nodes());
+            Constants.LOG.info("{}", tree.children());
+            Constants.LOG.info("{}", tree.roots());
         }
     }
 }

@@ -3,6 +3,7 @@ package com.ombremoon.spellbound;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SkillInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
+import com.ombremoon.spellbound.util.SpellUtil;
 import dev.kosmx.playerAnim.api.layered.IAnimation;
 import dev.kosmx.playerAnim.api.layered.ModifierLayer;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationFactory;
@@ -25,12 +26,12 @@ public class Spellbound {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::clientSetup);
         modEventBus.addListener(this::registerRegistry);
-        NeoForge.EVENT_BUS.addListener(PlayerEvent.Clone.class, event -> {
+        /*NeoForge.EVENT_BUS.addListener(PlayerEvent.Clone.class, event -> {
             if (event.isWasDeath() && event.getOriginal().hasData(DataInit.SPELL_HANDLER.get())) {
-                event.getEntity().getData(DataInit.SPELL_HANDLER.get()).deserializeNBT(event.getEntity().registryAccess(), event.getOriginal().getData(DataInit.SPELL_HANDLER.get()).serializeNBT(event.getEntity().registryAccess()));
-                event.getEntity().getData(DataInit.SPELL_HANDLER.get()).caster = event.getOriginal().getData(DataInit.SPELL_HANDLER.get()).caster;
+                SpellUtil.getSpellHandler(event.getEntity()).deserializeNBT(event.getEntity().registryAccess(), SpellUtil.getSpellHandler(event.getOriginal()).serializeNBT(event.getEntity().registryAccess()));
+                SpellUtil.getSpellHandler(event.getEntity()).caster = SpellUtil.getSpellHandler(event.getOriginal()).caster;
             }
-        });
+        });*/
         CommonClass.init(modEventBus);
     }
 

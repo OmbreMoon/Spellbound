@@ -6,9 +6,7 @@ import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
-import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
 import com.ombremoon.spellbound.networking.PayloadHandler;
-import com.ombremoon.spellbound.networking.clientbound.UpdateTreePayload;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.core.Holder;
@@ -18,7 +16,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -26,11 +23,8 @@ import java.util.Set;
 
 public class SkillHandler implements INBTSerializable<CompoundTag> {
     protected final Map<SpellPath, Float> pathXp = new Object2FloatOpenHashMap<>();
-    public final Map<SpellType<?>, Float> spellXp = new Object2FloatOpenHashMap<>();
+    protected final Map<SpellType<?>, Float> spellXp = new Object2FloatOpenHashMap<>();
     protected final Map<SpellType<?>, Set<Skill>> unlockedSkills = new Object2ObjectOpenHashMap<>();
-    public final UpgradeTree upgradeTree = new UpgradeTree();
-    @Nullable
-    private Skill currentSpell;
 
     public void sync(Player player) {
         PayloadHandler.syncSkillsToClient(player);
@@ -78,6 +72,7 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
     public boolean canUnlockSkill(SpellType<?> spellType, Skill skill) {
         if ((float) skill.getXpCost() > getSpellXp(spellType)) return false;
         if (hasSkill(spellType, skill)) return false;
+        if (skill.getPrereqs() == null) return true;
 
         Set<Skill> unlocked = unlockedSkills.get(spellType);
         for (Holder<Skill> prereq : skill.getPrereqs()) {
@@ -90,13 +85,6 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
     public boolean hasSkill(SpellType<?> spellType, Skill skill) {
         if (unlockedSkills.get(spellType) == null) return false;
         return unlockedSkills.get(spellType).contains(skill);
-    }
-
-    public void update(UpdateTreePayload payload) {
-        if (payload.reset()) this.upgradeTree.clear();
-
-        this.upgradeTree.remove(payload.removed());
-        this.upgradeTree.addAll(payload.added());
     }
 
     @Override
@@ -136,7 +124,6 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         tag.put("PathXp", pathxpTag);
         tag.put("SpellXp", spellXpTag);
         tag.put("Skills", skillsTag);
-
         return tag;
     }
 
@@ -165,6 +152,5 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
             }
             this.unlockedSkills.put(SpellInit.REGISTRY.get(ResourceLocation.tryParse(tag.getString("Spell"))), skills);
         }
-
     }
 }

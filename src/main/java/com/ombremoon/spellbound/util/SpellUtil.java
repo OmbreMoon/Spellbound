@@ -50,7 +50,7 @@ public class SpellUtil {
         }
     }
 
-    private static  <T> T findNextSpellInList(Collection<T> spellList, T currentSpell) {
+    private static <T> T findNextSpellInList(Collection<T> spellList, T currentSpell) {
         Iterator<T> iterator = spellList.iterator();
 
         while (iterator.hasNext()) {

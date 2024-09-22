@@ -6,6 +6,7 @@ import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SkillInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -24,7 +25,7 @@ public class SelectedSpellOverlay implements LayeredDraw.Layer {
     @Override
     public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         Player player = Minecraft.getInstance().player;
-        SpellHandler handler = player.getData(DataInit.SPELL_HANDLER);
+        SpellHandler handler = SpellUtil.getSpellHandler(player);
         if (!handler.inCastMode()) return;
 
         int x = guiGraphics.guiWidth() - 40;

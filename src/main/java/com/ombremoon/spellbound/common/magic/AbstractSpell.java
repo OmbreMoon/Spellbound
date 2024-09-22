@@ -5,8 +5,10 @@ import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.init.StatInit;
+import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.Tag;
@@ -24,6 +26,7 @@ import net.minecraft.world.phys.*;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
+import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
@@ -247,7 +250,7 @@ public abstract class AbstractSpell {
         this.blockPos = blockPos;
         this.context = new SpellContext(this.caster, this.level, this.blockPos, this.getTargetEntity(8));
 
-        var list = player.getData(DataInit.SPELL_HANDLER).getActiveSpells().stream().map(AbstractSpell::getId).toList();
+        var list = SpellUtil.getSpellHandler(player).getActiveSpells().stream().map(AbstractSpell::getId).toList();
         if (list.contains(getId())) this.isRecast = true;
 
         if (!this.castPredicate.test(player, this)) return;

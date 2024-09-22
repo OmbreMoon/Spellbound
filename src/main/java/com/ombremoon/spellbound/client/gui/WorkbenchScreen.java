@@ -10,6 +10,7 @@ import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeWindow;
 import com.ombremoon.spellbound.util.RenderUtil;
+import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -48,7 +49,7 @@ public class WorkbenchScreen extends Screen {
     protected void init() {
         this.leftPos = (this.width - WIDTH) / 2;
         this.topPos = (this.height - HEIGHT) / 2;
-        this.spellHandler = this.minecraft.player.getData(DataInit.SPELL_HANDLER);
+        this.spellHandler = SpellUtil.getSpellHandler(this.minecraft.player);
         this.spellList = this.spellHandler.getSpellList().stream().filter(spellType -> spellType.getPath().ordinal() == pageIndex).toList();
     }
 

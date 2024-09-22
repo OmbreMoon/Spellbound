@@ -11,6 +11,7 @@ import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.EntityInit;
 import com.ombremoon.spellbound.networking.PayloadHandler;
+import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.network.chat.Component;
@@ -56,7 +57,7 @@ public class ClientEvents {
         public static void onKeyInput(InputEvent.Key event) {
             Player player = Minecraft.getInstance().player;
             if (KeyBinds.SWITCH_MODE_BINDING.consumeClick()) {
-                SpellHandler handler = player.getData(DataInit.SPELL_HANDLER);
+                SpellHandler handler = SpellUtil.getSpellHandler(player);
                 handler.switchMode();
                 player.displayClientMessage(Component.literal("Switched to " + (handler.inCastMode() ? "Cast mode" : "Normal mode")), true);
                 PayloadHandler.switchMode();

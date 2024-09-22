@@ -6,6 +6,7 @@ import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.networking.clientbound.*;
 import com.ombremoon.spellbound.networking.serverbound.*;
+import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -44,7 +45,7 @@ public class PayloadHandler {
     public static void syncSpellsToClient(Player player) {
         PacketDistributor.sendToPlayer((ServerPlayer) player,
                 new SyncSpellPayload(
-                        player.getData(DataInit.SPELL_HANDLER)
+                        SpellUtil.getSpellHandler(player)
                                 .serializeNBT(player.level().registryAccess())
                 ));
     }

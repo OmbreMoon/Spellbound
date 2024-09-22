@@ -5,6 +5,8 @@ import com.ombremoon.spellbound.client.gui.WorkbenchScreen;
 import com.ombremoon.spellbound.common.data.SkillHandler;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
+import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -13,18 +15,16 @@ public class ClientPayloadHandler {
 
     public static void handleClientSpellSync(SyncSpellPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
-            SpellHandler handler = new SpellHandler();
+            SpellHandler handler = SpellUtil.getSpellHandler(context.player());
             handler.deserializeNBT(context.player().level().registryAccess(), payload.tag());
-            handler.caster = context.player();
-            context.player().setData(DataInit.SPELL_HANDLER, handler);
+            if (handler.caster == null) handler.caster = context.player();
         });
     }
 
     public static void handleClientSkillSync(SyncSkillPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
-            SkillHandler handler = new SkillHandler();
+            SkillHandler handler = context.player().getData(DataInit.SKILL_HANDLER);
             handler.deserializeNBT(context.player().level().registryAccess(), payload.tag());
-            context.player().setData(DataInit.SKILL_HANDLER, handler);
         });
     }
 
@@ -36,7 +36,7 @@ public class ClientPayloadHandler {
 
     public static void handleClientUpdateTree(UpdateTreePayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
-            Minecraft.getInstance().player.getData(DataInit.SKILL_HANDLER).update(payload);
+            context.player().getData(DataInit.UPGRADE_TREE).update(payload);
         });
     }
 

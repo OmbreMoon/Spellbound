@@ -1,11 +1,14 @@
 package com.ombremoon.spellbound.common.data;
 
 import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
+import com.ombremoon.spellbound.common.magic.skills.Skill;
+import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -18,6 +21,7 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SpellHandler implements INBTSerializable<CompoundTag> {
     private SpellEventListener listener;
@@ -31,7 +35,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     protected Map<SummonSpell, Set<Integer>> activeSummons = new HashMap<>();
     public int castTick;
     private boolean channelling;
-    protected boolean initialized = false;
 
     public SpellHandler() {
 
@@ -44,10 +47,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     public void initData(Player player) {
         this.caster = player;
         this.listener = new SpellEventListener(player);
-        this.initialized = true;
-    }
-    public boolean isInitialized() {
-        return this.initialized = true;
     }
 
     public Player getCaster() {
@@ -101,9 +100,19 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         return this.spellSet;
     }
 
+    public void removeSpell(SpellType<?> spellType) {
+        this.spellSet.remove(spellType);
+        UpgradeTree tree = this.caster.getData(DataInit.UPGRADE_TREE);
+        var locations = spellType.getSkills().stream().map(Skill::location).collect(Collectors.toSet());
+        tree.remove(locations);
+        tree.update(this.caster, locations);
+    }
+
     public void learnSpell(SpellType<?> spellType) {
         this.spellSet.add(spellType);
-        //TODO: CALL UPDATE ON CLIENT IN SKILLHANDLER
+        UpgradeTree tree = this.caster.getData(DataInit.UPGRADE_TREE);
+        tree.addAll(spellType.getSkills());
+        tree.update(this.caster, spellType.getSkills());
     }
 
     public ObjectOpenHashSet<AbstractSpell> getActiveSpells() {

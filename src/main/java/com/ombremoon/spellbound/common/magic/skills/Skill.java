@@ -27,7 +27,7 @@ public class Skill {
         this(spellType, null, 0, null);
     }
 
-    public Skill(Supplier<? extends SpellType<?>> spellType, ResourceLocation resLoc, int xpCost, @Nullable  HolderSet<Skill> prerequisites) {
+    public Skill(Supplier<? extends SpellType<?>> spellType, ResourceLocation resLoc, int xpCost, @Nullable HolderSet<Skill> prerequisites) {
         this.spellType = spellType;
         this.xpCost = xpCost;
         this.resourceLocation = resLoc;

@@ -36,6 +36,12 @@ public class SkillInit {
     public static final Holder<Skill> RECYCLED = registerSkill("recycled", SpellInit.WILD_MUSHROOM_SPELL, 10, preReqs(NATURES_DOMINANCE));
     public static final Holder<Skill> SYNTHESIS = registerSkill("synthesis", SpellInit.WILD_MUSHROOM_SPELL, 10, preReqs(POISON_ESSENCE));
 
+    //Volcano
+    public static final Holder<Skill> VOLCANO = registerSkill("volcano", SpellInit.VOLCANO);
+    public static final Holder<Skill> INFERNO_CORE = registerSkill("inferno_core", SpellInit.VOLCANO, 10, preReqs(VOLCANO));
+    public static final Holder<Skill> LAVA_FLOW = registerSkill("lava_flow", SpellInit.VOLCANO, 10, preReqs(VOLCANO));
+    public static final Holder<Skill> EXPLOSIVE_BARRAGE = registerSkill("explosive_barrage", SpellInit.VOLCANO, 10, preReqs(VOLCANO));
+
     private static Holder<Skill> registerSkill(String name, Supplier<? extends SpellType<?>> spellType) {
         return SKILLS.register(name, () -> new Skill(spellType, CommonClass.customLocation(name), 0, null));
     }

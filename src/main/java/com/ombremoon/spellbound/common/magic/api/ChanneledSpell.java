@@ -32,7 +32,7 @@ public abstract class ChanneledSpell extends AnimatedSpell {
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
         Player player = context.getPlayer();
-        var handler = player.getData(DataInit.SPELL_HANDLER.get());
+        var handler = SpellUtil.getSpellHandler(player);
         handler.setChannelling(true);
         PayloadHandler.syncSpellsToClient(player);
     }
