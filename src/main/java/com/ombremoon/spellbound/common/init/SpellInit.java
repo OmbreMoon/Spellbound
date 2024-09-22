@@ -2,8 +2,9 @@ package com.ombremoon.spellbound.common.init;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.common.content.spell.summon.SummonUndeadSpell;
 import com.ombremoon.spellbound.common.content.spell.TestSpell;
+import com.ombremoon.spellbound.common.content.spell.ruin.VolcanoSpell;
+import com.ombremoon.spellbound.common.content.spell.summon.SummonUndeadSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.WildMushroomSpell;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellPath;
@@ -18,23 +19,49 @@ import net.neoforged.neoforge.registries.RegistryBuilder;
 import java.util.Set;
 import java.util.function.Supplier;
 
+@SuppressWarnings("unchecked")
 public class SpellInit {
     public static final ResourceKey<Registry<SpellType<?>>> SPELL_TYPE_REGISTRY_KEY = ResourceKey.createRegistryKey(CommonClass.customLocation("spell_type"));
     public static final Registry<SpellType<?>> REGISTRY = new RegistryBuilder<>(SPELL_TYPE_REGISTRY_KEY).sync(true).create();
     public static final DeferredRegister<SpellType<?>> SPELL_TYPES = DeferredRegister.create(REGISTRY, Constants.MOD_ID);
 
-    public static final Supplier<SpellType<AnimatedSpell>> TEST_SPELL = registerRuinSpell("test_spell", TestSpell::new);
+    public static final Supplier<SpellType<TestSpell>> TEST_SPELL = registerSpell("test_spell", ruinBuilder("test_spell", TestSpell::new));
+
+    //Ruin
+    public static final Supplier<SpellType<VolcanoSpell>> VOLCANO = registerSpell("volcano", ruinBuilder("volcano", VolcanoSpell::new)
+            .setAvailableSkills(
+                    SkillInit.VOLCANO, SkillInit.INFERNO_CORE, SkillInit.LAVA_FLOW, SkillInit.EXPLOSIVE_BARRAGE));
 
     //Summons
-    public static final Supplier<SpellType<AnimatedSpell>> SUMMON_UNDEAD_SPELL = registerSummonSpell("summon_undead", SummonUndeadSpell::new);
-    public static final Supplier<SpellType<AnimatedSpell>> WILD_MUSHROOM_SPELL = registerSummonSpell("wild_mushroom", WildMushroomSpell::new);
+    public static final Supplier<SpellType<SummonUndeadSpell>> SUMMON_UNDEAD_SPELL = registerSpell("summon_undead", summonBuilder("summon_undead", SummonUndeadSpell::new));
+    public static final Supplier<SpellType<WildMushroomSpell>> WILD_MUSHROOM_SPELL = registerSpell("wild_mushroom", summonBuilder("wild_mushroom", WildMushroomSpell::new)
+            .setAvailableSkills(
+                    SkillInit.WILD_MUSHROOM, SkillInit.VILE_INFLUENCE, SkillInit.HASTENED_GROWTH, SkillInit.ENVENOM,
+                    SkillInit.DECOMPOSE, SkillInit.NATURES_DOMINANCE, SkillInit.POISON_ESSENCE,
+                    SkillInit.CIRCLE_OF_LIFE, SkillInit.CATALEPSY, SkillInit.RECYCLED, SkillInit.SYNTHESIS));
 
-    private static <T extends AbstractSpell> Supplier<SpellType<T>> registerRuinSpell(String name, SpellType.SpellFactory<T> factory) {
-        return SPELL_TYPES.register(name, () -> new SpellType<>(CommonClass.customLocation(name), SpellPath.RUIN, Set.of(), factory));
+    private static <T extends AbstractSpell> Supplier<SpellType<T>> registerSpell(String name, SpellType.Builder<T> builder) {
+        return SPELL_TYPES.register(name, builder::build);
     }
 
-    private static <T extends AbstractSpell> Supplier<SpellType<T>> registerSummonSpell(String name, SpellType.SpellFactory<T> factory) {
-        return SPELL_TYPES.register(name, () -> new SpellType<>(CommonClass.customLocation(name), SpellPath.SUMMONS, Set.of(), factory));
+    private static <T extends AbstractSpell> SpellType.Builder<T> ruinBuilder(String name, SpellType.SpellFactory<T> factory) {
+        return new SpellType.Builder<>(name, factory).setPath(SpellPath.RUIN);
+    }
+
+    private static <T extends AbstractSpell> SpellType.Builder<T> trasnfigurationBuilder(String name, SpellType.SpellFactory<T> factory) {
+        return new SpellType.Builder<>(name, factory).setPath(SpellPath.TRANSFIGURATION);
+    }
+
+    private static <T extends AbstractSpell> SpellType.Builder<T> summonBuilder(String name, SpellType.SpellFactory<T> factory) {
+        return new SpellType.Builder<>(name, factory).setPath(SpellPath.SUMMONS);
+    }
+
+    private static <T extends AbstractSpell> SpellType.Builder<T> divineBuilder(String name, SpellType.SpellFactory<T> factory) {
+        return new SpellType.Builder<>(name, factory).setPath(SpellPath.DIVINE);
+    }
+
+    private static <T extends AbstractSpell> SpellType.Builder<T> deceptionBuilder(String name, SpellType.SpellFactory<T> factory) {
+        return new SpellType.Builder<>(name, factory).setPath(SpellPath.DECEPTION);
     }
 
     public static void register(IEventBus modEventBus) {

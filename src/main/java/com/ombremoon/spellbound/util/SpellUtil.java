@@ -39,7 +39,8 @@ public class SpellUtil {
     }
 
     public static boolean canCastSpell(Player player, AbstractSpell spell) {
-        return getSpellHandler(player).consumeMana(spell.getManaCost(), false);
+        var handler = getSpellHandler(player);
+        return handler.inCastMode() && handler.consumeMana(spell.getManaCost(), false);
     }
 
     public static <T extends SpellType<?>> void cycle(SpellHandler handler, T activeSpell) {
@@ -49,7 +50,7 @@ public class SpellUtil {
         }
     }
 
-    private static  <T> T findNextSpellInList(Collection<T> spellList, T currentSpell) {
+    private static <T> T findNextSpellInList(Collection<T> spellList, T currentSpell) {
         Iterator<T> iterator = spellList.iterator();
 
         while (iterator.hasNext()) {

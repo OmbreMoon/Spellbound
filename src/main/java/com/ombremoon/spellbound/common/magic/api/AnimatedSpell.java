@@ -6,7 +6,11 @@ import com.ombremoon.spellbound.common.magic.SpellType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 public abstract class AnimatedSpell extends AbstractSpell {
 
@@ -35,6 +39,11 @@ public abstract class AnimatedSpell extends AbstractSpell {
 
         public Builder<T> setCastTime(int castTime) {
             this.castTime = castTime;
+            return this;
+        }
+
+        public Builder<T> castCondition(BiPredicate<Player, AbstractSpell> castCondition) {
+            this.castPredicate = castCondition;
             return this;
         }
 

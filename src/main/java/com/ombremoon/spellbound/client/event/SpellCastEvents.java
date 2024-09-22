@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.client.event;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.client.CameraEngine;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
@@ -66,7 +67,6 @@ public class SpellCastEvents {
         var spellType = handler.getSelectedSpell();
         if (spellType == null) return;
 
-        if (player.tickCount % 40 == 0) Constants.LOG.info("Mode");
         if (KeyBinds.getSpellCastMapping().isDown()) {
             AbstractSpell spell = spellType.createSpell();
             int castTime = spell.getCastTime();

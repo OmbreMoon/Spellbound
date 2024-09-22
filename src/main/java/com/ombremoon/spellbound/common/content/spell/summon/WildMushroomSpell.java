@@ -1,6 +1,5 @@
 package com.ombremoon.spellbound.common.content.spell.summon;
 
-import com.mojang.datafixers.kinds.Const;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.data.SkillHandler;
 import com.ombremoon.spellbound.common.data.SpellHandler;
@@ -10,12 +9,13 @@ import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
+import com.ombremoon.spellbound.common.magic.skills.Skill;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.valueproviders.UniformFloat;
-import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -52,9 +52,9 @@ public class WildMushroomSpell extends SummonSpell {
         }
         Entity mushroom = context.getLevel().getEntity(mobs.iterator().next());
         SkillHandler skillHandler = context.getSkillHandler();
-        double radius = skillHandler.hasSkill(getSpellType(), SkillInit.VILE_INFLUENCE) ? 3D : 2D;
-        this.explosionInterval = skillHandler.hasSkill(getSpellType(), SkillInit.HASTENED_GROWTH) ? 40 : 60;
-        this.poisonDuration = skillHandler.hasSkill(getSpellType(), SkillInit.ENVENOM) ? 80 : 60;
+        double radius = skillHandler.hasSkill(getSpellType(), SkillInit.VILE_INFLUENCE.value()) ? 3D : 2D;
+        this.explosionInterval = skillHandler.hasSkill(getSpellType(), SkillInit.HASTENED_GROWTH.value()) ? 40 : 60;
+        this.poisonDuration = skillHandler.hasSkill(getSpellType(), SkillInit.ENVENOM.value()) ? 80 : 60;
 
         this.aoeZone = mushroom.getBoundingBox().inflate(radius, 0, radius);
     }

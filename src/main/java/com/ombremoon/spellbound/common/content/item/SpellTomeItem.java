@@ -36,7 +36,7 @@ public class SpellTomeItem extends Item {
             }
 
             //NOTIFY SUCCESS
-            handler.getSpellList().add(this.spellType.get());
+            handler.learnSpell(this.spellType.get());
             itemStack.shrink(1);
         }
 

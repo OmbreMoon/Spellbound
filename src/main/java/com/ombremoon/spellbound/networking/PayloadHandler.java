@@ -3,8 +3,11 @@ package com.ombremoon.spellbound.networking;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.networking.clientbound.*;
 import com.ombremoon.spellbound.networking.serverbound.*;
+import com.ombremoon.spellbound.util.SpellUtil;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.world.entity.player.Player;
@@ -13,6 +16,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+
+import java.util.List;
+import java.util.Set;
 
 @EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class PayloadHandler {
@@ -39,22 +45,30 @@ public class PayloadHandler {
 
     public static void syncSpellsToClient(Player player) {
         PacketDistributor.sendToPlayer((ServerPlayer) player,
-                new ClientSyncSpellPayload(
-                        player.getData(DataInit.SPELL_HANDLER)
+                new SyncSpellPayload(
+                        SpellUtil.getSpellHandler(player)
                                 .serializeNBT(player.level().registryAccess())
                 ));
     }
 
     public static void syncSkillsToClient(Player player) {
         PacketDistributor.sendToPlayer((ServerPlayer) player,
-                new ClientSyncSkillPayload(
+                new SyncSkillPayload(
                         player.getData(DataInit.SKILL_HANDLER)
                                 .serializeNBT(player.level().registryAccess())
                 ));
     }
 
     public static void openWorkbenchScreen(Player player) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player, new ClientOpenWorkbenchPayload());
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new OpenWorkbenchPayload());
+    }
+
+    public static void updateTree(Player player, boolean reset, List<Skill> added, Set<ResourceLocation> removed) {
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new UpdateTreePayload(reset, added, removed));
+    }
+
+    public static void shakeScreen(Player player, int duration, float intensity, float maxOffset, int freq) {
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new ShakeScreenPayload(duration, intensity, maxOffset, freq));
     }
 
     public static void syncMana(Player player) {
@@ -97,18 +111,18 @@ public class PayloadHandler {
         );
 
         registrar.playToClient(
-                ClientSyncSpellPayload.TYPE,
-                ClientSyncSpellPayload.CODEC,
+                SyncSpellPayload.TYPE,
+                SyncSpellPayload.CODEC,
                 ClientPayloadHandler::handleClientSpellSync
         );
         registrar.playToClient(
-                ClientSyncSkillPayload.TYPE,
-                ClientSyncSkillPayload.CODEC,
+                SyncSkillPayload.TYPE,
+                SyncSkillPayload.CODEC,
                 ClientPayloadHandler::handleClientSkillSync
         );
         registrar.playToClient(
-                ClientOpenWorkbenchPayload.TYPE,
-                ClientOpenWorkbenchPayload.CODEC,
+                OpenWorkbenchPayload.TYPE,
+                OpenWorkbenchPayload.CODEC,
                 ClientPayloadHandler::handleClientOpenWorkbenchScreen
         );
         registrar.playToClient(
@@ -120,6 +134,16 @@ public class PayloadHandler {
                 ClientSyncMaxManaPayload.TYPE,
                 ClientSyncMaxManaPayload.CODEC,
                 ClientPayloadHandler::handleClientMaxManaSync
+        );
+        registrar.playToClient(
+                UpdateTreePayload.TYPE,
+                UpdateTreePayload.CODEC,
+                ClientPayloadHandler::handleClientUpdateTree
+        );
+        registrar.playToClient(
+                ShakeScreenPayload.TYPE,
+                ShakeScreenPayload.CODEC,
+                ClientPayloadHandler::handleClientShakeScreen
         );
     }
 }

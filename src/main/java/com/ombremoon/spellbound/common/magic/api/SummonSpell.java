@@ -8,6 +8,7 @@ import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.events.ChangeTargetEvent;
 import com.ombremoon.spellbound.common.magic.events.PlayerDamageEvent;
+import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -48,12 +49,12 @@ public abstract class SummonSpell extends AnimatedSpell {
         super.onSpellStop(context);
         if (context.getLevel() instanceof ServerLevel level) {
             Player player = context.getPlayer();
-            SpellHandler handler = player.getData(DataInit.SPELL_HANDLER);
+            SpellHandler handler = SpellUtil.getSpellHandler(player);
             for (int mob : handler.getSummonsForRemoval(this)) {
                 if (level.getEntity(mob) != null) level.getEntity(mob).discard();
                 LogUtils.getLogger().debug("{}", level.getEntity(mob));
             }
-            handler.sync(player);
+            handler.sync();
         }
 
         context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.POST_DAMAGE, DAMAGE_EVENT);
@@ -63,7 +64,7 @@ public abstract class SummonSpell extends AnimatedSpell {
     protected <T extends Entity> Set<Integer> addMobs(SpellContext context, EntityType<T> summon, int mobCount) {
         Level level = context.getLevel();
         Player player = context.getPlayer();
-        SpellHandler handler = context.getPlayer().getData(DataInit.SPELL_HANDLER);
+        SpellHandler handler = SpellUtil.getSpellHandler(player);
 
         Set<Integer> summonedMobs = new HashSet<>();
         BlockPos blockPos = getSpawnPos(player, level);
@@ -79,7 +80,7 @@ public abstract class SummonSpell extends AnimatedSpell {
         }
 
         handler.addSummons(this, summonedMobs);
-        handler.sync(player);
+        handler.sync();
         return summonedMobs;
     }
 
@@ -104,11 +105,11 @@ public abstract class SummonSpell extends AnimatedSpell {
         LivingDamageEvent.Post event = damageEvent.getDamageEvent();
 
         if (event.getEntity() instanceof Player player && event.getSource().getEntity() instanceof LivingEntity newTarget) {
-            SpellHandler handler = player.getData(DataInit.SPELL_HANDLER);
+            SpellHandler handler = SpellUtil.getSpellHandler(event.getEntity());
             setSummonsTarget(player.level(), handler.getAllSummons(), newTarget);
         } else if (event.getSource().getEntity() instanceof Player player
                 && !event.getEntity().getData(DataInit.OWNER_UUID).equals(player.getUUID().toString())) {
-            SpellHandler handler = player.getData(DataInit.SPELL_HANDLER);
+            SpellHandler handler = SpellUtil.getSpellHandler(event.getEntity());
             setSummonsTarget(player.level(), handler.getAllSummons(), event.getEntity());
         }
     }
