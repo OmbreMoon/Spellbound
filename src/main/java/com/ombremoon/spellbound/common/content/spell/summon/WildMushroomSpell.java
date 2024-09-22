@@ -93,10 +93,5 @@ public class WildMushroomSpell extends SummonSpell {
     @Override
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
-        if (context.getSkillHandler().hasSkill(getSpellType(), SkillInit.CIRCLE_OF_LIFE)) {
-            SpellHandler handler = context.getSpellHandler();
-            handler.setMana(handler.getMana() + UniformFloat.of(52f, 60f).sample(context.getPlayer().getRandom()));
-            handler.sync(context.getPlayer());
-        }
     }
 }

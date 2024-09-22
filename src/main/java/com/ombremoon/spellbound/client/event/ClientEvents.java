@@ -6,7 +6,7 @@ import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.entity.ModelLayers;
 import com.ombremoon.spellbound.client.entity.models.MushroomModel;
 import com.ombremoon.spellbound.client.entity.renderers.MushroomRenderer;
-import com.ombremoon.spellbound.client.gui.SelectedSpellOverlay;
+import com.ombremoon.spellbound.client.gui.CastModeOverlay;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.EntityInit;
@@ -44,7 +44,7 @@ public class ClientEvents {
         @SubscribeEvent
         public static void registerGuisOverlays(RegisterGuiLayersEvent event) {
             event.registerAboveAll(CommonClass.customLocation("selected_spell_overlay"),
-                    SelectedSpellOverlay::new);
+                    CastModeOverlay::new);
 
         }
     }

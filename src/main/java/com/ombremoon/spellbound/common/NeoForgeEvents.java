@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common;
 
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.data.SpellHandler;
+import com.ombremoon.spellbound.common.data.StatusHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.events.PlayerDamageEvent;
@@ -21,6 +22,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 import java.util.List;
 
@@ -28,13 +30,30 @@ import java.util.List;
 public class NeoForgeEvents {
 
     @SubscribeEvent
-    public static void onPlayerJoinWorld(EntityJoinLevelEvent event) {
+    public static void onEntityJoinWorld(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof LivingEntity livingEntity) {
+            livingEntity.getData(DataInit.STATUS_EFFECTS).init(livingEntity);
+
             if (livingEntity instanceof Player player) {
                 if (!player.level().isClientSide) {
                     var handler = player.getData(DataInit.SPELL_HANDLER.get());
                     PayloadHandler.syncSpellsToClient(player);
                     handler.initData(player);
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPostEntityTick(EntityTickEvent.Post event) {
+        if (event.getEntity() instanceof LivingEntity entity) {
+            StatusHandler status = entity.getData(DataInit.STATUS_EFFECTS);
+            if (status.isInitialised()) status.tick(entity.tickCount);
+
+            if (entity instanceof Player player) {
+                if (player.tickCount % 20 == 0) {
+                    float mana = player.getData(DataInit.MANA);
+                    if (mana < player.getData(DataInit.MAX_MANA)) player.setData(DataInit.MANA, mana+1);
                 }
             }
         }

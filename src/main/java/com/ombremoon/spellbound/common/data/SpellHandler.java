@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.common.data;
 
 import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
@@ -12,6 +13,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
@@ -23,7 +25,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     private SpellEventListener listener;
     public Player caster;
     protected boolean castMode;
-    protected float mana;
     protected Set<SpellType<?>> spellSet = new LinkedHashSet<>();
     protected ObjectOpenHashSet<AbstractSpell> activeSpells = new ObjectOpenHashSet<>();
     protected SpellType<?> selectedSpell;
@@ -45,6 +46,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.listener = new SpellEventListener(player);
         this.initialized = true;
     }
+
     public boolean isInitialized() {
         return this.initialized = true;
     }
@@ -61,16 +63,8 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.castMode = !this.castMode;
     }
 
-    public float getMana() {
-        return this.mana;
-    }
-
-    public void setMana(float mana) {
-        this.mana = mana;
-    }
-
     public boolean consumeMana(float amount, boolean forceConsume) {
-        float currentFP = this.getMana();
+        float currentFP = caster.getData(DataInit.MANA);
         if (this.caster instanceof Player player && player.getAbilities().instabuild) {
             return true;
         } else if (currentFP < amount) {
@@ -78,7 +72,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         } else {
             if (forceConsume) {
                 float fpCost = currentFP - amount;
-                this.setMana(fpCost);
+                caster.setData(DataInit.MANA, fpCost);
             }
             return true;
         }

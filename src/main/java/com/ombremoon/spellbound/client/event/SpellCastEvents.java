@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.client.event;
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.client.KeyBinds;
+import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.networking.PayloadHandler;
@@ -113,6 +114,7 @@ public class SpellCastEvents {
         if (spell == null) return;
         if (!SpellUtil.canCastSpell(player, spell)) return;
 
+        player.setData(DataInit.MANA, player.getData(DataInit.MANA)-spell.getManaCost());
         PayloadHandler.castSpell(spellType);
         var animation = (ModifierLayer<IAnimation>) PlayerAnimationAccess.getPlayerAssociatedData((AbstractClientPlayer) player).get(CommonClass.customLocation("animation"));
         if (animation != null)
