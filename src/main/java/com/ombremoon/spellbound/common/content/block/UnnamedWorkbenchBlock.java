@@ -58,11 +58,6 @@ public class UnnamedWorkbenchBlock extends HorizontalDirectionalBlock {
 
     @Override
     protected BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor level, BlockPos currentPos, BlockPos facingPos) {
-//        if (facing == getNeighbourDirection(state.getValue(PART), state.getValue(FACING))) {
-//            return facingState.is(this) && facingState.getValue(PART) != state.getValue(PART) ? state : Blocks.AIR.defaultBlockState();
-//        } else {
-//            return super.updateShape(state, facing, facingState, level, currentPos, facingPos);
-//        }
         WorkbenchPart part = state.getValue(PART);
         boolean isAdjacent = facing == getNeighbourDirection(state.getValue(PART), state.getValue(FACING));
         boolean isVertical = (part == WorkbenchPart.LEFT && facing == Direction.UP) || (part == WorkbenchPart.TOP_LEFT && facing == Direction.DOWN);
