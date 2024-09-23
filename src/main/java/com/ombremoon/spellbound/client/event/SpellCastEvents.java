@@ -114,7 +114,6 @@ public class SpellCastEvents {
         if (spell == null) return;
         if (!SpellUtil.canCastSpell(player, spell)) return;
 
-        player.setData(DataInit.MANA, player.getData(DataInit.MANA)-spell.getManaCost());
         PayloadHandler.castSpell(spellType);
         var animation = (ModifierLayer<IAnimation>) PlayerAnimationAccess.getPlayerAssociatedData((AbstractClientPlayer) player).get(CommonClass.customLocation("animation"));
         if (animation != null)

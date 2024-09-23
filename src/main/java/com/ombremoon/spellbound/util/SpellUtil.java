@@ -4,6 +4,7 @@ import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.networking.PayloadHandler;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -36,6 +37,7 @@ public class SpellUtil {
         var handler = getSpellHandler(player);
         handler.getActiveSpells().add(abstractSpell);
         handler.consumeMana(abstractSpell.getManaCost(), true);
+        PayloadHandler.syncMana(player);
     }
 
     public static boolean canCastSpell(Player player, AbstractSpell spell) {
