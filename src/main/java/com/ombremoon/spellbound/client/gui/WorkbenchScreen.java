@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.client.gui;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.data.SkillHandler;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
@@ -135,17 +136,6 @@ public class WorkbenchScreen extends Screen {
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         this.scrolling = false;
         this.scrollingWindow = false;
-        for (int i = 0; i < 5; i++) {
-            if (isHovering(92 + (i * 26), -30, 26, 30, mouseX, mouseY) && i != pageIndex) {
-                this.pageIndex = i;
-                this.selectedIndex = -1;
-
-                //TODO: CHECK BUG
-                this.spellList = this.spellHandler.getSpellList().stream().filter(spellType -> spellType.getPath().ordinal() == pageIndex).toList();
-                this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-                return true;
-            }
-        }
         return super.mouseReleased(mouseX, mouseY, button);
     }
 

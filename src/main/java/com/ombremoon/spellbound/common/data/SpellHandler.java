@@ -11,17 +11,20 @@ import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.UnknownNullability;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SpellHandler implements INBTSerializable<CompoundTag> {
@@ -30,10 +33,10 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     private  SkillHandler skillHandler;
     private UpgradeTree upgradeTree;
     protected boolean castMode;
-    protected Set<SpellType<?>> spellSet = new LinkedHashSet<>();
-    protected ObjectOpenHashSet<AbstractSpell> activeSpells = new ObjectOpenHashSet<>();
+    protected Set<SpellType<?>> spellSet = new ObjectOpenHashSet<>();
+    protected Set<AbstractSpell> activeSpells = new ObjectOpenHashSet<>();
     protected SpellType<?> selectedSpell;
-    protected Map<SummonSpell, Set<Integer>> activeSummons = new HashMap<>();
+    protected Map<SummonSpell, Set<Integer>> activeSummons = new Object2ObjectOpenHashMap<>();
     public int castTick;
     private boolean channelling;
 
@@ -104,7 +107,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         sync();
     }
 
-    public ObjectOpenHashSet<AbstractSpell> getActiveSpells() {
+    public Set<AbstractSpell> getActiveSpells() {
         return this.activeSpells;
     }
 
@@ -194,10 +197,12 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         }
         if (nbt.contains("Spells", 9)) {
             ListTag spellList = nbt.getList("Spells", 10);
+            Set<SpellType<?>> set = new ObjectOpenHashSet<>();
             for (int i = 0; i < spellList.size(); i++) {
                 CompoundTag compoundTag = spellList.getCompound(i);
-                this.spellSet.add(AbstractSpell.getSpellByName(SpellUtil.getSpellId(compoundTag, "Spell")));
+                set.add(AbstractSpell.getSpellByName(SpellUtil.getSpellId(compoundTag, "Spell")));
             }
+            this.spellSet = set;
         }
     }
 }

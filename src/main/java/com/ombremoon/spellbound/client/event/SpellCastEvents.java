@@ -26,6 +26,8 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
+import java.util.Set;
+
 @EventBusSubscriber(modid = Constants.MOD_ID, value = Dist.CLIENT)
 public class SpellCastEvents {
 
@@ -90,7 +92,7 @@ public class SpellCastEvents {
 
         if (!player.level().isClientSide) {
             var handler = SpellUtil.getSpellHandler(player);
-            ObjectOpenHashSet<AbstractSpell> activeSpells = handler.getActiveSpells();
+            Set<AbstractSpell> activeSpells = handler.getActiveSpells();
 
             activeSpells.removeIf(spell -> spell.isInactive);
             for (AbstractSpell abstractSpell : activeSpells) {

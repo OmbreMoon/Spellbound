@@ -46,7 +46,6 @@ public class UpgradeWindow {
         if (!this.centered) {
             this.scrollX = (74 - (double) (this.maxX + this.minX) / 2);
             this.scrollY = 80;
-            Constants.LOG.info("{}", this.scrollY);
             this.centered = true;
         }
 
@@ -57,7 +56,8 @@ public class UpgradeWindow {
         int j = Mth.floor(this.scrollY);
         //BLIT BACKGROUND
 
-        //ADD CONNECTIONS
+        this.rootWidget.drawConnection(guiGraphics, i, j, true);
+        this.rootWidget.drawConnection(guiGraphics, i, j, false);
         this.rootWidget.draw(guiGraphics, i, j);
         guiGraphics.pose().popPose();
         guiGraphics.disableScissor();
@@ -90,7 +90,7 @@ public class UpgradeWindow {
 
     public void scroll(double dragX, double dragY) {
         if (this.maxX - this.minX > 149) {
-            this.scrollX = Mth.clamp(this.scrollX + dragX, 0.0, (this.maxX + 149));
+            this.scrollX = Mth.clamp(this.scrollX + dragX, 0.0, this.maxX);
         }
 
         if (this.maxY - this.minY > 115) {
@@ -108,7 +108,7 @@ public class UpgradeWindow {
         int i = widget.getX();
         int j = i + 32;
         int k = -widget.getY();
-        int l = k + 6;
+        int l = k + 32;
         this.minX = Math.min(this.minX, i);
         this.maxX = Math.max(this.maxX, j);
         this.minY = Math.min(this.minY, k);

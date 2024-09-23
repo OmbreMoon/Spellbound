@@ -1,20 +1,35 @@
 package com.ombremoon.spellbound.client.gui;
 
-import com.ombremoon.spellbound.Constants;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.tree.SkillNode;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.StringSplitter;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.locale.Language;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 
 import java.util.List;
 
 public class UpgradeWidget {
+    private static final ResourceLocation TITLE_BOX_SPRITE = ResourceLocation.withDefaultNamespace("advancements/title_box");
+    private static final ResourceLocation LOCKED = ResourceLocation.withDefaultNamespace("advancements/box_unobtained");
+    private static final ResourceLocation UNLOCKED = ResourceLocation.withDefaultNamespace("advancements/box_obtained");
+    private static final int[] TEST_SPLIT_OFFSETS = new int[]{0, 10, -10, 25, -25};
     private final UpgradeWindow window;
     private final Minecraft minecraft;
     private final SkillNode skillNode;
+    private final FormattedCharSequence title;
+    private final int width;
+    private final List<FormattedCharSequence> description;
     private final List<UpgradeWidget> parents = new ObjectArrayList<>();
     private final List<UpgradeWidget> children = new ObjectArrayList<>();
     private final int x;
@@ -24,12 +39,81 @@ public class UpgradeWidget {
         this.window = window;
         this.minecraft = minecraft;
         this.skillNode = skillNode;
+        this.title = Language.getInstance().getVisualOrder(minecraft.font.substrByWidth(skillNode.skill().getSkillName(), 163));
         this.x = skillNode.skill().getX();
         this.y = -skillNode.skill().getY();
+        int i = 8;
+        int j = 29 + minecraft.font.width(this.title) + i;
+        this.description = Language.getInstance()
+                .getVisualOrder(
+                        this.findOptimalLines(ComponentUtils.mergeStyles(skillNode.skill().getSkillDescription(), Style.EMPTY.withColor(getSkill().getSpell().getPath().getColor())), j)
+                );
+
+        for (FormattedCharSequence formattedcharsequence : this.description) {
+            j = Math.max(j, minecraft.font.width(formattedcharsequence));
+        }
+
+        this.width = j + 3 + 5;
     }
 
     public Skill getSkill() {
         return this.skillNode.skill();
+    }
+
+    private static float getMaxWidth(StringSplitter manager, List<FormattedText> text) {
+        return (float)text.stream().mapToDouble(manager::stringWidth).max().orElse(0.0);
+    }
+
+    private List<FormattedText> findOptimalLines(Component component, int maxWidth) {
+        StringSplitter stringsplitter = this.minecraft.font.getSplitter();
+        List<FormattedText> list = null;
+        float f = Float.MAX_VALUE;
+
+        for (int i : TEST_SPLIT_OFFSETS) {
+            List<FormattedText> list1 = stringsplitter.splitLines(component, maxWidth - i, Style.EMPTY);
+            float f1 = Math.abs(getMaxWidth(stringsplitter, list1) - (float)maxWidth);
+            if (f1 <= 10.0F) {
+                return list1;
+            }
+
+            if (f1 < f) {
+                f = f1;
+                list = list1;
+            }
+        }
+
+        return list;
+    }
+
+    public void drawConnection(GuiGraphics guiGraphics, int x, int y, boolean dropShadow) {
+        if (!this.parents.isEmpty()) {
+            for (var parent : parents) {
+                int i = y + this.y + 30 + 4;
+                int j = x + parent.x + 15;
+                int k = x + this.x + 15;
+                int l = y + this.y + 15;
+                int m = y + parent.y + 15;
+                int n = dropShadow ? -16777216 : -1;
+                if (dropShadow) {
+                    guiGraphics.hLine(k - 1, j, i - 1, n);
+                    guiGraphics.hLine(k + 1, j, i + 1, n);
+                    guiGraphics.hLine(k - 1, j, i + 1, n);
+                    guiGraphics.vLine(j - 1, i - 2, m, n);
+                    guiGraphics.vLine(j + 1, i - 2, m, n);
+                    guiGraphics.vLine(k, i + 1, l - 1, n);
+                    guiGraphics.vLine(k - 1, i + 1, l, n);
+                    guiGraphics.vLine(k + 1, i + 1, l, n);
+                } else {
+                    guiGraphics.vLine(k, i, l, n);
+                    guiGraphics.vLine(j, i, m, n);
+                    guiGraphics.hLine(k, j, i, n);
+                }
+            }
+        }
+
+        for (var widget : this.children) {
+            widget.drawConnection(guiGraphics, x, y, dropShadow);
+        }
     }
 
     public void draw(GuiGraphics guiGraphics, int x, int y) {
@@ -58,6 +142,32 @@ public class UpgradeWidget {
 
     public void drawHover(GuiGraphics guiGraphics, int x, int y, float fade, int width, int height) {
 //        Constants.LOG.info("Hell yea!");
+        boolean flag = width + x + this.x + this.width + 30 >= this.window.getScreen().width;
+        boolean flag1 = 115 - y - this.y - 30 <= 6 + this.description.size() * 9;
+        var handler = this.minecraft.player.getData(DataInit.SKILL_HANDLER);
+        ResourceLocation box = handler.hasSkill(getSkill()) ? UNLOCKED : LOCKED;
+        int i = this.width;
+        RenderSystem.enableBlend();
+        int j = y + this.y;
+        int k;
+        if (flag) {
+            k = x + this.x - this.width + 26 + 6;
+        } else {
+            k = x + this.x;
+        }
+
+        int l = 32 + this.description.size() * 9;
+        if (!this.description.isEmpty()) {
+            if (flag1) {
+                guiGraphics.blitSprite(TITLE_BOX_SPRITE, k, j + 26 - l, this.width, l);
+            } else {
+                guiGraphics.blitSprite(TITLE_BOX_SPRITE, k, j, this.width, l);
+            }
+        }
+
+//        guiGraphics.blitSprite(box, 200, 26, 0, 0, l, j, 0, 26);
+//        guiGraphics.blitSprite(box, 200, 26, 200 - i, 0, l, j, i, 26);
+        guiGraphics.blit(WorkbenchScreen.TEXTURE, x + this.x, y + this.y, 29 ,226, 30, 30);
     }
 
     public void attachToParents() {

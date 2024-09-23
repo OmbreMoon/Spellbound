@@ -53,8 +53,9 @@ public class DebugItem extends Item {
         UpgradeTree tree = player.getData(DataInit.UPGRADE_TREE);
         if (!level.isClientSide) {
 //            spellHandler.clearList();
-//            Constants.LOG.info("{}", spellHandler.getSpellList());
-            spellHandler.learnSpell(SpellInit.VOLCANO.get());
+//            spellHandler.setSelectedSpell(SpellInit.VOLCANO.get());
+//            Constants.LOG.info("{}", ));
+//            spellHandler.learnSpell(SpellInit.VOLCANO.get());
 //            Constants.LOG.info("{}", spellHandler.getSpellList().stream().map(SpellType::getResourceLocation).map(ResourceLocation::getPath).toList());
 //            Constants.LOG.info("{}", tree.nodes());
 //            Constants.LOG.info("{}", tree.children());

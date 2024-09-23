@@ -8,6 +8,7 @@ import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
@@ -71,7 +72,7 @@ public class Skill {
         return Component.translatable(this.getDescriptionId());
     }
 
-    public Component getSkillDescription() {
+    public MutableComponent getSkillDescription() {
         return Component.translatable(Util.makeDescriptionId("skill.description", this.location()));
     }
 

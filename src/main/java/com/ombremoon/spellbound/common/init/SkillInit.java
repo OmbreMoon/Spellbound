@@ -39,8 +39,15 @@ public class SkillInit {
     //Volcano
     public static final Holder<Skill> VOLCANO = registerSkill("volcano");
     public static final Holder<Skill> INFERNO_CORE = registerSkill("inferno_core", 10, 0, 50, preReqs(VOLCANO));
-    public static final Holder<Skill> LAVA_FLOW = registerSkill("lava_flow", 10, 0, 100, preReqs(VOLCANO));
-    public static final Holder<Skill> EXPLOSIVE_BARRAGE = registerSkill("explosive_barrage", 10, 0, 150, preReqs(VOLCANO));
+    public static final Holder<Skill> LAVA_FLOW = registerSkill("lava_flow", 10, 50, 50, preReqs(VOLCANO));
+    public static final Holder<Skill> EXPLOSIVE_BARRAGE = registerSkill("explosive_barrage", 10, -50, 50, preReqs(VOLCANO));
+    public static final Holder<Skill> SHRAPNEL = registerSkill("shrapnel", 10, -50, 100, preReqs(EXPLOSIVE_BARRAGE));
+    public static final Holder<Skill> HEATWAVE = registerSkill("heatwave", 10, -100, 100, preReqs(EXPLOSIVE_BARRAGE));
+    public static final Holder<Skill> SCORCHED_EARTH = registerSkill("scorched_earth", 10, -100, 150, preReqs(HEATWAVE));
+    public static final Holder<Skill> SEISMIC_SHOCK = registerSkill("seismic_shock", 10, 50, 100, preReqs(LAVA_FLOW));
+    public static final Holder<Skill> MOLTEN_SHIELD = registerSkill("molten_shield", 10, 100, 100, preReqs(LAVA_FLOW));
+    public static final Holder<Skill> PYROCLASTIC_CLOUD = registerSkill("pyroclastic_cloud", 10, 0, 100, preReqs(INFERNO_CORE));
+    public static final Holder<Skill> APOCALYPSE = registerSkill("apocalypse", 10, 0, 175, preReqs(SHRAPNEL, PYROCLASTIC_CLOUD, SEISMIC_SHOCK));
 
     private static Holder<Skill> registerSkill(String name) {
         return SKILLS.register(name, () -> new Skill(CommonClass.customLocation(name)));
