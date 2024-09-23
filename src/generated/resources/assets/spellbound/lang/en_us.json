@@ -11,5 +11,7 @@
   "spell.spellbound.summon_undead": "Summon Undead",
   "spell.spellbound.test_spell": "Test Spell",
   "spell.spellbound.volcano": "Volcano",
-  "spell.spellbound.wild_mushroom": "Wild Mushroom"
+  "spell.spellbound.wild_mushroom": "Wild Mushroom",
+  "chat.spelltome.awardxp": "Spell already learnt. +10 spell XP",
+  "chat.spelltome.nospell": "This spell tome is blank."
 }
