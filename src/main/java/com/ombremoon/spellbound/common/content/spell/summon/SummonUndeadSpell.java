@@ -8,7 +8,7 @@ import net.minecraft.world.entity.EntityType;
 
 public class SummonUndeadSpell extends SummonSpell {
     public static AnimatedSpell.Builder<AnimatedSpell> createSummonBuilder() {
-        return createSimpleSpellBuilder().setDuration(20*60);
+        return createSimpleSpellBuilder().setDuration(20*60).setManaCost(10);
     }
 
     public SummonUndeadSpell() {

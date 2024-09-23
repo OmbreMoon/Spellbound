@@ -9,6 +9,7 @@ import com.ombremoon.spellbound.networking.serverbound.*;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -74,6 +75,16 @@ public class PayloadHandler {
         PacketDistributor.sendToPlayer((ServerPlayer) player, new ShakeScreenPayload(duration, intensity, maxOffset, freq));
     }
 
+    public static void syncMana(Player player) {
+        PacketDistributor.sendToPlayer((ServerPlayer) player,
+                new ClientSyncManaPayload(player.getData(DataInit.MANA)));
+    }
+
+    public static void syncMaxMana(Player player) {
+        PacketDistributor.sendToPlayer((ServerPlayer) player,
+                new ClientSyncMaxManaPayload(player.getData(DataInit.MAX_MANA)));
+    }
+
     @SubscribeEvent
     public static void register(final RegisterPayloadHandlersEvent event) {
         final PayloadRegistrar registrar = event.registrar("1");
@@ -122,6 +133,16 @@ public class PayloadHandler {
                 OpenWorkbenchPayload.TYPE,
                 OpenWorkbenchPayload.CODEC,
                 ClientPayloadHandler::handleClientOpenWorkbenchScreen
+        );
+        registrar.playToClient(
+                ClientSyncManaPayload.TYPE,
+                ClientSyncManaPayload.CODEC,
+                ClientPayloadHandler::handleClientManaSync
+        );
+        registrar.playToClient(
+                ClientSyncMaxManaPayload.TYPE,
+                ClientSyncMaxManaPayload.CODEC,
+                ClientPayloadHandler::handleClientMaxManaSync
         );
         registrar.playToClient(
                 UpdateTreePayload.TYPE,

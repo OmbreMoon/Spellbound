@@ -58,15 +58,16 @@ public class UnnamedWorkbenchBlock extends HorizontalDirectionalBlock {
 
     @Override
     protected BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor level, BlockPos currentPos, BlockPos facingPos) {
-        if (facing == getNeighbourDirection(state.getValue(PART), state.getValue(FACING))) {
+        WorkbenchPart part = state.getValue(PART);
+        boolean isAdjacent = facing == getNeighbourDirection(state.getValue(PART), state.getValue(FACING));
+        boolean isVertical = (part == WorkbenchPart.LEFT && facing == Direction.UP) || (part == WorkbenchPart.TOP_LEFT && facing == Direction.DOWN);
+        if (isAdjacent || isVertical) {
             return facingState.is(this) && facingState.getValue(PART) != state.getValue(PART) ? state : Blocks.AIR.defaultBlockState();
-        } else {
-            return super.updateShape(state, facing, facingState, level, currentPos, facingPos);
-        }
+        } else return state;
     }
 
     private static Direction getNeighbourDirection(WorkbenchPart part, Direction direction) {
-        return part == WorkbenchPart.LEFT ? direction : direction.getOpposite();
+        return part == WorkbenchPart.LEFT || part == WorkbenchPart.TOP_LEFT ? direction : direction.getOpposite();
     }
 
     @Override
@@ -114,6 +115,9 @@ public class UnnamedWorkbenchBlock extends HorizontalDirectionalBlock {
         if (!level.isClientSide) {
             BlockPos blockpos = pos.relative(state.getValue(FACING));
             level.setBlock(blockpos, state.setValue(PART, WorkbenchPart.RIGHT), 3);
+            level.setBlock(pos.above(), state.setValue(PART, WorkbenchPart.TOP_LEFT), 3);
+            level.setBlock(blockpos.above(), state.setValue(PART, WorkbenchPart.TOP_RIGHT), 3);
+
             level.blockUpdated(pos, Blocks.AIR);
             state.updateNeighbourShapes(level, pos, 3);
         }
@@ -121,7 +125,9 @@ public class UnnamedWorkbenchBlock extends HorizontalDirectionalBlock {
 
     public enum WorkbenchPart implements StringRepresentable {
         LEFT("left"),
-        RIGHT("right");
+        RIGHT("right"),
+        TOP_LEFT("top_left"),
+        TOP_RIGHT("top_right");
 
         private final String name;
 

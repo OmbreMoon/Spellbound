@@ -15,6 +15,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
@@ -29,8 +30,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     private  SkillHandler skillHandler;
     private UpgradeTree upgradeTree;
     protected boolean castMode;
-    protected float mana;
-    protected int maxMana = 100;
     protected Set<SpellType<?>> spellSet = new LinkedHashSet<>();
     protected ObjectOpenHashSet<AbstractSpell> activeSpells = new ObjectOpenHashSet<>();
     protected SpellType<?> selectedSpell;
@@ -61,28 +60,8 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.castMode = !this.castMode;
     }
 
-    public float getMana() {
-        return this.mana;
-    }
-
-    public void setMana(float mana) {
-        this.mana = mana;
-    }
-
-    public int getMaxMana() {
-        return this.maxMana;
-    }
-
-    public void setMaxMana(int maxMana) {
-        this.maxMana = maxMana;
-    }
-
-    public void awardMana(float amount) {
-        this.setMana(Math.min(this.mana + amount, this.maxMana));
-    }
-
     public boolean consumeMana(float amount, boolean forceConsume) {
-        float currentFP = this.getMana();
+        float currentFP = caster.getData(DataInit.MANA);
         if (this.caster.getAbilities().instabuild) {
             return true;
         } else if (currentFP < amount) {
@@ -90,7 +69,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         } else {
             if (forceConsume) {
                 float fpCost = currentFP - amount;
-                this.setMana(fpCost);
+                caster.setData(DataInit.MANA, fpCost);
             }
             return true;
         }
@@ -182,7 +161,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     public @UnknownNullability CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag compoundTag = new CompoundTag();
         compoundTag.putBoolean("CastMode", this.castMode);
-        compoundTag.putFloat("Mana", this.mana);
         compoundTag.putBoolean("Channeling", this.channelling);
         ListTag spellList = new ListTag();
 
@@ -204,9 +182,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
         if (nbt.contains("CastMode", 99)) {
             this.castMode = nbt.getBoolean("CastMode");
-        }
-        if (nbt.contains("Mana", 99)) {
-            this.mana = nbt.getFloat("Mana");
         }
         if (nbt.contains("Channeling", 99)) {
             this.channelling = nbt.getBoolean("Channeling");

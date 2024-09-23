@@ -1,8 +1,10 @@
 package com.ombremoon.spellbound.common.init;
 
+import com.mojang.serialization.Codec;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.data.SkillHandler;
 import com.ombremoon.spellbound.common.data.SpellHandler;
+import com.ombremoon.spellbound.common.data.StatusHandler;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -16,18 +18,27 @@ public class DataInit {
             NeoForgeRegistries.ATTACHMENT_TYPES, Constants.MOD_ID
     );
 
+    //Handlers
     public static final Supplier<AttachmentType<SpellHandler>> SPELL_HANDLER = ATTACHMENT_TYPES.register(
             "spell_handler", () -> AttachmentType.serializable(SpellHandler::new).copyOnDeath().build());
-
     public static final Supplier<AttachmentType<SkillHandler>> SKILL_HANDLER = ATTACHMENT_TYPES.register(
             "skill_handler", () -> AttachmentType.serializable(SkillHandler::new).copyOnDeath().build());
+    public static final Supplier<AttachmentType<StatusHandler>> STATUS_EFFECTS = ATTACHMENT_TYPES.register(
+            "effect_handler", () -> AttachmentType.serializable(StatusHandler::new).build());
 
+    //Mana
+    public static final Supplier<AttachmentType<Float>> MANA = ATTACHMENT_TYPES.register(
+            "mana", () -> AttachmentType.builder(() -> 100f).build());
+    public static final Supplier<AttachmentType<Float>> MAX_MANA = ATTACHMENT_TYPES.register(
+            "max_mana", () -> AttachmentType.builder(() -> 100f).serialize(Codec.FLOAT).copyOnDeath().build());
+
+    //Upgrade Tree
     public static final Supplier<AttachmentType<UpgradeTree>> UPGRADE_TREE = ATTACHMENT_TYPES.register(
             "upgrade_tree", () -> AttachmentType.serializable(UpgradeTree::new).copyOnDeath().build());
 
+    //Summons
     public static final Supplier<AttachmentType<String>> OWNER_UUID = ATTACHMENT_TYPES.register(
             "owner_uuid", () -> AttachmentType.builder(() -> "").build());
-
     public static final Supplier<AttachmentType<Integer>> TARGET_ID = ATTACHMENT_TYPES.register(
             "target_id", () -> AttachmentType.builder(() -> 0).build());
 
