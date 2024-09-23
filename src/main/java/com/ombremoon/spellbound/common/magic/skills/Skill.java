@@ -1,49 +1,51 @@
 package com.ombremoon.spellbound.common.magic.skills;
 
+import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.common.init.SkillInit;
-import com.ombremoon.spellbound.common.init.SpellInit;
+import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import net.minecraft.Util;
-import net.minecraft.advancements.AdvancementNode;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Supplier;
-
 public class Skill {
-    private final Supplier<? extends SpellType<?>> spellType;
+    private final ResourceLocation resourceLocation;
     private final int xpCost;
+    private final int xPos;
+    private final int yPos;
     @Nullable
     private final HolderSet<Skill> prerequisites;
-    private final ResourceLocation resourceLocation;
     private String descriptionId;
 
-    public Skill(Supplier<? extends SpellType<?>> spellType) {
-        this(spellType, null, 0, null);
+    public Skill(ResourceLocation resLoc) {
+        this(resLoc, 0, 0, 0, null);
     }
 
-    public Skill(Supplier<? extends SpellType<?>> spellType, ResourceLocation resLoc, int xpCost, @Nullable HolderSet<Skill> prerequisites) {
-        this.spellType = spellType;
-        this.xpCost = xpCost;
+    public Skill(ResourceLocation resLoc, int xpCost, int xPos, int yPos, @Nullable HolderSet<Skill> prerequisites) {
         this.resourceLocation = resLoc;
+        this.xpCost = xpCost;
+        this.xPos = xPos;
+        this.yPos = yPos;
         this.prerequisites = prerequisites;
     }
 
-    public SpellType<?> getSpell() {
-        return this.spellType.get();
+    public ResourceLocation getResourceLocation() {
+        return resourceLocation;
     }
 
     public int getXpCost() {
         return xpCost;
     }
 
-    public ResourceLocation getResourceLocation() {
-        return resourceLocation;
+    public int getX() {
+        return this.xPos;
+    }
+
+    public int getY() {
+        return this.yPos;
     }
 
     public HolderSet<Skill> getPrereqs() {
@@ -73,6 +75,34 @@ public class Skill {
         return Component.translatable(Util.makeDescriptionId("skill.description", this.location()));
     }
 
+    public ResourceLocation getSkillTexture() {
+        String root = getSpell().location().getPath();
+        return CommonClass.customLocation("textures/gui/skills/" + root + "/" + location().getPath() + ".png");
+    }
+
+    public boolean isRoot() {
+        return this.prerequisites == null;
+    }
+
+    public static Skill getRoot(Skill skill) {
+        Skill root = skill;
+        while (true) {
+            var prereqs = root.getPrereqs();
+            if (prereqs == null) {
+                return root;
+            }
+            root = prereqs.stream().map(Holder::value).toList().getFirst();
+        }
+    }
+
+    public static Skill byName(ResourceLocation resourceLocation) {
+        return SkillInit.REGISTRY.get(resourceLocation);
+    }
+
+    public SpellType<?> getSpell() {
+        return AbstractSpell.getSpellByName(CommonClass.customLocation(getRoot(this).location().getPath()));
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -89,6 +119,6 @@ public class Skill {
 
     @Override
     public String toString() {
-        return  this.location().toString();
+        return this.location().toString();
     }
 }

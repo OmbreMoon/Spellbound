@@ -29,14 +29,6 @@ public class SkillNode {
             ).apply(instance, SkillNode::new))
     );
 
-/*    public static final StreamCodec<RegistryFriendlyByteBuf, SkillNode> STREAM_CODEC = StreamCodec.recursive(
-            codec -> StreamCodec.composite(
-                    ByteBufCodecs.registry(SkillInit.SKILL_REGISTRY_KEY), SkillNode::skill,
-                    codec.apply(ByteBufCodecs.list()), SkillNode::parents,
-                    SkillNode::new
-            )
-    );*/
-
     public SkillNode(Skill skill, List<SkillNode> parents) {
         this.skill = skill;
         this.parents = parents;

@@ -2,7 +2,6 @@ package com.ombremoon.spellbound.common.magic;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -26,7 +25,7 @@ public class SpellType<S extends AbstractSpell> {
         this.resourceLocation = resourceLocation;
     }
 
-    public ResourceLocation getResourceLocation() {
+    public ResourceLocation location() {
         return this.resourceLocation;
     }
 
@@ -45,6 +44,16 @@ public class SpellType<S extends AbstractSpell> {
 
     public interface SpellFactory<S extends AbstractSpell> {
         S create();
+    }
+
+    @Override
+    public String toString() {
+        return this.resourceLocation.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return this.resourceLocation.hashCode();
     }
 
     public static class Builder<T extends AbstractSpell>{

@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.client.gui;
 
 import com.google.common.collect.Maps;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.common.data.SkillHandler;
 import com.ombremoon.spellbound.common.data.SpellHandler;
@@ -8,7 +9,9 @@ import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
-import com.ombremoon.spellbound.common.magic.tree.UpgradeWindow;
+import com.ombremoon.spellbound.common.magic.tree.SkillNode;
+import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
+import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.RenderUtil;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.gui.GuiGraphics;
@@ -20,22 +23,27 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
 public class WorkbenchScreen extends Screen {
-    private static final ResourceLocation TEXTURE = CommonClass.customLocation("textures/gui/arcane_gui.png");
+    public static final ResourceLocation TEXTURE = CommonClass.customLocation("textures/gui/arcane_gui.png");
     private static final ResourceLocation PATH = CommonClass.customLocation("textures/gui/arcane_gui_text.png");
     private static final int WIDTH = 256;
     private static final int HEIGHT = 166;
     private int selectedIndex = -1;
+    private Player player;
     private SpellHandler spellHandler;
+    private SkillHandler skillHandler;
     private List<SpellType<?>> spellList;
+    private UpgradeTree upgradeTree;
     private final Map<SpellType<?>, UpgradeWindow> spellTrees = Maps.newLinkedHashMap();
     private SpellType<?> selectedSpell;
     private UpgradeWindow selectedTree;
     private int pageIndex;
     private boolean scrolling;
+    private boolean scrollingWindow;
     private float scrollOffs;
     private int scrollIndex;
     private int leftPos;
@@ -49,8 +57,12 @@ public class WorkbenchScreen extends Screen {
     protected void init() {
         this.leftPos = (this.width - WIDTH) / 2;
         this.topPos = (this.height - HEIGHT) / 2;
-        this.spellHandler = SpellUtil.getSpellHandler(this.minecraft.player);
+        this.player = this.minecraft.player;
+        this.upgradeTree = this.player.getData(DataInit.UPGRADE_TREE);
+        this.spellHandler = SpellUtil.getSpellHandler(this.player);
+        this.skillHandler = this.player.getData(DataInit.SKILL_HANDLER);
         this.spellList = this.spellHandler.getSpellList().stream().filter(spellType -> spellType.getPath().ordinal() == pageIndex).toList();
+        this.initSpellTrees();
     }
 
     @Override
@@ -60,6 +72,7 @@ public class WorkbenchScreen extends Screen {
                 this.selectedIndex = i;
                 if (this.spellList.size() > i + scrollIndex) {
                     this.selectedSpell = this.spellList.get(i + scrollIndex);
+                    this.selectedTree = this.spellTrees.get(this.selectedSpell);
                     this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                     return true;
                 }
@@ -76,8 +89,26 @@ public class WorkbenchScreen extends Screen {
                 return true;
             }
         }
+        if (this.selectedTree != null) {
+            var widgets = this.selectedTree.widgets();
+            int i = Mth.floor(this.selectedTree.scrollX);
+            int j = Mth.floor(this.selectedTree.scrollY);
+            for (var widget : widgets) {
+                if (widget.isMouseOver(i, j, mouseX - this.leftPos - 98, mouseY - this.topPos - 18)) {
+                    Skill skill = widget.getSkill();
+                    if (this.skillHandler.canUnlockSkill(skill)) {
+                        this.skillHandler.unlockSkill(skill);
+                        PayloadHandler.unlockSkill(skill);
+                    }
+                }
+            }
+        }
         if (isHovering(5, 29 + (scrollIndex * 15), 12, 104, mouseX, mouseY)) {
             this.scrolling = true;
+            return true;
+        }
+        if (isHovering(98, 16, 149, 115, mouseX, mouseY)) {
+            this.scrollingWindow = true;
             return true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
@@ -93,6 +124,9 @@ public class WorkbenchScreen extends Screen {
             this.scrollTo(this.scrollOffs);
             this.selectedIndex = -1;
             return true;
+        } else if (this.selectedTree != null && this.scrollingWindow) {
+            this.selectedTree.scroll(dragX, dragY);
+            return true;
         }
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
@@ -100,10 +134,14 @@ public class WorkbenchScreen extends Screen {
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         this.scrolling = false;
+        this.scrollingWindow = false;
         for (int i = 0; i < 5; i++) {
             if (isHovering(92 + (i * 26), -30, 26, 30, mouseX, mouseY) && i != pageIndex) {
                 this.pageIndex = i;
                 this.selectedIndex = -1;
+
+                //TODO: CHECK BUG
+                this.spellList = this.spellHandler.getSpellList().stream().filter(spellType -> spellType.getPath().ordinal() == pageIndex).toList();
                 this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                 return true;
             }
@@ -113,20 +151,28 @@ public class WorkbenchScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        this.scrollOffs = this.subtractInputFromScroll(this.scrollOffs, scrollY);
-        this.scrollTo(this.scrollOffs);
-        return true;
+        if (isHovering(5, 29, 88, 109, mouseX, mouseY)) {
+            this.scrollOffs = this.subtractInputFromScroll(this.scrollOffs, scrollY);
+            this.scrollTo(this.scrollOffs);
+            return true;
+        } else if (this.selectedTree != null && isHovering(98, 16, 149, 115, mouseX, mouseY)) {
+            this.selectedTree.scroll(scrollX * 16, scrollY * 16);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        Player player = this.minecraft.player;
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         RenderUtil.setupScreen(TEXTURE);
-        this.renderWindow(guiGraphics, player, this.leftPos, this.topPos, mouseX, mouseY, partialTick);
+        this.renderWindow(guiGraphics, this.leftPos, this.topPos, mouseX, mouseY);
+        this.renderBackground(guiGraphics, this.player, this.leftPos, this.topPos, mouseX, mouseY, partialTick);
+        this.renderTooltips(guiGraphics, this.leftPos, this.topPos, mouseX, mouseY);
     }
 
-    private void renderWindow(GuiGraphics guiGraphics, Player player, int xPos, int yPos, int mouseX, int mouseY, float partialTick) {
+    private void renderBackground(GuiGraphics guiGraphics, Player player, int xPos, int yPos, int mouseX, int mouseY, float partialTick) {
         int textColor = 16777215;
         guiGraphics.blit(TEXTURE, xPos, yPos, 0, 0, WIDTH, HEIGHT);
         var skillHandler = player.getData(DataInit.SKILL_HANDLER);
@@ -158,8 +204,24 @@ public class WorkbenchScreen extends Screen {
         renderTabs(guiGraphics, this.leftPos, this.topPos, mouseX, mouseY);
     }
 
-    private void renderInside(GuiGraphics guiGraphics, int xPos, int yPos, int mouseX, int mouseY) {
+    private void renderWindow(GuiGraphics guiGraphics, int xPos, int yPos, int mouseX, int mouseY) {
+        UpgradeWindow window = this.selectedTree;
+        if (window == null) {
+            guiGraphics.fill(xPos + 98, yPos + 16, xPos + 98 + 149, yPos + 16 + 115, -16777216);
+        } else {
+            window.drawContents(guiGraphics, xPos + 98, yPos + 16);
+        }
+    }
 
+    private void renderTooltips(GuiGraphics guiGraphics, int xPos, int yPos, int mouseX, int mouseY) {
+        if (this.selectedTree != null) {
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate((float)(xPos + 98), (float)(yPos + 16), 400);
+            RenderSystem.enableDepthTest();
+            this.selectedTree.drawTooltips(guiGraphics, xPos, yPos, mouseX - xPos - 98, mouseY - yPos - 16);
+            RenderSystem.disableDepthTest();
+            guiGraphics.pose().popPose();
+        }
     }
 
     private void renderTabs(GuiGraphics guiGraphics, int xPos, int yPos, int mouseX, int mouseY) {
@@ -190,6 +252,25 @@ public class WorkbenchScreen extends Screen {
             guiGraphics.drawCenteredString(this.font, Component.literal((int )spellXP + " / " + xpGoal), xPos + 190, yPos + 143, textColor);
             guiGraphics.blit(TEXTURE, xPos + 129, yPos + 153, 134, 194, spellXP != 500 ? scale : 122, 5);
         }
+    }
+
+    private void initSpellTrees() {
+        for (var root : this.upgradeTree.roots()) {
+            UpgradeWindow window = new UpgradeWindow(this.minecraft, this, root.skill().getSpell(), root);
+            this.spellTrees.put(root.skill().getSpell(), window);
+        }
+
+        for (var child : this.upgradeTree.children()) {
+            UpgradeWindow window = this.getWindow(child);
+            if (window != null) {
+                window.addUpgrade(child);
+            }
+        }
+    }
+
+    @Nullable
+    private UpgradeWindow getWindow(SkillNode skillNode) {
+        return this.spellTrees.get(skillNode.skill().getSpell());
     }
 
     private boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY) {

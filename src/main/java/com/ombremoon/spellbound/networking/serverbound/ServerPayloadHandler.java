@@ -1,8 +1,10 @@
 package com.ombremoon.spellbound.networking.serverbound;
 
+import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.util.SpellUtil;
+import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class ServerPayloadHandler {
@@ -32,5 +34,11 @@ public class ServerPayloadHandler {
     public static void handleNetworkStopChannel(final StopChannelPayload payload, final IPayloadContext context) {
         var handler = SpellUtil.getSpellHandler(context.player());
         handler.setChannelling(false);
+    }
+
+    public static void handleNetworkUnlockSKill(final UnlockSkillPayload payload, final IPayloadContext context) {
+        var handler = context.player().getData(DataInit.SKILL_HANDLER);
+        handler.unlockSkill(payload.skill());
+        context.player().sendSystemMessage(Component.literal("You have unlocked the " + payload.skill().getSkillName().getString() + " skill"));
     }
 }

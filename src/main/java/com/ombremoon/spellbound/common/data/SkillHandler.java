@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.data;
 
-import com.ombremoon.spellbound.common.init.SkillInit;
+import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellPath;
@@ -62,17 +62,18 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         this.unlockedSkills.put(spellType, new HashSet<>());
     }
 
-    public <T extends AbstractSpell> void unlockSkill(SpellType<T> spellType, Skill skill) {
-        Set<Skill> unlocked = unlockedSkills.get(spellType);
+    public void unlockSkill(Skill skill) {
+        Set<Skill> unlocked = unlockedSkills.get(skill.getSpell());
         if (unlocked == null) unlocked = new HashSet<>();
         unlocked.add(skill);
-        unlockedSkills.put(spellType, unlocked);
+        unlockedSkills.put(skill.getSpell(), unlocked);
     }
 
-    public boolean canUnlockSkill(SpellType<?> spellType, Skill skill) {
+    public boolean canUnlockSkill(Skill skill) {
+        var spellType = skill.getSpell();
         if ((float) skill.getXpCost() > getSpellXp(spellType)) return false;
-        if (hasSkill(spellType, skill)) return false;
-        if (skill.getPrereqs() == null) return true;
+        if (hasSkill(skill)) return false;
+        if (skill.isRoot()) return false;
 
         Set<Skill> unlocked = unlockedSkills.get(spellType);
         for (Holder<Skill> prereq : skill.getPrereqs()) {
@@ -82,9 +83,10 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         return false;
     }
 
-    public boolean hasSkill(SpellType<?> spellType, Skill skill) {
+    public boolean hasSkill(Skill skill) {
+        var spellType = skill.getSpell();
         if (unlockedSkills.get(spellType) == null) return false;
-        return unlockedSkills.get(spellType).contains(skill);
+        return unlockedSkills.get(spellType).contains(skill) || skill.isRoot();
     }
 
     @Override
@@ -96,14 +98,14 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
 
         for (SpellType<?> spellType : this.spellXp.keySet()) {
             CompoundTag newTag = new CompoundTag();
-            newTag.putString("Spell", spellType.getResourceLocation().toString());
+            newTag.putString("Spell", spellType.location().toString());
             newTag.putFloat("Xp", this.spellXp.get(spellType));
             spellXpTag.add(newTag);
         }
 
         for (SpellType<?> spellType : unlockedSkills.keySet()) {
             CompoundTag newTag = new CompoundTag();
-            newTag.putString("Spell", spellType.getResourceLocation().toString());
+            newTag.putString("Spell", spellType.location().toString());
             ListTag savedSkills = new ListTag();
             for (Skill skill : unlockedSkills.get(spellType)) {
                 CompoundTag newSkillTag = new CompoundTag();
@@ -146,9 +148,10 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         for (int i = 0; i < skillTag.size(); i++) {
             CompoundTag tag = skillTag.getCompound(i);
             Set<Skill> skills = new HashSet<>();
-            ListTag skillList = tag.getList("Skills", ListTag.TAG_LIST);
+            ListTag skillList = tag.getList("Skills", 10);
             for (int j = 0; j < skillList.size(); j++) {
-                skills.add(SkillInit.REGISTRY.get(ResourceLocation.tryParse(skillList.getString(j))));
+                CompoundTag nbt = skillList.getCompound(j);
+                skills.add(Skill.byName(ResourceLocation.tryParse(nbt.getString("Skill"))));
             }
             this.unlockedSkills.put(SpellInit.REGISTRY.get(ResourceLocation.tryParse(tag.getString("Spell"))), skills);
         }

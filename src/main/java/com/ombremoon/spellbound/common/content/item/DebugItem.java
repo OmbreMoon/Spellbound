@@ -8,6 +8,7 @@ import com.ombremoon.spellbound.common.init.SkillInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -34,14 +35,14 @@ public class DebugItem extends Item {
         var skillHandler = player.getData(DataInit.SKILL_HANDLER.get());
         ombreDebug(level, player, usedHand, handler, skillHandler);
         if (!level.isClientSide && !player.isCrouching()) {
-            skillHandler.unlockSkill(SpellInit.WILD_MUSHROOM_SPELL.get(), SkillInit.VILE_INFLUENCE.value());
+//            skillHandler.unlockSkill(SpellInit.WILD_MUSHROOM_SPELL.get(), SkillInit.VILE_INFLUENCE.value());
             handler.sync();
             skillHandler.sync(player);
-            player.sendSystemMessage(Component.literal("Has vile influence: " + skillHandler.hasSkill(SpellInit.WILD_MUSHROOM_SPELL.get(), SkillInit.VILE_INFLUENCE.value())));
+//            player.sendSystemMessage(Component.literal("Has vile influence: " + skillHandler.hasSkill(SpellInit.WILD_MUSHROOM_SPELL.get(), SkillInit.VILE_INFLUENCE.value())));
         } else if (!level.isClientSide && player.isCrouching()) {
             skillHandler.resetSkills(SpellInit.WILD_MUSHROOM_SPELL.get());
             player.sendSystemMessage(Component.literal("Wild mushrooms has: " + skillHandler.getSpellXp(SpellInit.WILD_MUSHROOM_SPELL.get()) + " XP"));
-            player.sendSystemMessage(Component.literal("Has vile influence: " + skillHandler.hasSkill(SpellInit.WILD_MUSHROOM_SPELL.get(), SkillInit.VILE_INFLUENCE.value())));
+//            player.sendSystemMessage(Component.literal("Has vile influence: " + skillHandler.hasSkill(SpellInit.WILD_MUSHROOM_SPELL.get(), SkillInit.VILE_INFLUENCE.value())));
             handler.sync();
             skillHandler.sync(player);
         }
@@ -51,15 +52,15 @@ public class DebugItem extends Item {
     private void ombreDebug(Level level, Player player, InteractionHand usedHand, SpellHandler spellHandler, SkillHandler skillHandler) {
         UpgradeTree tree = player.getData(DataInit.UPGRADE_TREE);
         if (!level.isClientSide) {
-//            tree.clear(player);
-//            spellHandler.removeSpell(SpellInit.WILD_MUSHROOM_SPELL.get());
-//            spellHandler.learnSpell(SpellInit.WILD_MUSHROOM_SPELL.get());
+//            spellHandler.clearList();
+//            Constants.LOG.info("{}", spellHandler.getSpellList());
+            spellHandler.learnSpell(SpellInit.VOLCANO.get());
 //            Constants.LOG.info("{}", spellHandler.getSpellList().stream().map(SpellType::getResourceLocation).map(ResourceLocation::getPath).toList());
-
+//            Constants.LOG.info("{}", tree.nodes());
+//            Constants.LOG.info("{}", tree.children());
+//            Constants.LOG.info("{}", tree.roots());
         } else {
-            Constants.LOG.info("{}", tree.nodes());
-            Constants.LOG.info("{}", tree.children());
-            Constants.LOG.info("{}", tree.roots());
+//            Constants.LOG.info("{}", skillHandler.unlockedSkills(SpellInit.VOLCANO.get()));
         }
     }
 }

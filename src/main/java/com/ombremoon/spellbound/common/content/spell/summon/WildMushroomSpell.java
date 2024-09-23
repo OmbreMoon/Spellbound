@@ -52,11 +52,11 @@ public class WildMushroomSpell extends SummonSpell {
         }
         Entity mushroom = context.getLevel().getEntity(mobs.iterator().next());
         SkillHandler skillHandler = context.getSkillHandler();
-        double radius = skillHandler.hasSkill(getSpellType(), SkillInit.VILE_INFLUENCE.value()) ? 3D : 2D;
-        this.explosionInterval = skillHandler.hasSkill(getSpellType(), SkillInit.HASTENED_GROWTH.value()) ? 40 : 60;
-        this.poisonDuration = skillHandler.hasSkill(getSpellType(), SkillInit.ENVENOM.value()) ? 80 : 60;
+//        double radius = skillHandler.hasSkill(getSpellType(), SkillInit.VILE_INFLUENCE.value()) ? 3D : 2D;
+//        this.explosionInterval = skillHandler.hasSkill(getSpellType(), SkillInit.HASTENED_GROWTH.value()) ? 40 : 60;
+//        this.poisonDuration = skillHandler.hasSkill(getSpellType(), SkillInit.ENVENOM.value()) ? 80 : 60;
 
-        this.aoeZone = mushroom.getBoundingBox().inflate(radius, 0, radius);
+//        this.aoeZone = mushroom.getBoundingBox().inflate(radius, 0, radius);
     }
 
     @Override
@@ -93,10 +93,10 @@ public class WildMushroomSpell extends SummonSpell {
     @Override
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
-        if (context.getSkillHandler().hasSkill(getSpellType(), SkillInit.CIRCLE_OF_LIFE.value())) {
+        /*if (context.getSkillHandler().hasSkill(getSpellType(), SkillInit.CIRCLE_OF_LIFE.value())) {
             SpellHandler handler = context.getSpellHandler();
             handler.awardMana(UniformFloat.of(52f, 60f).sample(context.getPlayer().getRandom()));
             handler.sync();
-        }
+        }*/
     }
 }

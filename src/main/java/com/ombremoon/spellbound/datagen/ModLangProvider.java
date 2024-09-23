@@ -3,8 +3,10 @@ package com.ombremoon.spellbound.datagen;
 import com.google.common.collect.ImmutableMap;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.ItemInit;
+import com.ombremoon.spellbound.common.init.SkillInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.skills.Skill;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
@@ -35,6 +37,7 @@ public class ModLangProvider extends LanguageProvider {
     protected void addTranslations() {
         ItemInit.ITEMS.getEntries().forEach(this::itemLang);
         SpellInit.SPELL_TYPES.getEntries().forEach(this::spellLang);
+        SkillInit.SKILLS.getEntries().forEach(this::skillLang);
 //        BlockInit.BLOCKS.getEntries().forEach(this::blockLang);
 //        EntityInit.ENTITIES.getEntries().forEach(this::entityLang);
 //        StatusEffectInit.STATUS_EFFECTS.getEntries().forEach(this::effectLang);
@@ -50,6 +53,10 @@ public class ModLangProvider extends LanguageProvider {
 
     protected void spellLang(DeferredHolder<SpellType<?>, ? extends SpellType<?>> entry) {
         add(entry.get().createSpell().getDescriptionId(), checkReplace(entry));
+    }
+
+    protected void skillLang(DeferredHolder<Skill, ? extends Skill> entry) {
+        add(entry.get().getDescriptionId(), checkReplace(entry));
     }
 
     protected void blockLang(DeferredHolder<Block, ? extends Block> entry) {

@@ -26,6 +26,8 @@ import java.util.stream.Collectors;
 public class SpellHandler implements INBTSerializable<CompoundTag> {
     private SpellEventListener listener;
     public Player caster;
+    private  SkillHandler skillHandler;
+    private UpgradeTree upgradeTree;
     protected boolean castMode;
     protected float mana;
     protected int maxMana = 100;
@@ -36,10 +38,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     public int castTick;
     private boolean channelling;
 
-    public SpellHandler() {
-
-    }
-
     public void sync() {
         PayloadHandler.syncSpellsToClient(this.caster);
     }
@@ -47,6 +45,8 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     public void initData(Player player) {
         this.caster = player;
         this.listener = new SpellEventListener(player);
+        this.skillHandler = this.caster.getData(DataInit.SKILL_HANDLER);
+        this.upgradeTree = this.caster.getData(DataInit.UPGRADE_TREE);
     }
 
     public Player getCaster() {
@@ -101,18 +101,28 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     }
 
     public void removeSpell(SpellType<?> spellType) {
-        this.spellSet.remove(spellType);
-        UpgradeTree tree = this.caster.getData(DataInit.UPGRADE_TREE);
+        this.skillHandler.resetSkills(spellType);
+
         var locations = spellType.getSkills().stream().map(Skill::location).collect(Collectors.toSet());
-        tree.remove(locations);
-        tree.update(this.caster, locations);
+        this.upgradeTree.remove(locations);
+        this.upgradeTree.update(this.caster, locations);
+        this.spellSet.remove(spellType);
+        sync();
+    }
+
+    public void clearList() {
+        this.spellSet.forEach(skillHandler::resetSkills);
+        this.upgradeTree.clear(this.caster);
+        this.spellSet.clear();
+        sync();
     }
 
     public void learnSpell(SpellType<?> spellType) {
         this.spellSet.add(spellType);
-        UpgradeTree tree = this.caster.getData(DataInit.UPGRADE_TREE);
-        tree.addAll(spellType.getSkills());
-        tree.update(this.caster, spellType.getSkills());
+        this.skillHandler.unlockSkill(Skill.byName(spellType.location()));
+        this.upgradeTree.addAll(spellType.getSkills());
+        this.upgradeTree.update(this.caster, spellType.getSkills());
+        sync();
     }
 
     public ObjectOpenHashSet<AbstractSpell> getActiveSpells() {
@@ -177,7 +187,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         ListTag spellList = new ListTag();
 
         if (this.selectedSpell != null)
-            compoundTag.putString("SelectedSpell", this.selectedSpell.getResourceLocation().toString());
+            compoundTag.putString("SelectedSpell", this.selectedSpell.location().toString());
 
         if (!spellSet.isEmpty()) {
             for (SpellType<?> spellType : spellSet) {

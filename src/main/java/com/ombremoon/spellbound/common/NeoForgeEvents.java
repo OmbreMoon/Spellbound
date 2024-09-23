@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.common;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.events.PlayerDamageEvent;
 import com.ombremoon.spellbound.common.magic.events.PlayerJumpEvent;
@@ -40,6 +41,7 @@ public class NeoForgeEvents {
                     handler.sync();
 
                     var skillHandler = player.getData(DataInit.SKILL_HANDLER);
+//                    skillHandler.resetSkills(SpellInit.VOLCANO.get());
                     skillHandler.sync(player);
 
                     var tree = player.getData(DataInit.UPGRADE_TREE);

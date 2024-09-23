@@ -24,7 +24,7 @@ public class SpellUtil {
     }
 
     private static CompoundTag storeSpell(CompoundTag compoundTag, SpellType<?> spellType) {
-        compoundTag.putString("Spell", spellType.getResourceLocation().toString());
+        compoundTag.putString("Spell", spellType.location().toString());
         return compoundTag;
     }
 

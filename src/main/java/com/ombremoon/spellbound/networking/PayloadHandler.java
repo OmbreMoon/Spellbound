@@ -42,6 +42,10 @@ public class PayloadHandler {
         PacketDistributor.sendToServer(new StopChannelPayload());
     }
 
+    public static void unlockSkill(Skill skill) {
+        PacketDistributor.sendToServer(new UnlockSkillPayload(skill));
+    }
+
     public static void syncSpellsToClient(Player player) {
         PacketDistributor.sendToPlayer((ServerPlayer) player,
                 new SyncSpellPayload(
@@ -97,6 +101,11 @@ public class PayloadHandler {
                 StopChannelPayload.TYPE,
                 StopChannelPayload.CODEC,
                 ServerPayloadHandler::handleNetworkStopChannel
+        );
+        registrar.playToServer(
+                UnlockSkillPayload.TYPE,
+                UnlockSkillPayload.CODEC,
+                ServerPayloadHandler::handleNetworkUnlockSKill
         );
 
         registrar.playToClient(

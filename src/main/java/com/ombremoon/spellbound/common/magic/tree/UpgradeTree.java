@@ -98,6 +98,7 @@ public class UpgradeTree implements INBTSerializable<CompoundTag> {
     }
 
     public void clear(Player player) {
+        clear();
         update(player, true, List.of(), Set.of());
     }
 
