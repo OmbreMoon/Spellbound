@@ -19,7 +19,8 @@ public class Skill {
     private final int yPos;
     @Nullable
     private final HolderSet<Skill> prerequisites;
-    private String descriptionId;
+    private String nameID;
+    private String descriptionID;
 
     public Skill(ResourceLocation resLoc) {
         this(resLoc, 0, 0, 0, null);
@@ -53,15 +54,26 @@ public class Skill {
         return prerequisites;
     }
 
-    protected String getOrCreateDescriptionId() {
-        if (this.descriptionId == null) {
-            this.descriptionId = Util.makeDescriptionId("skill", this.location());
+    protected String getOrCreateNameId() {
+        if (this.nameID == null) {
+            this.nameID = Util.makeDescriptionId("skill", this.location());
         }
-        return this.descriptionId;
+        return this.nameID;
+    }
+
+    protected String getOrCreateDescriptionId() {
+        if (this.descriptionID == null) {
+            this.descriptionID = Util.makeDescriptionId("skill.description", this.location());
+        }
+        return this.descriptionID;
     }
 
     public ResourceLocation location() {
         return SkillInit.REGISTRY.getKey(this);
+    }
+
+    public String getNameId() {
+        return this.getOrCreateNameId();
     }
 
     public String getDescriptionId() {
@@ -69,11 +81,11 @@ public class Skill {
     }
 
     public Component getSkillName() {
-        return Component.translatable(this.getDescriptionId());
+        return Component.translatable(this.getNameId());
     }
 
     public MutableComponent getSkillDescription() {
-        return Component.translatable(Util.makeDescriptionId("skill.description", this.location()));
+        return Component.translatable(this.getDescriptionId());
     }
 
     public ResourceLocation getSkillTexture() {

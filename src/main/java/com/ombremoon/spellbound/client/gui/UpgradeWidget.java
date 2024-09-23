@@ -42,8 +42,7 @@ public class UpgradeWidget {
         this.title = Language.getInstance().getVisualOrder(minecraft.font.substrByWidth(skillNode.skill().getSkillName(), 163));
         this.x = skillNode.skill().getX();
         this.y = -skillNode.skill().getY();
-        int i = 8;
-        int j = 29 + minecraft.font.width(this.title) + i;
+        int j = 29 + minecraft.font.width(this.title);
         this.description = Language.getInstance()
                 .getVisualOrder(
                         this.findOptimalLines(ComponentUtils.mergeStyles(skillNode.skill().getSkillDescription(), Style.EMPTY.withColor(getSkill().getSpell().getPath().getColor())), j)
@@ -141,11 +140,11 @@ public class UpgradeWidget {
     }
 
     public void drawHover(GuiGraphics guiGraphics, int x, int y, float fade, int width, int height) {
-//        Constants.LOG.info("Hell yea!");
         boolean flag = width + x + this.x + this.width + 30 >= this.window.getScreen().width;
         boolean flag1 = 115 - y - this.y - 30 <= 6 + this.description.size() * 9;
         var handler = this.minecraft.player.getData(DataInit.SKILL_HANDLER);
         ResourceLocation box = handler.hasSkill(getSkill()) ? UNLOCKED : LOCKED;
+
         int i = this.width;
         RenderSystem.enableBlend();
         int j = y + this.y;
@@ -156,7 +155,7 @@ public class UpgradeWidget {
             k = x + this.x;
         }
 
-        int l = 32 + this.description.size() * 9;
+        int l = 37 + this.description.size() * 9;
         if (!this.description.isEmpty()) {
             if (flag1) {
                 guiGraphics.blitSprite(TITLE_BOX_SPRITE, k, j + 26 - l, this.width, l);
@@ -165,9 +164,26 @@ public class UpgradeWidget {
             }
         }
 
-//        guiGraphics.blitSprite(box, 200, 26, 0, 0, l, j, 0, 26);
-//        guiGraphics.blitSprite(box, 200, 26, 200 - i, 0, l, j, i, 26);
+        guiGraphics.blitSprite(box, 200, 26, 200 - i, 0, k, j, i, 26);
         guiGraphics.blit(WorkbenchScreen.TEXTURE, x + this.x, y + this.y, 29 ,226, 30, 30);
+        if (flag) {
+            guiGraphics.drawString(this.minecraft.font, this.title, k + 5, y + this.y + 9, -1);
+        } else {
+            guiGraphics.drawString(this.minecraft.font, this.title, x + this.x + 32, y + this.y + 9, -1);
+        }
+
+        if (flag1) {
+            for (int i1 = 0; i1 < this.description.size(); i1++) {
+                guiGraphics.drawString(this.minecraft.font, this.description.get(i1), k + 5, j + 26 - l + 9 + i1 * 9, -5592406, false);
+            }
+        } else {
+            for (int j1 = 0; j1 < this.description.size(); j1++) {
+                guiGraphics.drawString(this.minecraft.font, this.description.get(j1), k + 5, y + this.y + 9 + 22 + j1 * 9, -5992406, false);
+            }
+        }
+
+        ResourceLocation sprite = this.skillNode.skill().getSkillTexture();
+        guiGraphics.blit(sprite, x + this.x + 3, y + this.y + 3, 0, 0, 24, 24, 24, 24);
     }
 
     public void attachToParents() {

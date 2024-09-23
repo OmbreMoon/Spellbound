@@ -7,6 +7,7 @@ import com.ombremoon.spellbound.common.init.SkillInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
+import net.minecraft.core.Holder;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
@@ -56,7 +57,7 @@ public class ModLangProvider extends LanguageProvider {
     }
 
     protected void skillLang(DeferredHolder<Skill, ? extends Skill> entry) {
-        add(entry.get().getDescriptionId(), checkReplace(entry));
+        add(entry.get().getNameId(), checkReplace(entry));
     }
 
     protected void blockLang(DeferredHolder<Block, ? extends Block> entry) {
@@ -72,7 +73,18 @@ public class ModLangProvider extends LanguageProvider {
     }
 
     protected void manualEntries() {
+        skillDescriptions();
+    }
 
+    protected void skillDescriptions() {
+        addSkillTooltip(SkillInit.VOLCANO, "Create a volcanic eruption that spits out 8 lava bombs per second for 10 seconds.");
+        addSkillTooltip(SkillInit.INFERNO_CORE, "After the eruption ends, the volcano drops a Smoldering Shard.");
+        addSkillTooltip(SkillInit.EXPLOSIVE_BARRAGE, "Each lava bomb explodes on impact.");
+        addSkillTooltip(SkillInit.LAVA_FLOW, "Lava bombs turn into lava pools on impact.");
+    }
+
+    protected void addSkillTooltip(Holder<Skill> skill, String description) {
+        add(skill.value().getDescriptionId(), description);
     }
 
     protected String checkReplace(DeferredHolder<?, ?> holder) {
