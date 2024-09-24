@@ -36,7 +36,7 @@ public class DataInit {
 
     //Mana
     public static final Supplier<AttachmentType<Float>> MANA = ATTACHMENT_TYPES.register(
-            "mana", () -> AttachmentType.builder(() -> 100f).build());
+            "mana", () -> AttachmentType.builder(() -> 100f).serialize(Codec.FLOAT).build());
     public static final Supplier<AttachmentType<Float>> MAX_MANA = ATTACHMENT_TYPES.register(
             "max_mana", () -> AttachmentType.builder(() -> 100f).serialize(Codec.FLOAT).copyOnDeath().build());
 
@@ -56,5 +56,6 @@ public class DataInit {
 
     public static void register(IEventBus modEventBus) {
         DataInit.ATTACHMENT_TYPES.register(modEventBus);
+        DataInit.COMPONENT_TYPES.register(modEventBus);
     }
 }

@@ -71,6 +71,14 @@ public class NeoForgeEvents {
     }
 
     @SubscribeEvent
+    public static void onPlayerClone(PlayerEvent.PlayerRespawnEvent event) {
+        Player player = event.getEntity();
+        player.setData(DataInit.MANA, player.getData(DataInit.MAX_MANA));
+        PayloadHandler.syncMana(player);
+        PayloadHandler.syncMaxMana(player);
+    }
+
+    @SubscribeEvent
     public static void onPlayerLeaveWorld(EntityLeaveLevelEvent event) {
         if (event.getEntity() instanceof Player player && player.level() instanceof ServerLevel level) {
             SpellHandler handler = SpellUtil.getSpellHandler(player);

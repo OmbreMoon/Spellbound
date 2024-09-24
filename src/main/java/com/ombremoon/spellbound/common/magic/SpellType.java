@@ -16,13 +16,15 @@ public class SpellType<S extends AbstractSpell> {
     private final ResourceLocation resourceLocation;
     private final SpellFactory<S> factory;
     private final SpellPath path;
+    private final Holder<Skill> keySkill;
     private final Set<Holder<Skill>> availableSkills;
 
-    public SpellType(ResourceLocation resourceLocation, SpellPath path, Set<Holder<Skill>> skills, SpellFactory<S> factory) {
+    public SpellType(ResourceLocation resourceLocation, SpellPath path, Set<Holder<Skill>> skills, Holder<Skill> keySkill, SpellFactory<S> factory) {
         this.path = path;
         this.availableSkills = skills;
         this.factory = factory;
         this.resourceLocation = resourceLocation;
+        this.keySkill = keySkill;
     }
 
     public ResourceLocation location() {
@@ -31,6 +33,10 @@ public class SpellType<S extends AbstractSpell> {
 
     public SpellPath getPath() {
         return this.path;
+    }
+
+    public Holder<Skill> getKeySkill() {
+        return this.keySkill;
     }
 
     public List<Skill> getSkills() {
@@ -60,6 +66,7 @@ public class SpellType<S extends AbstractSpell> {
         private ResourceLocation resourceLocation;
         private SpellFactory<T> factory;
         private SpellPath path;
+        private Holder<Skill> keySkill;
         private Set<Holder<Skill>> availableSkills = new ObjectOpenHashSet<>();
 
         public Builder(String resourceLocation, SpellFactory<T> factory) {
@@ -72,13 +79,19 @@ public class SpellType<S extends AbstractSpell> {
             return this;
         }
 
+        public Builder<T> setKeySkill(Holder<Skill> skill) {
+            this.availableSkills.add(skill);
+            this.keySkill = skill;
+            return this;
+        }
+
         public Builder<T> setAvailableSkills(Holder<Skill>... skills) {
             this.availableSkills.addAll(Arrays.stream(skills).toList());
             return this;
         }
 
         public SpellType<T> build() {
-            return new SpellType<>(resourceLocation, path, availableSkills, factory);
+            return new SpellType<>(resourceLocation, path, availableSkills, keySkill, factory);
         }
     }
 }

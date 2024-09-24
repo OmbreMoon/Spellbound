@@ -33,8 +33,8 @@ public class CastModeOverlay implements LayeredDraw.Layer {
 
         ResourceLocation texture = spell.createSpell().getSpellTexture();
 
-        guiGraphics.blit(BACKGROUND, x-5, y-5, 0, 0, 34, 34, 34, 34);
         guiGraphics.blit(texture, x, y, 0, 0, 24, 24, 24, 24);
+        guiGraphics.blit(BACKGROUND, x-1, y-1, 0, 0, 26, 26, 26, 26);
 
         guiGraphics.drawString(Minecraft.getInstance().font,
                 player.getData(DataInit.MANA) + "/" + player.getData(DataInit.MAX_MANA),

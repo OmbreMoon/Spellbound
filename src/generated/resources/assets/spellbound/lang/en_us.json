@@ -1,7 +1,11 @@
 {
+  "chat.spelltome.awardxp": "Spell already known. +10 spell XP.",
+  "chat.spelltome.nospell": "This spell tome is blank.",
+  "chat.spelltome.spellunlocked": "Spell unlocked: %1$s",
   "item.spellbound.debug": "Debug",
+  "item.spellbound.mana_tear": "Mana Tear",
   "item.spellbound.soul_shard": "Soul Shard",
-  "item.spellbound.test_spell_tome": "Test Spell Tome",
+  "item.spellbound.spell_tome": "Spell Tome",
   "skill.description.spellbound.explosive_barrage": "Each lava bomb explodes on impact.",
   "skill.description.spellbound.inferno_core": "After the eruption ends, the volcano drops a Smoldering Shard.",
   "skill.description.spellbound.lava_flow": "Lava bombs turn into lava pools on impact.",
@@ -23,6 +27,5 @@
   "spell.spellbound.test_spell": "Test Spell",
   "spell.spellbound.volcano": "Volcano",
   "spell.spellbound.wild_mushroom": "Wild Mushroom",
-  "chat.spelltome.awardxp": "Spell already learnt. +10 spell XP",
-  "chat.spelltome.nospell": "This spell tome is blank."
+  "tooltip.spellbound.holdshift": "Hold shift for more information."
 }

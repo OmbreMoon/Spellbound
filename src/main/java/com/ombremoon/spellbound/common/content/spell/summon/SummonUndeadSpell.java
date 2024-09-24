@@ -4,11 +4,15 @@ import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntityType;
 
 public class SummonUndeadSpell extends SummonSpell {
     public static AnimatedSpell.Builder<AnimatedSpell> createSummonBuilder() {
-        return createSimpleSpellBuilder().setDuration(20*60).setManaCost(10);
+        return createSimpleSpellBuilder()
+                .setDuration(20*60)
+                .setManaCost(10)
+                .castCondition((player, spell) -> player.level().getDifficulty() != Difficulty.PEACEFUL);
     }
 
     public SummonUndeadSpell() {
