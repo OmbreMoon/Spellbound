@@ -6,6 +6,11 @@ import com.ombremoon.spellbound.common.data.SkillHandler;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.data.StatusHandler;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
+import net.minecraft.core.RegistryCodecs;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -16,6 +21,9 @@ import java.util.function.Supplier;
 public class DataInit {
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(
             NeoForgeRegistries.ATTACHMENT_TYPES, Constants.MOD_ID
+    );
+    public static final DeferredRegister.DataComponents COMPONENT_TYPES = DeferredRegister.createDataComponents(
+            Registries.DATA_COMPONENT_TYPE, Constants.MOD_ID
     );
 
     //Handlers
@@ -28,7 +36,7 @@ public class DataInit {
 
     //Mana
     public static final Supplier<AttachmentType<Float>> MANA = ATTACHMENT_TYPES.register(
-            "mana", () -> AttachmentType.builder(() -> 100f).build());
+            "mana", () -> AttachmentType.builder(() -> 100f).serialize(Codec.FLOAT).build());
     public static final Supplier<AttachmentType<Float>> MAX_MANA = ATTACHMENT_TYPES.register(
             "max_mana", () -> AttachmentType.builder(() -> 100f).serialize(Codec.FLOAT).copyOnDeath().build());
 
@@ -42,7 +50,12 @@ public class DataInit {
     public static final Supplier<AttachmentType<Integer>> TARGET_ID = ATTACHMENT_TYPES.register(
             "target_id", () -> AttachmentType.builder(() -> 0).build());
 
+    //Components
+    public static final Supplier<DataComponentType<String>> SPELL = COMPONENT_TYPES.registerComponentType("spell",
+            builder -> builder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
+
     public static void register(IEventBus modEventBus) {
         DataInit.ATTACHMENT_TYPES.register(modEventBus);
+        DataInit.COMPONENT_TYPES.register(modEventBus);
     }
 }

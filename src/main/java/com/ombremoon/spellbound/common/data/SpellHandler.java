@@ -19,6 +19,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.HashMap;
@@ -76,6 +77,11 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
             }
             return true;
         }
+    }
+
+    public void awardMana(float mana) {
+        caster.setData(DataInit.MANA, caster.getData(DataInit.MANA) + mana);
+        PayloadHandler.syncMana(caster);
     }
 
     public Set<SpellType<?>> getSpellList() {

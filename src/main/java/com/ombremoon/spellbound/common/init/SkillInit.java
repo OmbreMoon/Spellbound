@@ -25,16 +25,16 @@ public class SkillInit {
 
     //Wild Mushroom
     public static final Holder<Skill> WILD_MUSHROOM = registerSkill("wild_mushroom");
-//    public static final Holder<Skill> VILE_INFLUENCE = registerSkill("vile_influence", 10, 0, 0, preReqs(WILD_MUSHROOM));
-//    public static final Holder<Skill> HASTENED_GROWTH = registerSkill("hastened_growth", 10, 0, 0, preReqs(VILE_INFLUENCE));
-//    public static final Holder<Skill> ENVENOM = registerSkill("envenom", 10, 0, 0, preReqs(HASTENED_GROWTH));
-//    public static final Holder<Skill> DECOMPOSE = registerSkill("decompose", 10, 0, 0, preReqs(WILD_MUSHROOM));
-//    public static final Holder<Skill> NATURES_DOMINANCE = registerSkill("natures_dominance", 10, 0, 0, preReqs(DECOMPOSE));
-//    public static final Holder<Skill> POISON_ESSENCE = registerSkill("poison_essence", 10, 0, 0, preReqs(NATURES_DOMINANCE));
-//    public static final Holder<Skill> CIRCLE_OF_LIFE = registerSkill("circle_of_life", 10, 0, 0, preReqs(POISON_ESSENCE));
-//    public static final Holder<Skill> CATALEPSY = registerSkill("catalepsy", 10, 0, 0, preReqs(CIRCLE_OF_LIFE));
-//    public static final Holder<Skill> RECYCLED = registerSkill("recycled", 10, 0, 0, preReqs(NATURES_DOMINANCE));
-//    public static final Holder<Skill> SYNTHESIS = registerSkill("synthesis", 10, 0, 0, preReqs(POISON_ESSENCE));
+    public static final Holder<Skill> VILE_INFLUENCE = registerSkill("vile_influence", 10, 0, 0, preReqs(WILD_MUSHROOM));
+    public static final Holder<Skill> HASTENED_GROWTH = registerSkill("hastened_growth", 10, 0, 0, preReqs(VILE_INFLUENCE));
+    public static final Holder<Skill> ENVENOM = registerSkill("envenom", 10, 0, 0, preReqs(HASTENED_GROWTH));
+    public static final Holder<Skill> DECOMPOSE = registerSkill("decompose", 10, 0, 0, preReqs(WILD_MUSHROOM));
+    public static final Holder<Skill> NATURES_DOMINANCE = registerSkill("natures_dominance", 10, 0, 0, preReqs(DECOMPOSE));
+    public static final Holder<Skill> POISON_ESSENCE = registerSkill("poison_essence", 10, 0, 0, preReqs(NATURES_DOMINANCE));
+    public static final Holder<Skill> CIRCLE_OF_LIFE = registerSkill("circle_of_life", 10, 0, 0, preReqs(POISON_ESSENCE));
+    public static final Holder<Skill> CATALEPSY = registerSkill("catalepsy", 10, 0, 0, preReqs(CIRCLE_OF_LIFE));
+    public static final Holder<Skill> RECYCLED = registerSkill("recycled", 10, 0, 0, preReqs(NATURES_DOMINANCE));
+    public static final Holder<Skill> SYNTHESIS = registerSkill("synthesis", 10, 0, 0, preReqs(POISON_ESSENCE));
 
     //Volcano
     public static final Holder<Skill> VOLCANO = registerSkill("volcano");

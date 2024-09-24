@@ -80,7 +80,7 @@ public class Skill {
         return this.getOrCreateDescriptionId();
     }
 
-    public Component getSkillName() {
+    public MutableComponent getSkillName() {
         return Component.translatable(this.getNameId());
     }
 

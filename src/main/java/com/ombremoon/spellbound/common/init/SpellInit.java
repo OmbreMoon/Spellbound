@@ -10,6 +10,7 @@ import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.skills.Skill;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.bus.api.IEventBus;
@@ -29,18 +30,20 @@ public class SpellInit {
 
     //Ruin
     public static final Supplier<SpellType<VolcanoSpell>> VOLCANO = registerSpell("volcano", ruinBuilder("volcano", VolcanoSpell::new)
+            .setKeySkill(SkillInit.VOLCANO)
             .setAvailableSkills(
-                    SkillInit.VOLCANO, SkillInit.INFERNO_CORE, SkillInit.LAVA_FLOW, SkillInit.EXPLOSIVE_BARRAGE,
+                    SkillInit.INFERNO_CORE, SkillInit.LAVA_FLOW, SkillInit.EXPLOSIVE_BARRAGE,
                     SkillInit.SHRAPNEL, SkillInit.HEATWAVE, SkillInit.SCORCHED_EARTH, SkillInit.SEISMIC_SHOCK,
                     SkillInit.MOLTEN_SHIELD, SkillInit.PYROCLASTIC_CLOUD, SkillInit.APOCALYPSE));
 
     //Summons
     public static final Supplier<SpellType<SummonUndeadSpell>> SUMMON_UNDEAD_SPELL = registerSpell("summon_undead", summonBuilder("summon_undead", SummonUndeadSpell::new));
     public static final Supplier<SpellType<WildMushroomSpell>> WILD_MUSHROOM_SPELL = registerSpell("wild_mushroom", summonBuilder("wild_mushroom", WildMushroomSpell::new)
-            /*.setAvailableSkills(
-                    SkillInit.WILD_MUSHROOM, SkillInit.VILE_INFLUENCE, SkillInit.HASTENED_GROWTH, SkillInit.ENVENOM,
+            .setKeySkill(SkillInit.WILD_MUSHROOM)
+            .setAvailableSkills(
+                    SkillInit.VILE_INFLUENCE, SkillInit.HASTENED_GROWTH, SkillInit.ENVENOM,
                     SkillInit.DECOMPOSE, SkillInit.NATURES_DOMINANCE, SkillInit.POISON_ESSENCE,
-                    SkillInit.CIRCLE_OF_LIFE, SkillInit.CATALEPSY, SkillInit.RECYCLED, SkillInit.SYNTHESIS)*/);
+                    SkillInit.CIRCLE_OF_LIFE, SkillInit.CATALEPSY, SkillInit.RECYCLED, SkillInit.SYNTHESIS));
 
     private static <T extends AbstractSpell> Supplier<SpellType<T>> registerSpell(String name, SpellType.Builder<T> builder) {
         return SPELL_TYPES.register(name, builder::build);
