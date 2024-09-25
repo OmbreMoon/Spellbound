@@ -52,17 +52,18 @@ public class WildMushroomSpell extends SummonSpell {
         }
         Entity mushroom = context.getLevel().getEntity(mobs.iterator().next());
         SkillHandler skillHandler = context.getSkillHandler();
-//        double radius = skillHandler.hasSkill(getSpellType(), SkillInit.VILE_INFLUENCE.value()) ? 3D : 2D;
-//        this.explosionInterval = skillHandler.hasSkill(getSpellType(), SkillInit.HASTENED_GROWTH.value()) ? 40 : 60;
-//        this.poisonDuration = skillHandler.hasSkill(getSpellType(), SkillInit.ENVENOM.value()) ? 80 : 60;
+        double radius = skillHandler.hasSkill(SkillInit.VILE_INFLUENCE.value()) ? 3D : 2D;
+        this.explosionInterval = skillHandler.hasSkill(SkillInit.HASTENED_GROWTH.value()) ? 40 : 60;
+        this.poisonDuration = skillHandler.hasSkill(SkillInit.ENVENOM.value()) ? 80 : 60;
 
-//        this.aoeZone = mushroom.getBoundingBox().inflate(radius, 0, radius);
+        this.aoeZone = mushroom.getBoundingBox().inflate(radius, 0, radius);
     }
 
     @Override
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
         Constants.LOG.debug("{}", context.getLevel().isClientSide);
+        float intervalProgress = ticks % explosionInterval;
         if (ticks % explosionInterval == 0) {
             Player caster = context.getPlayer();
             List<LivingEntity> entities = caster.level().getEntitiesOfClass(
@@ -77,13 +78,21 @@ public class WildMushroomSpell extends SummonSpell {
                 }
             }
 
-            Vec3 minPos = aoeZone.getMinPosition();
-            Vec3 maxPos = aoeZone.getMaxPosition();
-            for (double i = minPos.x; i <= maxPos.x; i++) {
-                for (double j = minPos.z; j <= maxPos.z; j++) {
+
+            //rot should be i/j based, offset should be tick baed
+        }
+        if (intervalProgress <= 12 && intervalProgress % 6 == 0) {
+            Vec3 center = aoeZone.getCenter();
+            for (double i = 1; i <= 20; i++) {
+                for (double j = 1; j <= 5; j++) {
+                    double rot = Math.toRadians(i*18);
+                    Vec3 pos = new Vec3(center.x + ((intervalProgress/6)+2-(j/2.5)) * Math.cos(rot),
+                            aoeZone.minY + (j/4),
+                            center.z + ((intervalProgress/6)+2-(j/2.5)) * Math.sin(rot));
+
                     ((ServerLevel) context.getLevel()).sendParticles(
-                            ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, FastColor.ARGB32.color(255, 8889187)),
-                            i, aoeZone.maxY - 0.5d, j,
+                            ParticleTypes.FLAME,
+                            pos.x, pos.y, pos.z,
                             1, 0, 0, 0, 0);
                 }
             }
@@ -93,10 +102,11 @@ public class WildMushroomSpell extends SummonSpell {
     @Override
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
-        /*if (context.getSkillHandler().hasSkill(getSpellType(), SkillInit.CIRCLE_OF_LIFE.value())) {
+        if (context.getSkillHandler().hasSkill(SkillInit.CIRCLE_OF_LIFE.value())) {
             SpellHandler handler = context.getSpellHandler();
-            handler.awardMana(UniformFloat.of(52f, 60f).sample(context.getPlayer().getRandom()));
+            int level = context.getSkillHandler().getSpellLevel(getSpellType());
+            handler.awardMana(52 + (2 * (level-1)));
             handler.sync();
-        }*/
+        }
     }
 }
