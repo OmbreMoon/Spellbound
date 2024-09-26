@@ -35,10 +35,8 @@ public class DataInit {
             "effect_handler", () -> AttachmentType.serializable(StatusHandler::new).build());
 
     //Mana
-    public static final Supplier<AttachmentType<Float>> MANA = ATTACHMENT_TYPES.register(
-            "mana", () -> AttachmentType.builder(() -> 100f).serialize(Codec.FLOAT).build());
-    public static final Supplier<AttachmentType<Float>> MAX_MANA = ATTACHMENT_TYPES.register(
-            "max_mana", () -> AttachmentType.builder(() -> 100f).serialize(Codec.FLOAT).copyOnDeath().build());
+    public static final Supplier<AttachmentType<Double>> MANA = ATTACHMENT_TYPES.register(
+            "mana", () -> AttachmentType.builder(() -> 100d).serialize(Codec.DOUBLE).build());
 
     //Upgrade Tree
     public static final Supplier<AttachmentType<UpgradeTree>> UPGRADE_TREE = ATTACHMENT_TYPES.register(

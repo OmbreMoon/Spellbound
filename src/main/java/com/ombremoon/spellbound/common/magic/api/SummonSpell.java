@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.common.magic.api;
 
 import com.mojang.logging.LogUtils;
+import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.SpellContext;
@@ -25,13 +26,14 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public abstract class SummonSpell extends AnimatedSpell {
     private static final UUID DAMAGE_EVENT = UUID.fromString("79e708db-b942-4ca0-a6e8-2614f087881f");
     private static final UUID TARGETING_EVENT = UUID.fromString("d1d10463-e003-4dca-a6a0-bc5300d369d6");
+
+    private int spellDuration = 0;
+    private final Map<Integer, Set<Integer>> summons = new HashMap<>();
 
     public SummonSpell(SpellType<?> spellType, Builder<?> builder) {
         super(spellType, builder);
@@ -45,26 +47,49 @@ public abstract class SummonSpell extends AnimatedSpell {
     }
 
     @Override
+    protected void onSpellTick(SpellContext context) {
+        super.onSpellTick(context);
+        if (context.getLevel() instanceof ServerLevel level) {
+            Set<Integer> summonsForRemoval = this.summons.get(ticks);
+            if (summonsForRemoval == null) return;
+
+            for (int summonId : summonsForRemoval) {
+                if (level.getEntity(summonId) != null) level.getEntity(summonId).discard();
+            }
+        }
+    }
+
+    @Override
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
-        if (context.getLevel() instanceof ServerLevel level) {
-            Player player = context.getPlayer();
-            SpellHandler handler = SpellUtil.getSpellHandler(player);
-            for (int mob : handler.getSummonsForRemoval(this)) {
-                if (level.getEntity(mob) != null) level.getEntity(mob).discard();
-                LogUtils.getLogger().debug("{}", level.getEntity(mob));
+
+        for (Set<Integer> expiredSums : summons.values()) {
+            for (int summonId : expiredSums) {
+                Entity entity = context.getLevel().getEntity(summonId);
+                if (context.getLevel().getEntity(summonId) != null)
+                    context.getLevel().getEntity(summonId).discard();
             }
-            handler.sync();
         }
 
         context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.POST_DAMAGE, DAMAGE_EVENT);
         context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.TARGETING_EVENT, TARGETING_EVENT);
     }
 
-    protected <T extends Entity> Set<Integer> addMobs(SpellContext context, EntityType<T> summon, int mobCount) {
+    public Map<Integer, Set<Integer>> getSummons() {
+        return this.summons;
+    }
+
+    @Override
+    public int getDuration() {
+        if (ticks > 175) {
+            System.out.println("HI");
+        }
+        return this.spellDuration;
+    }
+
+    protected <T extends Entity> Set<Integer> addMobs(SpellContext context, EntityType<T> summon, int mobCount, int lifeSpan) {
         Level level = context.getLevel();
         Player player = context.getPlayer();
-        SpellHandler handler = SpellUtil.getSpellHandler(player);
 
         Set<Integer> summonedMobs = new HashSet<>();
         BlockPos blockPos = getSpawnPos(player, level);
@@ -79,8 +104,8 @@ public abstract class SummonSpell extends AnimatedSpell {
             summonedMobs.add(mob.getId());
         }
 
-        handler.addSummons(this, summonedMobs);
-        handler.sync();
+        this.summons.put(ticks + lifeSpan, summonedMobs);
+        this.spellDuration = ticks + lifeSpan;
         return summonedMobs;
     }
 

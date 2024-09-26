@@ -10,7 +10,6 @@ import net.minecraft.world.entity.EntityType;
 public class SummonUndeadSpell extends SummonSpell {
     public static AnimatedSpell.Builder<AnimatedSpell> createSummonBuilder() {
         return createSimpleSpellBuilder()
-                .setDuration(20*60)
                 .setManaCost(10)
                 .castCondition((player, spell) -> player.level().getDifficulty() != Difficulty.PEACEFUL);
     }
@@ -22,7 +21,11 @@ public class SummonUndeadSpell extends SummonSpell {
     @Override
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
-        var success = addMobs(context, EntityType.ZOMBIE, 1);
-        if (success == null) endSpell(); //TODO: refund mana
+        var success = addMobs(context, EntityType.ZOMBIE, 1, 60);
+        if (success == null) {
+            endSpell();
+            context.getSpellHandler().awardMana(this.getManaCost());
+            context.getSpellHandler().sync();
+        }
     }
 }

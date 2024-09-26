@@ -124,7 +124,7 @@ public abstract class AbstractSpell {
                 if (this.shouldTickEffect()) {
                     this.tickSpell();
                 }
-                if (this.getCastType() != CastType.CHANNEL && ticks % duration == 0) {
+                if (this.getCastType() != CastType.CHANNEL && ticks % getDuration() == 0) {
                     this.endSpell();
                 }
             }
@@ -248,10 +248,10 @@ public abstract class AbstractSpell {
         this.level = level;
         this.caster = player;
         this.blockPos = blockPos;
-        this.context = new SpellContext(this.caster, this.level, this.blockPos, this.getTargetEntity(8));
 
         var list = SpellUtil.getSpellHandler(player).getActiveSpells().stream().map(AbstractSpell::getId).toList();
         if (list.contains(getId())) this.isRecast = true;
+        this.context = new SpellContext(this.caster, this.level, this.blockPos, this.getTargetEntity(8), this.isRecast);
 
         if (!this.castPredicate.test(player, this)) return;
         SpellUtil.activateSpell(player, this);

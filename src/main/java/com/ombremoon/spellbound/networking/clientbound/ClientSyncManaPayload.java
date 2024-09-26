@@ -7,12 +7,12 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-public record ClientSyncManaPayload(float mana) implements CustomPacketPayload {
+public record ClientSyncManaPayload(double mana) implements CustomPacketPayload {
     public static final CustomPacketPayload.Type<ClientSyncManaPayload> TYPE =
             new CustomPacketPayload.Type<>(CommonClass.customLocation("client_mana_sync"));
 
     public static final StreamCodec<ByteBuf, ClientSyncManaPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.FLOAT,
+            ByteBufCodecs.DOUBLE,
             ClientSyncManaPayload::mana,
             ClientSyncManaPayload::new
     );

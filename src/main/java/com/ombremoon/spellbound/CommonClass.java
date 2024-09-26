@@ -15,6 +15,7 @@ public class CommonClass {
         DataInit.register(modEventBus);
         StatInit.register(modEventBus);
         SkillInit.register(modEventBus);
+        AttributesInit.register(modEventBus);
     }
 
     public static boolean isDevEnv() {
