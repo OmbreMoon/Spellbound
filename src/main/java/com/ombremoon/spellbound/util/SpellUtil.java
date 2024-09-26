@@ -35,7 +35,7 @@ public class SpellUtil {
 
     public static void activateSpell(Player player, AbstractSpell abstractSpell) {
         var handler = getSpellHandler(player);
-        handler.getActiveSpells().add(abstractSpell);
+        handler.activateSpell(abstractSpell.getSpellType(), abstractSpell);
         handler.consumeMana(abstractSpell.getManaCost(), true);
         PayloadHandler.syncMana(player);
     }

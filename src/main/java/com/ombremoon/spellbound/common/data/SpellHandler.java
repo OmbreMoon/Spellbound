@@ -1,5 +1,7 @@
 package com.ombremoon.spellbound.common.data;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
@@ -19,13 +21,9 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.UnknownNullability;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SpellHandler implements INBTSerializable<CompoundTag> {
@@ -35,7 +33,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     private UpgradeTree upgradeTree;
     protected boolean castMode;
     protected Set<SpellType<?>> spellSet = new ObjectOpenHashSet<>();
-    protected Set<AbstractSpell> activeSpells = new ObjectOpenHashSet<>();
+    protected Multimap<SpellType<?>, AbstractSpell> activeSpells = ArrayListMultimap.create();
     protected SpellType<?> selectedSpell;
     protected Map<SummonSpell, Set<Integer>> activeSummons = new Object2ObjectOpenHashMap<>();
     public int castTick;
@@ -114,8 +112,20 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         sync();
     }
 
-    public Set<AbstractSpell> getActiveSpells() {
+    public void activateSpell(SpellType<?> spellType, AbstractSpell spell) {
+        this.activeSpells.put(spellType, spell);
+    }
+
+    public void clearSpells() {
+        this.activeSpells.clear();
+    }
+
+    public Multimap<SpellType<?>, AbstractSpell> getActiveSpells() {
         return this.activeSpells;
+    }
+
+    public Collection<AbstractSpell> getActiveSpells(SpellType<?> spellType) {
+        return this.activeSpells.get(spellType);
     }
 
     public SpellType<?> getSelectedSpell() {

@@ -249,8 +249,8 @@ public abstract class AbstractSpell {
         this.caster = player;
         this.blockPos = blockPos;
 
-        var list = SpellUtil.getSpellHandler(player).getActiveSpells().stream().map(AbstractSpell::getId).toList();
-        if (list.contains(getId())) this.isRecast = true;
+        var list = SpellUtil.getSpellHandler(player).getActiveSpells(getSpellType()).stream().toList();
+        if (list.size() > 1) this.isRecast = true;
         this.context = new SpellContext(this.caster, this.level, this.blockPos, this.getTargetEntity(8), this.isRecast);
 
         if (!this.castPredicate.test(player, this)) return;

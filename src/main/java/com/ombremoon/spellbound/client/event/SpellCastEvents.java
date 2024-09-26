@@ -78,7 +78,7 @@ public class SpellCastEvents {
                 handler.castTick = 0;
             } else if (!handler.isChannelling()){
                 handler.castTick++;
-                PayloadHandler.whenCasting(spellType, handler.castTick, handler.getActiveSpells().contains(spell));
+                PayloadHandler.whenCasting(spellType, handler.castTick, handler.getActiveSpells(spellType).size() > 1);
             }
         } else if (handler.isChannelling()) {
             handler.setChannelling(false);
@@ -92,11 +92,14 @@ public class SpellCastEvents {
 
         if (!player.level().isClientSide) {
             var handler = SpellUtil.getSpellHandler(player);
-            Set<AbstractSpell> activeSpells = handler.getActiveSpells();
-
-            activeSpells.removeIf(spell -> spell.isInactive);
-            for (AbstractSpell abstractSpell : activeSpells) {
-                abstractSpell.tick();
+            var activeSpells = handler.getActiveSpells();
+            for (var entry : activeSpells.asMap().entrySet()) {
+                var spells = entry.getValue();
+                spells.removeIf(spell -> spell.isInactive);
+                for (AbstractSpell abstractSpell : spells) {
+                    abstractSpell.tick();
+                }
+                if (spells.isEmpty()) activeSpells.removeAll(entry.getKey());
             }
         }
     }
