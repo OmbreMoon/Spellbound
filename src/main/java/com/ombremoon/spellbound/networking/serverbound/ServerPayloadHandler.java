@@ -27,7 +27,7 @@ public class ServerPayloadHandler {
 
     public static void handleNetworkCasting(final CastingPayload payload, final IPayloadContext context) {
         AbstractSpell spell = payload.spellType().createSpell();
-        var spellContext = new SpellContext(context.player(), spell.getTargetEntity(context.player(), 8));
+        var spellContext = new SpellContext(context.player(), spell.getTargetEntity(context.player(), 8), payload.recast());
         spell.whenCasting(spellContext, payload.castTime());
     }
 

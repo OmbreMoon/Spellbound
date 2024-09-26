@@ -3,13 +3,10 @@ package com.ombremoon.spellbound.common;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.data.StatusHandler;
+import com.ombremoon.spellbound.common.init.AttributesInit;
 import com.ombremoon.spellbound.common.init.DataInit;
-import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
-import com.ombremoon.spellbound.common.magic.events.PlayerDamageEvent;
-import com.ombremoon.spellbound.common.magic.events.PlayerJumpEvent;
-import com.ombremoon.spellbound.common.magic.events.ChangeTargetEvent;
-import com.ombremoon.spellbound.common.magic.tree.SkillNode;
+import com.ombremoon.spellbound.common.magic.events.*;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.server.level.ServerLevel;
@@ -22,13 +19,13 @@ import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 import java.util.List;
-import java.util.Set;
 
 @EventBusSubscriber(modid = Constants.MOD_ID)
 public class NeoForgeEvents {
@@ -63,8 +60,11 @@ public class NeoForgeEvents {
 
             if (entity instanceof Player player) {
                 if (player.tickCount % 20 == 0) {
-                    float mana = player.getData(DataInit.MANA);
-                    if (mana < player.getData(DataInit.MAX_MANA)) player.setData(DataInit.MANA, mana+1);
+                    double mana = player.getData(DataInit.MANA);
+                    if (mana < player.getAttribute(AttributesInit.MAX_MANA).getValue()) {
+                        double regen = player.getAttribute(AttributesInit.MANA_REGEN).getValue();
+                        player.setData(DataInit.MANA, mana + regen);
+                    }
                 }
             }
         }
@@ -73,9 +73,8 @@ public class NeoForgeEvents {
     @SubscribeEvent
     public static void onPlayerClone(PlayerEvent.PlayerRespawnEvent event) {
         Player player = event.getEntity();
-        player.setData(DataInit.MANA, player.getData(DataInit.MAX_MANA));
+        player.setData(DataInit.MANA, player.getAttribute(AttributesInit.MAX_MANA).getValue());
         PayloadHandler.syncMana(player);
-        PayloadHandler.syncMaxMana(player);
     }
 
     @SubscribeEvent
@@ -102,6 +101,14 @@ public class NeoForgeEvents {
             SpellHandler handler = SpellUtil.getSpellHandler(event.getEntity());
             handler.clearAllSummons(level);
             handler.sync();
+        }
+    }
+
+    public static void onLivingDeath(LivingDeathEvent event) {
+        if (event.getEntity().level().isClientSide) return;
+
+        if (event.getSource().getEntity() instanceof Player player) {
+            SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.PLAYER_KILL, new PlayerKillEvent(player, event));
         }
     }
 

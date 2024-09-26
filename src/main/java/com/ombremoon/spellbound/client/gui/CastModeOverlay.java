@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.client.gui;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.common.data.SpellHandler;
+import com.ombremoon.spellbound.common.init.AttributesInit;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -37,7 +38,7 @@ public class CastModeOverlay implements LayeredDraw.Layer {
         guiGraphics.blit(BACKGROUND, x-1, y-1, 0, 0, 26, 26, 26, 26);
 
         guiGraphics.drawString(Minecraft.getInstance().font,
-                player.getData(DataInit.MANA) + "/" + player.getData(DataInit.MAX_MANA),
+                player.getData(DataInit.MANA) + "/" + player.getAttribute(AttributesInit.MAX_MANA).getValue(),
                 40,
                 guiGraphics.guiHeight()-40,
                 8889187 ,

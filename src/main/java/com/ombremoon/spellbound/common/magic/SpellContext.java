@@ -20,16 +20,17 @@ public class SpellContext {
     private final LivingEntity target;
     private final SpellHandler spellHandler;
     private final SkillHandler skillHandler;
+    private final boolean isRecast;
 
-    public SpellContext(Player player, LivingEntity target) {
-        this(player, player.level(), player.getOnPos(), player.getOffhandItem(), target);
+    public SpellContext(Player player, LivingEntity target, boolean isRecast) {
+        this(player, player.level(), player.getOnPos(), player.getOffhandItem(), target, isRecast);
     }
 
-    public SpellContext(Player player, Level level, BlockPos blockPos, LivingEntity target) {
-        this(player, level, blockPos, player.getOffhandItem(), target);
+    public SpellContext(Player player, Level level, BlockPos blockPos, LivingEntity target, boolean isRecast) {
+        this(player, level, blockPos, player.getOffhandItem(), target, isRecast);
     }
 
-    public SpellContext(Player player, Level level, BlockPos blockPos, ItemStack itemStack, LivingEntity target) {
+    public SpellContext(Player player, Level level, BlockPos blockPos, ItemStack itemStack, LivingEntity target, boolean isRecast) {
         this.player = player;
         this.level = level;
         this.blockPos = blockPos;
@@ -37,6 +38,7 @@ public class SpellContext {
         this.target = target;
         this.spellHandler = SpellUtil.getSpellHandler(player);
         this.skillHandler = player.getData(DataInit.SKILL_HANDLER);
+        this.isRecast = isRecast;
     }
 
     public SpellHandler getSpellHandler() {
@@ -45,6 +47,10 @@ public class SpellContext {
 
     public SkillHandler getSkillHandler() {
         return skillHandler;
+    }
+
+    public boolean isRecast() {
+        return this.isRecast;
     }
 
     public Player getPlayer() {

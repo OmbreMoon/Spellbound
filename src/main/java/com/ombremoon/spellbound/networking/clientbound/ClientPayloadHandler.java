@@ -28,12 +28,6 @@ public class ClientPayloadHandler {
         });
     }
 
-    public static void handleClientMaxManaSync(ClientSyncMaxManaPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            context.player().setData(DataInit.MAX_MANA, payload.mana());
-        });
-    }
-
     public static void handleClientSkillSync(SyncSkillPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             SkillHandler handler = context.player().getData(DataInit.SKILL_HANDLER);

@@ -78,7 +78,7 @@ public class SpellCastEvents {
                 handler.castTick = 0;
             } else if (!handler.isChannelling()){
                 handler.castTick++;
-                PayloadHandler.whenCasting(spellType, handler.castTick);
+                PayloadHandler.whenCasting(spellType, handler.castTick, handler.getActiveSpells().contains(spell));
             }
         } else if (handler.isChannelling()) {
             handler.setChannelling(false);

@@ -35,8 +35,8 @@ public class PayloadHandler {
         PacketDistributor.sendToServer(new CycleSpellPayload());
     }
 
-    public static void whenCasting(SpellType<?> spellType, int castTime) {
-        PacketDistributor.sendToServer(new CastingPayload(spellType, castTime));
+    public static void whenCasting(SpellType<?> spellType, int castTime, boolean recast) {
+        PacketDistributor.sendToServer(new CastingPayload(spellType, castTime, recast));
     }
 
     public static void stopChannel() {
@@ -78,11 +78,6 @@ public class PayloadHandler {
     public static void syncMana(Player player) {
         PacketDistributor.sendToPlayer((ServerPlayer) player,
                 new ClientSyncManaPayload(player.getData(DataInit.MANA)));
-    }
-
-    public static void syncMaxMana(Player player) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player,
-                new ClientSyncMaxManaPayload(player.getData(DataInit.MAX_MANA)));
     }
 
     @SubscribeEvent
@@ -138,11 +133,6 @@ public class PayloadHandler {
                 ClientSyncManaPayload.TYPE,
                 ClientSyncManaPayload.CODEC,
                 ClientPayloadHandler::handleClientManaSync
-        );
-        registrar.playToClient(
-                ClientSyncMaxManaPayload.TYPE,
-                ClientSyncMaxManaPayload.CODEC,
-                ClientPayloadHandler::handleClientMaxManaSync
         );
         registrar.playToClient(
                 UpdateTreePayload.TYPE,

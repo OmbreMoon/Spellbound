@@ -65,14 +65,14 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     }
 
     public boolean consumeMana(float amount, boolean forceConsume) {
-        float currentFP = caster.getData(DataInit.MANA);
+        double currentFP = caster.getData(DataInit.MANA);
         if (this.caster.getAbilities().instabuild) {
             return true;
         } else if (currentFP < amount) {
             return false;
         } else {
             if (forceConsume) {
-                float fpCost = currentFP - amount;
+                double fpCost = currentFP - amount;
                 caster.setData(DataInit.MANA, fpCost);
             }
             return true;

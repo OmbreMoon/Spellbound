@@ -52,6 +52,7 @@ public class SpellEventListener {
         public static Events POST_DAMAGE = new Events(false);
         public static Events PRE_DAMAGE = new Events(false);
         public static Events TARGETING_EVENT = new Events(false);
+        public static Events PLAYER_KILL = new Events(false);
 
         private final boolean isClientSide;
 

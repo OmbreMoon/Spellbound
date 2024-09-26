@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.content.item;
 
+import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.ItemInit;
 import com.ombremoon.spellbound.common.init.SpellInit;

@@ -13,7 +13,7 @@ public class EffectInit {
     public static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister
             .create(Registries.MOB_EFFECT, Constants.MOD_ID);
 
-    public static final Holder<MobEffect> INFLAMED = EFFECTS.register("INFLAMED", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
+    public static final Holder<MobEffect> INFLAMED = EFFECTS.register("inflamed", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
     public static final Holder<MobEffect> FROZEN = EFFECTS.register("frozen", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
     public static final Holder<MobEffect> SHOCKED = EFFECTS.register("shocked", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
     public static final Holder<MobEffect> POISON = EFFECTS.register("poison", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
