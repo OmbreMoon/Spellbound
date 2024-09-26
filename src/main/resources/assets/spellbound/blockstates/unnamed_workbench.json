@@ -1,0 +1,68 @@
+{
+  "variants": {
+    "workbench=left,facing=north": {
+      "model": "spellbound:block/arcane_workbench_left",
+      "y": 90
+    },
+    "workbench=left,facing=east": {
+      "model": "spellbound:block/arcane_workbench_left",
+      "y": 180
+    },
+    "workbench=left,facing=south": {
+      "model": "spellbound:block/arcane_workbench_left",
+      "y": 270
+    },
+    "workbench=left,facing=west": {
+      "model": "spellbound:block/arcane_workbench_left",
+      "y": 0
+    },
+    "workbench=top_left,facing=north": {
+      "model": "spellbound:block/arcane_workbench_top_left",
+      "y": 90
+    },
+    "workbench=top_left,facing=east": {
+      "model": "spellbound:block/arcane_workbench_top_left",
+      "y": 180
+    },
+    "workbench=top_left,facing=south": {
+      "model": "spellbound:block/arcane_workbench_top_left",
+      "y": 270
+    },
+    "workbench=top_left,facing=west": {
+      "model": "spellbound:block/arcane_workbench_top_left",
+      "y": 0
+    },
+    "workbench=right,facing=north": {
+      "model": "spellbound:block/arcane_workbench_right",
+      "y": 90
+    },
+    "workbench=right,facing=east": {
+      "model": "spellbound:block/arcane_workbench_right",
+      "y": 180
+    },
+    "workbench=right,facing=south": {
+      "model": "spellbound:block/arcane_workbench_right",
+      "y": 270
+    },
+    "workbench=right,facing=west": {
+      "model": "spellbound:block/arcane_workbench_right",
+      "y": 0
+    },
+    "workbench=top_right,facing=north": {
+      "model": "spellbound:block/arcane_workbench_top_right",
+      "y": 90
+    },
+    "workbench=top_right,facing=east": {
+      "model": "spellbound:block/arcane_workbench_top_right",
+      "y": 180
+    },
+    "workbench=top_right,facing=south": {
+      "model": "spellbound:block/arcane_workbench_top_right",
+      "y": 270
+    },
+    "workbench=top_right,facing=west": {
+      "model": "spellbound:block/arcane_workbench_top_right",
+      "y": 0
+    }
+  }
+}

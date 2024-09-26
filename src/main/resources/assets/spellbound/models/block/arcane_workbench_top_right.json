@@ -1,0 +1,32 @@
+{
+	"credit": "Made with Blockbench",
+ 	"render_type": "cutout",
+	"texture_size": [128, 128],
+	"textures": {
+		"0": "spellbound:block/arcane_workbench",
+		"particle": "spellbound:block/arcane_workbench"
+	},
+	"elements": [
+		{
+			"from": [0, -2, 14],
+			"to": [16, 12, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [31, -12, 0]},
+			"faces": {
+				"north": {"uv": [2.25, 2.75, 4.25, 4.5], "texture": "#0"},
+				"east": {"uv": [0, 2.75, 0.25, 4.5], "texture": "#0"},
+				"south": {"uv": [4.5, 2.75, 6.5, 4.5], "texture": "#0"},
+				"west": {"uv": [4.25, 2.75, 4.5, 4.5], "texture": "#0"},
+				"up": {"uv": [4.25, 2.75, 2.25, 2.5], "texture": "#0"},
+				"down": {"uv": [6.25, 2.5, 4.25, 2.75], "texture": "#0"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "block4",
+			"origin": [15, 4, 0],
+			"color": 0,
+			"children": [0]
+		}
+	]
+}
