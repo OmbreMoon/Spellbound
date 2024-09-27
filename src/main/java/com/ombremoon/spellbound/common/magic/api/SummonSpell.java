@@ -1,7 +1,5 @@
 package com.ombremoon.spellbound.common.magic.api;
 
-import com.mojang.logging.LogUtils;
-import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.SpellContext;

@@ -61,5 +61,10 @@ public abstract class AnimatedSpell extends AbstractSpell {
             this.castSound = castSound;
             return this;
         }
+
+        public Builder<T> persistentData() {
+            this.persistentData = true;
+            return this;
+        }
     }
 }

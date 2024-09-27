@@ -112,12 +112,19 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         sync();
     }
 
-    public void activateSpell(SpellType<?> spellType, AbstractSpell spell) {
-        this.activeSpells.put(spellType, spell);
+    public void activateSpell(AbstractSpell spell) {
+        this.activeSpells.put(spell.getSpellType(), spell);
     }
 
     public void clearSpells() {
         this.activeSpells.clear();
+    }
+
+    public void recastSpell(AbstractSpell spell) {
+        if (this.activeSpells.containsKey(spell.getSpellType()))
+            this.activeSpells.get(spell.getSpellType()).forEach(AbstractSpell::endSpell);
+
+        this.activeSpells.put(spell.getSpellType(), spell);
     }
 
     public Multimap<SpellType<?>, AbstractSpell> getActiveSpells() {
