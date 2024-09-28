@@ -39,6 +39,8 @@ public class HealingTouchSpell extends AnimatedSpell {
         return new Builder<>().setManaCost(10).setDuration(300);
     }
 
+
+    //TODO: Whole spell needs testing, Needs recasts handled
     public HealingTouchSpell() {
         super(SpellInit.HEALING_TOUCH.get(), createHealingSpell());
     }

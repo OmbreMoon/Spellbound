@@ -87,5 +87,10 @@ public abstract class ChanneledSpell extends AnimatedSpell {
             this.castSound = castSound;
             return this;
         }
+
+        public Builder<T> persistentData() {
+            this.persistentData = true;
+            return this;
+        }
     }
 }

@@ -33,13 +33,6 @@ public class SpellUtil {
         return ResourceLocation.tryParse(compoundTag.getString(tagKey));
     }
 
-    public static void activateSpell(Player player, AbstractSpell abstractSpell) {
-        var handler = getSpellHandler(player);
-        handler.getActiveSpells().add(abstractSpell);
-        handler.consumeMana(abstractSpell.getManaCost(player.getData(DataInit.SKILL_HANDLER)), true);
-        PayloadHandler.syncMana(player);
-    }
-
     public static boolean canCastSpell(Player player, AbstractSpell spell) {
         var handler = getSpellHandler(player);
         return handler.inCastMode() && handler.consumeMana(spell.getManaCost(player.getData(DataInit.SKILL_HANDLER)), false);

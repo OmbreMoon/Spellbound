@@ -18,6 +18,9 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 
 //TODO: General - Discuss Path Shards with team
+//TODO: AbstractSpell - Add SpellCooldowns
+//TODO: SummonSpell - Remind Duck of persisting summon bug
+
 
 @Mod(Constants.MOD_ID)
 public class Spellbound {

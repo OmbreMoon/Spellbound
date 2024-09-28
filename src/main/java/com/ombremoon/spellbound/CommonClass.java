@@ -12,6 +12,7 @@ public class CommonClass {
         BlockInit.register(modEventBus);
         EntityInit.register(modEventBus);
         SpellInit.register(modEventBus);
+        EffectInit.register(modEventBus);
         DataInit.register(modEventBus);
         StatInit.register(modEventBus);
         SkillInit.register(modEventBus);

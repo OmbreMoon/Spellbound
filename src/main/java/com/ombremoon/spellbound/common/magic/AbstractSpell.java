@@ -12,6 +12,8 @@ import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -24,7 +26,9 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.*;
+import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -40,6 +44,7 @@ public abstract class AbstractSpell {
     private BiPredicate<Player, AbstractSpell> castPredicate;
     private final CastType castType;
     private final SoundEvent castSound;
+    private final boolean persistentData;
     private Level level;
     private Player caster;
     private BlockPos blockPos;
@@ -62,6 +67,7 @@ public abstract class AbstractSpell {
         this.castPredicate = builder.castPredicate;
         this.castType = builder.castType;
         this.castSound = builder.castSound;
+        this.persistentData = builder.persistentData;
     }
 
     public SpellType<?> getSpellType() {
@@ -116,6 +122,14 @@ public abstract class AbstractSpell {
         return SpellInit.REGISTRY.get(resourceLocation);
     }
 
+    public @UnknownNullability CompoundTag saveData(CompoundTag compoundTag) {
+        return compoundTag;
+    }
+
+    public void load(CompoundTag nbt) {
+
+    }
+
     public void tick() {
         if (!level.isClientSide) {
             ticks++;
@@ -143,7 +157,7 @@ public abstract class AbstractSpell {
         this.onSpellTick(this.context);
     }
 
-    protected void endSpell() {
+    public void endSpell() {
         this.onSpellStop(this.context);
         this.init = false;
         this.isInactive = true;
@@ -250,14 +264,36 @@ public abstract class AbstractSpell {
         this.caster = player;
         this.blockPos = blockPos;
 
-        var list = SpellUtil.getSpellHandler(player).getActiveSpells().stream().map(AbstractSpell::getId).toList();
-        if (list.contains(getId())) this.isRecast = true;
+        var handler = SpellUtil.getSpellHandler(player);
+        var list = handler.getActiveSpells(getSpellType());
+        if (!list.isEmpty()) this.isRecast = true;
         this.context = new SpellContext(this.caster, this.level, this.blockPos, this.getTargetEntity(8), this.isRecast);
 
         if (!this.castPredicate.test(player, this)) return;
-        SpellUtil.activateSpell(player, this);
+
+        if (this.isRecast && this.persistentData) {
+            var prevSpell = handler.getActiveSpells(getSpellType()).stream().findFirst();
+            if (prevSpell.isPresent()){
+                CompoundTag nbt = prevSpell.get().saveData(new CompoundTag());
+                this.load(nbt);
+            }
+        }
+
+        activateSpell();
         player.awardStat(StatInit.SPELLS_CAST.get());
+
         this.init = true;
+    }
+
+    private void activateSpell() {
+        var handler = this.context.getSpellHandler();
+        if (this.persistentData) {
+            handler.recastSpell(this);
+        } else {
+            handler.activateSpell(this);
+        }
+        handler.consumeMana(getManaCost(context.getSkillHandler()), true);
+        PayloadHandler.syncMana(this.caster);
     }
 
     public static class Builder<T extends AbstractSpell> {
@@ -267,6 +303,7 @@ public abstract class AbstractSpell {
         protected BiPredicate<Player, AbstractSpell> castPredicate = (player, spell) -> true;
         protected CastType castType = CastType.CHARGING;
         protected SoundEvent castSound;
+        protected boolean persistentData;
 
         public Builder<T> setManaCost(int fpCost) {
             this.manaCost = fpCost;
@@ -290,6 +327,11 @@ public abstract class AbstractSpell {
 
         public Builder<T> setCastSound(SoundEvent castSound) {
             this.castSound = castSound;
+            return this;
+        }
+
+        public Builder<T> persistentData() {
+            this.persistentData = true;
             return this;
         }
     }

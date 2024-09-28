@@ -52,10 +52,10 @@ public class DebugItem extends Item {
     private void ombreDebug(Level level, Player player, InteractionHand usedHand, SpellHandler spellHandler, SkillHandler skillHandler) {
         UpgradeTree tree = player.getData(DataInit.UPGRADE_TREE);
         if (!level.isClientSide) {
-            spellHandler.clearList();
-//            spellHandler.setSelectedSpell(SpellInit.VOLCANO.get());
-//            Constants.LOG.info("{}", ));
-            spellHandler.learnSpell(SpellInit.VOLCANO.get());
+//            spellHandler.clearList();
+            spellHandler.setSelectedSpell(SpellInit.WILD_MUSHROOM_SPELL.get());
+            Constants.LOG.info("{}", spellHandler.getActiveSpells());
+//            spellHandler.learnSpell(SpellInit.VOLCANO.get());
 //            Constants.LOG.info("{}", spellHandler.getSpellList().stream().map(SpellType::getResourceLocation).map(ResourceLocation::getPath).toList());
 //            Constants.LOG.info("{}", tree.nodes());
 //            Constants.LOG.info("{}", tree.children());

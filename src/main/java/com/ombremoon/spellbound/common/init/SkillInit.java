@@ -41,7 +41,7 @@ public class SkillInit {
     public static final Holder<Skill> INFERNO_CORE = registerSkill("inferno_core", 10, 0, 50, preReqs(VOLCANO));
     public static final Holder<Skill> LAVA_FLOW = registerSkill("lava_flow", 10, 50, 50, preReqs(VOLCANO));
     public static final Holder<Skill> EXPLOSIVE_BARRAGE = registerSkill("explosive_barrage", 10, -50, 50, preReqs(VOLCANO));
-    public static final Holder<Skill> SHRAPNEL = registerSkill("shrapnel", 10, -50, 100, preReqs(EXPLOSIVE_BARRAGE));
+    public static final Holder<Skill> SHRAPNEL = registerSkill("shrapnel", 10, -30, 120, preReqs(EXPLOSIVE_BARRAGE));
     public static final Holder<Skill> HEATWAVE = registerSkill("heatwave", 10, -100, 100, preReqs(EXPLOSIVE_BARRAGE));
     public static final Holder<Skill> SCORCHED_EARTH = registerSkill("scorched_earth", 10, -100, 150, preReqs(HEATWAVE));
     public static final Holder<Skill> SEISMIC_SHOCK = registerSkill("seismic_shock", 10, 50, 100, preReqs(LAVA_FLOW));
