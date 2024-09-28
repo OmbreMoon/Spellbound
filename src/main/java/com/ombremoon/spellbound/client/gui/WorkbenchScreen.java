@@ -86,6 +86,8 @@ public class WorkbenchScreen extends Screen {
                 this.scrollOffs = 0;
                 this.scrollIndex = 0;
                 this.spellList = this.spellHandler.getSpellList().stream().filter(spellType -> spellType.getPath().ordinal() == pageIndex).toList();
+                this.selectedSpell = this.spellList.isEmpty() ? null : this.spellList.get(0);
+                this.selectedTree = this.selectedSpell != null ? this.spellTrees.get(this.selectedSpell) : null;
                 this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                 return true;
             }
