@@ -73,7 +73,6 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
 
     public boolean canUnlockSkill(Skill skill) {
         var spellType = skill.getSpell();
-        if ((float) skill.getXpCost() > getSpellXp(spellType)) return false;
         if (hasSkill(skill)) return false;
         if (skill.isRoot()) return false;
 

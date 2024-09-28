@@ -25,50 +25,49 @@ public class SkillInit {
 
     //Wild Mushroom
     public static final Holder<Skill> WILD_MUSHROOM = registerSkill("wild_mushroom");
-    public static final Holder<Skill> VILE_INFLUENCE = registerSkill("vile_influence", 10, 0, 0, preReqs(WILD_MUSHROOM));
-    public static final Holder<Skill> HASTENED_GROWTH = registerSkill("hastened_growth", 10, 0, 0, preReqs(VILE_INFLUENCE));
-    public static final Holder<Skill> ENVENOM = registerSkill("envenom", 10, 0, 0, preReqs(HASTENED_GROWTH));
-    public static final Holder<Skill> DECOMPOSE = registerSkill("decompose", 10, 0, 0, preReqs(WILD_MUSHROOM));
-    public static final Holder<Skill> NATURES_DOMINANCE = registerSkill("natures_dominance", 10, 0, 0, preReqs(DECOMPOSE));
-    public static final Holder<Skill> POISON_ESSENCE = registerSkill("poison_essence", 10, 0, 0, preReqs(NATURES_DOMINANCE));
-    public static final Holder<Skill> CIRCLE_OF_LIFE = registerSkill("circle_of_life", 10, 0, 0, preReqs(POISON_ESSENCE));
-    public static final Holder<Skill> CATALEPSY = registerSkill("catalepsy", 10, 0, 0, preReqs(CIRCLE_OF_LIFE));
-    public static final Holder<Skill> RECYCLED = registerSkill("recycled", 10, 0, 0, preReqs(NATURES_DOMINANCE));
-    public static final Holder<Skill> SYNTHESIS = registerSkill("synthesis", 10, 0, 0, preReqs(POISON_ESSENCE));
+    public static final Holder<Skill> VILE_INFLUENCE = registerSkill("vile_influence", 0, 0, preReqs(WILD_MUSHROOM));
+    public static final Holder<Skill> HASTENED_GROWTH = registerSkill("hastened_growth", 0, 0, preReqs(VILE_INFLUENCE));
+    public static final Holder<Skill> ENVENOM = registerSkill("envenom", 0, 0, preReqs(HASTENED_GROWTH));
+    public static final Holder<Skill> DECOMPOSE = registerSkill("decompose", 0, 0, preReqs(WILD_MUSHROOM));
+    public static final Holder<Skill> NATURES_DOMINANCE = registerSkill("natures_dominance", 0, 0, preReqs(DECOMPOSE));
+    public static final Holder<Skill> POISON_ESSENCE = registerSkill("poison_essence", 0, 0, preReqs(NATURES_DOMINANCE));
+    public static final Holder<Skill> CIRCLE_OF_LIFE = registerSkill("circle_of_life", 0, 0, preReqs(POISON_ESSENCE));
+    public static final Holder<Skill> CATALEPSY = registerSkill("catalepsy", 0, 0, preReqs(CIRCLE_OF_LIFE));
+    public static final Holder<Skill> RECYCLED = registerSkill("recycled", 0, 0, preReqs(NATURES_DOMINANCE));
+    public static final Holder<Skill> SYNTHESIS = registerSkill("synthesis", 0, 0, preReqs(POISON_ESSENCE));
 
     //Volcano
     public static final Holder<Skill> VOLCANO = registerSkill("volcano");
-    public static final Holder<Skill> INFERNO_CORE = registerSkill("inferno_core", 10, 0, 50, preReqs(VOLCANO));
-    public static final Holder<Skill> LAVA_FLOW = registerSkill("lava_flow", 10, 50, 50, preReqs(VOLCANO));
-    public static final Holder<Skill> EXPLOSIVE_BARRAGE = registerSkill("explosive_barrage", 10, -50, 50, preReqs(VOLCANO));
-    public static final Holder<Skill> SHRAPNEL = registerSkill("shrapnel", 10, -30, 120, preReqs(EXPLOSIVE_BARRAGE));
-    public static final Holder<Skill> HEATWAVE = registerSkill("heatwave", 10, -100, 100, preReqs(EXPLOSIVE_BARRAGE));
-    public static final Holder<Skill> SCORCHED_EARTH = registerSkill("scorched_earth", 10, -100, 150, preReqs(HEATWAVE));
-    public static final Holder<Skill> SEISMIC_SHOCK = registerSkill("seismic_shock", 10, 50, 100, preReqs(LAVA_FLOW));
-    public static final Holder<Skill> MOLTEN_SHIELD = registerSkill("molten_shield", 10, 100, 100, preReqs(LAVA_FLOW));
-    public static final Holder<Skill> PYROCLASTIC_CLOUD = registerSkill("pyroclastic_cloud", 10, 0, 100, preReqs(INFERNO_CORE));
-    public static final Holder<Skill> APOCALYPSE = registerSkill("apocalypse", 10, 0, 175, preReqs(SHRAPNEL, PYROCLASTIC_CLOUD, SEISMIC_SHOCK));
+    public static final Holder<Skill> INFERNO_CORE = registerSkill("inferno_core", 0, 50, preReqs(VOLCANO));
+    public static final Holder<Skill> LAVA_FLOW = registerSkill("lava_flow", 50, 50, preReqs(VOLCANO));
+    public static final Holder<Skill> EXPLOSIVE_BARRAGE = registerSkill("explosive_barrage", -50, 50, preReqs(VOLCANO));
+    public static final Holder<Skill> SHRAPNEL = registerSkill("shrapnel", -30, 120, preReqs(EXPLOSIVE_BARRAGE));
+    public static final Holder<Skill> HEATWAVE = registerSkill("heatwave", -100, 100, preReqs(EXPLOSIVE_BARRAGE));
+    public static final Holder<Skill> SCORCHED_EARTH = registerSkill("scorched_earth", -100, 150, preReqs(HEATWAVE));
+    public static final Holder<Skill> SEISMIC_SHOCK = registerSkill("seismic_shock", 50, 100, preReqs(LAVA_FLOW));
+    public static final Holder<Skill> MOLTEN_SHIELD = registerSkill("molten_shield", 100, 100, preReqs(LAVA_FLOW));
+    public static final Holder<Skill> PYROCLASTIC_CLOUD = registerSkill("pyroclastic_cloud", 0, 100, preReqs(INFERNO_CORE));
+    public static final Holder<Skill> APOCALYPSE = registerSkill("apocalypse", 0, 175, preReqs(SHRAPNEL, PYROCLASTIC_CLOUD, SEISMIC_SHOCK));
 
     //Healing Touch
     //TODO: Tree
     public static final Holder<Skill> HEALING_TOUCH = registerSkill("healing_touch");
-    public static final Holder<Skill> BLOOM = registerSkill("bloom", 10, 0, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> HEALING_STREAM = registerSkill("healing_stream", 10, 0, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> ACCELERATED_GROWTH = registerSkill("accelerated_growth", 10, 0, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> TRANQUILITY_OF_WATER = registerSkill("tranquility_of_water", 10, 0, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> NATURES_TOUCH = registerSkill("natures_touch", 10, 0, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> CLEANSING_TOUCH = registerSkill("cleansing_touch", 10, 0, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> OVERGROWTH = registerSkill("overgrowth", 10, 0, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> VILE_INFUSION = registerSkill("vile_infusion", 10, 0, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> CONVALESCENCE = registerSkill("convalescence", 10, 0, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> OAK_BLESSING = registerSkill("oak_blessing", 10, 0, 50, preReqs(HEALING_STREAM));
+    public static final Holder<Skill> BLOOM = registerSkill("bloom", 0, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> HEALING_STREAM = registerSkill("healing_stream", 0, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> ACCELERATED_GROWTH = registerSkill("accelerated_growth", 0, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> TRANQUILITY_OF_WATER = registerSkill("tranquility_of_water", 0, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> NATURES_TOUCH = registerSkill("natures_touch", 0, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> CLEANSING_TOUCH = registerSkill("cleansing_touch", 0, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> OVERGROWTH = registerSkill("overgrowth", 0, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> VILE_INFUSION = registerSkill("vile_infusion", 0, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> CONVALESCENCE = registerSkill("convalescence", 0, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> OAK_BLESSING = registerSkill("oak_blessing", 0, 50, preReqs(HEALING_STREAM));
 
     private static Holder<Skill> registerSkill(String name) {
         return SKILLS.register(name, () -> new Skill(CommonClass.customLocation(name)));
     }
-    private static Holder<Skill> registerSkill(String name, int xpCost, int xPos, int yPos, HolderSet<Skill> prereqs) {
-        return SKILLS.register(name, () -> new Skill(CommonClass.customLocation(name),
-               xpCost, xPos, yPos, prereqs));
+    private static Holder<Skill> registerSkill(String name, int xPos, int yPos, HolderSet<Skill> prereqs) {
+        return SKILLS.register(name, () -> new Skill(CommonClass.customLocation(name), xPos, yPos, prereqs));
     }
 
     private static HolderSet<Skill> preReqs(Holder<Skill>... skills) {
