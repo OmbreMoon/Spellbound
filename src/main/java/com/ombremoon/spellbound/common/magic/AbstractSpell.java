@@ -193,6 +193,14 @@ public abstract class AbstractSpell {
         return f;
     }
 
+    protected void addCooldown(Skill skill, int ticks) {
+        this.context.getSkillHandler().getCooldowns().addCooldown(skill, ticks);
+    }
+
+    protected boolean isOnCooldown(Skill skill) {
+        return this.context.getSkillHandler().getCooldowns().isOnCooldown(skill);
+    }
+
     protected void addScreenShake(Player player) {
         addScreenShake(player, 10);
     }

@@ -57,7 +57,7 @@ public class UpgradeWindow {
         guiGraphics.pose().translate(x, y, 0);
         int i = Mth.floor(this.scrollX);
         int j = Mth.floor(this.scrollY);
-        guiGraphics.blit(BACKGROUND, i / 2 - x, j / 2 + 75 - 512/* - y*/, 0, 0, 512, 512, 512, 512);
+        guiGraphics.blit(BACKGROUND, i / 2 - 256, j / 2 + 75 - 512/* - y*/, 0, 0, 512, 512, 512, 512);
         this.rootWidget.drawConnection(guiGraphics, i, j, true);
         this.rootWidget.drawConnection(guiGraphics, i, j, false);
         this.rootWidget.draw(guiGraphics, i, j);
