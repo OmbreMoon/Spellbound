@@ -51,7 +51,7 @@ public class WildMushroomSpell extends SummonSpell {
         var mobs = addMobs(context, EntityInit.MUSHROOM.get(), 1, 180);
         if (mobs == null || !mobs.iterator().hasNext()) {
             endSpell();
-            context.getSpellHandler().awardMana(this.getManaCost());
+            context.getSpellHandler().awardMana(this.getManaCost(context.getSkillHandler()));
             context.getSpellHandler().sync();
             return;
         }
@@ -135,7 +135,7 @@ public class WildMushroomSpell extends SummonSpell {
         super.onSpellRecast(context);
         var mobs = addMobs(context, EntityInit.MUSHROOM.get(), 1, 180);
         if (mobs == null || !mobs.iterator().hasNext()) {
-            context.getSpellHandler().awardMana(this.getManaCost());
+            context.getSpellHandler().awardMana(this.getManaCost(context.getSkillHandler()));
             context.getSpellHandler().sync();
             return;
         }

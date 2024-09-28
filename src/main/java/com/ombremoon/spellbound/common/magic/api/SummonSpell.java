@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.magic.api;
 
 import com.mojang.logging.LogUtils;
 import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.common.data.SkillHandler;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.SpellContext;
@@ -77,14 +78,6 @@ public abstract class SummonSpell extends AnimatedSpell {
 
     public Map<Integer, Set<Integer>> getSummons() {
         return this.summons;
-    }
-
-    @Override
-    public int getDuration() {
-        if (ticks > 175) {
-            System.out.println("HI");
-        }
-        return this.spellDuration;
     }
 
     protected <T extends Entity> Set<Integer> addMobs(SpellContext context, EntityType<T> summon, int mobCount, int lifeSpan) {

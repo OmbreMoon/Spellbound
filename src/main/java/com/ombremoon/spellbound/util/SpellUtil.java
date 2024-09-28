@@ -36,13 +36,13 @@ public class SpellUtil {
     public static void activateSpell(Player player, AbstractSpell abstractSpell) {
         var handler = getSpellHandler(player);
         handler.getActiveSpells().add(abstractSpell);
-        handler.consumeMana(abstractSpell.getManaCost(), true);
+        handler.consumeMana(abstractSpell.getManaCost(player.getData(DataInit.SKILL_HANDLER)), true);
         PayloadHandler.syncMana(player);
     }
 
     public static boolean canCastSpell(Player player, AbstractSpell spell) {
         var handler = getSpellHandler(player);
-        return handler.inCastMode() && handler.consumeMana(spell.getManaCost(), false);
+        return handler.inCastMode() && handler.consumeMana(spell.getManaCost(player.getData(DataInit.SKILL_HANDLER)), false);
     }
 
     public static <T extends SpellType<?>> void cycle(SpellHandler handler, T activeSpell) {

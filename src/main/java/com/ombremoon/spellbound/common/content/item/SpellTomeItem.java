@@ -8,6 +8,7 @@ import com.ombremoon.spellbound.common.init.StatInit;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -47,7 +48,7 @@ public class SpellTomeItem extends Item {
                 return InteractionResultHolder.fail(itemStack);
             }
 
-            player.displayClientMessage(Component.translatable("chat.spelltome.spellunlocked", spell.getKeySkill().value().getDescriptionId()), true);
+            player.displayClientMessage(Component.translatable("chat.spelltome.spellunlocked", spell.createSpell().getDescriptionId()), true);
             handler.learnSpell(spell);
             itemStack.shrink(1);
         }
@@ -85,7 +86,9 @@ public class SpellTomeItem extends Item {
         if (!Screen.hasShiftDown()) {
             tooltipComponents.add(Component.translatable("tooltip.spellbound.holdshift").withStyle(ChatFormatting.BLUE));
         } else {
-            tooltipComponents.add(spell.getKeySkill().value().getSkillDescription().withStyle(ChatFormatting.BLUE));
+            tooltipComponents.add(Component.translatable(
+                    Util.makeDescriptionId("skill.description", spell.createSpell().getId()))
+                    .withStyle(ChatFormatting.BLUE));
         }
     }
 

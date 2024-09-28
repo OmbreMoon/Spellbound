@@ -126,6 +126,8 @@ public class NeoForgeEvents {
 
         if (event.getEntity() instanceof Player player)
             SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.POST_DAMAGE, new PlayerDamageEvent.Post(player, event));
+        else if (event.getSource().getEntity() instanceof Player player)
+            SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.POST_DAMAGE, new PlayerDamageEvent.Post(player, event));
     }
 
     @SubscribeEvent
@@ -133,6 +135,8 @@ public class NeoForgeEvents {
         if (event.getEntity().level().isClientSide) return;
 
         if (event.getEntity() instanceof Player player)
+            SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.PRE_DAMAGE, new PlayerDamageEvent.Pre(player, event));
+        else if (event.getSource().getEntity() instanceof Player player)
             SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.PRE_DAMAGE, new PlayerDamageEvent.Pre(player, event));
     }
 

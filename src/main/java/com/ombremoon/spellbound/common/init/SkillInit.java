@@ -49,6 +49,20 @@ public class SkillInit {
     public static final Holder<Skill> PYROCLASTIC_CLOUD = registerSkill("pyroclastic_cloud", 10, 0, 100, preReqs(INFERNO_CORE));
     public static final Holder<Skill> APOCALYPSE = registerSkill("apocalypse", 10, 0, 175, preReqs(SHRAPNEL, PYROCLASTIC_CLOUD, SEISMIC_SHOCK));
 
+    //Healing Touch
+    //TODO: Tree
+    public static final Holder<Skill> HEALING_TOUCH = registerSkill("healing_touch");
+    public static final Holder<Skill> BLOOM = registerSkill("bloom", 10, 0, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> HEALING_STREAM = registerSkill("healing_stream", 10, 0, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> ACCELERATED_GROWTH = registerSkill("accelerated_growth", 10, 0, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> TRANQUILITY_OF_WATER = registerSkill("tranquility_of_water", 10, 0, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> NATURES_TOUCH = registerSkill("natures_touch", 10, 0, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> CLEANSING_TOUCH = registerSkill("cleansing_touch", 10, 0, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> OVERGROWTH = registerSkill("overgrowth", 10, 0, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> VILE_INFUSION = registerSkill("vile_infusion", 10, 0, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> CONVALESCENCE = registerSkill("convalescence", 10, 0, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> OAK_BLESSING = registerSkill("oak_blessing", 10, 0, 50, preReqs(HEALING_STREAM));
+
     private static Holder<Skill> registerSkill(String name) {
         return SKILLS.register(name, () -> new Skill(CommonClass.customLocation(name)));
     }

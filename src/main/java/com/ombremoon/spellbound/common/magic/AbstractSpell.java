@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.magic;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.common.data.SkillHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.init.StatInit;
@@ -67,11 +68,11 @@ public abstract class AbstractSpell {
         return this.spellType;
     }
 
-    public int getManaCost() {
+    public int getManaCost(SkillHandler skillHandler) {
         return this.manaCost;
     }
 
-    public int getDuration() {
+    public int getDuration(SkillHandler skillHandler) {
         return this.duration;
     }
 
@@ -124,7 +125,7 @@ public abstract class AbstractSpell {
                 if (this.shouldTickEffect()) {
                     this.tickSpell();
                 }
-                if (this.getCastType() != CastType.CHANNEL && ticks % getDuration() == 0) {
+                if (this.getCastType() != CastType.CHANNEL && ticks % getDuration(context.getSkillHandler()) == 0) {
                     this.endSpell();
                 }
             }

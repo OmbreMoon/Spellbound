@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.common.init;
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.content.spell.TestSpell;
+import com.ombremoon.spellbound.common.content.spell.divine.HealingTouchSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.VolcanoSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.SummonUndeadSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.WildMushroomSpell;
@@ -44,6 +45,13 @@ public class SpellInit {
                     SkillInit.VILE_INFLUENCE, SkillInit.HASTENED_GROWTH, SkillInit.ENVENOM,
                     SkillInit.DECOMPOSE, SkillInit.NATURES_DOMINANCE, SkillInit.POISON_ESSENCE,
                     SkillInit.CIRCLE_OF_LIFE, SkillInit.CATALEPSY, SkillInit.RECYCLED, SkillInit.SYNTHESIS));
+
+    //Divine
+    public static final Supplier<SpellType<HealingTouchSpell>> HEALING_TOUCH = registerSpell("healing_touch", divineBuilder("healing_touch", HealingTouchSpell::new)
+            .setAvailableSkills(
+                    SkillInit.HEALING_TOUCH, SkillInit.BLOOM, SkillInit.HEALING_STREAM, SkillInit.ACCELERATED_GROWTH,
+                    SkillInit.TRANQUILITY_OF_WATER, SkillInit.NATURES_TOUCH, SkillInit.CLEANSING_TOUCH,
+                    SkillInit.OVERGROWTH, SkillInit.VILE_INFLUENCE, SkillInit.CONVALESCENCE));
 
     private static <T extends AbstractSpell> Supplier<SpellType<T>> registerSpell(String name, SpellType.Builder<T> builder) {
         return SPELL_TYPES.register(name, builder::build);

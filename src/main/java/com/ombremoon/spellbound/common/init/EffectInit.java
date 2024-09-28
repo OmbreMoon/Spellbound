@@ -20,6 +20,8 @@ public class EffectInit {
     public static final Holder<MobEffect> WIND = EFFECTS.register("wind", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
     public static final Holder<MobEffect> EARTH = EFFECTS.register("earth", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
 
+    public static final Holder<MobEffect> HEALING_TOUCH = EFFECTS.register("healing_touch", () -> new SBEffect(MobEffectCategory.BENEFICIAL, 8889187));
+
     public static void register(IEventBus eventBus) {
         EFFECTS.register(eventBus);
     }
