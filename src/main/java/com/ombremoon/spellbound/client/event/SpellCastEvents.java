@@ -87,7 +87,7 @@ public class SpellCastEvents {
     }
 
     @SubscribeEvent
-    public static void onSpellActivateTick(PlayerTickEvent.Post event) {
+    public static void onActiveSpellTick(PlayerTickEvent.Post event) {
         Player player = event.getEntity();
 
         if (!player.level().isClientSide) {
@@ -101,6 +101,7 @@ public class SpellCastEvents {
                 }
                 if (spells.isEmpty()) activeSpells.removeAll(entry.getKey());
             }
+            handler.getSkillHandler().getCooldowns().tick();
         }
     }
 

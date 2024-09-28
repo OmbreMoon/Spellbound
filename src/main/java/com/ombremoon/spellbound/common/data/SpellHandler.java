@@ -184,6 +184,10 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         return this.listener;
     }
 
+    public SkillHandler getSkillHandler() {
+        return this.skillHandler;
+    }
+
     @Override
     public @UnknownNullability CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag compoundTag = new CompoundTag();
