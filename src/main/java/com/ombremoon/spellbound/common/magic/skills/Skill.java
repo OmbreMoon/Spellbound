@@ -14,7 +14,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class Skill {
     private final ResourceLocation resourceLocation;
-    private final int xpCost;
     private final int xPos;
     private final int yPos;
     @Nullable
@@ -23,12 +22,11 @@ public class Skill {
     private String descriptionID;
 
     public Skill(ResourceLocation resLoc) {
-        this(resLoc, 0, 0, 0, null);
+        this(resLoc, 0, 0, null);
     }
 
-    public Skill(ResourceLocation resLoc, int xpCost, int xPos, int yPos, @Nullable HolderSet<Skill> prerequisites) {
+    public Skill(ResourceLocation resLoc, int xPos, int yPos, @Nullable HolderSet<Skill> prerequisites) {
         this.resourceLocation = resLoc;
-        this.xpCost = xpCost;
         this.xPos = xPos;
         this.yPos = yPos;
         this.prerequisites = prerequisites;
@@ -36,10 +34,6 @@ public class Skill {
 
     public ResourceLocation getResourceLocation() {
         return resourceLocation;
-    }
-
-    public int getXpCost() {
-        return xpCost;
     }
 
     public int getX() {

@@ -6,6 +6,7 @@ import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
+import com.ombremoon.spellbound.common.magic.skills.SkillCooldowns;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -25,6 +26,7 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
     protected final Map<SpellPath, Float> pathXp = new Object2FloatOpenHashMap<>();
     protected final Map<SpellType<?>, Float> spellXp = new Object2FloatOpenHashMap<>();
     protected final Map<SpellType<?>, Set<Skill>> unlockedSkills = new Object2ObjectOpenHashMap<>();
+    private final SkillCooldowns cooldowns = new SkillCooldowns();
 
     public void sync(Player player) {
         PayloadHandler.syncSkillsToClient(player);
@@ -71,7 +73,6 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
 
     public boolean canUnlockSkill(Skill skill) {
         var spellType = skill.getSpell();
-        if ((float) skill.getXpCost() > getSpellXp(spellType)) return false;
         if (hasSkill(skill)) return false;
         if (skill.isRoot()) return false;
 
@@ -87,6 +88,10 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         var spellType = skill.getSpell();
         if (unlockedSkills.get(spellType) == null) return false;
         return unlockedSkills.get(spellType).contains(skill) || skill.isRoot();
+    }
+
+    public SkillCooldowns getCooldowns() {
+        return this.cooldowns;
     }
 
     @Override
