@@ -1,12 +1,14 @@
 package com.ombremoon.spellbound.client.gui;
 
 import com.google.common.collect.Maps;
+import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.tree.SkillNode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,6 +16,7 @@ import java.util.Collection;
 import java.util.Map;
 
 public class UpgradeWindow {
+    private static final ResourceLocation BACKGROUND = CommonClass.customLocation("textures/gui/upgrade_background.png");
     private final Minecraft minecraft;
     private final WorkbenchScreen screen;
     private final SpellType<?> spellType;
@@ -54,8 +57,8 @@ public class UpgradeWindow {
         guiGraphics.pose().translate(x, y, 0);
         int i = Mth.floor(this.scrollX);
         int j = Mth.floor(this.scrollY);
-        //BLIT BACKGROUND
-
+        guiGraphics.blit(BACKGROUND, i - x, j + 35 - 512/* - y*/, 0, 0, 512, 512, 512, 512);
+//        Constants.LOG.info("{}", j);
         this.rootWidget.drawConnection(guiGraphics, i, j, true);
         this.rootWidget.drawConnection(guiGraphics, i, j, false);
         this.rootWidget.draw(guiGraphics, i, j);

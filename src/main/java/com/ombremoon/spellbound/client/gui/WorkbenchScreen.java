@@ -146,7 +146,11 @@ public class WorkbenchScreen extends Screen {
             this.scrollTo(this.scrollOffs);
             return true;
         } else if (this.selectedTree != null && isHovering(98, 16, 149, 115, mouseX, mouseY)) {
-            this.selectedTree.scroll(scrollX * 16, scrollY * 16);
+            if (Screen.hasShiftDown()) {
+                this.selectedTree.scroll(scrollY * 16, scrollX * 16);
+            } else {
+                this.selectedTree.scroll(scrollX * 16, scrollY * 16);
+            }
             return true;
         } else {
             return false;

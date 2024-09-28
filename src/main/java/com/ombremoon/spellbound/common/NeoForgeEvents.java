@@ -97,7 +97,7 @@ public class NeoForgeEvents {
     @SubscribeEvent
     public static void onPlayerLogOut(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity().level() instanceof ServerLevel level) {
-            SpellUtil.getSpellHandler(event.getEntity()).getActiveSpells().clear();
+            SpellUtil.getSpellHandler(event.getEntity()).clearSpells();
             SpellHandler handler = SpellUtil.getSpellHandler(event.getEntity());
             handler.clearAllSummons(level);
             handler.sync();
