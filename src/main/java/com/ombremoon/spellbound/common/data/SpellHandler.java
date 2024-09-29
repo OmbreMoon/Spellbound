@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.data;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
@@ -41,6 +42,11 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     public void sync() {
         PayloadHandler.syncSpellsToClient(this.caster);
+    }
+
+    public void debug() {
+        if (CommonClass.isDevEnv() && this.caster == null)
+            Constants.LOG.warn("Something fishy is happening");
     }
 
     public void initData(Player player) {
@@ -105,6 +111,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     }
 
     public void learnSpell(SpellType<?> spellType) {
+        if (this.spellSet.isEmpty()) this.selectedSpell = spellType;
         this.spellSet.add(spellType);
         this.skillHandler.unlockSkill(Skill.byName(spellType.location()));
         this.upgradeTree.addAll(spellType.getSkills());

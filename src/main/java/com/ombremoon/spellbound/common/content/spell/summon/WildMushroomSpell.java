@@ -66,9 +66,9 @@ public class WildMushroomSpell extends SummonSpell {
 
         boolean recycledFlag = context.getSpellHandler().getActiveSpells(getSpellType()).size() >= 3;;
         boolean recycledFlag2 = skillHandler.hasSkill(SkillInit.RECYCLED.value());
-        boolean recyledFlag3 = !context.hasModifier(AttributesInit.MANA_REGEN, RECYCLED_LOCATION);
+        boolean recyledFlag3 = !this.hasModifier(context.getPlayer(), AttributesInit.MANA_REGEN, RECYCLED_LOCATION);
         if (recycledFlag && recycledFlag2 && recyledFlag3)
-            context.addModifier(AttributesInit.MANA_REGEN, new AttributeModifier(RECYCLED_LOCATION,
+            this.addModifier(context.getPlayer(), AttributesInit.MANA_REGEN, new AttributeModifier(RECYCLED_LOCATION,
                     1.1d,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     }
@@ -117,8 +117,8 @@ public class WildMushroomSpell extends SummonSpell {
         }
 
         if (context.getSpellHandler().getActiveSpells(getSpellType()).size() <= 2
-                && context.hasModifier(AttributesInit.MANA_REGEN, RECYCLED_LOCATION)) {
-            context.removeModifier(AttributesInit.MANA_REGEN, RECYCLED_LOCATION);
+                && this.hasModifier(context.getPlayer(), AttributesInit.MANA_REGEN, RECYCLED_LOCATION)) {
+            this.removeModifier(context.getPlayer(), AttributesInit.MANA_REGEN, RECYCLED_LOCATION);
         }
     }
 

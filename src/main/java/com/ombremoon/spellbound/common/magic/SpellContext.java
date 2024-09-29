@@ -45,34 +45,6 @@ public class SpellContext {
         this.isRecast = isRecast;
     }
 
-    /**
-     * Checks if the caster of the spell has an attribute modifier
-     * @param attribute The attribute to check if modified
-     * @param modifier ResourceLocation of the AttributeModifier
-     * @return true if the modifier is present, false otherwise
-     */
-    public boolean hasModifier(Holder<Attribute> attribute, ResourceLocation modifier) {
-        return this.player.getAttribute(attribute).hasModifier(modifier);
-    }
-
-    /**
-     * Adds a given attribute modifier to a chosen attribute on the caster
-     * @param attribute The attribute to apply a modifier to
-     * @param modifier the AttributeModifier to apply
-     */
-    public void addModifier(Holder<Attribute> attribute, AttributeModifier modifier) {
-        this.player.getAttribute(attribute).addTransientModifier(modifier);
-    }
-
-    /**
-     * Removes an attribute modifier from the caster
-     * @param attribute The attribute the modifier affects
-     * @param modifier The ResourceLocation of the modifier to remove
-     */
-    public void removeModifier(Holder<Attribute> attribute, ResourceLocation modifier) {
-        this.player.getAttribute(attribute).removeModifier(modifier);
-    }
-
     public SpellHandler getSpellHandler() {
         return this.spellHandler;
     }

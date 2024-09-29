@@ -50,7 +50,6 @@ public class SpellTomeItem extends Item {
 
             player.displayClientMessage(Component.translatable("chat.spelltome.spellunlocked", spell.createSpell().getDescriptionId()), true);
             handler.learnSpell(spell);
-            handler.sync();
             itemStack.shrink(1);
         }
 

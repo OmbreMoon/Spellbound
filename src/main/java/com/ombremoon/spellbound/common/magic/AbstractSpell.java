@@ -12,6 +12,7 @@ import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -21,6 +22,8 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
@@ -182,6 +185,34 @@ public abstract class AbstractSpell {
 
     protected boolean shouldTickEffect() {
         return true;
+    }
+
+    /**
+     * Checks if the caster of the spell has an attribute modifier
+     * @param attribute The attribute to check if modified
+     * @param modifier ResourceLocation of the AttributeModifier
+     * @return true if the modifier is present, false otherwise
+     */
+    public boolean hasModifier(LivingEntity livingEntity, Holder<Attribute> attribute, ResourceLocation modifier) {
+        return livingEntity.getAttribute(attribute).hasModifier(modifier);
+    }
+
+    /**
+     * Adds a given attribute modifier to a chosen attribute on the caster
+     * @param attribute The attribute to apply a modifier to
+     * @param modifier the AttributeModifier to apply
+     */
+    public void addModifier(LivingEntity livingEntity, Holder<Attribute> attribute, AttributeModifier modifier) {
+        livingEntity.getAttribute(attribute).addTransientModifier(modifier);
+    }
+
+    /**
+     * Removes an attribute modifier from the caster
+     * @param attribute The attribute the modifier affects
+     * @param modifier The ResourceLocation of the modifier to remove
+     */
+    public void removeModifier(LivingEntity livingEntity, Holder<Attribute> attribute, ResourceLocation modifier) {
+        livingEntity.getAttribute(attribute).removeModifier(modifier);
     }
 
     public static float getPowerForTime(AbstractSpell spell, int pCharge) {

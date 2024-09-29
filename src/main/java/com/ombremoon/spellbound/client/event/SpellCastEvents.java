@@ -92,6 +92,7 @@ public class SpellCastEvents {
 
         if (!player.level().isClientSide) {
             var handler = SpellUtil.getSpellHandler(player);
+            handler.debug();
             var activeSpells = handler.getActiveSpells();
             for (var entry : activeSpells.asMap().entrySet()) {
                 var spells = entry.getValue();
