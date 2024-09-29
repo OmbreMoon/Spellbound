@@ -106,7 +106,7 @@ public class HealingTouchSpell extends AnimatedSpell {
     private void onDamagePost(PlayerDamageEvent.Post spellEvent) {
         LivingDamageEvent.Post  event = spellEvent.getDamageEvent();
         SkillHandler skills = caster.getData(DataInit.SKILL_HANDLER);
-        if (event.getSource().getEntity().is(caster)) {
+        if (event.getSource().getEntity() != null && event.getSource().getEntity().is(caster)) {
             if (event.getEntity().hasEffect(EffectInit.POISON) && skills.hasSkill(SkillInit.CONVALESCENCE.value()))
                 caster.heal(0.5f);
         }
