@@ -11,6 +11,7 @@ public class SummonUndeadSpell extends SummonSpell {
     public static AnimatedSpell.Builder<AnimatedSpell> createSummonBuilder() {
         return createSimpleSpellBuilder()
                 .setManaCost(10)
+                .setDuration(180)
                 .castCondition((player, spell) -> player.level().getDifficulty() != Difficulty.PEACEFUL);
     }
 
@@ -21,7 +22,7 @@ public class SummonUndeadSpell extends SummonSpell {
     @Override
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
-        var success = addMobs(context, EntityType.ZOMBIE, 1, 60);
+        var success = addMobs(context, EntityType.ZOMBIE, 1);
         if (success == null) {
             endSpell();
             context.getSpellHandler().awardMana(this.getManaCost(context.getSkillHandler()));

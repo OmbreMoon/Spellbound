@@ -21,7 +21,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

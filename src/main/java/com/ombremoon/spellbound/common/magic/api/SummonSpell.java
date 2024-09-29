@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.common.magic.api;
 
 import com.ombremoon.spellbound.common.data.SpellHandler;
+import com.ombremoon.spellbound.common.init.AttributesInit;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
@@ -30,54 +31,58 @@ public abstract class SummonSpell extends AnimatedSpell {
     private static final UUID DAMAGE_EVENT = UUID.fromString("79e708db-b942-4ca0-a6e8-2614f087881f");
     private static final UUID TARGETING_EVENT = UUID.fromString("d1d10463-e003-4dca-a6a0-bc5300d369d6");
 
-    private int spellDuration = 0;
-    private final Map<Integer, Set<Integer>> summons = new HashMap<>();
+    private final Set<Integer> summons = new HashSet<>();
 
     public SummonSpell(SpellType<?> spellType, Builder<?> builder) {
         super(spellType, builder);
     }
 
+    /**
+     * Attaches event listeners to hande summon targeting
+     * @param context the context of the spell
+     */
     @Override
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
+
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.POST_DAMAGE, DAMAGE_EVENT, this::damageEvent);
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.TARGETING_EVENT, TARGETING_EVENT, this::changeTargetEvent);
     }
 
-    @Override
-    protected void onSpellTick(SpellContext context) {
-        super.onSpellTick(context);
-        if (context.getLevel() instanceof ServerLevel level) {
-            Set<Integer> summonsForRemoval = this.summons.get(ticks);
-            if (summonsForRemoval == null) return;
-
-            for (int summonId : summonsForRemoval) {
-                if (level.getEntity(summonId) != null) level.getEntity(summonId).discard();
-            }
-        }
-    }
-
+    /**
+     * Discards the summons and removes the event listeners
+     * @param context the context of the spell
+     */
     @Override
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
 
-        for (Set<Integer> expiredSums : summons.values()) {
-            for (int summonId : expiredSums) {
-                Entity entity = context.getLevel().getEntity(summonId);
-                if (context.getLevel().getEntity(summonId) != null)
-                    context.getLevel().getEntity(summonId).discard();
-            }
+        for (int summonId : summons) {
+            if (context.getLevel().getEntity(summonId) != null)
+                context.getLevel().getEntity(summonId).discard();
         }
 
         context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.POST_DAMAGE, DAMAGE_EVENT);
         context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.TARGETING_EVENT, TARGETING_EVENT);
     }
 
-    public Map<Integer, Set<Integer>> getSummons() {
+    /**
+     * Returns the IDs of all summons created by this spell
+     * @return Set of entity IDs
+     */
+    public Set<Integer> getSummons() {
         return this.summons;
     }
 
-    protected <T extends Entity> Set<Integer> addMobs(SpellContext context, EntityType<T> summon, int mobCount, int lifeSpan) {
+    /**
+     * Spawns the desired entity as a summon a chosen number of times, where the player is looking
+     * @param context the context of the spell
+     * @param summon the entity being created
+     * @param mobCount number of the summon to spawn
+     * @return Set containing the IDs of the summoned entities
+     * @param <T> Chosen Entity
+     */
+    protected <T extends Entity> Set<Integer> addMobs(SpellContext context, EntityType<T> summon, int mobCount) {
         Level level = context.getLevel();
         Player player = context.getPlayer();
 
@@ -94,11 +99,16 @@ public abstract class SummonSpell extends AnimatedSpell {
             summonedMobs.add(mob.getId());
         }
 
-        this.summons.put(ticks + lifeSpan, summonedMobs);
-        this.spellDuration = ticks + lifeSpan;
+        this.summons.addAll(summonedMobs);
         return summonedMobs;
     }
 
+    /**
+     * Gets the position for the entity to spawn
+     * @param player Caster of the spell
+     * @param level the Level to check blockstates on
+     * @return the BlockPos of a valid spawn position, null if none found
+     */
     private BlockPos getSpawnPos(Player player, Level level) {
         BlockHitResult blockHit = level.clip(setupRayTraceContext(player, 5d, ClipContext.Fluid.NONE));
         if (blockHit.getType() == HitResult.Type.MISS) return null;
@@ -107,6 +117,12 @@ public abstract class SummonSpell extends AnimatedSpell {
         return blockHit.getBlockPos().relative(blockHit.getDirection());
     }
 
+    /**
+     * Updates all of a summons target with the current players target
+     * @param level level containing the summon
+     * @param summons the set of summons to update the targeting for
+     * @param target the new target
+     */
     private void setSummonsTarget(Level level, Set<Integer> summons, LivingEntity target) {
         for (int mobId : summons) {
             if (level.getEntity(mobId) instanceof Monster monster) {
@@ -120,12 +136,10 @@ public abstract class SummonSpell extends AnimatedSpell {
         LivingDamageEvent.Post event = damageEvent.getDamageEvent();
 
         if (event.getEntity() instanceof Player player && event.getSource().getEntity() instanceof LivingEntity newTarget) {
-            SpellHandler handler = SpellUtil.getSpellHandler(event.getEntity());
-            setSummonsTarget(player.level(), handler.getAllSummons(), newTarget);
+            setSummonsTarget(player.level(), getSummons(), newTarget);
         } else if (event.getSource().getEntity() instanceof Player player
                 && !event.getEntity().getData(DataInit.OWNER_UUID).equals(player.getUUID().toString())) {
-            SpellHandler handler = SpellUtil.getSpellHandler(event.getEntity());
-            setSummonsTarget(player.level(), handler.getAllSummons(), event.getEntity());
+            setSummonsTarget(player.level(), getSummons(), event.getEntity());
         }
     }
 

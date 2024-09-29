@@ -5,7 +5,11 @@ import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -39,6 +43,34 @@ public class SpellContext {
         this.spellHandler = SpellUtil.getSpellHandler(player);
         this.skillHandler = player.getData(DataInit.SKILL_HANDLER);
         this.isRecast = isRecast;
+    }
+
+    /**
+     * Checks if the caster of the spell has an attribute modifier
+     * @param attribute The attribute to check if modified
+     * @param modifier ResourceLocation of the AttributeModifier
+     * @return true if the modifier is present, false otherwise
+     */
+    public boolean hasModifier(Holder<Attribute> attribute, ResourceLocation modifier) {
+        return this.player.getAttribute(attribute).hasModifier(modifier);
+    }
+
+    /**
+     * Adds a given attribute modifier to a chosen attribute on the caster
+     * @param attribute The attribute to apply a modifier to
+     * @param modifier the AttributeModifier to apply
+     */
+    public void addModifier(Holder<Attribute> attribute, AttributeModifier modifier) {
+        this.player.getAttribute(attribute).addTransientModifier(modifier);
+    }
+
+    /**
+     * Removes an attribute modifier from the caster
+     * @param attribute The attribute the modifier affects
+     * @param modifier The ResourceLocation of the modifier to remove
+     */
+    public void removeModifier(Holder<Attribute> attribute, ResourceLocation modifier) {
+        this.player.getAttribute(attribute).removeModifier(modifier);
     }
 
     public SpellHandler getSpellHandler() {
