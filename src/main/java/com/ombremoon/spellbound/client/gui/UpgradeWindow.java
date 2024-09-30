@@ -19,7 +19,6 @@ public class UpgradeWindow {
     private static final ResourceLocation BACKGROUND = CommonClass.customLocation("textures/gui/upgrade_background.png");
     private final Minecraft minecraft;
     private final WorkbenchScreen screen;
-    private final SpellType<?> spellType;
     private final SkillNode rootNode;
     private final UpgradeWidget rootWidget;
     private final Map<Skill, UpgradeWidget> widgets = Maps.newLinkedHashMap();
@@ -32,10 +31,9 @@ public class UpgradeWindow {
     private float fade;
     private boolean centered;
 
-    public UpgradeWindow(Minecraft minecraft, WorkbenchScreen screen, SpellType<?> spellType, SkillNode rootNode) {
+    public UpgradeWindow(Minecraft minecraft, WorkbenchScreen screen, SkillNode rootNode) {
         this.minecraft = minecraft;
         this.screen = screen;
-        this.spellType = spellType;
         this.rootNode = rootNode;
         this.rootWidget = new UpgradeWidget(this, this.minecraft, rootNode);
         this.addWidget(this.rootWidget, rootNode.skill());

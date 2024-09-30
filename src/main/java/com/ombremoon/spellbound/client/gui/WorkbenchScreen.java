@@ -64,6 +64,10 @@ public class WorkbenchScreen extends Screen {
         this.skillHandler = this.player.getData(DataInit.SKILL_HANDLER);
         this.spellList = this.spellHandler.getSpellList().stream().filter(spellType -> spellType.getPath().ordinal() == pageIndex).toList();
         this.initSpellTrees();
+        if (!this.spellList.isEmpty()) {
+            this.selectedSpell = this.spellList.get(0);
+            this.selectedTree = this.spellTrees.get(this.selectedSpell);
+        }
     }
 
     @Override
@@ -96,12 +100,14 @@ public class WorkbenchScreen extends Screen {
             var widgets = this.selectedTree.widgets();
             int i = Mth.floor(this.selectedTree.scrollX);
             int j = Mth.floor(this.selectedTree.scrollY);
-            for (var widget : widgets) {
-                if (widget.isMouseOver(i, j, mouseX - this.leftPos - 98, mouseY - this.topPos - 18)) {
-                    Skill skill = widget.getSkill();
-                    if (this.skillHandler.canUnlockSkill(skill)) {
-                        this.skillHandler.unlockSkill(skill);
-                        PayloadHandler.unlockSkill(skill);
+            if (isHovering(98, 16, 149, 115, mouseX, mouseY)) {
+                for (var widget : widgets) {
+                    if (widget.isMouseOver(i, j, mouseX - this.leftPos - 98, mouseY - this.topPos - 18)) {
+                        Skill skill = widget.getSkill();
+                        if (this.skillHandler.canUnlockSkill(skill)) {
+                            this.skillHandler.unlockSkill(skill);
+                            PayloadHandler.unlockSkill(skill);
+                        }
                     }
                 }
             }
@@ -252,7 +258,7 @@ public class WorkbenchScreen extends Screen {
 
     private void initSpellTrees() {
         for (var root : this.upgradeTree.roots()) {
-            UpgradeWindow window = new UpgradeWindow(this.minecraft, this, root.skill().getSpell(), root);
+            UpgradeWindow window = new UpgradeWindow(this.minecraft, this, root);
             this.spellTrees.put(root.skill().getSpell(), window);
         }
 

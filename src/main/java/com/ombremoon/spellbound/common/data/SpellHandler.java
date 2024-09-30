@@ -104,6 +104,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     public void clearList() {
         this.spellSet.forEach(skillHandler::resetSkills);
+        this.spellSet.forEach(skillHandler::resetSpellXP);
         this.upgradeTree.clear(this.caster);
         this.spellSet.clear();
         this.selectedSpell = null;
