@@ -53,7 +53,7 @@ public class ModLangProvider extends LanguageProvider {
     }
 
     protected void spellLang(DeferredHolder<SpellType<?>, ? extends SpellType<?>> entry) {
-        add(entry.get().createSpell().getDescriptionId(), checkReplace(entry));
+        add(entry.get().createSpell().getNameId(), checkReplace(entry));
     }
 
     protected void skillLang(DeferredHolder<Skill, ? extends Skill> entry) {

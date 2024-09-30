@@ -16,15 +16,15 @@ public class SpellType<S extends AbstractSpell> {
     private final ResourceLocation resourceLocation;
     private final SpellFactory<S> factory;
     private final SpellPath path;
-    private final Holder<Skill> keySkill;
     private final Set<Holder<Skill>> availableSkills;
 
-    public SpellType(ResourceLocation resourceLocation, SpellPath path, Set<Holder<Skill>> skills, Holder<Skill> keySkill, SpellFactory<S> factory) {
+    public SpellType(ResourceLocation resourceLocation, SpellPath path, Set<Holder<Skill>> skills, SpellFactory<S> factory) {
         this.path = path;
         this.availableSkills = skills;
         this.factory = factory;
         this.resourceLocation = resourceLocation;
-        this.keySkill = keySkill;
+
+//        if (this.getRootSkill() == null) throw new IllegalStateException(this + " does not contain a root skill");
     }
 
     public ResourceLocation location() {
@@ -35,15 +35,14 @@ public class SpellType<S extends AbstractSpell> {
         return this.path;
     }
 
-    public Holder<Skill> getKeySkill() {
-        return this.keySkill;
+    public Skill getRootSkill() {
+        return this.availableSkills.isEmpty() ? null : this.getSkills().getFirst().getRoot();
     }
 
     public List<Skill> getSkills() {
         return availableSkills.stream().map(Holder::value).collect(Collectors.toList());
     }
 
-    @Nullable
     public S createSpell() {
         return this.factory.create();
     }
@@ -66,7 +65,6 @@ public class SpellType<S extends AbstractSpell> {
         private ResourceLocation resourceLocation;
         private SpellFactory<T> factory;
         private SpellPath path;
-        private Holder<Skill> keySkill;
         private Set<Holder<Skill>> availableSkills = new ObjectOpenHashSet<>();
 
         public Builder(String resourceLocation, SpellFactory<T> factory) {
@@ -79,19 +77,14 @@ public class SpellType<S extends AbstractSpell> {
             return this;
         }
 
-        public Builder<T> setKeySkill(Holder<Skill> skill) {
-            this.availableSkills.add(skill);
-            this.keySkill = skill;
-            return this;
-        }
-
-        public Builder<T> setAvailableSkills(Holder<Skill>... skills) {
+        @SafeVarargs
+        public final Builder<T> skills(Holder<Skill>... skills) {
             this.availableSkills.addAll(Arrays.stream(skills).toList());
             return this;
         }
 
         public SpellType<T> build() {
-            return new SpellType<>(resourceLocation, path, availableSkills, keySkill, factory);
+            return new SpellType<>(resourceLocation, path, availableSkills, factory);
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.ombremoon.spellbound.common.content.item;
 
-import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.ItemInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
@@ -8,7 +7,6 @@ import com.ombremoon.spellbound.common.init.StatInit;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -48,7 +46,7 @@ public class SpellTomeItem extends Item {
                 return InteractionResultHolder.fail(itemStack);
             }
 
-            player.displayClientMessage(Component.translatable("chat.spelltome.spellunlocked", spell.createSpell().getDescriptionId()), true);
+            player.displayClientMessage(Component.translatable("chat.spelltome.spellunlocked", spell.createSpell().getNameId()), true);
             handler.learnSpell(spell);
             itemStack.shrink(1);
         }
@@ -76,18 +74,17 @@ public class SpellTomeItem extends Item {
             tooltipComponents.add(Component.translatable("chat.spelltome.nospell").withStyle(ChatFormatting.GRAY));
             return;
         }
-        if (spell.getKeySkill() == null) {
-            tooltipComponents.add(Component.translatable(spell.createSpell().getDescriptionId()).withStyle(ChatFormatting.GRAY));
+        if (spell.getRootSkill() == null) {
+            tooltipComponents.add(spell.createSpell().getSpellDescription().withStyle(ChatFormatting.GRAY));
             return;
         }
 
-        tooltipComponents.add(spell.getKeySkill().value().getSkillName().withStyle(ChatFormatting.GRAY));
+        tooltipComponents.add(spell.createSpell().getSpellName().withStyle(ChatFormatting.GRAY));
         tooltipComponents.add(Component.empty());
         if (!Screen.hasShiftDown()) {
             tooltipComponents.add(Component.translatable("tooltip.spellbound.holdshift").withStyle(ChatFormatting.BLUE));
         } else {
-            tooltipComponents.add(Component.translatable(
-                    Util.makeDescriptionId("skill.description", spell.createSpell().getId()))
+            tooltipComponents.add(spell.getRootSkill().getSkillDescription()
                     .withStyle(ChatFormatting.BLUE));
         }
     }

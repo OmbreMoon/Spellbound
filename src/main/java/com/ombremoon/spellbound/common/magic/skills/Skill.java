@@ -91,8 +91,8 @@ public class Skill {
         return this.prerequisites == null;
     }
 
-    public static Skill getRoot(Skill skill) {
-        Skill root = skill;
+    public Skill getRoot() {
+        Skill root = this;
         while (true) {
             var prereqs = root.getPrereqs();
             if (prereqs == null) {
@@ -107,7 +107,7 @@ public class Skill {
     }
 
     public SpellType<?> getSpell() {
-        return AbstractSpell.getSpellByName(CommonClass.customLocation(getRoot(this).location().getPath()));
+        return AbstractSpell.getSpellByName(CommonClass.customLocation(getRoot().location().getPath()));
     }
 
     @Override

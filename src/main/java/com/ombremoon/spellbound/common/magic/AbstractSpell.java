@@ -3,20 +3,17 @@ package com.ombremoon.spellbound.common.magic;
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.data.SkillHandler;
-import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.init.StatInit;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
@@ -29,14 +26,11 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.*;
-import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.slf4j.Logger;
 
-import java.util.List;
 import java.util.function.BiPredicate;
-import java.util.function.Predicate;
 
 public abstract class AbstractSpell {
     protected static final Logger LOGGER = Constants.LOG;
@@ -51,6 +45,7 @@ public abstract class AbstractSpell {
     private Level level;
     private Player caster;
     private BlockPos blockPos;
+    private String nameId;
     private String descriptionId;
     private SpellContext context;
     private boolean isRecast;
@@ -101,15 +96,26 @@ public abstract class AbstractSpell {
         return SpellInit.REGISTRY.getKey(this.spellType);
     }
 
-    protected String getOrCreateDescriptionId() {
-        if (this.descriptionId == null) {
-            this.descriptionId = Util.makeDescriptionId("spell", this.getId());
+    protected String getOrCreateNameId() {
+        if (this.nameId == null) {
+            this.nameId = Util.makeDescriptionId("spell", this.getId());
         }
-        return this.descriptionId;
+        return this.nameId;
     }
 
     public String getDescriptionId() {
         return this.getOrCreateDescriptionId();
+    }
+
+    protected String getOrCreateDescriptionId() {
+        if (this.descriptionId == null) {
+            this.descriptionId = Util.makeDescriptionId("spell.description", this.getId());
+        }
+        return this.descriptionId;
+    }
+
+    public String getNameId() {
+        return this.getOrCreateNameId();
     }
 
     public ResourceLocation getSpellTexture() {
@@ -117,7 +123,11 @@ public abstract class AbstractSpell {
         return CommonClass.customLocation("textures/gui/spells/" + name.getPath() + ".png");
     }
 
-    public Component getSpellName() {
+    public MutableComponent getSpellName() {
+        return Component.translatable(this.getNameId());
+    }
+
+    public MutableComponent getSpellDescription() {
         return Component.translatable(this.getDescriptionId());
     }
 
@@ -139,7 +149,7 @@ public abstract class AbstractSpell {
             if (init) {
                 this.startSpell();
             } else if (!isInactive) {
-                if (this.shouldTickEffect()) {
+                if (this.shouldTickEffect(this.context)) {
                     this.tickSpell();
                 }
                 if (this.getCastType() != CastType.CHANNEL && ticks % getDuration(context.getSkillHandler()) == 0) {
@@ -183,7 +193,7 @@ public abstract class AbstractSpell {
         Constants.LOG.info("{}", castTime);
     }
 
-    protected boolean shouldTickEffect() {
+    protected boolean shouldTickEffect(SpellContext context) {
         return true;
     }
 

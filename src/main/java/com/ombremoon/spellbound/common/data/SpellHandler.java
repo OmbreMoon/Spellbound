@@ -56,10 +56,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.upgradeTree = this.caster.getData(DataInit.UPGRADE_TREE);
     }
 
-    public Player getCaster() {
-        return this.caster;
-    }
-
     public boolean inCastMode() {
         return this.castMode;
     }
@@ -68,9 +64,16 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.castMode = !this.castMode;
     }
 
-    public void handleSpellTick() {
+    /**
+     * Called every tick on the server
+     */
+    public void serverTick() {
         activeSpells.forEach((spellType, spell) -> spell.tick());
         activeSpells.entries().removeIf(entry -> entry.getValue().isInactive);
+
+        this.skillHandler.getCooldowns().tick();
+
+        debug();
     }
 
     public boolean consumeMana(float amount, boolean forceConsume) {

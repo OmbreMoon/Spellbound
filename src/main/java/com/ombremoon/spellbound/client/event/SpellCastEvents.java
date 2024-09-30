@@ -2,9 +2,7 @@ package com.ombremoon.spellbound.client.event;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.client.CameraEngine;
 import com.ombremoon.spellbound.client.KeyBinds;
-import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.networking.PayloadHandler;
@@ -15,7 +13,6 @@ import dev.kosmx.playerAnim.api.layered.ModifierLayer;
 import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -25,8 +22,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-
-import java.util.Set;
 
 @EventBusSubscriber(modid = Constants.MOD_ID, value = Dist.CLIENT)
 public class SpellCastEvents {
@@ -87,14 +82,12 @@ public class SpellCastEvents {
     }
 
     @SubscribeEvent
-    public static void onActiveSpellTick(PlayerTickEvent.Post event) {
+    public static void onHandlerTick(PlayerTickEvent.Post event) {
         Player player = event.getEntity();
 
         if (!player.level().isClientSide) {
             var handler = SpellUtil.getSpellHandler(player);
-            handler.debug();
-            handler.handleSpellTick();
-            handler.getSkillHandler().getCooldowns().tick();
+            handler.serverTick();
         }
     }
 
@@ -116,6 +109,6 @@ public class SpellCastEvents {
         PayloadHandler.castSpell(spellType);
         var animation = (ModifierLayer<IAnimation>) PlayerAnimationAccess.getPlayerAssociatedData((AbstractClientPlayer) player).get(CommonClass.customLocation("animation"));
         if (animation != null)
-            animation.setAnimation(new KeyframeAnimationPlayer((KeyframeAnimation) PlayerAnimationRegistry.getAnimation(CommonClass.customLocation("test02"))));
+            animation.setAnimation(new KeyframeAnimationPlayer((KeyframeAnimation) PlayerAnimationRegistry.getAnimation(CommonClass.customLocation("test"))));
     }
 }
