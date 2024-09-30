@@ -68,6 +68,11 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.castMode = !this.castMode;
     }
 
+    public void handleSpellTick() {
+        activeSpells.forEach((spellType, spell) -> spell.tick());
+        activeSpells.entries().removeIf(entry -> entry.getValue().isInactive);
+    }
+
     public boolean consumeMana(float amount, boolean forceConsume) {
         double currentFP = caster.getData(DataInit.MANA);
         if (this.caster.getAbilities().instabuild) {
@@ -133,10 +138,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
             this.activeSpells.get(spell.getSpellType()).forEach(AbstractSpell::endSpell);
 
         this.activeSpells.put(spell.getSpellType(), spell);
-    }
-
-    public Multimap<SpellType<?>, AbstractSpell> getActiveSpells() {
-        return this.activeSpells;
     }
 
     public Collection<AbstractSpell> getActiveSpells(SpellType<?> spellType) {
