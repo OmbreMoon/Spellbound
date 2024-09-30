@@ -32,7 +32,7 @@ public class CastModeOverlay implements LayeredDraw.Layer {
         SpellType<?> spell = handler.getSelectedSpell();
         if (spell == null) return;
 
-        ResourceLocation texture = spell.createSpell().getSpellTexture();
+        ResourceLocation texture = spell.createSpell().getTexture();
 
         guiGraphics.blit(texture, x, y, 0, 0, 24, 24, 24, 24);
         guiGraphics.blit(BACKGROUND, x-1, y-1, 0, 0, 26, 26, 26, 26);

@@ -118,16 +118,16 @@ public abstract class AbstractSpell {
         return this.getOrCreateNameId();
     }
 
-    public ResourceLocation getSpellTexture() {
+    public ResourceLocation getTexture() {
         ResourceLocation name = this.getId();
         return CommonClass.customLocation("textures/gui/spells/" + name.getPath() + ".png");
     }
 
-    public MutableComponent getSpellName() {
+    public MutableComponent getName() {
         return Component.translatable(this.getNameId());
     }
 
-    public MutableComponent getSpellDescription() {
+    public MutableComponent getDescription() {
         return Component.translatable(this.getDescriptionId());
     }
 

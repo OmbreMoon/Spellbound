@@ -153,7 +153,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     public void setSelectedSpell(SpellType<?> selectedSpell) {
         this.selectedSpell = selectedSpell;
-        Constants.LOG.debug("Selected spell: {}", selectedSpell != null ? selectedSpell.createSpell().getSpellName().getString() : null);
+        Constants.LOG.debug("Selected spell: {}", selectedSpell != null ? selectedSpell.createSpell().getName().getString() : null);
     }
 
     public boolean isChannelling() {

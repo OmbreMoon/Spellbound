@@ -5,7 +5,6 @@ import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.tree.SkillNode;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.StringSplitter;
 import net.minecraft.client.gui.GuiGraphics;
@@ -39,13 +38,13 @@ public class UpgradeWidget {
         this.window = window;
         this.minecraft = minecraft;
         this.skillNode = skillNode;
-        this.title = Language.getInstance().getVisualOrder(minecraft.font.substrByWidth(skillNode.skill().getSkillName(), 163));
+        this.title = Language.getInstance().getVisualOrder(minecraft.font.substrByWidth(skillNode.skill().getName(), 163));
         this.x = skillNode.skill().getX();
         this.y = -skillNode.skill().getY();
         int j = 29 + minecraft.font.width(this.title);
         this.description = Language.getInstance()
                 .getVisualOrder(
-                        this.findOptimalLines(ComponentUtils.mergeStyles(skillNode.skill().getSkillDescription(), Style.EMPTY.withColor(getSkill().getSpell().getPath().getColor())), j)
+                        this.findOptimalLines(ComponentUtils.mergeStyles(skillNode.skill().getDescription(), Style.EMPTY.withColor(getSkill().getSpell().getPath().getColor())), j)
                 );
 
         for (FormattedCharSequence formattedcharsequence : this.description) {
@@ -119,7 +118,7 @@ public class UpgradeWidget {
         var handler = this.minecraft.player.getData(DataInit.SKILL_HANDLER);
         Type type = handler.hasSkill(this.skillNode.skill()) ? Type.UNLOCKED : Type.LOCKED;
         guiGraphics.blit(WorkbenchScreen.TEXTURE, x + this.x, y + this.y, 29 ,226, 30, 30);
-        ResourceLocation sprite = this.skillNode.skill().getSkillTexture();
+        ResourceLocation sprite = this.skillNode.skill().getTexture();
         guiGraphics.blit(sprite, x + this.x + 3, y + this.y + 3, 0, 0, 24, 24, 24, 24);
 
         for (var widget : this.children) {
@@ -182,7 +181,7 @@ public class UpgradeWidget {
             }
         }
 
-        ResourceLocation sprite = this.skillNode.skill().getSkillTexture();
+        ResourceLocation sprite = this.skillNode.skill().getTexture();
         guiGraphics.blit(sprite, x + this.x + 3, y + this.y + 3, 0, 0, 24, 24, 24, 24);
     }
 

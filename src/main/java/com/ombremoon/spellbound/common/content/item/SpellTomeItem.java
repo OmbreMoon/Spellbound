@@ -75,16 +75,16 @@ public class SpellTomeItem extends Item {
             return;
         }
         if (spell.getRootSkill() == null) {
-            tooltipComponents.add(spell.createSpell().getSpellDescription().withStyle(ChatFormatting.GRAY));
+            tooltipComponents.add(spell.createSpell().getDescription().withStyle(ChatFormatting.GRAY));
             return;
         }
 
-        tooltipComponents.add(spell.createSpell().getSpellName().withStyle(ChatFormatting.GRAY));
+        tooltipComponents.add(spell.createSpell().getName().withStyle(ChatFormatting.GRAY));
         tooltipComponents.add(Component.empty());
         if (!Screen.hasShiftDown()) {
             tooltipComponents.add(Component.translatable("tooltip.spellbound.holdshift").withStyle(ChatFormatting.BLUE));
         } else {
-            tooltipComponents.add(spell.getRootSkill().getSkillDescription()
+            tooltipComponents.add(spell.getRootSkill().getDescription()
                     .withStyle(ChatFormatting.BLUE));
         }
     }

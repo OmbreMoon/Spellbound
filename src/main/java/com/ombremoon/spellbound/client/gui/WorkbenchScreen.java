@@ -3,7 +3,6 @@ package com.ombremoon.spellbound.client.gui;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.data.SkillHandler;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
@@ -189,7 +188,7 @@ public class WorkbenchScreen extends Screen {
                     } else {
                         guiGraphics.blit(TEXTURE, xPos + 19, yPos + 27 + (i * 28), 183, 204, 73, 26);
                     }
-                    Component component = spellType.createSpell().getSpellName();
+                    Component component = spellType.createSpell().getName();
                     int height = component.getString().length() > 12 ? 35 : 40;
                     RenderUtil.drawWordWrap(guiGraphics, this.font, component, xPos + 55, yPos + height + (i * 28), 68, textColor);
                 }
@@ -197,7 +196,7 @@ public class WorkbenchScreen extends Screen {
         }
 
         int scrollTexture = isHovering(5, 29, 12, 104, mouseX, mouseY) ? 12 : 0;
-        guiGraphics.drawCenteredString(this.font, this.selectedSpell != null ? this.selectedSpell.createSpell().getSpellName() : Component.empty(), xPos + 75, yPos + 148, textColor);
+        guiGraphics.drawCenteredString(this.font, this.selectedSpell != null ? this.selectedSpell.createSpell().getName() : Component.empty(), xPos + 75, yPos + 148, textColor);
         guiGraphics.drawCenteredString(this.font, this.selectedSpell != null ? Component.literal(String.valueOf(skillHandler.getSpellLevel(selectedSpell))) : Component.empty(), xPos + 14, yPos + 149, textColor);
         guiGraphics.blit(TEXTURE, xPos + 5, (int) (yPos + 29 + (89 * scrollOffs)), scrollTexture, 172, 12, 15);
         guiGraphics.blit(PATH, xPos + 4, yPos + 4, 0, 1 + (SpellPath.values()[pageIndex].ordinal() * 20), 84, 18, 84, 100);

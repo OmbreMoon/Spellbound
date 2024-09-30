@@ -74,15 +74,15 @@ public class Skill {
         return this.getOrCreateDescriptionId();
     }
 
-    public MutableComponent getSkillName() {
+    public MutableComponent getName() {
         return Component.translatable(this.getNameId());
     }
 
-    public MutableComponent getSkillDescription() {
+    public MutableComponent getDescription() {
         return Component.translatable(this.getDescriptionId());
     }
 
-    public ResourceLocation getSkillTexture() {
+    public ResourceLocation getTexture() {
         String root = getSpell().location().getPath();
         return CommonClass.customLocation("textures/gui/skills/" + root + "/" + location().getPath() + ".png");
     }
