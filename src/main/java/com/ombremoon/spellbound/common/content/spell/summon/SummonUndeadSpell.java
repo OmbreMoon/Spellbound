@@ -25,7 +25,7 @@ public class SummonUndeadSpell extends SummonSpell {
         var success = addMobs(context, EntityType.ZOMBIE, 1);
         if (success == null) {
             endSpell();
-            context.getSpellHandler().awardMana(this.getManaCost(context.getSkillHandler()));
+            context.getSpellHandler().awardMana(this.getManaCost());
             context.getSpellHandler().sync();
         }
     }

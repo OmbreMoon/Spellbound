@@ -1,13 +1,11 @@
 package com.ombremoon.spellbound.common.content.spell.divine;
 
 import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.client.event.SpellCastEvents;
 import com.ombremoon.spellbound.common.data.SkillHandler;
 import com.ombremoon.spellbound.common.data.StatusHandler;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
-import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.events.PlayerDamageEvent;
 import net.minecraft.core.Holder;
@@ -50,7 +48,7 @@ public class HealingTouchSpell extends AnimatedSpell {
 
         SkillHandler skills = context.getSkillHandler();
         this.caster = context.getPlayer();
-        context.getPlayer().addEffect(new MobEffectInstance(EffectInit.HEALING_TOUCH, getDuration(skills)));
+        context.getPlayer().addEffect(new MobEffectInstance(EffectInit.HEALING_TOUCH, getDuration()));
         if (skills.hasSkill(SkillInit.NATURES_TOUCH.value())) context.getPlayer().heal(2f);
 
         if (skills.hasSkill(SkillInit.CLEANSING_TOUCH.value())) {
@@ -128,17 +126,5 @@ public class HealingTouchSpell extends AnimatedSpell {
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
             ));
         }
-    }
-
-    @Override
-    public int getDuration(SkillHandler skillHandler) {
-        return skillHandler.hasSkill(SkillInit.BLOOM.value()) ?
-                super.getDuration(skillHandler) * 2 : super.getDuration(skillHandler);
-    }
-
-    @Override
-    public int getManaCost(SkillHandler skillHandler) {
-        return skillHandler.hasSkill(SkillInit.BLOOM.value()) ?
-                super.getManaCost(skillHandler) / 2 : super.getManaCost(skillHandler);
     }
 }

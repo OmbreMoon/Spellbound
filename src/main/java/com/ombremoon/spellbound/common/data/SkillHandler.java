@@ -1,15 +1,17 @@
 package com.ombremoon.spellbound.common.data;
 
-import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.SpellModifier;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.skills.ModifierSkill;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.skills.SkillCooldowns;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -26,6 +28,7 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
     protected final Map<SpellPath, Float> pathXp = new Object2FloatOpenHashMap<>();
     protected final Map<SpellType<?>, Float> spellXp = new Object2FloatOpenHashMap<>();
     protected final Map<SpellType<?>, Set<Skill>> unlockedSkills = new Object2ObjectOpenHashMap<>();
+    private final Set<SpellModifier> modifiers = new ObjectOpenHashSet<>();
     private final SkillCooldowns cooldowns = new SkillCooldowns();
 
     public void sync(Player player) {
@@ -69,6 +72,8 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         if (unlocked == null) unlocked = new HashSet<>();
         unlocked.add(skill);
         unlockedSkills.put(skill.getSpell(), unlocked);
+        if (skill instanceof ModifierSkill modifierSkill)
+            modifiers.addAll(modifierSkill.getModifiers());
     }
 
     public boolean canUnlockSkill(Skill skill) {
@@ -90,6 +95,10 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         return unlockedSkills.get(spellType).contains(skill) || skill.isRoot();
     }
 
+    public Set<SpellModifier> getModifiers() {
+        return this.modifiers;
+    }
+
     public SkillCooldowns getCooldowns() {
         return this.cooldowns;
     }
@@ -100,6 +109,7 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         ListTag pathxpTag = new ListTag();
         ListTag spellXpTag = new ListTag();
         ListTag skillsTag = new ListTag();
+        ListTag modifierList = new ListTag();
 
         for (SpellType<?> spellType : this.spellXp.keySet()) {
             CompoundTag newTag = new CompoundTag();
@@ -128,9 +138,18 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
             pathxpTag.add(newTag);
         }
 
+        if (!this.modifiers.isEmpty()) {
+            for (var modifier : this.modifiers) {
+                CompoundTag modifierTag = new CompoundTag();
+                modifierTag.putString("Modifier", modifier.id().toString());
+                modifierList.add(modifierTag);
+            }
+        }
+
         tag.put("PathXp", pathxpTag);
         tag.put("SpellXp", spellXpTag);
         tag.put("Skills", skillsTag);
+        tag.put("Modifiers", modifierList);
         return tag;
     }
 
@@ -159,6 +178,14 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
                 skills.add(Skill.byName(ResourceLocation.tryParse(nbt.getString("Skill"))));
             }
             this.unlockedSkills.put(SpellInit.REGISTRY.get(ResourceLocation.tryParse(tag.getString("Spell"))), skills);
+        }
+
+        if (compoundTag.contains("Modifiers", 9)) {
+            ListTag modifierList = compoundTag.getList("Modifiers", 10);
+            for (int i = 0; i < modifierList.size(); i++) {
+                CompoundTag nbt = modifierList.getCompound(i);
+                this.modifiers.add(SpellModifier.getTypeFromLocation(ResourceLocation.tryParse(nbt.getString("Modifier"))));
+            }
         }
     }
 }

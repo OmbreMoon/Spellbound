@@ -3,8 +3,10 @@ package com.ombremoon.spellbound.common.magic;
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.data.SkillHandler;
+import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.init.StatInit;
+import com.ombremoon.spellbound.common.magic.api.ModifierType;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -72,12 +74,16 @@ public abstract class AbstractSpell {
         return this.spellType;
     }
 
-    public int getManaCost(SkillHandler skillHandler) {
-        return this.manaCost;
+    public float getManaCost() {
+        return getManaCost(this.caster);
     }
 
-    public int getDuration(SkillHandler skillHandler) {
-        return this.duration;
+    public float getManaCost(Player player) {
+        return this.manaCost * getModifier(ModifierType.MANA, player);
+    }
+
+    public int getDuration() {
+        return (int) Math.floor(this.duration * getModifier(ModifierType.DURATION));
     }
 
     protected SoundEvent getCastSound() {
@@ -135,6 +141,14 @@ public abstract class AbstractSpell {
         return SpellInit.REGISTRY.get(resourceLocation);
     }
 
+    public SpellPath getPath() {
+        return this.getSpellType().getPath();
+    }
+
+    public @Nullable SpellPath getSubPath() {
+        return this.getSpellType().getSubPath();
+    }
+
     public @UnknownNullability CompoundTag saveData(CompoundTag compoundTag) {
         return compoundTag;
     }
@@ -152,7 +166,7 @@ public abstract class AbstractSpell {
                 if (this.shouldTickEffect(this.context)) {
                     this.tickSpell();
                 }
-                if (this.getCastType() != CastType.CHANNEL && ticks % getDuration(context.getSkillHandler()) == 0) {
+                if (this.getCastType() != CastType.CHANNEL && ticks % getDuration() == 0) {
                     this.endSpell();
                 }
             }
@@ -197,13 +211,32 @@ public abstract class AbstractSpell {
         return true;
     }
 
+    protected float potency() {
+        return getModifier(ModifierType.POTENCY);
+    }
+
+    private float getModifier(ModifierType modifierType) {
+        return getModifier(modifierType, this.caster);
+    }
+
+    private float getModifier(ModifierType modifierType, Player player) {
+        var handler = player.getData(DataInit.SKILL_HANDLER);
+        float f = 1;
+        for (var modifier : handler.getModifiers()) {
+            if (modifierType.equals(modifier.modifierType()) && modifier.spellPredicate().test(getSpellType())) {
+                f *= modifier.modifier();
+            }
+        }
+        return f;
+    }
+
     /**
      * Checks if the caster of the spell has an attribute modifier
      * @param attribute The attribute to check if modified
      * @param modifier ResourceLocation of the AttributeModifier
      * @return true if the modifier is present, false otherwise
      */
-    public boolean hasModifier(LivingEntity livingEntity, Holder<Attribute> attribute, ResourceLocation modifier) {
+    public boolean hasAttributeModifier(LivingEntity livingEntity, Holder<Attribute> attribute, ResourceLocation modifier) {
         return livingEntity.getAttribute(attribute).hasModifier(modifier);
     }
 
@@ -212,7 +245,7 @@ public abstract class AbstractSpell {
      * @param attribute The attribute to apply a modifier to
      * @param modifier the AttributeModifier to apply
      */
-    public void addModifier(LivingEntity livingEntity, Holder<Attribute> attribute, AttributeModifier modifier) {
+    public void addAttributeModifier(LivingEntity livingEntity, Holder<Attribute> attribute, AttributeModifier modifier) {
         livingEntity.getAttribute(attribute).addTransientModifier(modifier);
     }
 
@@ -221,7 +254,7 @@ public abstract class AbstractSpell {
      * @param attribute The attribute the modifier affects
      * @param modifier The ResourceLocation of the modifier to remove
      */
-    public void removeModifier(LivingEntity livingEntity, Holder<Attribute> attribute, ResourceLocation modifier) {
+    public void removeAttributeModifier(LivingEntity livingEntity, Holder<Attribute> attribute, ResourceLocation modifier) {
         livingEntity.getAttribute(attribute).removeModifier(modifier);
     }
 
@@ -341,7 +374,7 @@ public abstract class AbstractSpell {
         } else {
             handler.activateSpell(this);
         }
-        handler.consumeMana(getManaCost(context.getSkillHandler()), true);
+        handler.consumeMana(getManaCost(), true);
         PayloadHandler.syncMana(this.caster);
     }
 

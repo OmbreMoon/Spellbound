@@ -23,10 +23,10 @@ public class SpellInit {
     public static final Registry<SpellType<?>> REGISTRY = new RegistryBuilder<>(SPELL_TYPE_REGISTRY_KEY).sync(true).create();
     public static final DeferredRegister<SpellType<?>> SPELL_TYPES = DeferredRegister.create(REGISTRY, Constants.MOD_ID);
 
-    public static final Supplier<SpellType<TestSpell>> TEST_SPELL = registerSpell("test_spell", ruinBuilder("test_spell", TestSpell::new));
+    public static final Supplier<SpellType<TestSpell>> TEST_SPELL = registerSpell("test_spell", fireRuinBuilder("test_spell", TestSpell::new));
 
     //Ruin
-    public static final Supplier<SpellType<VolcanoSpell>> VOLCANO = registerSpell("volcano", ruinBuilder("volcano", VolcanoSpell::new)
+    public static final Supplier<SpellType<VolcanoSpell>> VOLCANO = registerSpell("volcano", fireRuinBuilder("volcano", VolcanoSpell::new)
             .skills(SkillInit.VOLCANO, SkillInit.INFERNO_CORE, SkillInit.LAVA_FLOW, SkillInit.EXPLOSIVE_BARRAGE,
                     SkillInit.SHRAPNEL, SkillInit.HEATWAVE, SkillInit.SCORCHED_EARTH, SkillInit.SEISMIC_SHOCK,
                     SkillInit.MOLTEN_SHIELD, SkillInit.PYROCLASTIC_CLOUD, SkillInit.APOCALYPSE));
@@ -40,7 +40,7 @@ public class SpellInit {
 
     //Divine
     public static final Supplier<SpellType<HealingTouchSpell>> HEALING_TOUCH = registerSpell("healing_touch", divineBuilder("healing_touch", HealingTouchSpell::new)
-            .skills(SkillInit.HEALING_TOUCH, SkillInit.BLOOM, SkillInit.HEALING_STREAM, SkillInit.ACCELERATED_GROWTH,
+            .skills(SkillInit.HEALING_TOUCH, SkillInit.DIVINE_BALANCE, SkillInit.HEALING_STREAM, SkillInit.ACCELERATED_GROWTH,
                     SkillInit.TRANQUILITY_OF_WATER, SkillInit.NATURES_TOUCH, SkillInit.CLEANSING_TOUCH,
                     SkillInit.OVERGROWTH, SkillInit.VILE_INFLUENCE, SkillInit.CONVALESCENCE));
 
@@ -48,8 +48,8 @@ public class SpellInit {
         return SPELL_TYPES.register(name, builder::build);
     }
 
-    private static <T extends AbstractSpell> SpellType.Builder<T> ruinBuilder(String name, SpellType.SpellFactory<T> factory) {
-        return new SpellType.Builder<>(name, factory).setPath(SpellPath.RUIN);
+    private static <T extends AbstractSpell> SpellType.Builder<T> fireRuinBuilder(String name, SpellType.SpellFactory<T> factory) {
+        return new SpellType.Builder<>(name, factory).setPath(SpellPath.RUIN, SpellPath.FIRE);
     }
 
     private static <T extends AbstractSpell> SpellType.Builder<T> trasnfigurationBuilder(String name, SpellType.SpellFactory<T> factory) {
