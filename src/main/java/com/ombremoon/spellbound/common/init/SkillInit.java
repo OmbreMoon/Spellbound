@@ -59,8 +59,8 @@ public class SkillInit {
     public static final Holder<Skill> NATURES_TOUCH = registerSkill("natures_touch", 0, 50, preReqs(HEALING_TOUCH));
     public static final Holder<Skill> CLEANSING_TOUCH = registerSkill("cleansing_touch", 0, 50, preReqs(HEALING_TOUCH));
     public static final Holder<Skill> OVERGROWTH = registerSkill("overgrowth", 0, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> VILE_INFUSION = registerSkill("vile_infusion", 0, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> CONVALESCENCE = registerSkill("convalescence", 0, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> BLASPHEMY = registerSkill("blasphemy", -50, 50, preReqs(HEALING_TOUCH)); //TODO
+    public static final Holder<Skill> CONVALESCENCE = registerSkill("convalescence", -50, 100, preReqs(HEALING_TOUCH));
     public static final Holder<Skill> OAK_BLESSING = registerSkill("oak_blessing", 0, 50, preReqs(HEALING_STREAM));
 
     private static Holder<Skill> registerSkill(String name) {

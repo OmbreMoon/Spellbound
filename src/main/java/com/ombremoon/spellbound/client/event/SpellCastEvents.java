@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.client.event;
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.client.KeyBinds;
+import com.ombremoon.spellbound.common.init.EffectInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.networking.PayloadHandler;
@@ -32,6 +33,12 @@ public class SpellCastEvents {
 
         Player player = Minecraft.getInstance().player;
         if (player != null) {
+            if (player.hasEffect(EffectInit.STUNNED)) {
+                event.setSwingHand(false);
+                event.setCanceled(true);
+                return;
+            }
+
             var handler = SpellUtil.getSpellHandler(player);
             var spellType = handler.getSelectedSpell();
 

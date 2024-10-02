@@ -42,7 +42,7 @@ public class SpellInit {
     public static final Supplier<SpellType<HealingTouchSpell>> HEALING_TOUCH = registerSpell("healing_touch", divineBuilder("healing_touch", HealingTouchSpell::new)
             .skills(SkillInit.HEALING_TOUCH, SkillInit.BLOOM, SkillInit.HEALING_STREAM, SkillInit.ACCELERATED_GROWTH,
                     SkillInit.TRANQUILITY_OF_WATER, SkillInit.NATURES_TOUCH, SkillInit.CLEANSING_TOUCH,
-                    SkillInit.OVERGROWTH, SkillInit.VILE_INFLUENCE, SkillInit.CONVALESCENCE));
+                    SkillInit.OVERGROWTH, SkillInit.BLASPHEMY, SkillInit.CONVALESCENCE));
 
     private static <T extends AbstractSpell> Supplier<SpellType<T>> registerSpell(String name, SpellType.Builder<T> builder) {
         return SPELL_TYPES.register(name, builder::build);

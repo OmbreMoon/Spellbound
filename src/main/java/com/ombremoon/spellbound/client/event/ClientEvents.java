@@ -9,6 +9,7 @@ import com.ombremoon.spellbound.client.entity.renderers.MushroomRenderer;
 import com.ombremoon.spellbound.client.gui.CastModeOverlay;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.init.EffectInit;
 import com.ombremoon.spellbound.common.init.EntityInit;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -63,5 +64,15 @@ public class ClientEvents {
                 PayloadHandler.switchMode();
             }
         }
+
+        @SubscribeEvent
+        public static void onMovementInput(MovementInputUpdateEvent event) {
+            if (event.getEntity().hasEffect(EffectInit.ROOTED) || event.getEntity().hasEffect(EffectInit.STUNNED)) {
+                event.getInput().leftImpulse = 0;
+                event.getInput().forwardImpulse = 0;
+                event.getInput().jumping = false;
+            }
+        }
+
     }
 }

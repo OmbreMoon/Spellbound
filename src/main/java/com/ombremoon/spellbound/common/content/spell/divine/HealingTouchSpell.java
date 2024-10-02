@@ -1,16 +1,17 @@
 package com.ombremoon.spellbound.common.content.spell.divine;
 
 import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.client.event.SpellCastEvents;
 import com.ombremoon.spellbound.common.data.SkillHandler;
 import com.ombremoon.spellbound.common.data.StatusHandler;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
-import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.events.PlayerDamageEvent;
+import com.ombremoon.spellbound.common.magic.skills.Skill;
+import com.ombremoon.spellbound.common.magic.skills.SkillCooldowns;
 import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -20,6 +21,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,14 +34,14 @@ public class HealingTouchSpell extends AnimatedSpell {
 
     private Player caster;
     private int overgrowthStacks = 0;
-    private int blessingCooldown = 0;
+    private int blessingDuration = 0;
 
     private static Builder<AnimatedSpell> createHealingSpell() {
-        return new Builder<>().setManaCost(10).setDuration(300);
+        return new Builder<>().setManaCost(50).setDuration(300).persistentData();
     }
 
 
-    //TODO: Whole spell needs testing, Needs recasts handled
+    //TODO: Hunger/hp/mana numbers need refining
     public HealingTouchSpell() {
         super(SpellInit.HEALING_TOUCH.get(), createHealingSpell());
     }
@@ -47,6 +49,7 @@ public class HealingTouchSpell extends AnimatedSpell {
     @Override
     protected void onSpellStart(SpellContext context) {
         if (context.isRecast()) return;
+        context.getSpellHandler().getListener().addListener(SpellEventListener.Events.POST_DAMAGE, PLAYER_DAMAGE, this::onDamagePost);
 
         SkillHandler skills = context.getSkillHandler();
         this.caster = context.getPlayer();
@@ -60,11 +63,11 @@ public class HealingTouchSpell extends AnimatedSpell {
                 if (instance.getEffect().value().getCategory() == MobEffectCategory.HARMFUL) harmfulEffects.add(instance.getEffect());
             }
 
+            if (harmfulEffects.isEmpty()) return;
             Holder<MobEffect> removed = harmfulEffects.get(context.getPlayer().getRandom().nextInt(0, harmfulEffects.size()));
             context.getPlayer().removeEffect(removed);
         }
 
-        context.getSpellHandler().getListener().addListener(SpellEventListener.Events.POST_DAMAGE, PLAYER_DAMAGE, this::onDamagePost);
     }
 
     @Override
@@ -79,13 +82,13 @@ public class HealingTouchSpell extends AnimatedSpell {
         }
 
         if (ticks % 20 == 0) {
-            float heal = 0.5f;
+            float heal = 0.2f;
             if (skills.hasSkill(SkillInit.HEALING_STREAM.value()))
                 heal += (float) maxMana * 0.02f;
             player.heal(heal);
 
             if (skills.hasSkill(SkillInit.ACCELERATED_GROWTH.value())) {
-                player.getFoodData().eat((int) (maxMana * 0.02d), 1f); //TODO: food values
+                player.getFoodData().eat((int) (maxMana * 0.02d), 1f);
             }
 
             if (skills.hasSkill(SkillInit.TRANQUILITY_OF_WATER.value())) {
@@ -96,8 +99,8 @@ public class HealingTouchSpell extends AnimatedSpell {
             if (skills.hasSkill(SkillInit.OVERGROWTH.value()) && overgrowthStacks < 5) overgrowthStacks++;
 
             AttributeInstance armor = player.getAttribute(Attributes.ARMOR);
-            if (blessingCooldown > 0) blessingCooldown--;
-            if (blessingCooldown <= 400 && armor.hasModifier(ARMOR_MOD)) {
+            if (blessingDuration > 0) blessingDuration--;
+            if (blessingDuration <= 0 && armor.hasModifier(ARMOR_MOD)) {
                 armor.removeModifier(ARMOR_MOD);
             }
         }
@@ -116,17 +119,20 @@ public class HealingTouchSpell extends AnimatedSpell {
             caster.heal(2f);
             overgrowthStacks--;
         }
-        if (skills.hasSkill(SkillInit.VILE_INFUSION.value())) {
+        SkillCooldowns cooldowns = skills.getCooldowns();
+        if (skills.hasSkill(SkillInit.BLASPHEMY.value()) && !cooldowns.isOnCooldown(SkillInit.BLASPHEMY.value())) {
             StatusHandler status = event.getSource().getEntity().getData(DataInit.STATUS_EFFECTS);
-            status.increment(StatusHandler.Effect.POISON, 50);
+            status.increment(StatusHandler.Effect.DISEASE, 100);
+            cooldowns.addCooldown(SkillInit.BLASPHEMY.value(), 100);
         }
-        if (skills.hasSkill(SkillInit.OAK_BLESSING.value()) && blessingCooldown <= 0) {
-            blessingCooldown = 600;
+        if (skills.hasSkill(SkillInit.OAK_BLESSING.value()) && cooldowns.isOnCooldown(SkillInit.OAK_BLESSING.value())) {
+            blessingDuration = 200;
             caster.getAttribute(Attributes.ARMOR).addTransientModifier(new AttributeModifier(
                     ARMOR_MOD,
                     1.15d,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
             ));
+            cooldowns.addCooldown(SkillInit.OAK_BLESSING.value(), 600);
         }
     }
 
@@ -140,5 +146,18 @@ public class HealingTouchSpell extends AnimatedSpell {
     public int getManaCost(SkillHandler skillHandler) {
         return skillHandler.hasSkill(SkillInit.BLOOM.value()) ?
                 super.getManaCost(skillHandler) / 2 : super.getManaCost(skillHandler);
+    }
+
+    @Override
+    public @UnknownNullability CompoundTag saveData(CompoundTag compoundTag) {
+        compoundTag.putInt("overgrowth", this.overgrowthStacks);
+        compoundTag.putInt("blessing", this.blessingDuration);
+        return compoundTag;
+    }
+
+    @Override
+    public void load(CompoundTag nbt) {
+        this.overgrowthStacks = nbt.getInt("overgrowth");
+        this.blessingDuration = nbt.getInt("blessing");
     }
 }
