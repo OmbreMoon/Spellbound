@@ -42,7 +42,6 @@ public class NeoForgeEvents {
                     handler.sync();
 
                     var skillHandler = player.getData(DataInit.SKILL_HANDLER);
-//                    skillHandler.resetSkills(SpellInit.VOLCANO.get());
                     skillHandler.sync(player);
 
                     var tree = player.getData(DataInit.UPGRADE_TREE);

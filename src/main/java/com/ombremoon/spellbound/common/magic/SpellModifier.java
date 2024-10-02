@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 public record SpellModifier(ResourceLocation id, ModifierType modifierType, Predicate<SpellType<?>> spellPredicate, float modifier) {
+    private static final Map<ResourceLocation, SpellModifier> MODIFIER_REGISTRY = new HashMap<>();
 
     public static final SpellModifier REPRISAL = registerModifier("reprisal", ModifierType.POTENCY, spellType -> spellType.getPath() == SpellPath.DIVINE, 1.5F);
     public static final SpellModifier ICE_CHARGE = registerModifier("ice_charge", ModifierType.MANA, spell -> spell.getPath() == SpellPath.RUIN && spell.getSubPath() == SpellPath.FROST, 1.25F);
@@ -21,8 +22,6 @@ public record SpellModifier(ResourceLocation id, ModifierType modifierType, Pred
         registerModifier(spellModifier);
         return spellModifier;
     }
-
-    private static final Map<ResourceLocation, SpellModifier> MODIFIER_REGISTRY = new HashMap<>();
 
     public static void registerModifier(SpellModifier modifier) {
         if (MODIFIER_REGISTRY.containsValue(modifier)) throw new IllegalStateException("Modifier " + modifier + " has already been registered");
