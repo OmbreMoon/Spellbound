@@ -74,7 +74,8 @@ public class StatusHandler implements INBTSerializable<CompoundTag> {
         SHOCK(EffectInit.SHOCKED),
         WIND(EffectInit.WIND),
         EARTH(EffectInit.EARTH),
-        POISON(EffectInit.POISON);
+        POISON(EffectInit.POISON),
+        DISEASE(EffectInit.DISEASE);
 
         private final Holder<MobEffect> mobEffect;
 

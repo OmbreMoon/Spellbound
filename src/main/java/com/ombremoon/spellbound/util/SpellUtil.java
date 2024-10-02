@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.util;
 
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.init.EffectInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.networking.PayloadHandler;
@@ -35,6 +36,7 @@ public class SpellUtil {
 
     public static boolean canCastSpell(Player player, AbstractSpell spell) {
         var handler = getSpellHandler(player);
+        if (player.hasEffect(EffectInit.SILENCED) || player.hasEffect(EffectInit.STUNNED)) return false;
         return handler.inCastMode() && handler.consumeMana(spell.getManaCost(player), false);
     }
 
