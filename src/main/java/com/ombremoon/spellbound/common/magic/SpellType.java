@@ -5,8 +5,8 @@ import com.ombremoon.spellbound.common.magic.skills.Skill;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -16,10 +16,13 @@ public class SpellType<S extends AbstractSpell> {
     private final ResourceLocation resourceLocation;
     private final SpellFactory<S> factory;
     private final SpellPath path;
+    @Nullable
+    private final SpellPath subPath;
     private final Set<Holder<Skill>> availableSkills;
 
-    public SpellType(ResourceLocation resourceLocation, SpellPath path, Set<Holder<Skill>> skills, SpellFactory<S> factory) {
+    public SpellType(ResourceLocation resourceLocation, SpellPath path, @Nullable SpellPath subPath, Set<Holder<Skill>> skills, SpellFactory<S> factory) {
         this.path = path;
+        this.subPath = subPath;
         this.availableSkills = skills;
         this.factory = factory;
         this.resourceLocation = resourceLocation;
@@ -33,6 +36,10 @@ public class SpellType<S extends AbstractSpell> {
 
     public SpellPath getPath() {
         return this.path;
+    }
+
+    public @Nullable SpellPath getSubPath() {
+        return this.subPath;
     }
 
     public Skill getRootSkill() {
@@ -65,11 +72,20 @@ public class SpellType<S extends AbstractSpell> {
         private ResourceLocation resourceLocation;
         private SpellFactory<T> factory;
         private SpellPath path;
+        private SpellPath subPath;
         private Set<Holder<Skill>> availableSkills = new ObjectOpenHashSet<>();
 
         public Builder(String resourceLocation, SpellFactory<T> factory) {
             this.resourceLocation = CommonClass.customLocation(resourceLocation);
             this.factory = factory;
+        }
+
+        public Builder<T> setPath(SpellPath path, SpellPath subPath) {
+            this.path = path;
+
+            if (!subPath.isSubPath()) throw new IllegalArgumentException("Second argument must be a subpath");
+            this.subPath = subPath;
+            return this;
         }
 
         public Builder<T> setPath(SpellPath path) {
@@ -84,7 +100,7 @@ public class SpellType<S extends AbstractSpell> {
         }
 
         public SpellType<T> build() {
-            return new SpellType<>(resourceLocation, path, availableSkills, factory);
+            return new SpellType<>(resourceLocation, path, subPath, availableSkills, factory);
         }
     }
 }

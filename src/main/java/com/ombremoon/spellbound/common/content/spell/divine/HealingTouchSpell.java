@@ -53,7 +53,7 @@ public class HealingTouchSpell extends AnimatedSpell {
 
         SkillHandler skills = context.getSkillHandler();
         this.caster = context.getPlayer();
-        context.getPlayer().addEffect(new MobEffectInstance(EffectInit.HEALING_TOUCH, getDuration(skills)));
+        context.getPlayer().addEffect(new MobEffectInstance(EffectInit.HEALING_TOUCH, getDuration()));
         if (skills.hasSkill(SkillInit.NATURES_TOUCH.value())) context.getPlayer().heal(2f);
 
         if (skills.hasSkill(SkillInit.CLEANSING_TOUCH.value())) {
@@ -137,18 +137,6 @@ public class HealingTouchSpell extends AnimatedSpell {
     }
 
     @Override
-    public int getDuration(SkillHandler skillHandler) {
-        return skillHandler.hasSkill(SkillInit.BLOOM.value()) ?
-                super.getDuration(skillHandler) * 2 : super.getDuration(skillHandler);
-    }
-
-    @Override
-    public int getManaCost(SkillHandler skillHandler) {
-        return skillHandler.hasSkill(SkillInit.BLOOM.value()) ?
-                super.getManaCost(skillHandler) / 2 : super.getManaCost(skillHandler);
-    }
-
-    @Override
     public @UnknownNullability CompoundTag saveData(CompoundTag compoundTag) {
         compoundTag.putInt("overgrowth", this.overgrowthStacks);
         compoundTag.putInt("blessing", this.blessingDuration);
@@ -160,4 +148,5 @@ public class HealingTouchSpell extends AnimatedSpell {
         this.overgrowthStacks = nbt.getInt("overgrowth");
         this.blessingDuration = nbt.getInt("blessing");
     }
+
 }

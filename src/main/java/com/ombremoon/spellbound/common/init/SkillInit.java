@@ -2,7 +2,8 @@ package com.ombremoon.spellbound.common.init;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.SpellModifier;
+import com.ombremoon.spellbound.common.magic.skills.ModifierSkill;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
@@ -11,9 +12,6 @@ import net.minecraft.resources.ResourceKey;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.RegistryBuilder;
-
-import java.util.Set;
-import java.util.function.Supplier;
 
 @SuppressWarnings("unchecked")
 public class SkillInit {
@@ -52,7 +50,7 @@ public class SkillInit {
     //Healing Touch
     //TODO: Tree
     public static final Holder<Skill> HEALING_TOUCH = registerSkill("healing_touch");
-    public static final Holder<Skill> BLOOM = registerSkill("bloom", 0, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> DIVINE_BALANCE = registerModifierSkill("divine_balance", 0, 50, preReqs(HEALING_TOUCH), SpellModifier.DIVINE_BALANCE_DURATION, SpellModifier.DIVINE_BALANCE_MANA);
     public static final Holder<Skill> HEALING_STREAM = registerSkill("healing_stream", 0, 50, preReqs(HEALING_TOUCH));
     public static final Holder<Skill> ACCELERATED_GROWTH = registerSkill("accelerated_growth", 0, 50, preReqs(HEALING_TOUCH));
     public static final Holder<Skill> TRANQUILITY_OF_WATER = registerSkill("tranquility_of_water", 0, 50, preReqs(HEALING_TOUCH));
@@ -68,6 +66,9 @@ public class SkillInit {
     }
     private static Holder<Skill> registerSkill(String name, int xPos, int yPos, HolderSet<Skill> prereqs) {
         return SKILLS.register(name, () -> new Skill(CommonClass.customLocation(name), xPos, yPos, prereqs));
+    }
+    private static Holder<Skill> registerModifierSkill(String name, int xPos, int yPos, HolderSet<Skill> prereqs, SpellModifier... spellModifiers) {
+        return SKILLS.register(name, () -> new ModifierSkill(CommonClass.customLocation(name), xPos, yPos, prereqs, spellModifiers));
     }
 
     private static HolderSet<Skill> preReqs(Holder<Skill>... skills) {

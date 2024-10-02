@@ -37,7 +37,7 @@ public class SpellUtil {
     public static boolean canCastSpell(Player player, AbstractSpell spell) {
         var handler = getSpellHandler(player);
         if (player.hasEffect(EffectInit.SILENCED) || player.hasEffect(EffectInit.STUNNED)) return false;
-        return handler.inCastMode() && handler.consumeMana(spell.getManaCost(player.getData(DataInit.SKILL_HANDLER)), false);
+        return handler.inCastMode() && handler.consumeMana(spell.getManaCost(player), false);
     }
 
     public static <T extends SpellType<?>> void cycle(SpellHandler handler, T activeSpell) {
