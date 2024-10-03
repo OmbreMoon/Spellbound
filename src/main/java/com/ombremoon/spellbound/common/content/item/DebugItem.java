@@ -32,7 +32,7 @@ public class DebugItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         var handler = SpellUtil.getSpellHandler(player);
-        var skillHandler = player.getData(DataInit.SKILL_HANDLER.get());
+        var skillHandler = SpellUtil.getSkillHandler(player);
         ombreDebug(level, player, usedHand, handler, skillHandler);
         if (!level.isClientSide && !player.isCrouching()) {
 //            skillHandler.unlockSkill(SpellInit.WILD_MUSHROOM_SPELL.get(), SkillInit.VILE_INFLUENCE.value());

@@ -37,7 +37,7 @@ public class ServerPayloadHandler {
     }
 
     public static void handleNetworkUnlockSKill(final UnlockSkillPayload payload, final IPayloadContext context) {
-        var handler = context.player().getData(DataInit.SKILL_HANDLER);
+        var handler = SpellUtil.getSkillHandler(context.player());
         handler.unlockSkill(payload.skill());
         context.player().sendSystemMessage(Component.literal("You have unlocked the " + payload.skill().getName().getString() + " skill"));
     }

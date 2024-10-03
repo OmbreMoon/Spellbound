@@ -6,10 +6,7 @@ import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
-import com.ombremoon.spellbound.common.magic.AbstractSpell;
-import com.ombremoon.spellbound.common.magic.SpellEventListener;
-import com.ombremoon.spellbound.common.magic.SpellModifier;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.*;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
@@ -55,7 +52,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     public void initData(Player player) {
         this.caster = player;
         this.listener = new SpellEventListener(player);
-        this.skillHandler = this.caster.getData(DataInit.SKILL_HANDLER);
+        this.skillHandler = SpellUtil.getSkillHandler(this.caster);
         this.upgradeTree = this.caster.getData(DataInit.UPGRADE_TREE);
     }
 
@@ -152,10 +149,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         return this.activeSpells.get(spellType);
     }
 
-    public Multimap<SpellType<?>, AbstractSpell> getActiveSpells() {
-        return this.activeSpells;
-    }
-
     public SpellType<?> getSelectedSpell() {
         return this.selectedSpell != null ? this.selectedSpell : !getSpellList().isEmpty() && getSpellList().iterator().hasNext() ? getSpellList().iterator().next() : null;
     }
@@ -199,6 +192,16 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     public void addSummons(SummonSpell spell, Set<Integer> mobIds) {
         activeSummons.put(spell, mobIds);
+    }
+
+    public void endSummonSpells() {
+        for (SpellType<?> spellType : this.activeSpells.keys()) {
+            if (spellType.getPath() == SpellPath.SUMMONS) {
+                for (AbstractSpell spell : this.activeSpells.get(spellType)) {
+                    spell.endSpell();
+                }
+            }
+        }
     }
 
     public SpellEventListener getListener() {

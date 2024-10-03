@@ -30,7 +30,7 @@ public class LearnSkillsCommand {
     private int learnSpells(CommandSourceStack context, Holder.Reference<SpellType<?>> spell) {
         if (!context.isPlayer()) return 0;
         SpellHandler handler = SpellUtil.getSpellHandler(context.getPlayer());
-        SkillHandler skillHandler = context.getPlayer().getData(DataInit.SKILL_HANDLER);
+        SkillHandler skillHandler = SpellUtil.getSkillHandler(context.getPlayer());
 
         SpellType<?> spellType = SpellInit.REGISTRY.get(spell.key());
         if (!handler.getSpellList().contains(spellType)) {
@@ -51,7 +51,7 @@ public class LearnSkillsCommand {
     private int resetSpells(CommandSourceStack context, Holder.Reference<SpellType<?>> spell) {
         if (!context.isPlayer()) return 0;
         SpellHandler handler = SpellUtil.getSpellHandler(context.getPlayer());
-        SkillHandler skillHandler = context.getPlayer().getData(DataInit.SKILL_HANDLER);
+        SkillHandler skillHandler = SpellUtil.getSkillHandler(context.getPlayer());
 
         SpellType<?> spellType = SpellInit.REGISTRY.get(spell.key());
         if (!handler.getSpellList().contains(spellType)) return 0;

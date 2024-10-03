@@ -41,7 +41,7 @@ public class SpellContext {
         this.itemStack = itemStack;
         this.target = target;
         this.spellHandler = SpellUtil.getSpellHandler(player);
-        this.skillHandler = player.getData(DataInit.SKILL_HANDLER);
+        this.skillHandler = SpellUtil.getSkillHandler(player);
         this.isRecast = isRecast;
     }
 

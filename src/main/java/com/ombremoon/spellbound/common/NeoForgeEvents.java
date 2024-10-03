@@ -110,31 +110,21 @@ public class NeoForgeEvents {
     public static void onPlayerLeaveWorld(EntityLeaveLevelEvent event) {
         if (event.getEntity() instanceof Player player && player.level() instanceof ServerLevel level) {
             SpellHandler handler = SpellUtil.getSpellHandler(player);
-            endSummonSpells(handler.getActiveSpells());
-        };
+            handler.endSummonSpells();
+        }
     }
 
     @SubscribeEvent
     public static void onWorldEnd(ServerStoppingEvent event) {
         List<ServerPlayer> players = event.getServer().getPlayerList().getPlayers();
         for (ServerPlayer player : players) {
-            endSummonSpells(SpellUtil.getSpellHandler(player).getActiveSpells());
+            SpellUtil.getSpellHandler(player).endSummonSpells();
         }
     }
 
     @SubscribeEvent
     public static void onPlayerLogOut(PlayerEvent.PlayerLoggedOutEvent event) {
-        endSummonSpells(SpellUtil.getSpellHandler(event.getEntity()).getActiveSpells());
-    }
-
-    private static void endSummonSpells(Multimap<SpellType<?>, AbstractSpell> spells) {
-        for (SpellType<?> spellType : spells.keys()) {
-            if (spellType.getPath() == SpellPath.SUMMONS) {
-                for (AbstractSpell spell : spells.get(spellType)) {
-                    spell.endSpell();
-                }
-            }
-        }
+        SpellUtil.getSpellHandler(event.getEntity()).endSummonSpells();
     }
 
     @SubscribeEvent

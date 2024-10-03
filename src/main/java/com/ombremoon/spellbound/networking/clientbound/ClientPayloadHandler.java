@@ -30,7 +30,7 @@ public class ClientPayloadHandler {
 
     public static void handleClientSkillSync(SyncSkillPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
-            SkillHandler handler = context.player().getData(DataInit.SKILL_HANDLER);
+            var handler = SpellUtil.getSkillHandler(context.player());
             handler.deserializeNBT(context.player().level().registryAccess(), payload.tag());
         });
     }

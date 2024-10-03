@@ -58,7 +58,7 @@ public class PayloadHandler {
     public static void syncSkillsToClient(Player player) {
         PacketDistributor.sendToPlayer((ServerPlayer) player,
                 new SyncSkillPayload(
-                        player.getData(DataInit.SKILL_HANDLER)
+                        SpellUtil.getSkillHandler(player)
                                 .serializeNBT(player.level().registryAccess())
                 ));
     }

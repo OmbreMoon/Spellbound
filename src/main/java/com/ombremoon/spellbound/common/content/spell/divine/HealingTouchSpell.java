@@ -10,6 +10,7 @@ import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.events.PlayerDamageEvent;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.skills.SkillCooldowns;
+import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -108,7 +109,7 @@ public class HealingTouchSpell extends AnimatedSpell {
 
     private void onDamagePost(PlayerDamageEvent.Post spellEvent) {
         LivingDamageEvent.Post  event = spellEvent.getDamageEvent();
-        SkillHandler skills = caster.getData(DataInit.SKILL_HANDLER);
+        SkillHandler skills = SpellUtil.getSkillHandler(caster);
         if (event.getSource().getEntity() != null && event.getSource().getEntity().is(caster)) {
             if (event.getEntity().hasEffect(EffectInit.POISON) && skills.hasSkill(SkillInit.CONVALESCENCE.value()))
                 caster.heal(0.5f);

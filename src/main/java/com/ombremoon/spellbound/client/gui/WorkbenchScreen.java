@@ -60,7 +60,7 @@ public class WorkbenchScreen extends Screen {
         this.player = this.minecraft.player;
         this.upgradeTree = this.player.getData(DataInit.UPGRADE_TREE);
         this.spellHandler = SpellUtil.getSpellHandler(this.player);
-        this.skillHandler = this.player.getData(DataInit.SKILL_HANDLER);
+        this.skillHandler = SpellUtil.getSkillHandler(this.player);
         this.spellList = this.spellHandler.getSpellList().stream().filter(spellType -> spellType.getPath().ordinal() == pageIndex).toList();
         this.initSpellTrees();
         if (!this.spellList.isEmpty()) {
@@ -176,7 +176,6 @@ public class WorkbenchScreen extends Screen {
     private void renderBackground(GuiGraphics guiGraphics, Player player, int xPos, int yPos, int mouseX, int mouseY, float partialTick) {
         int textColor = 16777215;
         guiGraphics.blit(TEXTURE, xPos, yPos, 0, 0, WIDTH, HEIGHT);
-        var skillHandler = player.getData(DataInit.SKILL_HANDLER);
 
         for (int i = 0; i < 4; i++) {
             guiGraphics.blit(TEXTURE, xPos + 19, yPos + 27 + (i * 28), 110, 230, 73, 26);

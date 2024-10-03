@@ -215,12 +215,12 @@ public abstract class AbstractSpell {
     }
 
     public void addTimedModifier(Player player, SpellModifier spellModifier, int expiryTick) {
-        var handler = player.getData(DataInit.SKILL_HANDLER);
+        var handler = SpellUtil.getSkillHandler(player);
         handler.addModifierWithExpiry(spellModifier, expiryTick);
     }
 
     public void addTimedListener(Player player, SpellEventListener.IEvent event, UUID uuid, Consumer<? extends SpellEvent> consumer, int expiryTicks) {
-        var handler = player.getData(DataInit.SPELL_HANDLER);
+        var handler = SpellUtil.getSpellHandler(player);
         handler.getListener().addListenerWithExpiry(event, uuid, consumer, expiryTicks);
     }
 
@@ -233,7 +233,7 @@ public abstract class AbstractSpell {
     }
 
     private float getModifier(ModifierType modifierType, Player player) {
-        var handler = player.getData(DataInit.SKILL_HANDLER);
+        var handler = SpellUtil.getSkillHandler(player);
         float f = 1;
         for (var modifier : handler.getModifiers()) {
             if (modifierType.equals(modifier.modifierType()) && modifier.spellPredicate().test(getSpellType())) {
