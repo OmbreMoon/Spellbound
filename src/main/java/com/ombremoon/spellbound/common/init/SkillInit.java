@@ -24,8 +24,8 @@ public class SkillInit {
     //Shadow Gate
     public static final Holder<Skill> SHADOW_GATE = registerSkill("shadow_gate");
     public static final Holder<Skill> REACH = registerSkill("reach", -50, 50, preReqs(SHADOW_GATE));
-    public static final Holder<Skill> BLINK = registerSkill("blink", -50, 100, preReqs(REACH));
-    public static final Holder<Skill> SHADOW_ESCAPE = registerSkill("shadow_escape", -50, 150, preReqs(BLINK));
+    public static final Holder<Skill> BLINK = registerSkill("blink", -75, 100, preReqs(REACH));
+    public static final Holder<Skill> SHADOW_ESCAPE = registerSkill("shadow_escape", -75, 150, preReqs(BLINK));
     public static final Holder<Skill> OPEN_INVITATION = registerSkill("open_invitation", 50, 50, preReqs(SHADOW_GATE));
     public static final Holder<Skill> QUICK_RECHARGE = registerSkill("quick_recharge", 50, 100, preReqs(OPEN_INVITATION));
     public static final Holder<Skill> UNWANTED_GUESTS = registerSkill("unwanted_guests", 100, 100, preReqs(OPEN_INVITATION));

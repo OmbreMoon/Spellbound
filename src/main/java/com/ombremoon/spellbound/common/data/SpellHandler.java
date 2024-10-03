@@ -128,6 +128,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.upgradeTree.addAll(spellType.getSkills());
         this.upgradeTree.update(this.caster, spellType.getSkills());
         sync();
+        this.skillHandler.sync(this.caster);
     }
 
     public void activateSpell(AbstractSpell spell) {

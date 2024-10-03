@@ -342,7 +342,7 @@ public abstract class AbstractSpell {
         return null;
     }
 
-    protected ClipContext setupRayTraceContext(LivingEntity livingEntity, double distance, ClipContext.Fluid fluidContext) {
+    protected static ClipContext setupRayTraceContext(LivingEntity livingEntity, double distance, ClipContext.Fluid fluidContext) {
         float pitch = livingEntity.getXRot();
         float yaw = livingEntity.getYRot();
         Vec3 fromPos = livingEntity.getEyePosition(1.0F);

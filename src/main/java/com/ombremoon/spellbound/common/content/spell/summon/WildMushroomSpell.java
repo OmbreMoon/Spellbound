@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.common.content.spell.summon;
 
 import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.common.content.entity.custom.MushroomEntity;
+import com.ombremoon.spellbound.common.content.entity.MushroomEntity;
 import com.ombremoon.spellbound.common.data.SkillHandler;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.data.StatusHandler;

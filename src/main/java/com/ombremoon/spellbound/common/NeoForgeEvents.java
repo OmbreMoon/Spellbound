@@ -66,6 +66,9 @@ public class NeoForgeEvents {
                     handler.initData(player);
                     handler.sync();
 
+                    var skillHandler = SpellUtil.getSkillHandler(player);
+                    skillHandler.sync(player);
+
                     var tree = player.getData(DataInit.UPGRADE_TREE);
                     tree.update(player, tree.getUnlockedSkills());
                 }

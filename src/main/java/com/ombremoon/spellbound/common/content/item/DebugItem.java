@@ -51,16 +51,16 @@ public class DebugItem extends Item {
 
     private void ombreDebug(Level level, Player player, InteractionHand usedHand, SpellHandler spellHandler, SkillHandler skillHandler) {
         if (!level.isClientSide) {
-//            spellHandler.clearList();
+            spellHandler.clearList();
 //            spellHandler.setSelectedSpell(SpellInit.WILD_MUSHROOM_SPELL.get());
-            Constants.LOG.info("{}", skillHandler.getModifiers());
+//            Constants.LOG.info("{}", skillHandler.getModifiers());
 //            spellHandler.learnSpell(SpellInit.VOLCANO.get());
 //            Constants.LOG.info("{}", spellHandler.getSpellList().stream().map(SpellType::getResourceLocation).map(ResourceLocation::getPath).toList());
 //            Constants.LOG.info("{}", tree.nodes());
 //            Constants.LOG.info("{}", tree.children());
 //            Constants.LOG.info("{}", tree.roots());
         } else {
-//            Constants.LOG.info("{}", skillHandler.unlockedSkills(SpellInit.VOLCANO.get()));
+//            Constants.LOG.info("{}", skillHandler.unlockedSkills);
         }
     }
 }
