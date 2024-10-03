@@ -10,6 +10,7 @@ import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.skills.SkillCooldowns;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.Holder;
@@ -29,6 +30,7 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
     protected final Map<SpellType<?>, Float> spellXp = new Object2FloatOpenHashMap<>();
     protected final Map<SpellType<?>, Set<Skill>> unlockedSkills = new Object2ObjectOpenHashMap<>();
     private final Set<SpellModifier> modifiers = new ObjectOpenHashSet<>();
+    private final Map<SpellModifier, Integer> timedModifiers = new Object2IntOpenHashMap<>();
     private final SkillCooldowns cooldowns = new SkillCooldowns();
 
     public void sync(Player player) {
@@ -95,8 +97,24 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         return unlockedSkills.get(spellType).contains(skill) || skill.isRoot();
     }
 
+    public void addModifierWithExpiry(SpellModifier spellModifier, int expiryTicks) {
+        this.timedModifiers.put(spellModifier, expiryTicks);
+    }
+
     public Set<SpellModifier> getModifiers() {
         return this.modifiers;
+    }
+
+    public void tickModifiers() {
+        for (var entry : this.timedModifiers.entrySet()) {
+            int i = entry.getValue();
+            i--;
+            if (i > 0) {
+                this.timedModifiers.replace(entry.getKey(), i);
+            } else {
+                this.timedModifiers.remove(entry.getKey());
+            }
+        }
     }
 
     public SkillCooldowns getCooldowns() {

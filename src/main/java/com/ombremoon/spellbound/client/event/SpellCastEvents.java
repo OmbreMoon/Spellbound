@@ -88,16 +88,6 @@ public class SpellCastEvents {
         }
     }
 
-    @SubscribeEvent
-    public static void onHandlerTick(PlayerTickEvent.Post event) {
-        Player player = event.getEntity();
-
-        if (!player.level().isClientSide) {
-            var handler = SpellUtil.getSpellHandler(player);
-            handler.serverTick();
-        }
-    }
-
     private static boolean isAbleToSpellCast() {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.getOverlay() != null) return false;
