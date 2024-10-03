@@ -31,21 +31,22 @@ public class LearnSkillsCommand {
                 .then(Commands.argument("spell", ResourceArgument.resource(context, SpellInit.SPELL_TYPE_REGISTRY_KEY))
                         .then(Commands.argument("skill", ResourceArgument.resource(context, SkillInit.SKILL_REGISTRY_KEY))
                                 .executes(cmdContext -> learnSingleSkill(cmdContext.getSource(),
-                                        ResourceArgument.getResource(cmdContext, "spell", SpellInit.SPELL_TYPE_REGISTRY_KEY),
                                         ResourceArgument.getResource(cmdContext, "skill", SkillInit.SKILL_REGISTRY_KEY))))));
     }
 
-    private int learnSingleSkill(CommandSourceStack context, Holder.Reference<SpellType<?>> spell, Holder.Reference<Skill> skill) {
+    private int learnSingleSkill(CommandSourceStack context, Holder.Reference<Skill> skill) {
         if (!context.isPlayer()) return 0;
 
-        if (!SpellUtil.getSpellHandler(context.getPlayer()).getSpellList().contains(spell)) {
-            context.getPlayer().sendSystemMessage(Component.translatable("command.spellbound.nospellknown"));
+        if (!SpellUtil.getSpellHandler(context.getPlayer()).getSpellList().contains(skill.value().getSpell())) {
+            context.getPlayer().sendSystemMessage(Component.translatable("command.spellbound.spellunknown",
+                    skill.value().getSpell().createSpell().getName()));
             return 0;
         }
 
         SpellUtil.getSkillHandler(context.getPlayer()).unlockSkill(skill.value());
         SpellUtil.getSkillHandler(context.getPlayer()).sync(context.getPlayer());
-        context.getPlayer().sendSystemMessage(Component.translatable("command.spellbound.singlespelllearnt"));
+        context.getPlayer().sendSystemMessage(Component.translatable("command.spellbound.singleskilllearnt",
+                skill.value().getName()));
 
         return 1;
     }
@@ -57,7 +58,8 @@ public class LearnSkillsCommand {
 
         SpellType<?> spellType = SpellInit.REGISTRY.get(spell.key());
         if (!handler.getSpellList().contains(spellType)) {
-            context.getPlayer().sendSystemMessage(Component.translatable("command.spellbound.nospellknown"));
+            context.getPlayer().sendSystemMessage(Component.translatable("command.spellbound.spellunknown",
+                    spell.value().createSpell().getName()));
             return 0;
         };
 
@@ -66,7 +68,8 @@ public class LearnSkillsCommand {
         }
 
         skillHandler.sync(context.getPlayer());
-        context.getPlayer().sendSystemMessage(Component.translatable("command.spellbound.learntspells"));
+        context.getPlayer().sendSystemMessage(Component.translatable("command.spellbound.learntskills",
+                spell.value().createSpell().getName()));
 
         return 1;
     }

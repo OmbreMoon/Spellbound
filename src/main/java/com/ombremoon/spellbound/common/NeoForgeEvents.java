@@ -4,6 +4,7 @@ import com.google.common.collect.Multimap;
 import com.mojang.brigadier.CommandDispatcher;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.commands.LearnSkillsCommand;
+import com.ombremoon.spellbound.common.commands.LearnSpellCommand;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.data.StatusHandler;
 import com.ombremoon.spellbound.common.init.AttributesInit;
@@ -49,6 +50,7 @@ public class NeoForgeEvents {
         CommandBuildContext context = event.getBuildContext();
 
         new LearnSkillsCommand(dispatcher, context);
+        new LearnSpellCommand(dispatcher, context);
 
         ConfigCommand.register(dispatcher);
     }
