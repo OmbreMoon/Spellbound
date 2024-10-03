@@ -140,7 +140,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     public void recastSpell(AbstractSpell spell) {
         if (this.activeSpells.containsKey(spell.getSpellType()))
-            this.activeSpells.get(spell.getSpellType()).forEach(AbstractSpell::endSpell);
+            this.activeSpells.get(spell.getSpellType()).stream().filter(abstractSpell -> !abstractSpell.shouldPersist()).forEach(AbstractSpell::endSpell);
 
         this.activeSpells.put(spell.getSpellType(), spell);
     }
