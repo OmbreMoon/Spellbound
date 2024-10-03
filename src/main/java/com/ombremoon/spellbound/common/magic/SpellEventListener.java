@@ -70,5 +70,5 @@ public class SpellEventListener {
         boolean isClientSide();
     }
 
-    private record EventInstance<T extends SpellEvent>(UUID uuid, Consumer<T> spellConsumer) {}
+    public record EventInstance<T extends SpellEvent>(UUID uuid, Consumer<T> spellConsumer) {}
 }
