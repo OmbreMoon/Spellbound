@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common;
 
+import com.google.common.collect.Multimap;
 import com.mojang.brigadier.CommandDispatcher;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.commands.LearnSkillsCommand;
@@ -7,7 +8,11 @@ import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.data.StatusHandler;
 import com.ombremoon.spellbound.common.init.AttributesInit;
 import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
+import com.ombremoon.spellbound.common.magic.SpellPath;
+import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import com.ombremoon.spellbound.common.magic.events.*;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -30,6 +35,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.server.command.ConfigCommand;
+import org.antlr.v4.runtime.misc.MultiMap;
 
 import java.util.List;
 
@@ -56,10 +62,6 @@ public class NeoForgeEvents {
                     var handler = SpellUtil.getSpellHandler(player);
                     handler.initData(player);
                     handler.sync();
-
-                    var skillHandler = player.getData(DataInit.SKILL_HANDLER);
-//                    skillHandler.resetSkills(SpellInit.VOLCANO.get());
-                    skillHandler.sync(player);
 
                     var tree = player.getData(DataInit.UPGRADE_TREE);
                     tree.update(player, tree.getUnlockedSkills());
@@ -97,8 +99,7 @@ public class NeoForgeEvents {
     public static void onPlayerLeaveWorld(EntityLeaveLevelEvent event) {
         if (event.getEntity() instanceof Player player && player.level() instanceof ServerLevel level) {
             SpellHandler handler = SpellUtil.getSpellHandler(player);
-            handler.clearAllSummons(level);
-            handler.sync();
+            endSummonSpells(handler.getActiveSpells());
         };
     }
 
@@ -106,20 +107,26 @@ public class NeoForgeEvents {
     public static void onWorldEnd(ServerStoppingEvent event) {
         List<ServerPlayer> players = event.getServer().getPlayerList().getPlayers();
         for (ServerPlayer player : players) {
-            SpellUtil.getSpellHandler(player).clearAllSummons((ServerLevel) player.level());
+            endSummonSpells(SpellUtil.getSpellHandler(player).getActiveSpells());
         }
     }
 
     @SubscribeEvent
     public static void onPlayerLogOut(PlayerEvent.PlayerLoggedOutEvent event) {
-        if (event.getEntity().level() instanceof ServerLevel level) {
-            SpellUtil.getSpellHandler(event.getEntity()).clearSpells();
-            SpellHandler handler = SpellUtil.getSpellHandler(event.getEntity());
-            handler.clearAllSummons(level);
-            handler.sync();
+        endSummonSpells(SpellUtil.getSpellHandler(event.getEntity()).getActiveSpells());
+    }
+
+    private static void endSummonSpells(Multimap<SpellType<?>, AbstractSpell> spells) {
+        for (SpellType<?> spellType : spells.keys()) {
+            if (spellType.getPath() == SpellPath.SUMMONS) {
+                for (AbstractSpell spell : spells.get(spellType)) {
+                    spell.endSpell();
+                }
+            }
         }
     }
 
+    @SubscribeEvent
     public static void onLivingDeath(LivingDeathEvent event) {
         if (event.getEntity().level().isClientSide) return;
 

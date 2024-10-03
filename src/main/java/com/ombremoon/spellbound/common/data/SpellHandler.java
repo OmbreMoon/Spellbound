@@ -150,6 +150,10 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         return this.activeSpells.get(spellType);
     }
 
+    public Multimap<SpellType<?>, AbstractSpell> getActiveSpells() {
+        return this.activeSpells;
+    }
+
     public SpellType<?> getSelectedSpell() {
         return this.selectedSpell != null ? this.selectedSpell : !getSpellList().isEmpty() && getSpellList().iterator().hasNext() ? getSpellList().iterator().next() : null;
     }

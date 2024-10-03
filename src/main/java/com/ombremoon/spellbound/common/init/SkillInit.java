@@ -25,12 +25,12 @@ public class SkillInit {
     public static final Holder<Skill> WILD_MUSHROOM = registerSkill("wild_mushroom");
     public static final Holder<Skill> VILE_INFLUENCE = registerSkill("vile_influence", -50, 50, preReqs(WILD_MUSHROOM));
     public static final Holder<Skill> HASTENED_GROWTH = registerSkill("hastened_growth", -50, 100, preReqs(VILE_INFLUENCE));
-    public static final Holder<Skill> ENVENOM = registerSkill("envenom", -50, 150, preReqs(HASTENED_GROWTH)); //TODO
+    public static final Holder<Skill> ENVENOM = registerSkill("envenom", -50, 150, preReqs(HASTENED_GROWTH));
     public static final Holder<Skill> DECOMPOSE = registerSkill("decompose", 50, 50, preReqs(WILD_MUSHROOM));
     public static final Holder<Skill> NATURES_DOMINANCE = registerSkill("natures_dominance", 50, 100, preReqs(DECOMPOSE));
     public static final Holder<Skill> POISON_ESSENCE = registerSkill("poison_essence", 50, 150, preReqs(NATURES_DOMINANCE));
     public static final Holder<Skill> CIRCLE_OF_LIFE = registerSkill("circle_of_life", 50, 200, preReqs(POISON_ESSENCE));
-    public static final Holder<Skill> CATALEPSY = registerSkill("catalepsy", 50, 250, preReqs(CIRCLE_OF_LIFE)); //TODO
+    public static final Holder<Skill> CATALEPSY = registerSkill("catalepsy", 50, 250, preReqs(CIRCLE_OF_LIFE));
     public static final Holder<Skill> RECYCLED = registerSkill("recycled", 100, 150, preReqs(NATURES_DOMINANCE));
     public static final Holder<Skill> SYNTHESIS = registerSkill("synthesis", 100, 200, preReqs(POISON_ESSENCE)); //TODO
 
