@@ -7,6 +7,7 @@ import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.init.StatInit;
 import com.ombremoon.spellbound.common.magic.api.ModifierType;
+import com.ombremoon.spellbound.common.magic.events.SpellEvent;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -32,7 +33,9 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.slf4j.Logger;
 
+import java.util.UUID;
 import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 
 public abstract class AbstractSpell {
     protected static final Logger LOGGER = Constants.LOG;
@@ -209,6 +212,16 @@ public abstract class AbstractSpell {
 
     protected boolean shouldTickEffect(SpellContext context) {
         return true;
+    }
+
+    public void addTimedModifier(Player player, SpellModifier spellModifier, int expiryTick) {
+        var handler = player.getData(DataInit.SKILL_HANDLER);
+        handler.addModifierWithExpiry(spellModifier, expiryTick);
+    }
+
+    public void addTimedListener(Player player, SpellEventListener.IEvent event, UUID uuid, Consumer<? extends SpellEvent> consumer, int expiryTicks) {
+        var handler = player.getData(DataInit.SPELL_HANDLER);
+        handler.getListener().addListenerWithExpiry(event, uuid, consumer, expiryTicks);
     }
 
     protected float potency() {

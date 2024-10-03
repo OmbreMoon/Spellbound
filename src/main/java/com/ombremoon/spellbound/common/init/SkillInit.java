@@ -32,7 +32,7 @@ public class SkillInit {
     public static final Holder<Skill> CIRCLE_OF_LIFE = registerSkill("circle_of_life", 50, 200, preReqs(POISON_ESSENCE));
     public static final Holder<Skill> CATALEPSY = registerSkill("catalepsy", 50, 250, preReqs(CIRCLE_OF_LIFE));
     public static final Holder<Skill> RECYCLED = registerSkill("recycled", 100, 150, preReqs(NATURES_DOMINANCE));
-    public static final Holder<Skill> SYNTHESIS = registerSkill("synthesis", 100, 200, preReqs(POISON_ESSENCE)); //TODO
+    public static final Holder<Skill> SYNTHESIS = registerSkill("synthesis", 100, 200, preReqs(POISON_ESSENCE));
 
     //Volcano
     public static final Holder<Skill> VOLCANO = registerSkill("volcano");

@@ -10,19 +10,19 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 public record SpellModifier(ResourceLocation id, ModifierType modifierType, Predicate<SpellType<?>> spellPredicate, float modifier) {
+    private static final Map<ResourceLocation, SpellModifier> MODIFIER_REGISTRY = new HashMap<>();
 
     public static final SpellModifier REPRISAL = registerModifier("reprisal", ModifierType.POTENCY, spellType -> spellType.getPath() == SpellPath.DIVINE, 1.5F);
     public static final SpellModifier ICE_CHARGE = registerModifier("ice_charge", ModifierType.MANA, spell -> spell.getPath() == SpellPath.RUIN && spell.getSubPath() == SpellPath.FROST, 1.25F);
     public static final SpellModifier DIVINE_BALANCE_MANA = registerModifier("divine_balance_mana", ModifierType.MANA, spell -> spell == SpellInit.HEALING_TOUCH, 1.5F);
     public static final SpellModifier DIVINE_BALANCE_DURATION = registerModifier("divine_balance_duration", ModifierType.DURATION, spell -> spell == SpellInit.HEALING_TOUCH, 2F);
+    public static final SpellModifier SYNTHESIS = registerModifier("synthesis", ModifierType.MANA, spell -> spell == SpellInit.WILD_MUSHROOM_SPELL, 0F);
 
     private static SpellModifier registerModifier(String name, ModifierType type, Predicate<SpellType<?>> spellPredicate, float modifier) {
         SpellModifier spellModifier = new SpellModifier(CommonClass.customLocation(name), type, spellPredicate, modifier);
         registerModifier(spellModifier);
         return spellModifier;
     }
-
-    private static final Map<ResourceLocation, SpellModifier> MODIFIER_REGISTRY = new HashMap<>();
 
     public static void registerModifier(SpellModifier modifier) {
         if (MODIFIER_REGISTRY.containsValue(modifier)) throw new IllegalStateException("Modifier " + modifier + " has already been registered");

@@ -1,10 +1,12 @@
 package com.ombremoon.spellbound.util;
 
+import com.ombremoon.spellbound.common.data.SkillHandler;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.EffectInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -18,6 +20,10 @@ public class SpellUtil {
 
     public static SpellHandler getSpellHandler(LivingEntity livingEntity) {
         return livingEntity.getData(DataInit.SPELL_HANDLER);
+    }
+
+    public static SkillHandler getSkillHandler(LivingEntity livingEntity) {
+        return livingEntity.getData(DataInit.SKILL_HANDLER);
     }
 
     public static CompoundTag storeSpell(SpellType<?> spellType) {

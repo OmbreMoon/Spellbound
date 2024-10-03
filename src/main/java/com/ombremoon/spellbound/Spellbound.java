@@ -1,9 +1,7 @@
 package com.ombremoon.spellbound;
 
-import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SkillInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
-import com.ombremoon.spellbound.util.SpellUtil;
 import dev.kosmx.playerAnim.api.layered.IAnimation;
 import dev.kosmx.playerAnim.api.layered.ModifierLayer;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationFactory;
@@ -13,13 +11,10 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 
 //TODO: General - Discuss Path Shards with team
 //TODO: SummonSpell - Remind Duck of persisting summon bug
-//TODO: SpellHandler - Add mana modifier for adjusting spell costs, map/predicate based
 
 @Mod(Constants.MOD_ID)
 public class Spellbound {

@@ -34,6 +34,7 @@ import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.server.command.ConfigCommand;
 import org.antlr.v4.runtime.misc.MultiMap;
 
@@ -67,6 +68,16 @@ public class NeoForgeEvents {
                     tree.update(player, tree.getUnlockedSkills());
                 }
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onHandlerTick(PlayerTickEvent.Post event) {
+        Player player = event.getEntity();
+
+        if (!player.level().isClientSide) {
+            var handler = SpellUtil.getSpellHandler(player);
+            handler.serverTick();
         }
     }
 

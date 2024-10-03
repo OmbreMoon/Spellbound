@@ -8,10 +8,12 @@ import com.ombremoon.spellbound.common.data.StatusHandler;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
+import com.ombremoon.spellbound.common.magic.SpellModifier;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import com.ombremoon.spellbound.common.magic.events.PlayerKillEvent;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
+import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -34,6 +36,7 @@ public class WildMushroomSpell extends SummonSpell {
     private static final int MAX_XP = 50;
     private static final int XP_PER_HIT = 5;
 
+    private Player caster;
     private final Set<LivingEntity> targetsHit = new HashSet<>();
     private MushroomEntity mushroom;
     private AABB damageZone;
@@ -60,6 +63,7 @@ public class WildMushroomSpell extends SummonSpell {
             return;
         }
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.PLAYER_KILL, PLAYER_KILL, this::playerKill);
+        this.caster = context.getPlayer();
 
         this.mushroom = (MushroomEntity) context.getLevel().getEntity(mobs.iterator().next());
         SkillHandler skillHandler = context.getSkillHandler();
@@ -111,7 +115,9 @@ public class WildMushroomSpell extends SummonSpell {
             }
         }
 
-        if (skills.hasSkill(SkillInit.CATALEPSY.value()) && !skills.getCooldowns().isOnCooldown(SkillInit.CATALEPSY.value()))
+        if (skills.hasSkill(SkillInit.CATALEPSY.value())
+                && !entities.isEmpty()
+                && !skills.getCooldowns().isOnCooldown(SkillInit.CATALEPSY.value()))
             skills.getCooldowns().addCooldown(SkillInit.CATALEPSY.value(), 200);
 
         if (context.getSpellHandler().getActiveSpells(getSpellType()).size() <= 2
@@ -155,6 +161,9 @@ public class WildMushroomSpell extends SummonSpell {
         for (LivingEntity entity : targetsHit) {
             if (entity.is(event.getDeathEvent().getEntity())) {
                 this.poisonEssenceExpiry = ticks + 200;
+                if (SpellUtil.getSkillHandler(caster).hasSkill(SkillInit.SYNTHESIS.value())) {
+                    this.addTimedModifier(caster, SpellModifier.SYNTHESIS, 120);
+                }
                 return;
             }
         }
