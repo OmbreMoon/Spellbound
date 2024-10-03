@@ -7,6 +7,7 @@ import com.ombremoon.spellbound.common.content.spell.divine.HealingTouchSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.VolcanoSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.SummonUndeadSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.WildMushroomSpell;
+import com.ombremoon.spellbound.common.content.spell.transfiguration.ShadowGateSpell;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
@@ -30,6 +31,12 @@ public class SpellInit {
             .skills(SkillInit.VOLCANO, SkillInit.INFERNO_CORE, SkillInit.LAVA_FLOW, SkillInit.EXPLOSIVE_BARRAGE,
                     SkillInit.SHRAPNEL, SkillInit.HEATWAVE, SkillInit.SCORCHED_EARTH, SkillInit.SEISMIC_SHOCK,
                     SkillInit.MOLTEN_SHIELD, SkillInit.PYROCLASTIC_CLOUD, SkillInit.APOCALYPSE));
+
+    //Transfiguration
+    public static final Supplier<SpellType<ShadowGateSpell>> SHADOW_GATE = registerSpell("shadow_gate", trasnfigurationBuilder("shadow_gate", ShadowGateSpell::new)
+            .skills(SkillInit.SHADOW_GATE, SkillInit.REACH, SkillInit.BLINK, SkillInit.SHADOW_ESCAPE,
+                    SkillInit.OPEN_INVITATION, SkillInit.QUICK_RECHARGE, SkillInit.UNWANTED_GUESTS, SkillInit.BAIT_AND_SWITCH,
+                    SkillInit.DARKNESS_PREVAILS, SkillInit.GRAVITY_SHIFT, SkillInit.DUAL_DESTINATION));
 
     //Summons
     public static final Supplier<SpellType<SummonUndeadSpell>> SUMMON_UNDEAD_SPELL = registerSpell("summon_undead", summonBuilder("summon_undead", SummonUndeadSpell::new));

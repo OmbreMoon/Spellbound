@@ -12,18 +12,13 @@ import com.ombremoon.spellbound.common.magic.SpellModifier;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import com.ombremoon.spellbound.common.magic.events.PlayerKillEvent;
-import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.util.SpellUtil;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.HashSet;
 import java.util.List;
@@ -45,7 +40,7 @@ public class WildMushroomSpell extends SummonSpell {
     private int explosionInterval;
 
     public static Builder<AnimatedSpell> createMushroomBuilder() {
-        return createSimpleSpellBuilder().setDuration(180).setManaCost(20);
+        return createSimpleSpellBuilder().duration(180).manaCost(20);
     }
 
     public WildMushroomSpell() {

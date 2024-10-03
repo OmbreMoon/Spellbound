@@ -8,7 +8,6 @@ import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.events.PlayerDamageEvent;
-import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.skills.SkillCooldowns;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.Holder;
@@ -38,7 +37,7 @@ public class HealingTouchSpell extends AnimatedSpell {
     private int blessingDuration = 0;
 
     private static Builder<AnimatedSpell> createHealingSpell() {
-        return new Builder<>().setManaCost(50).setDuration(300).persistentData();
+        return new Builder<>().manaCost(50).duration(300).fullRecast();
     }
 
 

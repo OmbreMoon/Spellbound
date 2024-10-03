@@ -1,7 +1,5 @@
 package com.ombremoon.spellbound.common.magic.api;
 
-import com.ombremoon.spellbound.common.init.DataInit;
-import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.networking.PayloadHandler;
@@ -9,7 +7,6 @@ import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.player.Player;
 
-import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 public abstract class ChanneledSpell extends AnimatedSpell {
@@ -63,7 +60,7 @@ public abstract class ChanneledSpell extends AnimatedSpell {
             this.castType = CastType.CHANNEL;
         }
 
-        public Builder<T> setManaCost(int fpCost) {
+        public Builder<T> manaCost(int fpCost) {
             this.manaCost = fpCost;
             return this;
         }
@@ -73,23 +70,30 @@ public abstract class ChanneledSpell extends AnimatedSpell {
             return this;
         }
 
-        public Builder<T> setCastTime(int castTime) {
+        public Builder<T> castTime(int castTime) {
             this.castTime = castTime;
             return this;
         }
 
-        public Builder<T> castCondition(BiPredicate<Player, AbstractSpell> castCondition) {
+        public Builder<T> castCondition(Predicate<SpellContext> castCondition) {
             this.castPredicate = castCondition;
             return this;
         }
 
-        public Builder<T> setCastSound(SoundEvent castSound) {
+        public Builder<T> castSound(SoundEvent castSound) {
             this.castSound = castSound;
             return this;
         }
 
-        public Builder<T> persistentData() {
-            this.persistentData = true;
+        public Builder<T> partialRecast() {
+            this.partialRecast = true;
+            this.fullRecast = false;
+            return this;
+        }
+
+        public Builder<T> fullRecast() {
+            this.fullRecast = true;
+            this.partialRecast = false;
             return this;
         }
     }

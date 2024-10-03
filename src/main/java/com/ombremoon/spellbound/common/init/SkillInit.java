@@ -21,6 +21,19 @@ public class SkillInit {
 
     public static final Holder<Skill> TEST_SKILL = registerSkill("test");
 
+    //Shadow Gate
+    public static final Holder<Skill> SHADOW_GATE = registerSkill("shadow_gate");
+    public static final Holder<Skill> REACH = registerSkill("reach", -50, 50, preReqs(SHADOW_GATE));
+    public static final Holder<Skill> BLINK = registerSkill("blink", -50, 100, preReqs(REACH));
+    public static final Holder<Skill> SHADOW_ESCAPE = registerSkill("shadow_escape", -50, 150, preReqs(BLINK));
+    public static final Holder<Skill> OPEN_INVITATION = registerSkill("open_invitation", 50, 50, preReqs(SHADOW_GATE));
+    public static final Holder<Skill> QUICK_RECHARGE = registerSkill("quick_recharge", 50, 100, preReqs(OPEN_INVITATION));
+    public static final Holder<Skill> UNWANTED_GUESTS = registerSkill("unwanted_guests", 100, 100, preReqs(OPEN_INVITATION));
+    public static final Holder<Skill> BAIT_AND_SWITCH = registerSkill("bait_and_switch", 100, 150, preReqs(UNWANTED_GUESTS));
+    public static final Holder<Skill> DARKNESS_PREVAILS = registerSkill("darkness_prevails", 0, 100, preReqs(SHADOW_GATE));
+    public static final Holder<Skill> GRAVITY_SHIFT = registerSkill("gravity_shift", -25, 150, preReqs(DARKNESS_PREVAILS));
+    public static final Holder<Skill> DUAL_DESTINATION = registerSkill("dual_destination", 25, 150, preReqs(DARKNESS_PREVAILS));
+
     //Wild Mushroom
     public static final Holder<Skill> WILD_MUSHROOM = registerSkill("wild_mushroom");
     public static final Holder<Skill> VILE_INFLUENCE = registerSkill("vile_influence", -50, 50, preReqs(WILD_MUSHROOM));

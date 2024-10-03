@@ -5,8 +5,6 @@ import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
-import com.ombremoon.spellbound.common.magic.skills.Skill;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.util.UUID;
 
@@ -14,7 +12,7 @@ public class TestSpell extends ChanneledSpell {
     private static final UUID JUMP_EVENT = UUID.fromString("7859afd8-40a9-41c4-a531-674f1f0fdb1b");
 
     public static Builder<ChanneledSpell> createTestBuilder() {
-        return createChannelledSpellBuilder().setCastTime(20);
+        return createChannelledSpellBuilder().castTime(20);
     }
 
     public TestSpell() {

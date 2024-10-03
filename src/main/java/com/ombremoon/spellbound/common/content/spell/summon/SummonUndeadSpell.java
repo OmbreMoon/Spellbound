@@ -10,9 +10,9 @@ import net.minecraft.world.entity.EntityType;
 public class SummonUndeadSpell extends SummonSpell {
     public static AnimatedSpell.Builder<AnimatedSpell> createSummonBuilder() {
         return createSimpleSpellBuilder()
-                .setManaCost(10)
-                .setDuration(180)
-                .castCondition((player, spell) -> player.level().getDifficulty() != Difficulty.PEACEFUL);
+                .manaCost(10)
+                .duration(180)
+                .castCondition(context -> context.getLevel().getDifficulty() != Difficulty.PEACEFUL);
     }
 
     public SummonUndeadSpell() {

@@ -80,4 +80,12 @@ public class SpellContext {
     public float getRotation() {
         return this.player.getYRot();
     }
+
+    public boolean hasActiveSpells(SpellType<?> spell, int amount) {
+        return this.spellHandler.getActiveSpells(spell).size() >= amount;
+    }
+
+    public boolean hasSpellActive(AbstractSpell spell) {
+        return this.spellHandler.getActiveSpells(spell.getSpellType()).contains(spell);
+    }
 }

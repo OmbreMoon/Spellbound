@@ -29,7 +29,7 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
     protected final Map<SpellPath, Float> pathXp = new Object2FloatOpenHashMap<>();
     protected final Map<SpellType<?>, Float> spellXp = new Object2FloatOpenHashMap<>();
     protected final Map<SpellType<?>, Set<Skill>> unlockedSkills = new Object2ObjectOpenHashMap<>();
-    private final Set<SpellModifier> modifiers = new ObjectOpenHashSet<>();
+    private final Set<SpellModifier> permanentModifiers = new ObjectOpenHashSet<>();
     private final Map<SpellModifier, Integer> timedModifiers = new Object2IntOpenHashMap<>();
     private final SkillCooldowns cooldowns = new SkillCooldowns();
 
@@ -75,7 +75,7 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         unlocked.add(skill);
         unlockedSkills.put(skill.getSpell(), unlocked);
         if (skill instanceof ModifierSkill modifierSkill)
-            modifiers.addAll(modifierSkill.getModifiers());
+            permanentModifiers.addAll(modifierSkill.getModifiers());
     }
 
     public boolean canUnlockSkill(Skill skill) {
@@ -102,7 +102,7 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
     }
 
     public Set<SpellModifier> getModifiers() {
-        return this.modifiers;
+        return this.permanentModifiers;
     }
 
     public void tickModifiers() {
@@ -156,8 +156,8 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
             pathxpTag.add(newTag);
         }
 
-        if (!this.modifiers.isEmpty()) {
-            for (var modifier : this.modifiers) {
+        if (!this.permanentModifiers.isEmpty()) {
+            for (var modifier : this.permanentModifiers) {
                 CompoundTag modifierTag = new CompoundTag();
                 modifierTag.putString("Modifier", modifier.id().toString());
                 modifierList.add(modifierTag);
@@ -202,7 +202,7 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
             ListTag modifierList = compoundTag.getList("Modifiers", 10);
             for (int i = 0; i < modifierList.size(); i++) {
                 CompoundTag nbt = modifierList.getCompound(i);
-                this.modifiers.add(SpellModifier.getTypeFromLocation(ResourceLocation.tryParse(nbt.getString("Modifier"))));
+                this.permanentModifiers.add(SpellModifier.getTypeFromLocation(ResourceLocation.tryParse(nbt.getString("Modifier"))));
             }
         }
     }
