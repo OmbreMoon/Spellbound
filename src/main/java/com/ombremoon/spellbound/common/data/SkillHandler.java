@@ -97,6 +97,10 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         return unlockedSkills.get(spellType).contains(skill) || skill.isRoot();
     }
 
+    public boolean hasSkillReady(Skill skill) {
+        return hasSkill(skill) && !cooldowns.isOnCooldown(skill);
+    }
+
     public void addModifierWithExpiry(SpellModifier spellModifier, int expiryTicks) {
         this.timedModifiers.put(spellModifier, expiryTicks);
     }

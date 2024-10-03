@@ -31,7 +31,6 @@ public class WildMushroomSpell extends SummonSpell {
     private static final int MAX_XP = 50;
     private static final int XP_PER_HIT = 5;
 
-    private Player caster;
     private final Set<LivingEntity> targetsHit = new HashSet<>();
     private MushroomEntity mushroom;
     private AABB damageZone;
@@ -58,7 +57,6 @@ public class WildMushroomSpell extends SummonSpell {
             return;
         }
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.PLAYER_KILL, PLAYER_KILL, this::playerKill);
-        this.caster = context.getPlayer();
 
         this.mushroom = (MushroomEntity) context.getLevel().getEntity(mobs.iterator().next());
         SkillHandler skillHandler = context.getSkillHandler();
@@ -90,7 +88,7 @@ public class WildMushroomSpell extends SummonSpell {
                 entity -> !entity.is(caster) && !entity.isInvulnerable());
 
         for (LivingEntity entity : entities) {
-            if (skills.hasSkill(SkillInit.CATALEPSY.value()) && !skills.getCooldowns().isOnCooldown(SkillInit.CATALEPSY.value())) {
+            if (skills.hasSkillReady(SkillInit.CATALEPSY.value())) {
                 entity.addEffect(new MobEffectInstance(EffectInit.STUNNED, 100), caster); //TODO: Use Catalepsy effect instead
             }
 
@@ -110,9 +108,7 @@ public class WildMushroomSpell extends SummonSpell {
             }
         }
 
-        if (skills.hasSkill(SkillInit.CATALEPSY.value())
-                && !entities.isEmpty()
-                && !skills.getCooldowns().isOnCooldown(SkillInit.CATALEPSY.value()))
+        if (!entities.isEmpty() && skills.hasSkillReady(SkillInit.CATALEPSY.value()))
             skills.getCooldowns().addCooldown(SkillInit.CATALEPSY.value(), 200);
 
         if (context.getSpellHandler().getActiveSpells(getSpellType()).size() <= 2
@@ -156,8 +152,8 @@ public class WildMushroomSpell extends SummonSpell {
         for (LivingEntity entity : targetsHit) {
             if (entity.is(event.getDeathEvent().getEntity())) {
                 this.poisonEssenceExpiry = ticks + 200;
-                if (SpellUtil.getSkillHandler(caster).hasSkill(SkillInit.SYNTHESIS.value())) {
-                    this.addTimedModifier(caster, SpellModifier.SYNTHESIS, 120);
+                if (SpellUtil.getSkillHandler(event.getPlayer()).hasSkill(SkillInit.SYNTHESIS.value())) {
+                    this.addTimedModifier(event.getPlayer(), SpellModifier.SYNTHESIS, 120);
                 }
                 return;
             }

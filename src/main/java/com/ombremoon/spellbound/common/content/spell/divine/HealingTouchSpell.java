@@ -120,12 +120,12 @@ public class HealingTouchSpell extends AnimatedSpell {
             overgrowthStacks--;
         }
         SkillCooldowns cooldowns = skills.getCooldowns();
-        if (skills.hasSkill(SkillInit.BLASPHEMY.value()) && !cooldowns.isOnCooldown(SkillInit.BLASPHEMY.value())) {
+        if (skills.hasSkillReady(SkillInit.BLASPHEMY.value())) {
             StatusHandler status = event.getSource().getEntity().getData(DataInit.STATUS_EFFECTS);
             status.increment(StatusHandler.Effect.DISEASE, 100);
             cooldowns.addCooldown(SkillInit.BLASPHEMY.value(), 100);
         }
-        if (skills.hasSkill(SkillInit.OAK_BLESSING.value()) && cooldowns.isOnCooldown(SkillInit.OAK_BLESSING.value())) {
+        if (skills.hasSkillReady(SkillInit.OAK_BLESSING.value())) {
             blessingDuration = 200;
             caster.getAttribute(Attributes.ARMOR).addTransientModifier(new AttributeModifier(
                     ARMOR_MOD,
