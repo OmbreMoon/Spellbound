@@ -74,7 +74,9 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         activeSpells.forEach((spellType, spell) -> spell.tick());
         activeSpells.entries().removeIf(entry -> entry.getValue().isInactive);
 
+        this.skillHandler.tickModifiers();
         this.skillHandler.getCooldowns().tick();
+        this.listener.tickInstances();
 
         debug();
     }

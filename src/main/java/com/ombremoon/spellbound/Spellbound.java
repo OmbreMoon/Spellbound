@@ -15,8 +15,6 @@ import net.neoforged.neoforge.registries.NewRegistryEvent;
 
 //TODO: General - Discuss Path Shards with team
 //TODO: SummonSpell - Remind Duck of persisting summon bug
-//TODO: SpellModifier - Add Modifier with Expiry
-//TODO: SpellEventListener - Add Listener with Expiry
 
 @Mod(Constants.MOD_ID)
 public class Spellbound {
