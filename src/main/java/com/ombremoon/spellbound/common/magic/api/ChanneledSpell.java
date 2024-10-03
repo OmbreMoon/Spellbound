@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.magic.api;
 
+import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.networking.PayloadHandler;
@@ -94,6 +95,11 @@ public abstract class ChanneledSpell extends AnimatedSpell {
         public Builder<T> fullRecast() {
             this.fullRecast = true;
             this.partialRecast = false;
+            return this;
+        }
+
+        public Builder<T> shouldPersist() {
+            this.shouldPersist = true;
             return this;
         }
     }

@@ -46,6 +46,7 @@ public abstract class AbstractSpell {
     private final SoundEvent castSound;
     private final boolean fullRecast;
     private final boolean partialRecast;
+    private final boolean shouldPersist;
     private Level level;
     private Player caster;
     private BlockPos blockPos;
@@ -72,6 +73,7 @@ public abstract class AbstractSpell {
         this.castSound = builder.castSound;
         this.fullRecast = builder.fullRecast;
         this.partialRecast = builder.partialRecast;
+        this.shouldPersist = builder.shouldPersist;
     }
 
     public SpellType<?> getSpellType() {
@@ -355,6 +357,10 @@ public abstract class AbstractSpell {
         return new ClipContext(fromPos, toPos, ClipContext.Block.OUTLINE, fluidContext, livingEntity);
     }
 
+    public boolean shouldPersist() {
+        return this.shouldPersist;
+    }
+
     public void initSpell(Player player, Level level, BlockPos blockPos) {
         this.level = level;
         this.caster = player;
@@ -422,6 +428,7 @@ public abstract class AbstractSpell {
         protected SoundEvent castSound;
         protected boolean partialRecast;
         protected boolean fullRecast;
+        protected boolean shouldPersist;
 
         public Builder<T> manaCost(int fpCost) {
             this.manaCost = fpCost;
@@ -457,6 +464,11 @@ public abstract class AbstractSpell {
         public Builder<T> fullRecast() {
             this.fullRecast = true;
             this.partialRecast = false;
+            return this;
+        }
+
+        public Builder<T> shouldPersist() {
+            this.shouldPersist = true;
             return this;
         }
     }
