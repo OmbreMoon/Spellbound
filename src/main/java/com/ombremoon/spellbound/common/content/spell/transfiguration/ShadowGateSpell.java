@@ -85,6 +85,7 @@ public class ShadowGateSpell extends AnimatedSpell {
             this.portalInfo.put(shadowGate.getId(), info);
             context.getLevel().addFreshEntity(shadowGate);
             shadowGate.setPos(vec3.x(), vec3.y(), vec3.z());
+            shadowGate.setYRot(context.getRotation());
         }
     }
 
@@ -106,6 +107,8 @@ public class ShadowGateSpell extends AnimatedSpell {
                             teleportList.add(entity);
                         }
                     }
+
+                    if (this.ticks >= 1175) shadowGate.setEnding(true);
 
                     ShadowGate adjacentGate = this.getAdjacentGate(shadowGate, level);
                     if (adjacentGate != null) {

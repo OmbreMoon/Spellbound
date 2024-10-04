@@ -12,6 +12,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 public abstract class SpellEntity extends Entity implements GeoEntity {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    protected static final String CONTROLLER = "controller";
 
     public SpellEntity(EntityType<?> entityType, Level level) {
         super(entityType, level);
