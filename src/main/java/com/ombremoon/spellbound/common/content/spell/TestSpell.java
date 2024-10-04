@@ -1,10 +1,13 @@
 package com.ombremoon.spellbound.common.content.spell;
 
 import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.common.init.SkillInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.UUID;
 
@@ -38,7 +41,9 @@ public class TestSpell extends ChanneledSpell {
     @Override
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
-        Constants.LOG.info("{}", this.getTargetEntity(8));
+        BlockHitResult hitResult = context.getLevel().clip(setupRayTraceContext(context.getPlayer(),100, ClipContext.Fluid.NONE));
+//        Constants.LOG.info("{}", context.getLevel().getBlockState(hitResult.getBlockPos()));
+        Constants.LOG.info("{}", hitResult.getType());
         addScreenShake(context.getPlayer(), 10, 5);
     }
 

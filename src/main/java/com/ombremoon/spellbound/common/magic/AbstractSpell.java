@@ -283,7 +283,7 @@ public abstract class AbstractSpell {
     }
 
     protected boolean isCaster(LivingEntity livingEntity) {
-        return livingEntity.getUUID() == this.caster.getUUID();
+        return livingEntity.is(this.caster);
     }
 
     public static float getPowerForTime(AbstractSpell spell, int pCharge) {
