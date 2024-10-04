@@ -6,7 +6,6 @@ import com.ombremoon.spellbound.common.magic.SpellType;
 import net.minecraft.sounds.SoundEvent;
 
 import java.util.function.BiPredicate;
-import java.util.function.Predicate;
 
 public abstract class AnimatedSpell extends AbstractSpell {
 
@@ -24,10 +23,6 @@ public abstract class AnimatedSpell extends AbstractSpell {
     }
 
     public static class Builder<T extends AnimatedSpell> extends AbstractSpell.Builder<T> {
-
-        public Builder() {
-        }
-
         public Builder<T> manaCost(int fpCost) {
             this.manaCost = fpCost;
             return this;

@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.networking;
 
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.networking.clientbound.*;
@@ -9,7 +10,6 @@ import com.ombremoon.spellbound.networking.serverbound.*;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -73,6 +73,10 @@ public class PayloadHandler {
 
     public static void shakeScreen(Player player, int duration, float intensity, float maxOffset, int freq) {
         PacketDistributor.sendToPlayer((ServerPlayer) player, new ShakeScreenPayload(duration, intensity, maxOffset, freq));
+    }
+
+    public static void setRotation(Player player, float xRot, float yRot) {
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new SetRotationPayload(xRot, yRot));
     }
 
     public static void syncMana(Player player) {
@@ -143,6 +147,11 @@ public class PayloadHandler {
                 ShakeScreenPayload.TYPE,
                 ShakeScreenPayload.CODEC,
                 ClientPayloadHandler::handleClientShakeScreen
+        );
+        registrar.playToClient(
+                SetRotationPayload.TYPE,
+                SetRotationPayload.CODEC,
+                ClientPayloadHandler::handleClientSetRotation
         );
     }
 }

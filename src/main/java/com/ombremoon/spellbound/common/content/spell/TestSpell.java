@@ -41,9 +41,7 @@ public class TestSpell extends ChanneledSpell {
     @Override
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
-        BlockHitResult hitResult = context.getLevel().clip(setupRayTraceContext(context.getPlayer(),100, ClipContext.Fluid.NONE));
-//        Constants.LOG.info("{}", context.getLevel().getBlockState(hitResult.getBlockPos()));
-        Constants.LOG.info("{}", hitResult.getType());
+//        Constants.LOG.info("{}", getEntitiesInLine(20));
         addScreenShake(context.getPlayer(), 10, 5);
     }
 

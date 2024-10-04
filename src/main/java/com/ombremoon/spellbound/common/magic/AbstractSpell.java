@@ -26,7 +26,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.*;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.slf4j.Logger;
@@ -319,17 +322,42 @@ public abstract class AbstractSpell {
         PayloadHandler.shakeScreen(player, duration, intensity, maxOffset, freq);
     }
 
+    public BlockHitResult getTargetBlock(double range) {
+        return this.level.clip(setupRayTraceContext(this.caster, range, ClipContext.Fluid.NONE));
+    }
+
+/*    protected List<LivingEntity> getEntitiesInLine(double range) {
+        List<LivingEntity> entityList = new ObjectArrayList<>();
+        double dist = range * range;
+        Vec3 startPos = this.caster.getEyePosition(1.0F);
+        LivingEntity startEntity = this.caster;
+        while (true) {
+            LivingEntity livingEntity = getTargetEntity(startEntity, startPos, range);
+            if (livingEntity != null && livingEntity.distanceToSqr(this.caster) < dist && !entityList.contains(livingEntity)) {
+                entityList.add(livingEntity);
+                startPos = livingEntity.getBoundingBox().getCenter();
+                startEntity = livingEntity;
+            } else {
+                break;
+            }
+        }
+        return entityList;
+    }*/
+
     protected @Nullable LivingEntity getTargetEntity(double range) {
         return getTargetEntity(this.caster, range);
     }
 
     public @Nullable LivingEntity getTargetEntity(LivingEntity livingEntity, double range) {
-        Vec3 eyePosition = livingEntity.getEyePosition(1.0F);
+        return getTargetEntity(livingEntity, livingEntity.getEyePosition(1.0F), range);
+    }
+
+    private @Nullable LivingEntity getTargetEntity(LivingEntity livingEntity, Vec3 startPosition, double range) {
         Vec3 lookVec = livingEntity.getViewVector(1.0F);
-        Vec3 maxLength = eyePosition.add(lookVec.x * range, lookVec.y * range, lookVec.z * range);
+        Vec3 maxLength = startPosition.add(lookVec.x * range, lookVec.y * range, lookVec.z * range);
         AABB aabb = livingEntity.getBoundingBox().expandTowards(lookVec.scale(range)).inflate(2.0);
 
-        EntityHitResult hitResult = ProjectileUtil.getEntityHitResult(livingEntity, eyePosition, maxLength, aabb, EntitySelector.NO_CREATIVE_OR_SPECTATOR, range * range);
+        EntityHitResult hitResult = ProjectileUtil.getEntityHitResult(livingEntity, startPosition, maxLength, aabb, EntitySelector.NO_CREATIVE_OR_SPECTATOR, range * range);
         BlockHitResult blockHitResult = livingEntity.level().clip(setupRayTraceContext(livingEntity, range, ClipContext.Fluid.NONE));
 
         if (hitResult == null)
@@ -339,7 +367,7 @@ public abstract class AbstractSpell {
         if (hitResult.getEntity() instanceof LivingEntity targetEntity) {
 
             if (!blockHitResult.getType().equals(BlockHitResult.Type.MISS)) {
-                double blockDistance = blockHitResult.getLocation().distanceTo(eyePosition);
+                double blockDistance = blockHitResult.getLocation().distanceTo(startPosition);
                 if (blockDistance > targetEntity.distanceTo(livingEntity)) {
                     return targetEntity;
                 }
@@ -389,13 +417,14 @@ public abstract class AbstractSpell {
             }
 
             if (prevSpell != null) {
-                this.castId = prevSpell.castId++;
+                this.castId = prevSpell.castId + 1;
                 incrementId = false;
                 CompoundTag nbt = prevSpell.saveData(new CompoundTag());
                 this.load(nbt);
             }
         }
 
+        //Play Fail Animation
         if (!this.castPredicate.test(this.context, this)) return;
 
         activateSpell();

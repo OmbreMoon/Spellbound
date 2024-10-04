@@ -1,52 +1,29 @@
 package com.ombremoon.spellbound.common.content.entity;
 
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializer;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animation.*;
-import software.bernie.geckolib.animation.AnimationState;
 
 import java.util.Map;
 import java.util.UUID;
 
 public class ShadowGate extends SpellEntity {
-    private static final EntityDataAccessor<Boolean> SPAWNING = SynchedEntityData.defineId(ShadowGate.class, EntityDataSerializers.BOOLEAN);
-    private static final EntityDataAccessor<Boolean> ENDING = SynchedEntityData.defineId(ShadowGate.class, EntityDataSerializers.BOOLEAN);
     private final Map<UUID, Integer> portalCooldown = new Object2IntOpenHashMap<>();
 
     public ShadowGate(EntityType<?> entityType, Level level) {
         super(entityType, level);
     }
-
-    @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        super.defineSynchedData(builder);
-        builder.define(SPAWNING, true);
-        builder.define(ENDING, false);
-    }
-
     @Override
     public void tick() {
         super.tick();
-        for (var entry : this.portalCooldown.entrySet()) {
-            int i = entry.getValue();
-            i--;
-            if (i > 0) {
-                this.portalCooldown.replace(entry.getKey(), i);
-            } else {
-                this.portalCooldown.remove(entry.getKey());
-            }
-        }
+        this.portalCooldown.entrySet().removeIf(entry -> entry.getValue() <= this.tickCount);
     }
 
-    public void addCooldown(LivingEntity entity, int ticks) {
-        this.portalCooldown.put(entity.getUUID(), ticks);
+    public void addCooldown(LivingEntity entity) {
+        this.portalCooldown.put(entity.getUUID(), this.tickCount + 20);
     }
 
     public boolean isOnCooldown(LivingEntity livingEntity) {
@@ -54,11 +31,19 @@ public class ShadowGate extends SpellEntity {
     }
 
     public boolean isEnding() {
-        return this.entityData.get(ENDING);
+        byte b0 = this.entityData.get(ID_FLAGS);
+        return (b0 & 1) != 0;
     }
 
     public void setEnding(boolean ending) {
-        this.entityData.set(ENDING, ending);
+        this.setFlag(1, ending);
+    }
+
+    @Override
+    public void onAddedToLevel() {
+        super.onAddedToLevel();
+        if (this.getOwner() != null)
+            this.setYRot(this.getOwner().getYRot());
     }
 
     @Override

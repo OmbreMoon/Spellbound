@@ -47,6 +47,13 @@ public class ClientPayloadHandler {
         });
     }
 
+    public static void handleClientSetRotation(SetRotationPayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            context.player().setXRot(payload.xRot());
+            context.player().setYRot(payload.yRot());
+        });
+    }
+
     public static void handleClientShakeScreen(ShakeScreenPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             CameraEngine cameraEngine = CameraEngine.getOrAssignEngine(context.player());

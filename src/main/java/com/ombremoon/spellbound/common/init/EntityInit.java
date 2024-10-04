@@ -19,7 +19,7 @@ public class EntityInit {
 
     public static final Supplier<EntityType<MushroomEntity>> MUSHROOM = ENTITIES.register("wild_mushroom",
             () -> EntityType.Builder.of(MushroomEntity::new, MobCategory.MISC).sized(0.9f, 0.9f).build("wild_mushroom"));
-    public static final Supplier<EntityType<ShadowGate>> SHADOW_GATE = registerEntity("shadow_gate", ShadowGate::new, 1.2F, 2.9F);
+    public static final Supplier<EntityType<ShadowGate>> SHADOW_GATE = registerEntity("shadow_gate", ShadowGate::new, 1.2F, 2.5F);
 
 
     protected static <T extends Entity> Supplier<EntityType<T>> registerEntity(String name, EntityType.EntityFactory<T> factory, float width, float height) {
