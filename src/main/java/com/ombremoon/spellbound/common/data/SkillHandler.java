@@ -66,7 +66,9 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
     }
 
     public <T extends AbstractSpell> void resetSkills(SpellType<T> spellType) {
-        this.unlockedSkills.put(spellType, new HashSet<>());
+        this.unlockedSkills.put(spellType, new HashSet<>() {{
+            add(spellType.getRootSkill());
+        }});
     }
 
     public void unlockSkill(Skill skill) {
