@@ -5,6 +5,7 @@ import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import net.minecraft.sounds.SoundEvent;
 
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 public abstract class AnimatedSpell extends AbstractSpell {
@@ -37,7 +38,7 @@ public abstract class AnimatedSpell extends AbstractSpell {
             return this;
         }
 
-        public Builder<T> castCondition(Predicate<SpellContext> castCondition) {
+        public Builder<T> castCondition(BiPredicate<SpellContext, T> castCondition) {
             this.castPredicate = castCondition;
             return this;
         }

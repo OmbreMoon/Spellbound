@@ -13,12 +13,10 @@ import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
@@ -143,7 +141,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         if (this.activeSpells.containsKey(spell.getSpellType()))
             this.activeSpells.get(spell.getSpellType()).stream().filter(abstractSpell -> !abstractSpell.shouldPersist()).forEach(AbstractSpell::endSpell);
 
-        this.activeSpells.put(spell.getSpellType(), spell);
+        this.activeSpells.replaceValues(spell.getSpellType(), List.of(spell));
     }
 
     public Collection<AbstractSpell> getActiveSpells(SpellType<?> spellType) {
@@ -195,14 +193,8 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         activeSummons.put(spell, mobIds);
     }
 
-    public void endSummonSpells() {
-        for (SpellType<?> spellType : this.activeSpells.keys()) {
-            if (spellType.getPath() == SpellPath.SUMMONS) {
-                for (AbstractSpell spell : this.activeSpells.get(spellType)) {
-                    spell.endSpell();
-                }
-            }
-        }
+    public void endSpells() {
+        this.activeSpells.forEach((spellType, spell) -> spell.endSpell());
     }
 
     public SpellEventListener getListener() {

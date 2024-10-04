@@ -4,6 +4,7 @@ import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.init.StatInit;
+import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.api.ModifierType;
 import com.ombremoon.spellbound.common.magic.events.SpellEvent;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
@@ -32,16 +33,17 @@ import org.jetbrains.annotations.UnknownNullability;
 import org.slf4j.Logger;
 
 import java.util.UUID;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
+@SuppressWarnings("unchecked")
 public abstract class AbstractSpell {
     protected static final Logger LOGGER = Constants.LOG;
     private final SpellType<?> spellType;
     private final int manaCost;
     private final int duration;
     private final int castTime;
-    private Predicate<SpellContext> castPredicate;
+    private final BiPredicate<SpellContext, AbstractSpell> castPredicate;
     private final CastType castType;
     private final SoundEvent castSound;
     private final boolean fullRecast;
@@ -68,7 +70,7 @@ public abstract class AbstractSpell {
         this.manaCost = builder.manaCost;
         this.duration = builder.duration;
         this.castTime = builder.castTime;
-        this.castPredicate = builder.castPredicate;
+        this.castPredicate = (BiPredicate<SpellContext, AbstractSpell>) builder.castPredicate;
         this.castType = builder.castType;
         this.castSound = builder.castSound;
         this.fullRecast = builder.fullRecast;
@@ -371,8 +373,6 @@ public abstract class AbstractSpell {
         if (!list.isEmpty()) this.isRecast = true;
         this.context = new SpellContext(this.caster, this.level, this.blockPos, this.getTargetEntity(8), this.isRecast);
 
-        if (!this.castPredicate.test(this.context)) return;
-
         boolean incrementId = true;
         if (this.isRecast) {
             AbstractSpell prevSpell = null;
@@ -389,6 +389,8 @@ public abstract class AbstractSpell {
                 this.load(nbt);
             }
         }
+
+        if (!this.castPredicate.test(this.context, this)) return;
 
         activateSpell();
         player.awardStat(StatInit.SPELLS_CAST.get());
@@ -423,7 +425,7 @@ public abstract class AbstractSpell {
         protected int duration = 10;
         protected int manaCost;
         protected int castTime = 1;
-        protected Predicate<SpellContext> castPredicate = context -> true;
+        protected BiPredicate<SpellContext, T> castPredicate = (context, abstractSpell) -> true;
         protected CastType castType = CastType.CHARGING;
         protected SoundEvent castSound;
         protected boolean partialRecast;
@@ -452,6 +454,11 @@ public abstract class AbstractSpell {
 
         public Builder<T> castSound(SoundEvent castSound) {
             this.castSound = castSound;
+            return this;
+        }
+
+        public Builder<T> castCondition(BiPredicate<SpellContext, T> castCondition) {
+            this.castPredicate = castCondition;
             return this;
         }
 
