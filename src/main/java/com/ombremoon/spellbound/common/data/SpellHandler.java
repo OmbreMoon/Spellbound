@@ -4,6 +4,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.common.init.AttributesInit;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
@@ -114,7 +115,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     }
 
     public void awardMana(float mana) {
-        caster.setData(DataInit.MANA, caster.getData(DataInit.MANA) + mana);
+        caster.setData(DataInit.MANA, Math.min(caster.getData(DataInit.MANA) + mana, this.caster.getAttribute(AttributesInit.MAX_MANA).getValue()));
         PayloadHandler.syncMana(caster);
     }
 

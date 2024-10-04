@@ -49,10 +49,12 @@ public class ShadowGateSpell extends AnimatedSpell {
                 if (hitResult.getType() == HitResult.Type.MISS || hitResult.getDirection() == Direction.DOWN) return false;
 
                 BlockPos blockPos = hitResult.getBlockPos().above();
+                if (!context.getLevel().getBlockState(blockPos).isAir()) return false;
                 if (activePortals > 1) {
-                    int portalRange = hasReach ? 2500 : 10000;
+                    int portalRange = hasReach ? 10000 : 2500;
                     PortalInfo info = shadowGate.portalInfo.get(shadowGate.getPreviousGate());
-                    if (info.position().distanceToSqr(blockPos.getCenter()) > portalRange) return false;
+                    double distance = info.position().distanceToSqr(blockPos.getCenter());
+                    if (distance > portalRange) return false;
                 }
 
                 if (context.getSkillHandler().hasSkill(SkillInit.DARKNESS_PREVAILS.value())) return true;
@@ -83,7 +85,6 @@ public class ShadowGateSpell extends AnimatedSpell {
             this.portalInfo.put(shadowGate.getId(), info);
             context.getLevel().addFreshEntity(shadowGate);
             shadowGate.setPos(vec3.x(), vec3.y(), vec3.z());
-            LOGGER.info("WORKED");
         }
     }
 
@@ -116,7 +117,7 @@ public class ShadowGateSpell extends AnimatedSpell {
                                 if (context.getSkillHandler().hasSkill(SkillInit.BLINK.value()) && isCaster(entity))
                                     addTimedAttributeModifier(entity, Attributes.MOVEMENT_SPEED, new AttributeModifier(CommonClass.customLocation("blink"), 1.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), 100);
 
-                                if (context.getSkillHandler().hasSkill(SkillInit.QUICK_RECHARGE.value())) {
+                                if (context.getSkillHandler().hasSkillReady(SkillInit.QUICK_RECHARGE.value())) {
                                     context.getSpellHandler().awardMana(20);
                                     addCooldown(SkillInit.QUICK_RECHARGE.value(), 200);
                                 }
