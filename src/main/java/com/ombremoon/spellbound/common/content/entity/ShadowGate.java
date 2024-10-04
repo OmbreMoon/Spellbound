@@ -1,15 +1,18 @@
 package com.ombremoon.spellbound.common.content.entity;
 
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.TraceableEntity;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.UUID;
 
 public class ShadowGate extends SpellEntity {
-    private Map<UUID, Integer> portalCooldown = new Object2IntOpenHashMap<>();
+    private final Map<UUID, Integer> portalCooldown = new Object2IntOpenHashMap<>();
 
     public ShadowGate(EntityType<?> entityType, Level level) {
         super(entityType, level);

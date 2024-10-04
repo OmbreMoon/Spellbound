@@ -6,18 +6,24 @@ import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
-import com.ombremoon.spellbound.common.magic.*;
+import com.ombremoon.spellbound.common.magic.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.SpellEventListener;
+import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -34,7 +40,8 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     protected Set<SpellType<?>> spellSet = new ObjectOpenHashSet<>();
     protected Multimap<SpellType<?>, AbstractSpell> activeSpells = ArrayListMultimap.create();
     protected SpellType<?> selectedSpell;
-    protected Map<SummonSpell, Set<Integer>> activeSummons = new Object2ObjectOpenHashMap<>();
+    private final Map<SummonSpell, Set<Integer>> activeSummons = new Object2ObjectOpenHashMap<>();
+    private final Map<ModifierData, Integer> transientModifiers = new Object2IntOpenHashMap<>();
     public int castTick;
     private boolean channelling;
 
@@ -69,11 +76,26 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         activeSpells.forEach((spellType, spell) -> spell.tick());
         activeSpells.entries().removeIf(entry -> entry.getValue().isInactive);
 
+        for (var entry : this.transientModifiers.entrySet()) {
+            int i = entry.getValue();
+            i--;
+            if (i > 0) {
+                this.transientModifiers.replace(entry.getKey(), i);
+            } else {
+                this.caster.getAttribute(entry.getKey().attribute()).removeModifier(entry.getKey().attributeModifier());
+                this.transientModifiers.remove(entry.getKey());
+            }
+        }
+
         this.skillHandler.tickModifiers();
         this.skillHandler.getCooldowns().tick();
         this.listener.tickInstances();
 
         debug();
+    }
+
+    public boolean consumeMana(float amount) {
+        return consumeMana(amount, true);
     }
 
     public boolean consumeMana(float amount, boolean forceConsume) {
@@ -165,6 +187,10 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.channelling = channelling;
     }
 
+    public void addTransientModifier(Holder<Attribute> attribute, AttributeModifier attributeModifier, int ticks) {
+        this.transientModifiers.put(new ModifierData(attribute, attributeModifier), ticks);
+    }
+
     public Set<Integer> getSummonsForRemoval(SummonSpell spell) {
         Set<Integer> expiredSummons = activeSummons.get(spell);
         activeSummons.remove(spell);
@@ -178,7 +204,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
                 level.getEntity(mob).discard();
             }
         }
-        activeSummons = new HashMap<>();
+        activeSummons.clear();
     }
 
     public Set<Integer> getAllSummons() {
@@ -250,4 +276,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
             this.spellSet = set;
         }
     }
+
+    private record ModifierData(Holder<Attribute> attribute, AttributeModifier attributeModifier) {}
 }

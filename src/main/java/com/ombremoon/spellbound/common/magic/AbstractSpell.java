@@ -4,7 +4,6 @@ import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.init.StatInit;
-import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.api.ModifierType;
 import com.ombremoon.spellbound.common.magic.events.SpellEvent;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
@@ -219,14 +218,15 @@ public abstract class AbstractSpell {
         return true;
     }
 
-    public void addTimedModifier(Player player, SpellModifier spellModifier, int expiryTick) {
-        var handler = SpellUtil.getSkillHandler(player);
+    public void addTimedModifier(LivingEntity livingEntity, SpellModifier spellModifier, int expiryTick) {
+        var handler = SpellUtil.getSkillHandler(livingEntity);
         handler.addModifierWithExpiry(spellModifier, expiryTick);
     }
 
-    public void addTimedListener(Player player, SpellEventListener.IEvent event, UUID uuid, Consumer<? extends SpellEvent> consumer, int expiryTicks) {
-        var handler = SpellUtil.getSpellHandler(player);
-        handler.getListener().addListenerWithExpiry(event, uuid, consumer, expiryTicks);
+    public void addTimedListener(LivingEntity livingEntity, SpellEventListener.IEvent event, UUID uuid, Consumer<? extends SpellEvent> consumer, int expiryTicks) {
+        var listener = SpellUtil.getSpellHandler(livingEntity).getListener();
+        if (!listener.hasListener(event, uuid))
+            listener.addListenerWithExpiry(event, uuid, consumer, expiryTicks);
     }
 
     protected float potency() {
@@ -258,13 +258,19 @@ public abstract class AbstractSpell {
         return livingEntity.getAttribute(attribute).hasModifier(modifier);
     }
 
+    public void addTimedAttributeModifier(LivingEntity livingEntity, Holder<Attribute> attribute, AttributeModifier modifier, int ticks) {
+        addAttributeModifier(livingEntity, attribute, modifier);
+        SpellUtil.getSpellHandler(livingEntity).addTransientModifier(attribute, modifier, ticks);
+    }
+
     /**
      * Adds a given attribute modifier to a chosen attribute on the caster
      * @param attribute The attribute to apply a modifier to
      * @param modifier the AttributeModifier to apply
      */
     public void addAttributeModifier(LivingEntity livingEntity, Holder<Attribute> attribute, AttributeModifier modifier) {
-        livingEntity.getAttribute(attribute).addTransientModifier(modifier);
+        if (!hasAttributeModifier(livingEntity, attribute, modifier.id()))
+            livingEntity.getAttribute(attribute).addTransientModifier(modifier);
     }
 
     /**
@@ -274,6 +280,10 @@ public abstract class AbstractSpell {
      */
     public void removeAttributeModifier(LivingEntity livingEntity, Holder<Attribute> attribute, ResourceLocation modifier) {
         livingEntity.getAttribute(attribute).removeModifier(modifier);
+    }
+
+    protected boolean isCaster(LivingEntity livingEntity) {
+        return livingEntity.getUUID() == this.caster.getUUID();
     }
 
     public static float getPowerForTime(AbstractSpell spell, int pCharge) {
@@ -287,10 +297,6 @@ public abstract class AbstractSpell {
 
     protected void addCooldown(Skill skill, int ticks) {
         this.context.getSkillHandler().getCooldowns().addCooldown(skill, ticks);
-    }
-
-    protected boolean isOnCooldown(Skill skill) {
-        return this.context.getSkillHandler().getCooldowns().isOnCooldown(skill);
     }
 
     protected void addScreenShake(Player player) {

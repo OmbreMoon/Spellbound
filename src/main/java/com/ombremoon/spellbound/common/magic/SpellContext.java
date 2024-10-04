@@ -84,8 +84,4 @@ public class SpellContext {
     public boolean hasActiveSpells(SpellType<?> spell, int amount) {
         return this.spellHandler.getActiveSpells(spell).size() >= amount;
     }
-
-    public boolean hasSpellActive(AbstractSpell spell) {
-        return this.spellHandler.getActiveSpells(spell.getSpellType()).contains(spell);
-    }
 }
