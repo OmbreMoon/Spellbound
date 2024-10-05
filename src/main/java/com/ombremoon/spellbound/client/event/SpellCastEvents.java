@@ -104,6 +104,7 @@ public class SpellCastEvents {
         if (!SpellUtil.canCastSpell(player, spell)) return;
 
         PayloadHandler.castSpell(spellType);
+        spell.initSpell(player, player.level(), player.getOnPos());
         var animation = (ModifierLayer<IAnimation>) PlayerAnimationAccess.getPlayerAssociatedData((AbstractClientPlayer) player).get(CommonClass.customLocation("animation"));
         if (animation != null)
             animation.setAnimation(new KeyframeAnimationPlayer((KeyframeAnimation) PlayerAnimationRegistry.getAnimation(CommonClass.customLocation("test"))));

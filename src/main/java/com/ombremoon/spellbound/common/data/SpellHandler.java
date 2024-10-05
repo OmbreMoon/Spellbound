@@ -23,6 +23,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
@@ -43,6 +44,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     protected SpellType<?> selectedSpell;
     private final Map<SummonSpell, Set<Integer>> activeSummons = new Object2ObjectOpenHashMap<>();
     private final Map<ModifierData, Integer> transientModifiers = new Object2IntOpenHashMap<>();
+    private final Set<LivingEntity> afterGlowEntities = new ObjectOpenHashSet<>();
     public int castTick;
     private boolean channelling;
 
@@ -70,19 +72,20 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.castMode = !this.castMode;
     }
 
+    public void tick() {
+        activeSpells.forEach((spellType, spell) -> spell.tick());
+        activeSpells.entries().removeIf(entry -> entry.getValue().isInactive);
+
+        if (!this.caster.level().isClientSide)
+            serverTick();
+    }
+
     /**
      * Called every tick on the server
      */
     public void serverTick() {
-        activeSpells.forEach((spellType, spell) -> spell.tick());
-        activeSpells.entries().removeIf(entry -> entry.getValue().isInactive);
-
         for (var entry : this.transientModifiers.entrySet()) {
-            int i = entry.getValue();
-            i--;
-            if (i > 0) {
-                this.transientModifiers.replace(entry.getKey(), i);
-            } else {
+            if (entry.getValue() <= this.caster.tickCount) {
                 this.caster.getAttribute(entry.getKey().attribute()).removeModifier(entry.getKey().attributeModifier());
                 this.transientModifiers.remove(entry.getKey());
             }
@@ -171,6 +174,10 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         return this.activeSpells.get(spellType);
     }
 
+    public boolean isSpellActive(SpellType<?> spellType) {
+        return !getActiveSpells(spellType).isEmpty();
+    }
+
     public SpellType<?> getSelectedSpell() {
         return this.selectedSpell != null ? this.selectedSpell : !getSpellList().isEmpty() && getSpellList().iterator().hasNext() ? getSpellList().iterator().next() : null;
     }
@@ -189,7 +196,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     }
 
     public void addTransientModifier(Holder<Attribute> attribute, AttributeModifier attributeModifier, int ticks) {
-        this.transientModifiers.put(new ModifierData(attribute, attributeModifier), ticks);
+        this.transientModifiers.put(new ModifierData(attribute, attributeModifier), this.caster.tickCount + ticks);
     }
 
     public Set<Integer> getSummonsForRemoval(SummonSpell spell) {
@@ -218,6 +225,18 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     public void addSummons(SummonSpell spell, Set<Integer> mobIds) {
         activeSummons.put(spell, mobIds);
+    }
+
+    public void addAfterglow(LivingEntity livingEntity) {
+        this.afterGlowEntities.add(livingEntity);
+    }
+
+    public void removeAfterglow(LivingEntity livingEntity) {
+        this.afterGlowEntities.remove(livingEntity);
+    }
+
+    public boolean hasAfterGlow(LivingEntity livingEntity) {
+        return this.afterGlowEntities.contains(livingEntity);
     }
 
     public void endSpells() {

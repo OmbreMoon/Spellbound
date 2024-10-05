@@ -55,9 +55,9 @@ public class NeoForgeEvents {
             livingEntity.getData(DataInit.STATUS_EFFECTS).init(livingEntity);
 
             if (livingEntity instanceof Player player) {
+                var handler = SpellUtil.getSpellHandler(player);
+                handler.initData(player);
                 if (!player.level().isClientSide) {
-                    var handler = SpellUtil.getSpellHandler(player);
-                    handler.initData(player);
                     handler.sync();
 
                     var skillHandler = SpellUtil.getSkillHandler(player);
@@ -72,12 +72,8 @@ public class NeoForgeEvents {
 
     @SubscribeEvent
     public static void onHandlerTick(PlayerTickEvent.Post event) {
-        Player player = event.getEntity();
-
-        if (!player.level().isClientSide) {
-            var handler = SpellUtil.getSpellHandler(player);
-            handler.serverTick();
-        }
+        var handler = SpellUtil.getSpellHandler(event.getEntity());
+        handler.tick();
     }
 
     @SubscribeEvent

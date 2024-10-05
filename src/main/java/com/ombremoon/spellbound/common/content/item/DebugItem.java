@@ -50,6 +50,7 @@ public class DebugItem extends Item {
     }
 
     private void ombreDebug(Level level, Player player, InteractionHand usedHand, SpellHandler spellHandler, SkillHandler skillHandler) {
+        Constants.LOG.info("{}", spellHandler.getActiveSpells(SpellInit.SHADOW_GATE.get()));
         if (!level.isClientSide) {
 //            spellHandler.clearList();
 //            spellHandler.setSelectedSpell(SpellInit.WILD_MUSHROOM_SPELL.get());
@@ -60,7 +61,6 @@ public class DebugItem extends Item {
 //            Constants.LOG.info("{}", tree.children());
 //            Constants.LOG.info("{}", tree.roots());
         } else {
-            Constants.LOG.info("{}", skillHandler.unlockedSkills);
         }
     }
 }

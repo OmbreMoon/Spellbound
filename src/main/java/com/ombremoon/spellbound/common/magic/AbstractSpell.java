@@ -168,17 +168,15 @@ public abstract class AbstractSpell {
     }
 
     public void tick() {
-        if (!level.isClientSide) {
-            ticks++;
-            if (init) {
-                this.startSpell();
-            } else if (!isInactive) {
-                if (this.shouldTickEffect(this.context)) {
-                    this.tickSpell();
-                }
-                if (this.getCastType() != CastType.CHANNEL && ticks % getDuration() == 0) {
-                    this.endSpell();
-                }
+        ticks++;
+        if (init) {
+            this.startSpell();
+        } else if (!isInactive) {
+            if (this.shouldTickEffect(this.context)) {
+                this.tickSpell();
+            }
+            if (this.getCastType() != CastType.CHANNEL && ticks % getDuration() == 0) {
+                this.endSpell();
             }
         }
     }
@@ -453,7 +451,7 @@ public abstract class AbstractSpell {
             handler.activateSpell(this);
         }
         handler.consumeMana(getManaCost(), true);
-        PayloadHandler.syncMana(this.caster);
+//        PayloadHandler.syncMana(this.caster);
     }
 
     public static class Builder<T extends AbstractSpell> {

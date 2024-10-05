@@ -100,6 +100,12 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
     maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+    maven {
         name "KosmX's maven"
         url 'https://maven.kosmx.dev/'
     }
@@ -114,13 +120,16 @@ repositories {
         name = "SmartBrainLib (SBL) Maven Repo"
         url = "https://dl.cloudsmith.io/public/tslat/sbl/maven/"
     }
+    flatDir {
+        dir 'libs'
+    }
 }
 
 dependencies {
     implementation "dev.kosmx.player-anim:player-animation-lib-forge:${player_anim}"
     implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
     implementation "net.tslat.smartbrainlib:SmartBrainLib-neoforge-${project.minecraft_version}:${project.sbl_version}"
-    annotationProcessor "org.spongepowered:mixin:${mixin_version}:processor"
+    implementation "curse.maven:sentinellib-1074465:5784029"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

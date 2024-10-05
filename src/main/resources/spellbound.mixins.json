@@ -5,8 +5,10 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "spellbound.refmap.json",
   "mixins": [
+    "LivingEntityMixin"
   ],
   "client": [
+    "LivingEntityRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
