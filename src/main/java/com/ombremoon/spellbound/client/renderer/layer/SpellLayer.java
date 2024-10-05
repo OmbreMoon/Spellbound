@@ -1,3 +1,4 @@
+/*
 package com.ombremoon.spellbound.client.renderer.layer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -6,8 +7,9 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.world.entity.LivingEntity;
+import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
-public class SpellLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
+public class SpellLayer<T extends LivingEntity, M extends EntityModel<T>> extends GeoRenderLayer<T, M> {
     public SpellLayer(RenderLayerParent<T, M> renderer) {
         super(renderer);
     }
@@ -21,3 +23,4 @@ public class SpellLayer<T extends LivingEntity, M extends EntityModel<T>> extend
 
     }
 }
+*/

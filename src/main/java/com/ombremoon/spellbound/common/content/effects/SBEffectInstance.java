@@ -45,7 +45,6 @@ public class SBEffectInstance extends MobEffectInstance {
         super.onEffectAdded(livingEntity);
         if (this.getEffect().is(EffectInit.AFTERGLOW)) {
             var handler = SpellUtil.getSpellHandler(this.causeEntity);
-            handler.addAfterglow(livingEntity);
         }
     }
 }

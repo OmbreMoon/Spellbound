@@ -15,6 +15,7 @@ import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -44,7 +45,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     protected SpellType<?> selectedSpell;
     private final Map<SummonSpell, Set<Integer>> activeSummons = new Object2ObjectOpenHashMap<>();
     private final Map<ModifierData, Integer> transientModifiers = new Object2IntOpenHashMap<>();
-    private final Set<LivingEntity> afterGlowEntities = new ObjectOpenHashSet<>();
+    private final Set<Integer> afterGlowEntities = new IntOpenHashSet();
     public int castTick;
     private boolean channelling;
 
@@ -228,15 +229,15 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     }
 
     public void addAfterglow(LivingEntity livingEntity) {
-        this.afterGlowEntities.add(livingEntity);
+        this.afterGlowEntities.add(livingEntity.getId());
     }
 
     public void removeAfterglow(LivingEntity livingEntity) {
-        this.afterGlowEntities.remove(livingEntity);
+        this.afterGlowEntities.remove(livingEntity.getId());
     }
 
     public boolean hasAfterGlow(LivingEntity livingEntity) {
-        return this.afterGlowEntities.contains(livingEntity);
+        return this.afterGlowEntities.contains(livingEntity.getId());
     }
 
     public void endSpells() {

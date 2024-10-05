@@ -82,6 +82,8 @@ public class SpellCastEvents {
                 handler.castTick++;
                 PayloadHandler.whenCasting(spellType, handler.castTick, handler.getActiveSpells(spellType).size() > 1);
             }
+        } else if (!KeyBinds.getSpellCastMapping().isDown() && handler.castTick > 0) {
+            handler.castTick = 0;
         } else if (handler.isChannelling()) {
             handler.setChannelling(false);
             PayloadHandler.stopChannel();

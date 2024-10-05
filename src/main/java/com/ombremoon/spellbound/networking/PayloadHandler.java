@@ -63,6 +63,11 @@ public class PayloadHandler {
                 ));
     }
 
+    public static void syncMana(Player player) {
+        PacketDistributor.sendToPlayer((ServerPlayer) player,
+                new ClientSyncManaPayload(player.getData(DataInit.MANA)));
+    }
+
     public static void openWorkbenchScreen(Player player) {
         PacketDistributor.sendToPlayer((ServerPlayer) player, new OpenWorkbenchPayload());
     }
@@ -79,9 +84,8 @@ public class PayloadHandler {
         PacketDistributor.sendToPlayer((ServerPlayer) player, new SetRotationPayload(xRot, yRot));
     }
 
-    public static void syncMana(Player player) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player,
-                new ClientSyncManaPayload(player.getData(DataInit.MANA)));
+    public static void removeAfterglow(Player player, int entityId) {
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new RemoveAfterglowPayload(entityId));
     }
 
     @SubscribeEvent
@@ -152,6 +156,11 @@ public class PayloadHandler {
                 SetRotationPayload.TYPE,
                 SetRotationPayload.CODEC,
                 ClientPayloadHandler::handleClientSetRotation
+        );
+        registrar.playToClient(
+                RemoveAfterglowPayload.TYPE,
+                RemoveAfterglowPayload.CODEC,
+                ClientPayloadHandler::handleRemoveAfterglow
         );
     }
 }
