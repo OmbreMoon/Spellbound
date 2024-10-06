@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.common.magic;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.ombremoon.spellbound.common.magic.events.SpellEvent;
+import com.ombremoon.spellbound.common.magic.tree.SkillNode;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.world.entity.player.Player;
 
@@ -19,6 +20,13 @@ public class SpellEventListener {
         this.player = player;
     }
 
+    public boolean hasListener(IEvent event, UUID uuid) {
+        for (var instance : this.events.get(event)) {
+            if (instance.uuid().equals(uuid)) return true;
+        }
+        return false;
+    }
+    
     public <T extends SpellEvent> void addListener(IEvent event, UUID uuid, Consumer<T> consumer) {
         if (checkSide(event)) return;
         this.events.put(event, new EventInstance<>(uuid, consumer));
@@ -48,14 +56,10 @@ public class SpellEventListener {
     }
 
     public void tickInstances() {
-        for (var entry : this.timedEvents.entrySet()) {
-            int i = entry.getValue();
-            i--;
-            if (i > 0) {
-                this.timedEvents.replace(entry.getKey(), i);
-            } else {
-                this.removeListener(entry.getKey());
-                this.timedEvents.remove(entry.getKey());
+        if (!this.timedEvents.isEmpty()) {
+            for (var entry : this.timedEvents.entrySet()) {
+                if (entry.getValue() <= this.player.tickCount)
+                    this.removeListener(entry.getKey());
             }
         }
     }

@@ -28,32 +28,13 @@ public class SkillCooldowns {
     public void tick() {
         this.tickCount++;
         if (!this.cooldowns.isEmpty()) {
-            Iterator<Map.Entry<Skill, Instance>> iterator = this.cooldowns.entrySet().iterator();
-
-            while (iterator.hasNext()) {
-                Map.Entry<Skill, Instance> entry = iterator.next();
-                if (entry.getValue().endTime <= this.tickCount) {
-                    iterator.remove();
-                    this.onCooldownEnded(entry.getKey());
-                }
-            }
-
+            this.cooldowns.entrySet().removeIf(entry -> entry.getValue().endTime <= this.tickCount);
         }
     }
 
     public void addCooldown(Skill skill, int ticks) {
         this.cooldowns.put(skill, new Instance(this.tickCount, this.tickCount + ticks));
-        this.onCooldownStarted(skill, ticks);
     }
-
-    public void removeCooldown(Skill skill) {
-        this.cooldowns.remove(skill);
-        this.onCooldownEnded(skill);
-    }
-
-    public void onCooldownStarted(Skill skill, int ticks) {}
-
-    public void onCooldownEnded(Skill skill) {}
 
     record Instance(int startTime, int endTime) {}
 }

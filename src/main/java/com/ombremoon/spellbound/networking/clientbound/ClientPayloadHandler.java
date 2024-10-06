@@ -9,6 +9,8 @@ import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -47,10 +49,26 @@ public class ClientPayloadHandler {
         });
     }
 
+    public static void handleClientSetRotation(SetRotationPayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            context.player().setXRot(payload.xRot());
+            context.player().setYRot(payload.yRot());
+        });
+    }
+
     public static void handleClientShakeScreen(ShakeScreenPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             CameraEngine cameraEngine = CameraEngine.getOrAssignEngine(context.player());
             cameraEngine.shakeScreen(context.player().getRandom().nextInt(), payload.duration(), payload.intensity(), payload.maxOffset(), payload.freq());
+        });
+    }
+
+    public static void handleRemoveAfterglow(RemoveAfterglowPayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            var handler = SpellUtil.getSpellHandler(context.player());
+            Entity entity = context.player().level().getEntity(payload.entityId());
+            if (entity instanceof LivingEntity livingEntity)
+                handler.removeAfterglow(livingEntity);
         });
     }
 }

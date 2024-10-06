@@ -1,10 +1,17 @@
 package com.ombremoon.spellbound.common.content.spell;
 
 import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.common.content.effects.SBEffectInstance;
+import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.init.EffectInit;
+import com.ombremoon.spellbound.common.init.SkillInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.UUID;
 
@@ -38,8 +45,17 @@ public class TestSpell extends ChanneledSpell {
     @Override
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
-        Constants.LOG.info("{}", this.getTargetEntity(8));
-        addScreenShake(context.getPlayer(), 10, 5);
+        LivingEntity livingEntity = this.getTargetEntity(10);
+        if (livingEntity != null) {
+            if (!context.getLevel().isClientSide) {
+                livingEntity.addEffect(new SBEffectInstance(context.getPlayer(), EffectInit.AFTERGLOW, 40, 0, false, false));
+            } else {
+                context.getSpellHandler().addAfterglow(livingEntity);
+            }
+        }
+
+        if (!context.getLevel().isClientSide)
+            addScreenShake(context.getPlayer(), 10, 5);
     }
 
     @Override

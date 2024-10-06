@@ -2,9 +2,11 @@
   "required": true,
   "minVersion": "0.8",
   "package": "com.ombremoon.spellbound.mixin",
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "JAVA_21",
   "refmap": "spellbound.refmap.json",
   "mixins": [
+    "LivingEntityMixin",
+    "MinecraftMixin"
   ],
   "client": [
   ],

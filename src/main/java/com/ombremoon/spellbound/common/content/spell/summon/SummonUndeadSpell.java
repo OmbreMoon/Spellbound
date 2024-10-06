@@ -12,7 +12,7 @@ public class SummonUndeadSpell extends SummonSpell {
         return createSimpleSpellBuilder()
                 .manaCost(10)
                 .duration(180)
-                .castCondition(context -> context.getLevel().getDifficulty() != Difficulty.PEACEFUL);
+                .castCondition((context, spell) -> context.getLevel().getDifficulty() != Difficulty.PEACEFUL);
     }
 
     public SummonUndeadSpell() {

@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.common.content.spell.summon;
 
 import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.common.content.entity.custom.MushroomEntity;
+import com.ombremoon.spellbound.common.content.entity.MushroomEntity;
 import com.ombremoon.spellbound.common.data.SkillHandler;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.data.StatusHandler;
@@ -67,8 +67,7 @@ public class WildMushroomSpell extends SummonSpell {
 
         boolean recycledFlag = context.getSpellHandler().getActiveSpells(getSpellType()).size() >= 3;;
         boolean recycledFlag2 = skillHandler.hasSkill(SkillInit.RECYCLED.value());
-        boolean recyledFlag3 = !this.hasAttributeModifier(context.getPlayer(), AttributesInit.MANA_REGEN, RECYCLED_LOCATION);
-        if (recycledFlag && recycledFlag2 && recyledFlag3)
+        if (recycledFlag && recycledFlag2)
             this.addAttributeModifier(context.getPlayer(), AttributesInit.MANA_REGEN, new AttributeModifier(RECYCLED_LOCATION,
                     1.1d,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
@@ -109,7 +108,7 @@ public class WildMushroomSpell extends SummonSpell {
         }
 
         if (!entities.isEmpty() && skills.hasSkillReady(SkillInit.CATALEPSY.value()))
-            skills.getCooldowns().addCooldown(SkillInit.CATALEPSY.value(), 200);
+            this.addCooldown(SkillInit.CATALEPSY.value(), 200);
 
         if (context.getSpellHandler().getActiveSpells(getSpellType()).size() <= 2
                 && this.hasAttributeModifier(context.getPlayer(), AttributesInit.MANA_REGEN, RECYCLED_LOCATION)) {

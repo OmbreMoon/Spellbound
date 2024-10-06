@@ -43,8 +43,9 @@ public class LearnSkillsCommand {
             return 0;
         }
 
-        SpellUtil.getSkillHandler(context.getPlayer()).unlockSkill(skill.value());
-        SpellUtil.getSkillHandler(context.getPlayer()).sync(context.getPlayer());
+        var skillHandler = SpellUtil.getSkillHandler(context.getPlayer());
+        skillHandler.unlockSkill(skill.value());
+        skillHandler.sync(context.getPlayer());
         context.getPlayer().sendSystemMessage(Component.translatable("command.spellbound.singleskilllearnt",
                 skill.value().getName()));
 
@@ -83,6 +84,7 @@ public class LearnSkillsCommand {
         if (!handler.getSpellList().contains(spellType)) return 0;
 
         skillHandler.resetSkills(spellType);
+        skillHandler.sync(context.getPlayer());
         return 1;
     }
 }

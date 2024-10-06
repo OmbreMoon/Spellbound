@@ -4,22 +4,29 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.common.init.AttributesInit;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
-import com.ombremoon.spellbound.common.magic.*;
+import com.ombremoon.spellbound.common.magic.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.SpellEventListener;
+import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -36,7 +43,9 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     protected Set<SpellType<?>> spellSet = new ObjectOpenHashSet<>();
     protected Multimap<SpellType<?>, AbstractSpell> activeSpells = ArrayListMultimap.create();
     protected SpellType<?> selectedSpell;
-    protected Map<SummonSpell, Set<Integer>> activeSummons = new Object2ObjectOpenHashMap<>();
+    private final Map<SummonSpell, Set<Integer>> activeSummons = new Object2ObjectOpenHashMap<>();
+    private final Map<ModifierData, Integer> transientModifiers = new Object2IntOpenHashMap<>();
+    private final Set<Integer> afterGlowEntities = new IntOpenHashSet();
     public int castTick;
     private boolean channelling;
 
@@ -64,18 +73,34 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.castMode = !this.castMode;
     }
 
+    public void tick() {
+        activeSpells.forEach((spellType, spell) -> spell.tick());
+        activeSpells.entries().removeIf(entry -> entry.getValue().isInactive);
+
+        if (!this.caster.level().isClientSide)
+            serverTick();
+    }
+
     /**
      * Called every tick on the server
      */
     public void serverTick() {
-        activeSpells.forEach((spellType, spell) -> spell.tick());
-        activeSpells.entries().removeIf(entry -> entry.getValue().isInactive);
+        for (var entry : this.transientModifiers.entrySet()) {
+            if (entry.getValue() <= this.caster.tickCount) {
+                this.caster.getAttribute(entry.getKey().attribute()).removeModifier(entry.getKey().attributeModifier());
+                this.transientModifiers.remove(entry.getKey());
+            }
+        }
 
-        this.skillHandler.tickModifiers();
+        this.skillHandler.tickModifiers(this.caster);
         this.skillHandler.getCooldowns().tick();
         this.listener.tickInstances();
 
         debug();
+    }
+
+    public boolean consumeMana(float amount) {
+        return consumeMana(amount, true);
     }
 
     public boolean consumeMana(float amount, boolean forceConsume) {
@@ -94,7 +119,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     }
 
     public void awardMana(float mana) {
-        caster.setData(DataInit.MANA, caster.getData(DataInit.MANA) + mana);
+        caster.setData(DataInit.MANA, Math.min(caster.getData(DataInit.MANA) + mana, this.caster.getAttribute(AttributesInit.MAX_MANA).getValue()));
         PayloadHandler.syncMana(caster);
     }
 
@@ -124,10 +149,11 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     public void learnSpell(SpellType<?> spellType) {
         if (this.spellSet.isEmpty()) this.selectedSpell = spellType;
         this.spellSet.add(spellType);
-        this.skillHandler.unlockSkill(Skill.byName(spellType.location()));
+        this.skillHandler.unlockSkill(spellType.getRootSkill());
         this.upgradeTree.addAll(spellType.getSkills());
         this.upgradeTree.update(this.caster, spellType.getSkills());
         sync();
+        this.skillHandler.sync(this.caster);
     }
 
     public void activateSpell(AbstractSpell spell) {
@@ -142,11 +168,19 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         if (this.activeSpells.containsKey(spell.getSpellType()))
             this.activeSpells.get(spell.getSpellType()).stream().filter(abstractSpell -> !abstractSpell.shouldPersist()).forEach(AbstractSpell::endSpell);
 
-        this.activeSpells.put(spell.getSpellType(), spell);
+        this.activeSpells.replaceValues(spell.getSpellType(), List.of(spell));
     }
 
     public Collection<AbstractSpell> getActiveSpells(SpellType<?> spellType) {
         return this.activeSpells.get(spellType);
+    }
+
+    public Collection<AbstractSpell> getActiveSpells() {
+        return this.activeSpells.values();
+    }
+
+    public boolean isSpellActive(SpellType<?> spellType) {
+        return !getActiveSpells(spellType).isEmpty();
     }
 
     public SpellType<?> getSelectedSpell() {
@@ -166,6 +200,10 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.channelling = channelling;
     }
 
+    public void addTransientModifier(Holder<Attribute> attribute, AttributeModifier attributeModifier, int ticks) {
+        this.transientModifiers.put(new ModifierData(attribute, attributeModifier), this.caster.tickCount + ticks);
+    }
+
     public Set<Integer> getSummonsForRemoval(SummonSpell spell) {
         Set<Integer> expiredSummons = activeSummons.get(spell);
         activeSummons.remove(spell);
@@ -179,7 +217,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
                 level.getEntity(mob).discard();
             }
         }
-        activeSummons = new HashMap<>();
+        activeSummons.clear();
     }
 
     public Set<Integer> getAllSummons() {
@@ -194,14 +232,20 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         activeSummons.put(spell, mobIds);
     }
 
-    public void endSummonSpells() {
-        for (SpellType<?> spellType : this.activeSpells.keys()) {
-            if (spellType.getPath() == SpellPath.SUMMONS) {
-                for (AbstractSpell spell : this.activeSpells.get(spellType)) {
-                    spell.endSpell();
-                }
-            }
-        }
+    public void addAfterglow(LivingEntity livingEntity) {
+        this.afterGlowEntities.add(livingEntity.getId());
+    }
+
+    public void removeAfterglow(LivingEntity livingEntity) {
+        this.afterGlowEntities.remove(livingEntity.getId());
+    }
+
+    public boolean hasAfterGlow(LivingEntity livingEntity) {
+        return this.afterGlowEntities.contains(livingEntity.getId());
+    }
+
+    public void endSpells() {
+        this.activeSpells.forEach((spellType, spell) -> spell.endSpell());
     }
 
     public SpellEventListener getListener() {
@@ -257,4 +301,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
             this.spellSet = set;
         }
     }
+
+    private record ModifierData(Holder<Attribute> attribute, AttributeModifier attributeModifier) {}
 }

@@ -8,6 +8,7 @@ import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 public abstract class ChanneledSpell extends AnimatedSpell {
@@ -32,7 +33,7 @@ public abstract class ChanneledSpell extends AnimatedSpell {
         Player player = context.getPlayer();
         var handler = SpellUtil.getSpellHandler(player);
         handler.setChannelling(true);
-        PayloadHandler.syncSpellsToClient(player);
+//        PayloadHandler.syncSpellsToClient(player);
     }
 
     @Override
@@ -51,7 +52,7 @@ public abstract class ChanneledSpell extends AnimatedSpell {
         Player player = context.getPlayer();
         var handler = SpellUtil.getSpellHandler(player);
         handler.setChannelling(false);
-        PayloadHandler.syncSpellsToClient(player);
+//        PayloadHandler.syncSpellsToClient(player);
     }
 
     public static class Builder<T extends ChanneledSpell> extends AnimatedSpell.Builder<T> {
@@ -76,7 +77,7 @@ public abstract class ChanneledSpell extends AnimatedSpell {
             return this;
         }
 
-        public Builder<T> castCondition(Predicate<SpellContext> castCondition) {
+        public Builder<T> castCondition(BiPredicate<SpellContext, T> castCondition) {
             this.castPredicate = castCondition;
             return this;
         }

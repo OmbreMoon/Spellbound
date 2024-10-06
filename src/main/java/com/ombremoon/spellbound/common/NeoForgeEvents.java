@@ -1,19 +1,16 @@
 package com.ombremoon.spellbound.common;
 
-import com.google.common.collect.Multimap;
 import com.mojang.brigadier.CommandDispatcher;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.commands.LearnSkillsCommand;
 import com.ombremoon.spellbound.common.commands.LearnSpellCommand;
+import com.ombremoon.spellbound.common.content.effects.SBEffectInstance;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.data.StatusHandler;
 import com.ombremoon.spellbound.common.init.AttributesInit;
 import com.ombremoon.spellbound.common.init.DataInit;
-import com.ombremoon.spellbound.common.magic.AbstractSpell;
+import com.ombremoon.spellbound.common.init.EffectInit;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
-import com.ombremoon.spellbound.common.magic.SpellPath;
-import com.ombremoon.spellbound.common.magic.SpellType;
-import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import com.ombremoon.spellbound.common.magic.events.*;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -21,6 +18,7 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -28,16 +26,12 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
-import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.event.entity.living.*;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.server.command.ConfigCommand;
-import org.antlr.v4.runtime.misc.MultiMap;
 
 import java.util.List;
 
@@ -61,10 +55,13 @@ public class NeoForgeEvents {
             livingEntity.getData(DataInit.STATUS_EFFECTS).init(livingEntity);
 
             if (livingEntity instanceof Player player) {
+                var handler = SpellUtil.getSpellHandler(player);
+                handler.initData(player);
                 if (!player.level().isClientSide) {
-                    var handler = SpellUtil.getSpellHandler(player);
-                    handler.initData(player);
                     handler.sync();
+
+                    var skillHandler = SpellUtil.getSkillHandler(player);
+                    skillHandler.sync(player);
 
                     var tree = player.getData(DataInit.UPGRADE_TREE);
                     tree.update(player, tree.getUnlockedSkills());
@@ -75,12 +72,8 @@ public class NeoForgeEvents {
 
     @SubscribeEvent
     public static void onHandlerTick(PlayerTickEvent.Post event) {
-        Player player = event.getEntity();
-
-        if (!player.level().isClientSide) {
-            var handler = SpellUtil.getSpellHandler(player);
-            handler.serverTick();
-        }
+        var handler = SpellUtil.getSpellHandler(event.getEntity());
+        handler.tick();
     }
 
     @SubscribeEvent
@@ -112,7 +105,7 @@ public class NeoForgeEvents {
     public static void onPlayerLeaveWorld(EntityLeaveLevelEvent event) {
         if (event.getEntity() instanceof Player player && player.level() instanceof ServerLevel level) {
             SpellHandler handler = SpellUtil.getSpellHandler(player);
-            handler.endSummonSpells();
+            handler.endSpells();
         }
     }
 
@@ -120,13 +113,13 @@ public class NeoForgeEvents {
     public static void onWorldEnd(ServerStoppingEvent event) {
         List<ServerPlayer> players = event.getServer().getPlayerList().getPlayers();
         for (ServerPlayer player : players) {
-            SpellUtil.getSpellHandler(player).endSummonSpells();
+            SpellUtil.getSpellHandler(player).endSpells();
         }
     }
 
     @SubscribeEvent
     public static void onPlayerLogOut(PlayerEvent.PlayerLoggedOutEvent event) {
-        SpellUtil.getSpellHandler(event.getEntity()).endSummonSpells();
+        SpellUtil.getSpellHandler(event.getEntity()).endSpells();
     }
 
     @SubscribeEvent

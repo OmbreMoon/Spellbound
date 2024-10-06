@@ -28,7 +28,7 @@ import java.util.Set;
 public class SkillHandler implements INBTSerializable<CompoundTag> {
     protected final Map<SpellPath, Float> pathXp = new Object2FloatOpenHashMap<>();
     protected final Map<SpellType<?>, Float> spellXp = new Object2FloatOpenHashMap<>();
-    protected final Map<SpellType<?>, Set<Skill>> unlockedSkills = new Object2ObjectOpenHashMap<>();
+    public final Map<SpellType<?>, Set<Skill>> unlockedSkills = new Object2ObjectOpenHashMap<>();
     private final Set<SpellModifier> permanentModifiers = new ObjectOpenHashSet<>();
     private final Map<SpellModifier, Integer> timedModifiers = new Object2IntOpenHashMap<>();
     private final SkillCooldowns cooldowns = new SkillCooldowns();
@@ -66,7 +66,9 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
     }
 
     public <T extends AbstractSpell> void resetSkills(SpellType<T> spellType) {
-        this.unlockedSkills.put(spellType, new HashSet<>());
+        this.unlockedSkills.put(spellType, new HashSet<>() {{
+            add(spellType.getRootSkill());
+        }});
     }
 
     public void unlockSkill(Skill skill) {
@@ -84,6 +86,7 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         if (skill.isRoot()) return false;
 
         Set<Skill> unlocked = unlockedSkills.get(spellType);
+        if (unlocked == null) return false;
         for (Holder<Skill> prereq : skill.getPrereqs()) {
             if (unlocked.contains(prereq.value())) return true;
         }
@@ -109,16 +112,9 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         return this.permanentModifiers;
     }
 
-    public void tickModifiers() {
-        for (var entry : this.timedModifiers.entrySet()) {
-            int i = entry.getValue();
-            i--;
-            if (i > 0) {
-                this.timedModifiers.replace(entry.getKey(), i);
-            } else {
-                this.timedModifiers.remove(entry.getKey());
-            }
-        }
+    public void tickModifiers(Player player) {
+        if (!this.timedModifiers.isEmpty())
+            this.timedModifiers.entrySet().removeIf(entry -> entry.getValue() <= player.tickCount);
     }
 
     public SkillCooldowns getCooldowns() {

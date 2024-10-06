@@ -26,27 +26,39 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.*;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.slf4j.Logger;
+import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.constant.dataticket.DataTicket;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.UUID;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
-public abstract class AbstractSpell {
+@SuppressWarnings("unchecked")
+public abstract class AbstractSpell implements GeoAnimatable {
     protected static final Logger LOGGER = Constants.LOG;
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    public static final DataTicket<AbstractSpell> DATA_TICKET = new DataTicket<>("abstract_spell", AbstractSpell.class);
     private final SpellType<?> spellType;
     private final int manaCost;
     private final int duration;
     private final int castTime;
-    private Predicate<SpellContext> castPredicate;
+    private final BiPredicate<SpellContext, AbstractSpell> castPredicate;
     private final CastType castType;
     private final SoundEvent castSound;
     private final boolean fullRecast;
     private final boolean partialRecast;
     private final boolean shouldPersist;
+    private final boolean hasLayer;
     private Level level;
     private Player caster;
     private BlockPos blockPos;
@@ -68,12 +80,13 @@ public abstract class AbstractSpell {
         this.manaCost = builder.manaCost;
         this.duration = builder.duration;
         this.castTime = builder.castTime;
-        this.castPredicate = builder.castPredicate;
+        this.castPredicate = (BiPredicate<SpellContext, AbstractSpell>) builder.castPredicate;
         this.castType = builder.castType;
         this.castSound = builder.castSound;
         this.fullRecast = builder.fullRecast;
         this.partialRecast = builder.partialRecast;
         this.shouldPersist = builder.shouldPersist;
+        this.hasLayer = builder.hasLayer;
     }
 
     public SpellType<?> getSpellType() {
@@ -164,17 +177,15 @@ public abstract class AbstractSpell {
     }
 
     public void tick() {
-        if (!level.isClientSide) {
-            ticks++;
-            if (init) {
-                this.startSpell();
-            } else if (!isInactive) {
-                if (this.shouldTickEffect(this.context)) {
-                    this.tickSpell();
-                }
-                if (this.getCastType() != CastType.CHANNEL && ticks % getDuration() == 0) {
-                    this.endSpell();
-                }
+        ticks++;
+        if (init) {
+            this.startSpell();
+        } else if (!isInactive) {
+            if (this.shouldTickEffect(this.context)) {
+                this.tickSpell();
+            }
+            if (this.getCastType() != CastType.CHANNEL && ticks % getDuration() == 0) {
+                this.endSpell();
             }
         }
     }
@@ -217,14 +228,15 @@ public abstract class AbstractSpell {
         return true;
     }
 
-    public void addTimedModifier(Player player, SpellModifier spellModifier, int expiryTick) {
-        var handler = SpellUtil.getSkillHandler(player);
-        handler.addModifierWithExpiry(spellModifier, expiryTick);
+    public void addTimedModifier(LivingEntity livingEntity, SpellModifier spellModifier, int expiryTick) {
+        var handler = SpellUtil.getSkillHandler(livingEntity);
+        handler.addModifierWithExpiry(spellModifier, livingEntity.tickCount + expiryTick);
     }
 
-    public void addTimedListener(Player player, SpellEventListener.IEvent event, UUID uuid, Consumer<? extends SpellEvent> consumer, int expiryTicks) {
-        var handler = SpellUtil.getSpellHandler(player);
-        handler.getListener().addListenerWithExpiry(event, uuid, consumer, expiryTicks);
+    public void addTimedListener(LivingEntity livingEntity, SpellEventListener.IEvent event, UUID uuid, Consumer<? extends SpellEvent> consumer, int expiryTicks) {
+        var listener = SpellUtil.getSpellHandler(livingEntity).getListener();
+        if (!listener.hasListener(event, uuid))
+            listener.addListenerWithExpiry(event, uuid, consumer, livingEntity.tickCount + expiryTicks);
     }
 
     protected float potency() {
@@ -256,13 +268,19 @@ public abstract class AbstractSpell {
         return livingEntity.getAttribute(attribute).hasModifier(modifier);
     }
 
+    public void addTimedAttributeModifier(LivingEntity livingEntity, Holder<Attribute> attribute, AttributeModifier modifier, int ticks) {
+        addAttributeModifier(livingEntity, attribute, modifier);
+        SpellUtil.getSpellHandler(livingEntity).addTransientModifier(attribute, modifier, ticks);
+    }
+
     /**
      * Adds a given attribute modifier to a chosen attribute on the caster
      * @param attribute The attribute to apply a modifier to
      * @param modifier the AttributeModifier to apply
      */
     public void addAttributeModifier(LivingEntity livingEntity, Holder<Attribute> attribute, AttributeModifier modifier) {
-        livingEntity.getAttribute(attribute).addTransientModifier(modifier);
+        if (!hasAttributeModifier(livingEntity, attribute, modifier.id()))
+            livingEntity.getAttribute(attribute).addTransientModifier(modifier);
     }
 
     /**
@@ -272,6 +290,10 @@ public abstract class AbstractSpell {
      */
     public void removeAttributeModifier(LivingEntity livingEntity, Holder<Attribute> attribute, ResourceLocation modifier) {
         livingEntity.getAttribute(attribute).removeModifier(modifier);
+    }
+
+    protected boolean isCaster(LivingEntity livingEntity) {
+        return livingEntity.is(this.caster);
     }
 
     public static float getPowerForTime(AbstractSpell spell, int pCharge) {
@@ -285,10 +307,6 @@ public abstract class AbstractSpell {
 
     protected void addCooldown(Skill skill, int ticks) {
         this.context.getSkillHandler().getCooldowns().addCooldown(skill, ticks);
-    }
-
-    protected boolean isOnCooldown(Skill skill) {
-        return this.context.getSkillHandler().getCooldowns().isOnCooldown(skill);
     }
 
     protected void addScreenShake(Player player) {
@@ -311,17 +329,42 @@ public abstract class AbstractSpell {
         PayloadHandler.shakeScreen(player, duration, intensity, maxOffset, freq);
     }
 
+    public BlockHitResult getTargetBlock(double range) {
+        return this.level.clip(setupRayTraceContext(this.caster, range, ClipContext.Fluid.NONE));
+    }
+
+/*    protected List<LivingEntity> getEntitiesInLine(double range) {
+        List<LivingEntity> entityList = new ObjectArrayList<>();
+        double dist = range * range;
+        Vec3 startPos = this.caster.getEyePosition(1.0F);
+        LivingEntity startEntity = this.caster;
+        while (true) {
+            LivingEntity livingEntity = getTargetEntity(startEntity, startPos, range);
+            if (livingEntity != null && livingEntity.distanceToSqr(this.caster) < dist && !entityList.contains(livingEntity)) {
+                entityList.add(livingEntity);
+                startPos = livingEntity.getBoundingBox().getCenter();
+                startEntity = livingEntity;
+            } else {
+                break;
+            }
+        }
+        return entityList;
+    }*/
+
     protected @Nullable LivingEntity getTargetEntity(double range) {
         return getTargetEntity(this.caster, range);
     }
 
     public @Nullable LivingEntity getTargetEntity(LivingEntity livingEntity, double range) {
-        Vec3 eyePosition = livingEntity.getEyePosition(1.0F);
+        return getTargetEntity(livingEntity, livingEntity.getEyePosition(1.0F), range);
+    }
+
+    private @Nullable LivingEntity getTargetEntity(LivingEntity livingEntity, Vec3 startPosition, double range) {
         Vec3 lookVec = livingEntity.getViewVector(1.0F);
-        Vec3 maxLength = eyePosition.add(lookVec.x * range, lookVec.y * range, lookVec.z * range);
+        Vec3 maxLength = startPosition.add(lookVec.x * range, lookVec.y * range, lookVec.z * range);
         AABB aabb = livingEntity.getBoundingBox().expandTowards(lookVec.scale(range)).inflate(2.0);
 
-        EntityHitResult hitResult = ProjectileUtil.getEntityHitResult(livingEntity, eyePosition, maxLength, aabb, EntitySelector.NO_CREATIVE_OR_SPECTATOR, range * range);
+        EntityHitResult hitResult = ProjectileUtil.getEntityHitResult(livingEntity, startPosition, maxLength, aabb, EntitySelector.NO_CREATIVE_OR_SPECTATOR, range * range);
         BlockHitResult blockHitResult = livingEntity.level().clip(setupRayTraceContext(livingEntity, range, ClipContext.Fluid.NONE));
 
         if (hitResult == null)
@@ -331,7 +374,7 @@ public abstract class AbstractSpell {
         if (hitResult.getEntity() instanceof LivingEntity targetEntity) {
 
             if (!blockHitResult.getType().equals(BlockHitResult.Type.MISS)) {
-                double blockDistance = blockHitResult.getLocation().distanceTo(eyePosition);
+                double blockDistance = blockHitResult.getLocation().distanceTo(startPosition);
                 if (blockDistance > targetEntity.distanceTo(livingEntity)) {
                     return targetEntity;
                 }
@@ -342,7 +385,7 @@ public abstract class AbstractSpell {
         return null;
     }
 
-    protected ClipContext setupRayTraceContext(LivingEntity livingEntity, double distance, ClipContext.Fluid fluidContext) {
+    protected static ClipContext setupRayTraceContext(LivingEntity livingEntity, double distance, ClipContext.Fluid fluidContext) {
         float pitch = livingEntity.getXRot();
         float yaw = livingEntity.getYRot();
         Vec3 fromPos = livingEntity.getEyePosition(1.0F);
@@ -361,6 +404,10 @@ public abstract class AbstractSpell {
         return this.shouldPersist;
     }
 
+    public boolean hasLayer() {
+        return this.hasLayer;
+    }
+
     public void initSpell(Player player, Level level, BlockPos blockPos) {
         this.level = level;
         this.caster = player;
@@ -370,8 +417,6 @@ public abstract class AbstractSpell {
         var list = handler.getActiveSpells(getSpellType());
         if (!list.isEmpty()) this.isRecast = true;
         this.context = new SpellContext(this.caster, this.level, this.blockPos, this.getTargetEntity(8), this.isRecast);
-
-        if (!this.castPredicate.test(this.context)) return;
 
         boolean incrementId = true;
         if (this.isRecast) {
@@ -383,12 +428,15 @@ public abstract class AbstractSpell {
             }
 
             if (prevSpell != null) {
-                this.castId = prevSpell.castId++;
+                this.castId = prevSpell.castId + 1;
                 incrementId = false;
                 CompoundTag nbt = prevSpell.saveData(new CompoundTag());
                 this.load(nbt);
             }
         }
+
+        //Play Fail Animation
+        if (!this.castPredicate.test(this.context, this)) return;
 
         activateSpell();
         player.awardStat(StatInit.SPELLS_CAST.get());
@@ -416,19 +464,43 @@ public abstract class AbstractSpell {
             handler.activateSpell(this);
         }
         handler.consumeMana(getManaCost(), true);
-        PayloadHandler.syncMana(this.caster);
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return this.cache;
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+
+    }
+
+    @Override
+    public double getTick(Object object) {
+        return this.ticks;
+    }
+
+    @Override
+    public int hashCode() {
+        int i = this.spellType.hashCode();
+        i = 31 * i + this.castId;
+        i = 31 * i + this.blockPos.hashCode();
+        i = 31 * i + (this.caster != null ? this.caster.getId() : 0);
+        return 31 * i + (this.isRecast ? 1 : 0);
     }
 
     public static class Builder<T extends AbstractSpell> {
         protected int duration = 10;
         protected int manaCost;
         protected int castTime = 1;
-        protected Predicate<SpellContext> castPredicate = context -> true;
+        protected BiPredicate<SpellContext, T> castPredicate = (context, abstractSpell) -> true;
         protected CastType castType = CastType.CHARGING;
         protected SoundEvent castSound;
         protected boolean partialRecast;
         protected boolean fullRecast;
         protected boolean shouldPersist;
+        protected boolean hasLayer;
 
         public Builder<T> manaCost(int fpCost) {
             this.manaCost = fpCost;
@@ -455,6 +527,11 @@ public abstract class AbstractSpell {
             return this;
         }
 
+        public Builder<T> castCondition(BiPredicate<SpellContext, T> castCondition) {
+            this.castPredicate = castCondition;
+            return this;
+        }
+
         public Builder<T> partialRecast() {
             this.partialRecast = true;
             this.fullRecast = false;
@@ -469,6 +546,11 @@ public abstract class AbstractSpell {
 
         public Builder<T> shouldPersist() {
             this.shouldPersist = true;
+            return this;
+        }
+
+        public Builder<T> hasLayer() {
+            this.hasLayer = true;
             return this;
         }
     }

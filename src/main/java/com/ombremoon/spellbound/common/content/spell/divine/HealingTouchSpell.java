@@ -119,11 +119,10 @@ public class HealingTouchSpell extends AnimatedSpell {
             caster.heal(2f);
             overgrowthStacks--;
         }
-        SkillCooldowns cooldowns = skills.getCooldowns();
         if (skills.hasSkillReady(SkillInit.BLASPHEMY.value())) {
             StatusHandler status = event.getSource().getEntity().getData(DataInit.STATUS_EFFECTS);
             status.increment(StatusHandler.Effect.DISEASE, 100);
-            cooldowns.addCooldown(SkillInit.BLASPHEMY.value(), 100);
+            addCooldown(SkillInit.BLASPHEMY.value(), 100);
         }
         if (skills.hasSkillReady(SkillInit.OAK_BLESSING.value())) {
             blessingDuration = 200;
@@ -132,7 +131,7 @@ public class HealingTouchSpell extends AnimatedSpell {
                     1.15d,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
             ));
-            cooldowns.addCooldown(SkillInit.OAK_BLESSING.value(), 600);
+            addCooldown(SkillInit.OAK_BLESSING.value(), 600);
         }
     }
 

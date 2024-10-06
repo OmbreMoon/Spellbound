@@ -27,6 +27,7 @@ public class Skill {
 
     public Skill(ResourceLocation resLoc, int xPos, int yPos, @Nullable HolderSet<Skill> prerequisites) {
         this.resourceLocation = resLoc;
+        if (xPos > 100 || xPos < -100) throw new IllegalArgumentException("X position must be between the values -100 and 100.");
         this.xPos = xPos;
         this.yPos = yPos;
         this.prerequisites = prerequisites;

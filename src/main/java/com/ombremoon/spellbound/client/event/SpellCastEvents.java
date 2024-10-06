@@ -82,6 +82,8 @@ public class SpellCastEvents {
                 handler.castTick++;
                 PayloadHandler.whenCasting(spellType, handler.castTick, handler.getActiveSpells(spellType).size() > 1);
             }
+        } else if (!KeyBinds.getSpellCastMapping().isDown() && handler.castTick > 0) {
+            handler.castTick = 0;
         } else if (handler.isChannelling()) {
             handler.setChannelling(false);
             PayloadHandler.stopChannel();
@@ -104,6 +106,7 @@ public class SpellCastEvents {
         if (!SpellUtil.canCastSpell(player, spell)) return;
 
         PayloadHandler.castSpell(spellType);
+        spell.initSpell(player, player.level(), player.getOnPos());
         var animation = (ModifierLayer<IAnimation>) PlayerAnimationAccess.getPlayerAssociatedData((AbstractClientPlayer) player).get(CommonClass.customLocation("animation"));
         if (animation != null)
             animation.setAnimation(new KeyframeAnimationPlayer((KeyframeAnimation) PlayerAnimationRegistry.getAnimation(CommonClass.customLocation("test"))));
