@@ -112,16 +112,9 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         return this.permanentModifiers;
     }
 
-    public void tickModifiers() {
-        for (var entry : this.timedModifiers.entrySet()) {
-            int i = entry.getValue();
-            i--;
-            if (i > 0) {
-                this.timedModifiers.replace(entry.getKey(), i);
-            } else {
-                this.timedModifiers.remove(entry.getKey());
-            }
-        }
+    public void tickModifiers(Player player) {
+        if (!this.timedModifiers.isEmpty())
+            this.timedModifiers.entrySet().removeIf(entry -> entry.getValue() <= player.tickCount);
     }
 
     public SkillCooldowns getCooldowns() {

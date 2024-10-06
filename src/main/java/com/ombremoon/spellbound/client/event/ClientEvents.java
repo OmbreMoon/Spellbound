@@ -6,12 +6,15 @@ import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.gui.CastModeOverlay;
 import com.ombremoon.spellbound.client.renderer.MushroomRenderer;
 import com.ombremoon.spellbound.client.renderer.ShadowGateRenderer;
+import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.EffectInit;
 import com.ombremoon.spellbound.common.init.EntityInit;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
@@ -33,6 +36,17 @@ public class ClientEvents {
         public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
             event.registerEntityRenderer(EntityInit.MUSHROOM.get(), MushroomRenderer::new);
             event.registerEntityRenderer(EntityInit.SHADOW_GATE.get(), ShadowGateRenderer::new);
+        }
+
+        @SubscribeEvent
+        public static void registerEntityLayers(EntityRenderersEvent.AddLayers event) {
+            for (final var skin : event.getSkins()) {
+                final LivingEntityRenderer<Player, PlayerModel<Player>> playerRenderer = event.getSkin(skin);
+                if (playerRenderer == null)
+                    continue;
+
+                playerRenderer.addLayer(new GenericSpellLayer<>(playerRenderer));
+            }
         }
 
         @SubscribeEvent

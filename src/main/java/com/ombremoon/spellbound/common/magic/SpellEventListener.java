@@ -56,14 +56,10 @@ public class SpellEventListener {
     }
 
     public void tickInstances() {
-        for (var entry : this.timedEvents.entrySet()) {
-            int i = entry.getValue();
-            i--;
-            if (i > 0) {
-                this.timedEvents.replace(entry.getKey(), i);
-            } else {
-                this.removeListener(entry.getKey());
-                this.timedEvents.remove(entry.getKey());
+        if (!this.timedEvents.isEmpty()) {
+            for (var entry : this.timedEvents.entrySet()) {
+                if (entry.getValue() <= this.player.tickCount)
+                    this.removeListener(entry.getKey());
             }
         }
     }

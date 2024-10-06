@@ -56,11 +56,11 @@ public class DebugItem extends Item {
 //            spellHandler.setSelectedSpell(SpellInit.WILD_MUSHROOM_SPELL.get());
 //            Constants.LOG.info("{}", skillHandler.getModifiers());
 //            spellHandler.learnSpell(SpellInit.VOLCANO.get());
-//            Constants.LOG.info("{}", spellHandler.getActiveSpells(SpellInit.SHADOW_GATE.get()));
 //            Constants.LOG.info("{}", tree.nodes());
 //            Constants.LOG.info("{}", tree.children());
 //            Constants.LOG.info("{}", tree.roots());
         } else {
+            Constants.LOG.info("{}", spellHandler.getActiveSpells());
         }
     }
 }

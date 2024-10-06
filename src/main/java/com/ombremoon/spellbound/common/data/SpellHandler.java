@@ -92,7 +92,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
             }
         }
 
-        this.skillHandler.tickModifiers();
+        this.skillHandler.tickModifiers(this.caster);
         this.skillHandler.getCooldowns().tick();
         this.listener.tickInstances();
 
@@ -173,6 +173,10 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     public Collection<AbstractSpell> getActiveSpells(SpellType<?> spellType) {
         return this.activeSpells.get(spellType);
+    }
+
+    public Collection<AbstractSpell> getActiveSpells() {
+        return this.activeSpells.values();
     }
 
     public boolean isSpellActive(SpellType<?> spellType) {

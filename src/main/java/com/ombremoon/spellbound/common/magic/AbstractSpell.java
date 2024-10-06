@@ -33,14 +33,21 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.slf4j.Logger;
+import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.constant.dataticket.DataTicket;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.UUID;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unchecked")
-public abstract class AbstractSpell {
+public abstract class AbstractSpell implements GeoAnimatable {
     protected static final Logger LOGGER = Constants.LOG;
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    public static final DataTicket<AbstractSpell> DATA_TICKET = new DataTicket<>("abstract_spell", AbstractSpell.class);
     private final SpellType<?> spellType;
     private final int manaCost;
     private final int duration;
@@ -51,6 +58,7 @@ public abstract class AbstractSpell {
     private final boolean fullRecast;
     private final boolean partialRecast;
     private final boolean shouldPersist;
+    private final boolean hasLayer;
     private Level level;
     private Player caster;
     private BlockPos blockPos;
@@ -78,6 +86,7 @@ public abstract class AbstractSpell {
         this.fullRecast = builder.fullRecast;
         this.partialRecast = builder.partialRecast;
         this.shouldPersist = builder.shouldPersist;
+        this.hasLayer = builder.hasLayer;
     }
 
     public SpellType<?> getSpellType() {
@@ -221,13 +230,13 @@ public abstract class AbstractSpell {
 
     public void addTimedModifier(LivingEntity livingEntity, SpellModifier spellModifier, int expiryTick) {
         var handler = SpellUtil.getSkillHandler(livingEntity);
-        handler.addModifierWithExpiry(spellModifier, expiryTick);
+        handler.addModifierWithExpiry(spellModifier, livingEntity.tickCount + expiryTick);
     }
 
     public void addTimedListener(LivingEntity livingEntity, SpellEventListener.IEvent event, UUID uuid, Consumer<? extends SpellEvent> consumer, int expiryTicks) {
         var listener = SpellUtil.getSpellHandler(livingEntity).getListener();
         if (!listener.hasListener(event, uuid))
-            listener.addListenerWithExpiry(event, uuid, consumer, expiryTicks);
+            listener.addListenerWithExpiry(event, uuid, consumer, livingEntity.tickCount + expiryTicks);
     }
 
     protected float potency() {
@@ -395,6 +404,10 @@ public abstract class AbstractSpell {
         return this.shouldPersist;
     }
 
+    public boolean hasLayer() {
+        return this.hasLayer;
+    }
+
     public void initSpell(Player player, Level level, BlockPos blockPos) {
         this.level = level;
         this.caster = player;
@@ -451,7 +464,30 @@ public abstract class AbstractSpell {
             handler.activateSpell(this);
         }
         handler.consumeMana(getManaCost(), true);
-//        PayloadHandler.syncMana(this.caster);
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return this.cache;
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+
+    }
+
+    @Override
+    public double getTick(Object object) {
+        return this.ticks;
+    }
+
+    @Override
+    public int hashCode() {
+        int i = this.spellType.hashCode();
+        i = 31 * i + this.castId;
+        i = 31 * i + this.blockPos.hashCode();
+        i = 31 * i + (this.caster != null ? this.caster.getId() : 0);
+        return 31 * i + (this.isRecast ? 1 : 0);
     }
 
     public static class Builder<T extends AbstractSpell> {
@@ -464,6 +500,7 @@ public abstract class AbstractSpell {
         protected boolean partialRecast;
         protected boolean fullRecast;
         protected boolean shouldPersist;
+        protected boolean hasLayer;
 
         public Builder<T> manaCost(int fpCost) {
             this.manaCost = fpCost;
@@ -509,6 +546,11 @@ public abstract class AbstractSpell {
 
         public Builder<T> shouldPersist() {
             this.shouldPersist = true;
+            return this;
+        }
+
+        public Builder<T> hasLayer() {
+            this.hasLayer = true;
             return this;
         }
     }
