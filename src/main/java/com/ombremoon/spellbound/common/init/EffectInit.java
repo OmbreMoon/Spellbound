@@ -13,6 +13,7 @@ public class EffectInit {
     public static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister
             .create(Registries.MOB_EFFECT, Constants.MOD_ID);
 
+    //TODO: Make status effects do stuff
     //Status
     public static final Holder<MobEffect> INFLAMED = EFFECTS.register("inflamed", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
     public static final Holder<MobEffect> FROZEN = EFFECTS.register("frozen", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
