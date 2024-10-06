@@ -169,7 +169,7 @@ public class ShadowGateSpell extends AnimatedSpell {
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
         Level level = context.getLevel();
-        if (level.isClientSide()) {
+        if (!level.isClientSide()) {
             this.portalInfo.forEach((integer, portalInfo) -> {
                 Entity entity = context.getLevel().getEntity(integer);
                 if (entity != null) entity.discard();
