@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.common.content.spell.summon;
 
 import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.common.content.entity.MushroomEntity;
+import com.ombremoon.spellbound.common.content.entity.spell.WildMushroom;
 import com.ombremoon.spellbound.common.data.SkillHandler;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.data.StatusHandler;
@@ -32,7 +32,7 @@ public class WildMushroomSpell extends SummonSpell {
     private static final int XP_PER_HIT = 5;
 
     private final Set<LivingEntity> targetsHit = new HashSet<>();
-    private MushroomEntity mushroom;
+    private WildMushroom mushroom;
     private AABB damageZone;
     private int poisonEssenceExpiry = 0;
     private int awardedXp = 0;
@@ -59,7 +59,7 @@ public class WildMushroomSpell extends SummonSpell {
                 return;
             }
 
-            this.mushroom = (MushroomEntity) context.getLevel().getEntity(mobs.iterator().next());
+            this.mushroom = (WildMushroom) context.getLevel().getEntity(mobs.iterator().next());
             SkillHandler skillHandler = context.getSkillHandler();
             double radius = skillHandler.hasSkill(SkillInit.VILE_INFLUENCE.value()) ? 3D : 2D;
             this.damageZone = mushroom.getBoundingBox().inflate(radius, 0, radius);

@@ -1,5 +1,6 @@
-package com.ombremoon.spellbound.common.content.entity;
+package com.ombremoon.spellbound.common.content.entity.spell;
 
+import com.ombremoon.spellbound.common.content.entity.SpellEntity;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;

@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.content.spell.ruin;
 
-import com.ombremoon.spellbound.common.content.entity.SolarRay;
+import com.ombremoon.spellbound.common.content.entity.spell.SolarRay;
 import com.ombremoon.spellbound.common.init.EntityInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.SpellContext;
