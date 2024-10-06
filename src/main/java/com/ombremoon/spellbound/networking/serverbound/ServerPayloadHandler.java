@@ -1,6 +1,5 @@
 package com.ombremoon.spellbound.networking.serverbound;
 
-import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -22,13 +21,25 @@ public class ServerPayloadHandler {
 
     public static void handleNetworkCycleSpell(final CycleSpellPayload payload, final IPayloadContext context) {
         var handler = SpellUtil.getSpellHandler(context.player());
-        SpellUtil.cycle(handler, handler.getSelectedSpell());
+        handler.setSelectedSpell(payload.spellType());
+    }
+
+    public static void handleNetworkCastStart(final CastStartPayload payload, final IPayloadContext context) {
+        AbstractSpell spell = payload.spellType().createSpell();
+        var spellContext = new SpellContext(context.player(), spell.getTargetEntity(context.player(), 10), payload.recast());
+        spell.onCastStart(spellContext);
     }
 
     public static void handleNetworkCasting(final CastingPayload payload, final IPayloadContext context) {
         AbstractSpell spell = payload.spellType().createSpell();
         var spellContext = new SpellContext(context.player(), spell.getTargetEntity(context.player(), 8), payload.recast());
         spell.whenCasting(spellContext, payload.castTime());
+    }
+
+    public static void handleNetworkCastReset(final CastResetPayload payload, final IPayloadContext context) {
+        AbstractSpell spell = payload.spellType().createSpell();
+        var spellContext = new SpellContext(context.player(), spell.getTargetEntity(context.player(), 10), payload.recast());
+        spell.onCastReset(spellContext);
     }
 
     public static void handleNetworkStopChannel(final StopChannelPayload payload, final IPayloadContext context) {

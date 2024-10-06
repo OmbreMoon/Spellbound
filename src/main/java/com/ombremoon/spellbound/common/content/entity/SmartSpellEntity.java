@@ -18,7 +18,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-public abstract class SmartSpellEntity<T extends SmartSpellEntity<T>> extends PathfinderMob implements GeoEntity, SmartBrainOwner<SmartSpellEntity<T>>, OwnableEntity {
+public abstract class SmartSpellEntity extends PathfinderMob implements GeoEntity, SmartBrainOwner<SmartSpellEntity>, OwnableEntity {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private LivingEntity owner;
 

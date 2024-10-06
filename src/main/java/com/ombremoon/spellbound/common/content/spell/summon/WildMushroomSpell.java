@@ -49,76 +49,82 @@ public class WildMushroomSpell extends SummonSpell {
     @Override
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
-        var mobs = addMobs(context, EntityInit.MUSHROOM.get(), 1);
-        if (mobs == null || !mobs.iterator().hasNext()) {
-            endSpell();
-            context.getSpellHandler().awardMana(this.getManaCost());
-            context.getSpellHandler().sync();
-            return;
-        }
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.PLAYER_KILL, PLAYER_KILL, this::playerKill);
+        if (!context.getLevel().isClientSide) {
+            var mobs = addMobs(context, EntityInit.MUSHROOM.get(), 1);
+            if (mobs == null || !mobs.iterator().hasNext()) {
+                endSpell();
+                context.getSpellHandler().awardMana(this.getManaCost());
+                context.getSpellHandler().sync();
+                return;
+            }
 
-        this.mushroom = (MushroomEntity) context.getLevel().getEntity(mobs.iterator().next());
-        SkillHandler skillHandler = context.getSkillHandler();
-        double radius = skillHandler.hasSkill(SkillInit.VILE_INFLUENCE.value()) ? 3D : 2D;
-        this.damageZone = mushroom.getBoundingBox().inflate(radius, 0, radius);
-        this.explosionInterval = skillHandler.hasSkill(SkillInit.HASTENED_GROWTH.value()) ? 40 : 60;
+            this.mushroom = (MushroomEntity) context.getLevel().getEntity(mobs.iterator().next());
+            SkillHandler skillHandler = context.getSkillHandler();
+            double radius = skillHandler.hasSkill(SkillInit.VILE_INFLUENCE.value()) ? 3D : 2D;
+            this.damageZone = mushroom.getBoundingBox().inflate(radius, 0, radius);
+            this.explosionInterval = skillHandler.hasSkill(SkillInit.HASTENED_GROWTH.value()) ? 40 : 60;
 
 
-        boolean recycledFlag = context.getSpellHandler().getActiveSpells(getSpellType()).size() >= 3;;
-        boolean recycledFlag2 = skillHandler.hasSkill(SkillInit.RECYCLED.value());
-        if (recycledFlag && recycledFlag2)
-            this.addAttributeModifier(context.getPlayer(), AttributesInit.MANA_REGEN, new AttributeModifier(RECYCLED_LOCATION,
-                    1.1d,
-                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+            boolean recycledFlag = context.getSpellHandler().getActiveSpells(getSpellType()).size() >= 3;
+            ;
+            boolean recycledFlag2 = skillHandler.hasSkill(SkillInit.RECYCLED.value());
+            if (recycledFlag && recycledFlag2)
+                this.addAttributeModifier(context.getPlayer(), AttributesInit.MANA_REGEN, new AttributeModifier(RECYCLED_LOCATION,
+                        1.1d,
+                        AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+        }
     }
 
     @Override
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
-        if (poisonEssenceExpiry > 0) poisonEssenceExpiry--;
-        this.mushroom.explode();
-        Player caster = context.getPlayer();
-        SkillHandler skills = context.getSkillHandler();
+        if (!context.getLevel().isClientSide) {
 
-        List<LivingEntity> entities = caster.level().getEntitiesOfClass(
-                LivingEntity.class,
-                this.damageZone,
-                entity -> !entity.is(caster) && !entity.isInvulnerable());
+            if (poisonEssenceExpiry > 0) poisonEssenceExpiry--;
+            this.mushroom.explode();
+            Player caster = context.getPlayer();
+            SkillHandler skills = context.getSkillHandler();
 
-        for (LivingEntity entity : entities) {
-            if (skills.hasSkillReady(SkillInit.CATALEPSY.value())) {
-                entity.addEffect(new MobEffectInstance(EffectInit.STUNNED, 100), caster); //TODO: Use Catalepsy effect instead
+            List<LivingEntity> entities = caster.level().getEntitiesOfClass(
+                    LivingEntity.class,
+                    this.damageZone,
+                    entity -> !entity.is(caster) && !entity.isInvulnerable());
+
+            for (LivingEntity entity : entities) {
+                if (skills.hasSkillReady(SkillInit.CATALEPSY.value())) {
+                    entity.addEffect(new MobEffectInstance(EffectInit.STUNNED, 100), caster); //TODO: Use Catalepsy effect instead
+                }
+
+                if (skills.hasSkill(SkillInit.ENVENOM.value())) {
+                    entity.getData(DataInit.STATUS_EFFECTS).increment(StatusHandler.Effect.POISON, 100);
+                } else {
+                    entity.getData(DataInit.STATUS_EFFECTS).increment(StatusHandler.Effect.POISON, 33);
+                }
+
+                entity.hurt(entity.damageSources().explosion(caster, null), calculateDamage(context, entity));
+                targetsHit.add(entity);
+
+                if (awardedXp < MAX_XP) {
+                    awardedXp++;
+                    context.getSkillHandler().awardSpellXp(getSpellType(), XP_PER_HIT);
+                    context.getSkillHandler().sync(caster);
+                }
             }
 
-            if (skills.hasSkill(SkillInit.ENVENOM.value())) {
-                entity.getData(DataInit.STATUS_EFFECTS).increment(StatusHandler.Effect.POISON, 100);
-            } else {
-                entity.getData(DataInit.STATUS_EFFECTS).increment(StatusHandler.Effect.POISON, 33);
+            if (!entities.isEmpty() && skills.hasSkillReady(SkillInit.CATALEPSY.value()))
+                this.addCooldown(SkillInit.CATALEPSY.value(), 200);
+
+            if (context.getSpellHandler().getActiveSpells(getSpellType()).size() <= 2
+                    && this.hasAttributeModifier(context.getPlayer(), AttributesInit.MANA_REGEN, RECYCLED_LOCATION)) {
+                this.removeAttributeModifier(context.getPlayer(), AttributesInit.MANA_REGEN, RECYCLED_LOCATION);
             }
-
-            entity.hurt(entity.damageSources().explosion(caster, null), calculateDamage(context, entity));
-            targetsHit.add(entity);
-
-            if (awardedXp < MAX_XP) {
-                awardedXp++;
-                context.getSkillHandler().awardSpellXp(getSpellType(), XP_PER_HIT);
-                context.getSkillHandler().sync(caster);
-            }
-        }
-
-        if (!entities.isEmpty() && skills.hasSkillReady(SkillInit.CATALEPSY.value()))
-            this.addCooldown(SkillInit.CATALEPSY.value(), 200);
-
-        if (context.getSpellHandler().getActiveSpells(getSpellType()).size() <= 2
-                && this.hasAttributeModifier(context.getPlayer(), AttributesInit.MANA_REGEN, RECYCLED_LOCATION)) {
-            this.removeAttributeModifier(context.getPlayer(), AttributesInit.MANA_REGEN, RECYCLED_LOCATION);
         }
     }
 
     @Override
     protected boolean shouldTickEffect(SpellContext context) {
-        return ticks % explosionInterval == 0;
+        return explosionInterval <= 0 || ticks % explosionInterval == 0;
     }
 
     private float calculateDamage(SpellContext context, LivingEntity target) {
@@ -137,14 +143,16 @@ public class WildMushroomSpell extends SummonSpell {
     @Override
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
-        if (context.getSkillHandler().hasSkill(SkillInit.CIRCLE_OF_LIFE.value())) {
-            SpellHandler handler = context.getSpellHandler();
-            int level = context.getSkillHandler().getSpellLevel(getSpellType());
-            handler.awardMana(52 + (2 * (level-1)));
-            handler.sync();
-        }
-
         context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.PLAYER_KILL, PLAYER_KILL);
+        if (!context.getLevel().isClientSide) {
+            if (context.getSkillHandler().hasSkill(SkillInit.CIRCLE_OF_LIFE.value())) {
+                SpellHandler handler = context.getSpellHandler();
+                int level = context.getSkillHandler().getSpellLevel(getSpellType());
+                handler.awardMana(52 + (2 * (level - 1)));
+                handler.sync();
+            }
+
+        }
     }
 
     private void playerKill(PlayerKillEvent event) {

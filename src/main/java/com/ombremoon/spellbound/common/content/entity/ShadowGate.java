@@ -16,6 +16,7 @@ public class ShadowGate extends SpellEntity {
     public ShadowGate(EntityType<?> entityType, Level level) {
         super(entityType, level);
     }
+
     @Override
     public void tick() {
         super.tick();
@@ -39,6 +40,7 @@ public class ShadowGate extends SpellEntity {
         this.setFlag(1, ending);
     }
 
+    //CHECK
     @Override
     public void onAddedToLevel() {
         super.onAddedToLevel();

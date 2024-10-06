@@ -4,6 +4,7 @@ import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.gui.CastModeOverlay;
+import com.ombremoon.spellbound.client.renderer.GenericSpellRenderer;
 import com.ombremoon.spellbound.client.renderer.MushroomRenderer;
 import com.ombremoon.spellbound.client.renderer.ShadowGateRenderer;
 import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
@@ -34,7 +35,7 @@ public class ClientEvents {
 
         @SubscribeEvent
         public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
-            event.registerEntityRenderer(EntityInit.MUSHROOM.get(), MushroomRenderer::new);
+            event.registerEntityRenderer(EntityInit.MUSHROOM.get(), GenericSpellRenderer::new);
             event.registerEntityRenderer(EntityInit.SHADOW_GATE.get(), ShadowGateRenderer::new);
         }
 

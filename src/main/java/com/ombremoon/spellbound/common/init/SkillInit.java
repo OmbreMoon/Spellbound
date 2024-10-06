@@ -60,6 +60,19 @@ public class SkillInit {
     public static final Holder<Skill> PYROCLASTIC_CLOUD = registerSkill("pyroclastic_cloud", 0, 100, preReqs(INFERNO_CORE));
     public static final Holder<Skill> APOCALYPSE = registerSkill("apocalypse", 0, 175, preReqs(SHRAPNEL, PYROCLASTIC_CLOUD, SCORCHED_EARTH));
 
+    //Solar Ray
+    public static final Holder<Skill> SOLAR_RAY = registerSkill("solar_ray");
+    public static final Holder<Skill> SUNSHINE = registerSkill("sunshine", -50, 50, preReqs(SOLAR_RAY));
+    public static final Holder<Skill> RADIANCE = registerSkill("radiance", -50, 100, preReqs(SUNSHINE));
+    public static final Holder<Skill> HEALING_LIGHT = registerSkill("healing_light", -50, 150, preReqs(RADIANCE));
+    public static final Holder<Skill> CONCENTRATED_HEAT = registerSkill("concentrated_heat", 50, 50, preReqs(SOLAR_RAY));
+    public static final Holder<Skill> OVERHEAT = registerSkill("overheat", 50, 100, preReqs(CONCENTRATED_HEAT));
+    public static final Holder<Skill> SOLAR_BURST = registerSkill("solar_burst", 50, 150, preReqs(OVERHEAT));
+    public static final Holder<Skill> REFLECTION = registerSkill("reflection", 100, 200, preReqs(SOLAR_BURST));
+    public static final Holder<Skill> BLINDING_LIGHT = registerSkill("blinding_light", 100, 250, preReqs(REFLECTION));
+    public static final Holder<Skill> AFTERGLOW = registerSkill("afterglow", 50, 200, preReqs(SOLAR_BURST));
+    public static final Holder<Skill> POWER_OF_THE_SUN = registerSkill("power_of_the_sun", 50, 250, preReqs(AFTERGLOW));
+
     //Healing Touch
     //TODO: Tree
     public static final Holder<Skill> HEALING_TOUCH = registerSkill("healing_touch");

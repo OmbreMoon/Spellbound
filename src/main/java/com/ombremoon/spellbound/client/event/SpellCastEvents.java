@@ -5,6 +5,7 @@ import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.common.init.EffectInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -22,7 +23,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 @EventBusSubscriber(modid = Constants.MOD_ID, value = Dist.CLIENT)
 public class SpellCastEvents {
@@ -48,7 +48,7 @@ public class SpellCastEvents {
                 if (KeyBinds.getSpellCastMapping().isDown()) {
                     if (player.isCrouching()) {
                         SpellUtil.cycle(handler, spellType);
-                        PayloadHandler.cycleSpell();
+                        PayloadHandler.cycleSpell(handler.getSelectedSpell());
                         KeyBinds.getSpellCastMapping().setDown(false);
                     }
                     event.setSwingHand(false);
@@ -71,8 +71,10 @@ public class SpellCastEvents {
         var spellType = handler.getSelectedSpell();
         if (spellType == null) return;
 
+        AbstractSpell spell = spellType.createSpell();
+        boolean isRecast = handler.getActiveSpells(spellType).size() > 1;
+        var spellContext = new SpellContext(player, spell.getTargetEntity(player, 10), isRecast);
         if (KeyBinds.getSpellCastMapping().isDown()) {
-            AbstractSpell spell = spellType.createSpell();
             int castTime = spell.getCastTime();
             if (handler.castTick >= castTime && !handler.isChannelling()) {
                 if (spell.getCastType() != AbstractSpell.CastType.CHANNEL) KeyBinds.getSpellCastMapping().setDown(false);
@@ -80,10 +82,18 @@ public class SpellCastEvents {
                 handler.castTick = 0;
             } else if (!handler.isChannelling()){
                 handler.castTick++;
-                PayloadHandler.whenCasting(spellType, handler.castTick, handler.getActiveSpells(spellType).size() > 1);
+                if (handler.castTick == 1) {
+                    spell.onCastStart(spellContext);
+                    PayloadHandler.castStart(spellType, isRecast);
+                } else {
+                    spell.whenCasting(spellContext, handler.castTick);
+                    PayloadHandler.whenCasting(spellType, handler.castTick, isRecast);
+                }
             }
         } else if (!KeyBinds.getSpellCastMapping().isDown() && handler.castTick > 0) {
             handler.castTick = 0;
+            spell.onCastReset(spellContext);
+            PayloadHandler.castReset(spellType, isRecast);
         } else if (handler.isChannelling()) {
             handler.setChannelling(false);
             PayloadHandler.stopChannel();

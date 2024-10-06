@@ -4,6 +4,7 @@ import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.content.spell.TestSpell;
 import com.ombremoon.spellbound.common.content.spell.divine.HealingTouchSpell;
+import com.ombremoon.spellbound.common.content.spell.ruin.SolarRaySpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.VolcanoSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.SummonUndeadSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.WildMushroomSpell;
@@ -27,6 +28,10 @@ public class SpellInit {
     public static final Supplier<SpellType<TestSpell>> TEST_SPELL = registerSpell("test_spell", fireRuinBuilder("test_spell", TestSpell::new));
 
     //Ruin
+    public static final Supplier<SpellType<SolarRaySpell>> SOLAR_RAY = registerSpell("solar_ray", fireRuinBuilder("solar_ray", SolarRaySpell::new)
+            .skills(SkillInit.SOLAR_RAY, SkillInit.SUNSHINE, SkillInit.RADIANCE, SkillInit.HEALING_LIGHT,
+                    SkillInit.CONCENTRATED_HEAT, SkillInit.OVERHEAT, SkillInit.SOLAR_BURST,
+                    SkillInit.REFLECTION, SkillInit.BLINDING_LIGHT, SkillInit.AFTERGLOW, SkillInit.POWER_OF_THE_SUN));
     public static final Supplier<SpellType<VolcanoSpell>> VOLCANO = registerSpell("volcano", fireRuinBuilder("volcano", VolcanoSpell::new)
             .skills(SkillInit.VOLCANO, SkillInit.INFERNO_CORE, SkillInit.LAVA_FLOW, SkillInit.EXPLOSIVE_BARRAGE,
                     SkillInit.SHRAPNEL, SkillInit.HEATWAVE, SkillInit.SCORCHED_EARTH, SkillInit.SEISMIC_SHOCK,

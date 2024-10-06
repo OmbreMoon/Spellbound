@@ -22,11 +22,13 @@ public class SummonUndeadSpell extends SummonSpell {
     @Override
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
-        var success = addMobs(context, EntityType.ZOMBIE, 1);
-        if (success == null) {
-            endSpell();
-            context.getSpellHandler().awardMana(this.getManaCost());
-            context.getSpellHandler().sync();
+        if (!context.getLevel().isClientSide) {
+            var success = addMobs(context, EntityType.ZOMBIE, 1);
+            if (success == null) {
+                endSpell();
+                context.getSpellHandler().awardMana(this.getManaCost());
+                context.getSpellHandler().sync();
+            }
         }
     }
 }

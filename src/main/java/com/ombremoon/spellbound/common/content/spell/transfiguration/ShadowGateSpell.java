@@ -150,7 +150,8 @@ public class ShadowGateSpell extends AnimatedSpell {
                                     }
 
                                     if (context.getSkillHandler().hasSkill(SkillInit.GRAVITY_SHIFT.value())) {
-                                        Vec3 lookVec = entity.getLookAngle().normalize();
+                                        Vec3 lookVec = adjacentGate.getViewVector(1.0F);
+                                        LOGGER.info("{}", lookVec);
                                         entity.setDeltaMovement(lookVec.x, 2, lookVec.z);
                                         entity.hurtMarked = true;
                                         if (isCaster(entity))

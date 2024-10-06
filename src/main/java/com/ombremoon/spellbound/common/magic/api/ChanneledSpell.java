@@ -86,22 +86,5 @@ public abstract class ChanneledSpell extends AnimatedSpell {
             this.castSound = castSound;
             return this;
         }
-
-        public Builder<T> partialRecast() {
-            this.partialRecast = true;
-            this.fullRecast = false;
-            return this;
-        }
-
-        public Builder<T> fullRecast() {
-            this.fullRecast = true;
-            this.partialRecast = false;
-            return this;
-        }
-
-        public Builder<T> shouldPersist() {
-            this.shouldPersist = true;
-            return this;
-        }
     }
 }

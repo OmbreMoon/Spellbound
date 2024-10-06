@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common.content.entity.custom;
+package com.ombremoon.spellbound.common.content.entity.living;
 
 import com.ombremoon.spellbound.common.content.entity.SmartSpellEntity;
 import com.ombremoon.spellbound.common.content.entity.behaviors.ApplySurroundingEffectBehavior;
@@ -33,7 +33,7 @@ import net.tslat.smartbrainlib.util.BrainUtils;
 
 import java.util.List;
 
-public class TotemSpiritEntity extends SmartSpellEntity<TotemSpiritEntity> {
+public class TotemSpiritEntity extends SmartSpellEntity {
     private static final EntityDataAccessor<Boolean> IS_CAT = SynchedEntityData.defineId(TotemSpiritEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> IS_HEALING = SynchedEntityData.defineId(TotemSpiritEntity.class, EntityDataSerializers.BOOLEAN);
 
@@ -89,7 +89,7 @@ public class TotemSpiritEntity extends SmartSpellEntity<TotemSpiritEntity> {
     }
 
     @Override
-    public List<? extends ExtendedSensor<? extends SmartSpellEntity<TotemSpiritEntity>>> getSensors() {
+    public List<? extends ExtendedSensor<? extends SmartSpellEntity>> getSensors() {
         return ObjectArrayList.of(
                 new NearbyLivingEntitySensor<>(),
                 new HurtBySensor<>()
@@ -97,7 +97,7 @@ public class TotemSpiritEntity extends SmartSpellEntity<TotemSpiritEntity> {
     }
 
     @Override
-    public BrainActivityGroup<? extends SmartSpellEntity<TotemSpiritEntity>> getCoreTasks() {
+    public BrainActivityGroup<? extends SmartSpellEntity> getCoreTasks() {
         return BrainActivityGroup.coreTasks(
                 new LookAtTarget<>(),
                 new MoveToWalkTarget<>()
@@ -105,7 +105,7 @@ public class TotemSpiritEntity extends SmartSpellEntity<TotemSpiritEntity> {
     }
 
     @Override
-    public BrainActivityGroup<? extends SmartSpellEntity<TotemSpiritEntity>> getIdleTasks() {
+    public BrainActivityGroup<? extends SmartSpellEntity> getIdleTasks() {
         return BrainActivityGroup.idleTasks(
                 new FirstApplicableBehaviour<>(
                     new TargetOrRetaliate<>()
@@ -117,21 +117,21 @@ public class TotemSpiritEntity extends SmartSpellEntity<TotemSpiritEntity> {
     }
 
     @Override
-    public BrainActivityGroup<? extends SmartSpellEntity<TotemSpiritEntity>> getFightTasks() {
+    public BrainActivityGroup<SmartSpellEntity> getFightTasks() {
         return BrainActivityGroup.fightTasks(
-                new InvalidateAttackTarget(),
+                new InvalidateAttackTarget<>(),
                 new FirstApplicableBehaviour<>(
                         //Change form
                         catBehaviours()
-                                .startCondition(entity -> ((TotemSpiritEntity) entity).isCatForm()),
+                                .startCondition(TotemSpiritEntity::isCatForm),
                         warriorBehaviours()
-                                .startCondition(entity -> !((TotemSpiritEntity) entity).isCatForm())
+                                .startCondition(entity -> !(entity).isCatForm())
                 )
 
         );
     }
 
-    protected OneRandomBehaviour<?> catBehaviours() {
+    protected OneRandomBehaviour<TotemSpiritEntity> catBehaviours() {
         return new OneRandomBehaviour(
                 new SequentialBehaviour(
                         new SetWalkTargetToAttackTarget<>(),
@@ -151,7 +151,7 @@ public class TotemSpiritEntity extends SmartSpellEntity<TotemSpiritEntity> {
         );
     }
 
-    protected SequentialBehaviour<?> warriorBehaviours() {
+    protected SequentialBehaviour<TotemSpiritEntity> warriorBehaviours() {
         return new SequentialBehaviour<>(
                 new SetWalkTargetToAttackTarget<>(),
                 new FirstApplicableBehaviour<>(

@@ -31,12 +31,20 @@ public class PayloadHandler {
         PacketDistributor.sendToServer(new CastSpellPayload(spellType));
     }
 
-    public static void cycleSpell() {
-        PacketDistributor.sendToServer(new CycleSpellPayload());
+    public static void cycleSpell(SpellType<?> spellType) {
+        PacketDistributor.sendToServer(new CycleSpellPayload(spellType));
+    }
+
+    public static void castStart(SpellType<?> spellType, boolean recast) {
+        PacketDistributor.sendToServer(new CastStartPayload(spellType, recast));
     }
 
     public static void whenCasting(SpellType<?> spellType, int castTime, boolean recast) {
         PacketDistributor.sendToServer(new CastingPayload(spellType, castTime, recast));
+    }
+
+    public static void castReset(SpellType<?> spellType, boolean recast) {
+        PacketDistributor.sendToServer(new CastResetPayload(spellType, recast));
     }
 
     public static void stopChannel() {
@@ -107,9 +115,19 @@ public class PayloadHandler {
                 ServerPayloadHandler::handleNetworkCycleSpell
         );
         registrar.playToServer(
+                CastStartPayload.TYPE,
+                CastStartPayload.CODEC,
+                ServerPayloadHandler::handleNetworkCastStart
+        );
+        registrar.playToServer(
                 CastingPayload.TYPE,
                 CastingPayload.CODEC,
                 ServerPayloadHandler::handleNetworkCasting
+        );
+        registrar.playToServer(
+                CastResetPayload.TYPE,
+                CastResetPayload.CODEC,
+                ServerPayloadHandler::handleNetworkCastReset
         );
         registrar.playToServer(
                 StopChannelPayload.TYPE,

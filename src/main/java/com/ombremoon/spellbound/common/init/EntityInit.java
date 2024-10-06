@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.common.init;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.content.entity.MushroomEntity;
 import com.ombremoon.spellbound.common.content.entity.ShadowGate;
+import com.ombremoon.spellbound.common.content.entity.SolarRay;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -20,6 +21,7 @@ public class EntityInit {
     public static final Supplier<EntityType<MushroomEntity>> MUSHROOM = ENTITIES.register("wild_mushroom",
             () -> EntityType.Builder.of(MushroomEntity::new, MobCategory.MISC).sized(0.9f, 0.9f).build("wild_mushroom"));
     public static final Supplier<EntityType<ShadowGate>> SHADOW_GATE = registerEntity("shadow_gate", ShadowGate::new, 1.2F, 2.5F);
+    public static final Supplier<EntityType<SolarRay>> SOLAR_RAY = registerEntity("solar_ray", SolarRay::new, 1.8F, 3.6F);
 
 
     protected static <T extends Entity> Supplier<EntityType<T>> registerEntity(String name, EntityType.EntityFactory<T> factory, float width, float height) {

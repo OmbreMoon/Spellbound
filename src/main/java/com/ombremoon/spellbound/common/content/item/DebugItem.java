@@ -60,7 +60,7 @@ public class DebugItem extends Item {
 //            Constants.LOG.info("{}", tree.children());
 //            Constants.LOG.info("{}", tree.roots());
         } else {
-            Constants.LOG.info("{}", spellHandler.getActiveSpells());
+//            Constants.LOG.info("{}", spellHandler.getActiveSpells());
         }
     }
 }

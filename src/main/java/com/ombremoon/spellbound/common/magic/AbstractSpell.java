@@ -220,8 +220,14 @@ public abstract class AbstractSpell implements GeoAnimatable {
     protected void onSpellStop(SpellContext context) {
     }
 
+    public void onCastStart(SpellContext context) {
+    }
+
     public void whenCasting(SpellContext context, int castTime) {
         Constants.LOG.info("{}", castTime);
+    }
+
+    public void onCastReset(SpellContext context) {
     }
 
     protected boolean shouldTickEffect(SpellContext context) {
@@ -409,6 +415,10 @@ public abstract class AbstractSpell implements GeoAnimatable {
     }
 
     public void initSpell(Player player, Level level, BlockPos blockPos) {
+        initSpell(player, level, blockPos, this.getTargetEntity(player, 10));
+    }
+
+    public void initSpell(Player player, Level level, BlockPos blockPos, @Nullable LivingEntity livingEntity) {
         this.level = level;
         this.caster = player;
         this.blockPos = blockPos;
@@ -416,7 +426,7 @@ public abstract class AbstractSpell implements GeoAnimatable {
         var handler = SpellUtil.getSpellHandler(player);
         var list = handler.getActiveSpells(getSpellType());
         if (!list.isEmpty()) this.isRecast = true;
-        this.context = new SpellContext(this.caster, this.level, this.blockPos, this.getTargetEntity(8), this.isRecast);
+        this.context = new SpellContext(this.caster, this.level, this.blockPos, livingEntity, this.isRecast);
 
         boolean incrementId = true;
         if (this.isRecast) {

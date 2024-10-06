@@ -1,6 +1,5 @@
 package com.ombremoon.spellbound.common.content.entity;
 
-import com.ombremoon.spellbound.common.init.DataInit;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -19,12 +18,11 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.UUID;
 
-public abstract class SpellEntity extends Entity implements GeoEntity, TraceableEntity, OwnableEntity {
+public abstract class SpellEntity extends Entity implements GeoEntity, TraceableEntity {
     protected static final EntityDataAccessor<Byte> ID_FLAGS = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.INT);
     protected static final String CONTROLLER = "controller";
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    private LivingEntity owner;
 
     public SpellEntity(EntityType<?> entityType, Level level) {
         super(entityType, level);
@@ -33,21 +31,6 @@ public abstract class SpellEntity extends Entity implements GeoEntity, Traceable
     @Override
     public boolean isAlliedTo(Entity entity) {
         return (entity instanceof LivingEntity livingEntity && isOwner(livingEntity)) || super.isAlliedTo(entity);
-    }
-
-    @Nullable
-    @Override
-    public UUID getOwnerUUID() {
-        return getOwner() == null ? null : this.owner.getUUID();
-    }
-
-    @Nullable
-    @Override
-    public LivingEntity getOwner() {
-        if (this.owner == null && this.hasData(DataInit.OWNER_UUID)) {
-            this.owner = level().getPlayerByUUID(UUID.fromString(this.getData(DataInit.OWNER_UUID)));
-        }
-        return this.owner;
     }
 
     protected boolean isOwner(LivingEntity entity) {
@@ -93,6 +76,11 @@ public abstract class SpellEntity extends Entity implements GeoEntity, Traceable
 
     public void setOwner(LivingEntity livingEntity) {
         this.entityData.set(OWNER_ID, livingEntity.getId());
+    }
+
+    @Override
+    public @Nullable Entity getOwner() {
+        return this.level().getEntity(this.entityData.get(OWNER_ID));
     }
 
     public boolean hasOwner() {

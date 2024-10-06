@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.magic.api;
 
+import com.ombremoon.spellbound.common.content.entity.SpellEntity;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.AttributesInit;
 import com.ombremoon.spellbound.common.init.DataInit;
@@ -57,9 +58,11 @@ public abstract class SummonSpell extends AnimatedSpell {
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
 
-        for (int summonId : summons) {
-            if (context.getLevel().getEntity(summonId) != null)
-                context.getLevel().getEntity(summonId).discard();
+        if (!context.getLevel().isClientSide) {
+            for (int summonId : summons) {
+                if (context.getLevel().getEntity(summonId) != null)
+                    context.getLevel().getEntity(summonId).discard();
+            }
         }
 
         context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.POST_DAMAGE, DAMAGE_EVENT);
@@ -77,12 +80,12 @@ public abstract class SummonSpell extends AnimatedSpell {
     /**
      * Spawns the desired entity as a summon a chosen number of times, where the player is looking
      * @param context the context of the spell
-     * @param summon the entity being created
+     * @param entityType the entity being created
      * @param mobCount number of the summon to spawn
      * @return Set containing the IDs of the summoned entities
      * @param <T> Chosen Entity
      */
-    protected <T extends Entity> Set<Integer> addMobs(SpellContext context, EntityType<T> summon, int mobCount) {
+    protected <T extends Entity> Set<Integer> addMobs(SpellContext context, EntityType<T> entityType, int mobCount) {
         Level level = context.getLevel();
         Player player = context.getPlayer();
 
@@ -92,11 +95,12 @@ public abstract class SummonSpell extends AnimatedSpell {
 
         Vec3 spawnPos = blockPos.getCenter();
         for (int i = 0; i < mobCount; i++) {
-            T mob = summon.create(level);
-            mob.setData(DataInit.OWNER_UUID, context.getPlayer().getUUID().toString());
-            mob.teleportTo(spawnPos.x, blockPos.getY(), spawnPos.z);
-            level.addFreshEntity(mob);
-            summonedMobs.add(mob.getId());
+            T summon = entityType.create(level);
+            summon.setData(DataInit.OWNER_UUID, context.getPlayer().getUUID().toString());
+            summon.teleportTo(spawnPos.x, blockPos.getY(), spawnPos.z);
+            if (summon instanceof SpellEntity entity) entity.setOwner(context.getPlayer());
+            level.addFreshEntity(summon);
+            summonedMobs.add(summon.getId());
         }
 
         this.summons.addAll(summonedMobs);

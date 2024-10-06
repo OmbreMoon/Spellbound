@@ -39,7 +39,8 @@ public class TestSpell extends ChanneledSpell {
     public void whenCasting(SpellContext context, int castTime) {
         super.whenCasting(context, castTime);
         Constants.LOG.info("{}", castTime);
-        addScreenShake(context.getPlayer(), 10, 5);
+        if (!context.getLevel().isClientSide)
+            addScreenShake(context.getPlayer(), 10, 5);
     }
 
     @Override
