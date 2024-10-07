@@ -48,7 +48,7 @@ public class HealingTouchSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStart(SpellContext context) {
-        if (context.isRecast()) return;
+        if (context.isRecast() || context.getLevel().isClientSide) return;
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.POST_DAMAGE, PLAYER_DAMAGE, this::onDamagePost);
 
         SkillHandler skills = context.getSkillHandler();
@@ -73,6 +73,7 @@ public class HealingTouchSpell extends AnimatedSpell {
     @Override
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
+        if (context.getLevel().isClientSide) return;
         SkillHandler skills = context.getSkillHandler();
         Player player = context.getPlayer();
         double maxMana = player.getAttribute(AttributesInit.MAX_MANA).getValue();
@@ -81,27 +82,30 @@ public class HealingTouchSpell extends AnimatedSpell {
             return;
         }
 
-        if (ticks % 20 == 0) {
-            float heal = 0.2f;
-            if (skills.hasSkill(SkillInit.HEALING_STREAM.value()))
-                heal += (float) maxMana * 0.02f;
-            player.heal(heal);
+        float heal = 0.2f;
+        if (skills.hasSkill(SkillInit.HEALING_STREAM.value()))
+            heal += (float) maxMana * 0.02f;
+        player.heal(heal);
 
-            if (skills.hasSkill(SkillInit.ACCELERATED_GROWTH.value())) {
-                player.getFoodData().eat((int) (maxMana * 0.02d), 1f);
-            }
-
-            if (skills.hasSkill(SkillInit.TRANQUILITY_OF_WATER.value()))
-                context.getSpellHandler().awardMana(4 + (skills.getSpellLevel(getSpellType()) * 0.4f));
-
-            if (skills.hasSkill(SkillInit.OVERGROWTH.value()) && overgrowthStacks < 5) overgrowthStacks++;
-
-            AttributeInstance armor = player.getAttribute(Attributes.ARMOR);
-            if (blessingDuration > 0) blessingDuration--;
-            if (blessingDuration <= 0 && armor.hasModifier(ARMOR_MOD)) {
-                armor.removeModifier(ARMOR_MOD);
-            }
+        if (skills.hasSkill(SkillInit.ACCELERATED_GROWTH.value())) {
+            player.getFoodData().eat((int) (maxMana * 0.02d), 1f);
         }
+
+        if (skills.hasSkill(SkillInit.TRANQUILITY_OF_WATER.value()))
+            context.getSpellHandler().awardMana(4 + (skills.getSpellLevel(getSpellType()) * 0.4f));
+
+        if (skills.hasSkill(SkillInit.OVERGROWTH.value()) && overgrowthStacks < 5) overgrowthStacks++;
+
+        AttributeInstance armor = player.getAttribute(Attributes.ARMOR);
+        if (blessingDuration > 0) blessingDuration--;
+        if (blessingDuration <= 0 && armor.hasModifier(ARMOR_MOD)) {
+            armor.removeModifier(ARMOR_MOD);
+        }
+    }
+
+    @Override
+    protected boolean shouldTickEffect(SpellContext context) {
+        return ticks % 20 == 0;
     }
 
     private void onDamagePost(PlayerDamageEvent.Post spellEvent) {

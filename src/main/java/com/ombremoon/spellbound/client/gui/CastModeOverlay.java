@@ -36,6 +36,10 @@ public class CastModeOverlay implements LayeredDraw.Layer {
 
         guiGraphics.blit(texture, x, y, 0, 0, 24, 24, 24, 24);
         guiGraphics.blit(BACKGROUND, x-1, y-1, 0, 0, 26, 26, 26, 26);
+        guiGraphics.drawString(Minecraft.getInstance().font,
+                spell.createSpell().getName(),
+                40, guiGraphics.guiHeight()-60,
+                8889187, false);
 
         guiGraphics.drawString(Minecraft.getInstance().font,
                 player.getData(DataInit.MANA) + "/" + player.getAttribute(AttributesInit.MAX_MANA).getValue(),

@@ -87,6 +87,20 @@ public class SkillInit {
     public static final Holder<Skill> CONVALESCENCE = registerSkill("convalescence", -50, 100, preReqs(HEALING_TOUCH));
     public static final Holder<Skill> OAK_BLESSING = registerSkill("oak_blessing", 0, 50, preReqs(HEALING_STREAM));
 
+    //Cobbled hide
+    public static final Holder<Skill> COBBLED_HIDE = registerSkill("cobbled_hide");
+    public static final Holder<Skill> IRON_HIDE = registerSkill("iron_hide", 0, 50, preReqs(COBBLED_HIDE));
+    public static final Holder<Skill> DIAMOND_HIDE = registerSkill("diamond_hide", 0, 50, preReqs(COBBLED_HIDE));
+    public static final Holder<Skill> DRAGON_HIDE = registerSkill("dragon_hide", 0, 50, preReqs(COBBLED_HIDE));
+    public static final Holder<Skill> THORNY_HIDE = registerSkill("thorny_hide", 0, 50, preReqs(COBBLED_HIDE));
+    public static final Holder<Skill> REPULSIVE_SKIN = registerSkill("repulsive_skin", 0, 50, preReqs(COBBLED_HIDE));
+    public static final Holder<Skill> REFLECTIVE_FLESH = registerSkill("reflective_flesh", 0, 50, preReqs(COBBLED_HIDE));
+    public static final Holder<Skill> BLAST_RESISTANT = registerSkill("blast_resistant", 0, 50, preReqs(COBBLED_HIDE));
+    public static final Holder<Skill> SPONGY_FLESH = registerSkill("spongy_flesh", 0, 50, preReqs(COBBLED_HIDE));
+    public static final Holder<Skill> INFECTIOUS = registerSkill("infectious", 0, 50, preReqs(COBBLED_HIDE));
+    public static final Holder<Skill> REINFORCED = registerSkill("reinforced", 0, 50, preReqs(COBBLED_HIDE));
+    public static final Holder<Skill> VIRAL = registerSkill("viral", 0, 50, preReqs(COBBLED_HIDE));
+
     private static Holder<Skill> registerSkill(String name) {
         return SKILLS.register(name, () -> new Skill(CommonClass.customLocation(name)));
     }
