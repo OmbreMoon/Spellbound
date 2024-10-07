@@ -38,7 +38,7 @@ public class ClientPayloadHandler {
     public static void handleClientSetSpellData(SetSpellDataPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             var handler = SpellUtil.getSpellHandler(context.player());
-            AbstractSpell spell = handler.getSpell(payload.spellType(), payload.id());
+            AbstractSpell spell = handler.castTick > 0 ? handler.getCurrentlyCastSpell() : handler.getSpell(payload.spellType(), payload.id());
             if (spell != null)
                 spell.getSpellData().assignValues(payload.packedItems());
         });

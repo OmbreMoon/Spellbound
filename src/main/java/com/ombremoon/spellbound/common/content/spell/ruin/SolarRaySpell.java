@@ -17,7 +17,7 @@ public class SolarRaySpell extends ChanneledSpell {
     protected static final SpellDataKey<Integer> SOLAR_RAY = SyncedSpellData.define(SolarRaySpell.class, DataTypeInit.INT.get());
 
     public static Builder<ChanneledSpell> createSolarRayBuilder() {
-        return createChannelledSpellBuilder().castTime(18).updateInterval(10);
+        return createChannelledSpellBuilder().castTime(18);
     }
 
     public SolarRaySpell() {
@@ -44,8 +44,18 @@ public class SolarRaySpell extends ChanneledSpell {
                 solarRay.setPos(player.position());
                 solarRay.setYRot(player.getYRot());
                 level.addFreshEntity(solarRay);
+                this.spellData.set(SOLAR_RAY, 25);
             }
         }
+    }
+
+    @Override
+    public void whenCasting(SpellContext context, int castTime) {
+        super.whenCasting(context, castTime);
+        if (castTime >= 6)
+            this.spellData.set(SOLAR_RAY, 76);
+
+        LOGGER.info("{}", this.getSpellData().get(SOLAR_RAY));
     }
 
     @Override

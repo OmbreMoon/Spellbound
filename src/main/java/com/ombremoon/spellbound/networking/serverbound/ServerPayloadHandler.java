@@ -17,6 +17,7 @@ public class ServerPayloadHandler {
         var handler = SpellUtil.getSpellHandler(context.player());
         AbstractSpell spell = handler.getCurrentlyCastSpell();
         spell.initSpell(context.player(), context.player().level(), context.player().getOnPos());
+        handler.setCurrentlyCastingSpell(null);
     }
 
     public static void handleNetworkCycleSpell(final CycleSpellPayload payload, final IPayloadContext context) {

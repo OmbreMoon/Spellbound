@@ -50,8 +50,8 @@ public class DebugItem extends Item {
     }
 
     private void ombreDebug(Level level, Player player, InteractionHand usedHand, SpellHandler spellHandler, SkillHandler skillHandler) {
-        spellHandler.getActiveSpells(SpellInit.WILD_MUSHROOM_SPELL.get()).forEach(spell -> Constants.LOG.info("{}", spell.getId()));
-//        Constants.LOG.info("{}", spellHandler.getActiveSpells());
+//        spellHandler.getActiveSpells(SpellInit.WILD_MUSHROOM_SPELL.get()).forEach(spell -> Constants.LOG.info("{}", spell.getId()));
+        Constants.LOG.info("{}", spellHandler.getActiveSpells());
         if (!level.isClientSide) {
 //            spellHandler.clearList();
 //            spellHandler.setSelectedSpell(SpellInit.WILD_MUSHROOM_SPELL.get());

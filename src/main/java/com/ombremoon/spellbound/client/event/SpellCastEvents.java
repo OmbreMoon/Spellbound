@@ -73,7 +73,7 @@ public class SpellCastEvents {
         AbstractSpell spell = handler.getCurrentlyCastSpell();
         boolean isRecast = handler.getActiveSpells(spellType).size() > 1;
         var spellContext = new SpellContext(player, isRecast);
-        if (spell == null || !spell.isInactive) {
+        if (spell == null) {
             spell = spellType.createSpell();
             spell.setCastContext(spellContext);
             handler.setCurrentlyCastingSpell(spell);
@@ -87,12 +87,12 @@ public class SpellCastEvents {
                 handler.castTick = 0;
             } else if (!handler.isChannelling()){
                 handler.castTick++;
-                if (handler.castTick == 1) {
-                    spell.onCastStart(spellContext);
-                    PayloadHandler.castStart(spellType, isRecast);
-                } else {
+                if (handler.castTick > 1) {
                     spell.whenCasting(spellContext, handler.castTick);
                     PayloadHandler.whenCasting(spellType, handler.castTick, isRecast);
+                } else {
+                    spell.onCastStart(spellContext);
+                    PayloadHandler.castStart(spellType, isRecast);
                 }
             }
         } else if (!KeyBinds.getSpellCastMapping().isDown() && handler.castTick > 0) {
@@ -120,6 +120,8 @@ public class SpellCastEvents {
 
         PayloadHandler.castSpell();
         spell.initSpell(player, player.level(), player.getOnPos());
+        var handler = SpellUtil.getSpellHandler(player);
+        handler.setCurrentlyCastingSpell(null);
         var animation = (ModifierLayer<IAnimation>) PlayerAnimationAccess.getPlayerAssociatedData((AbstractClientPlayer) player).get(CommonClass.customLocation("animation"));
         if (animation != null)
             animation.setAnimation(new KeyframeAnimationPlayer((KeyframeAnimation) PlayerAnimationRegistry.getAnimation(CommonClass.customLocation("test"))));

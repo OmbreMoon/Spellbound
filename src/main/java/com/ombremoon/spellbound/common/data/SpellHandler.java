@@ -205,6 +205,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     public void setSelectedSpell(SpellType<?> selectedSpell) {
         this.selectedSpell = selectedSpell;
+        this.currentlyCastingSpell = null;
         Constants.LOG.debug("Selected spell: {}", selectedSpell != null ? selectedSpell.createSpell().getName().getString() : null);
     }
 

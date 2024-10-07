@@ -447,7 +447,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder {
         List<SyncedSpellData.DataValue<?>> list = data.packDirty();
         if (list != null) {
             this.trackedDataValues = data.getNonDefaultValues();
-            PayloadHandler.setSpellData(this.caster, getSpellType(), this.castId, list);
+            Player player = !this.isInactive ? this.castContext.getPlayer() : this.caster;
+            PayloadHandler.setSpellData(player, getSpellType(), this.castId, list);
         }
     }
 
@@ -558,7 +559,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder {
         protected boolean fullRecast;
         protected boolean shouldPersist;
         protected boolean hasLayer;
-        protected int updateInterval = 10;
+        protected int updateInterval = 3;
 
         public Builder<T> manaCost(int fpCost) {
             this.manaCost = fpCost;
