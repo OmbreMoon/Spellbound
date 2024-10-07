@@ -91,10 +91,8 @@ public class HealingTouchSpell extends AnimatedSpell {
                 player.getFoodData().eat((int) (maxMana * 0.02d), 1f);
             }
 
-            if (skills.hasSkill(SkillInit.TRANQUILITY_OF_WATER.value())) {
+            if (skills.hasSkill(SkillInit.TRANQUILITY_OF_WATER.value()))
                 context.getSpellHandler().awardMana(4 + (skills.getSpellLevel(getSpellType()) * 0.4f));
-                context.getSpellHandler().sync();
-            }
 
             if (skills.hasSkill(SkillInit.OVERGROWTH.value()) && overgrowthStacks < 5) overgrowthStacks++;
 

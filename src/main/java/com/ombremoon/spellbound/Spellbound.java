@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound;
 
+import com.ombremoon.spellbound.common.init.DataTypeInit;
 import com.ombremoon.spellbound.common.init.SkillInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import dev.kosmx.playerAnim.api.layered.IAnimation;
@@ -24,12 +25,6 @@ public class Spellbound {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::clientSetup);
         modEventBus.addListener(this::registerRegistry);
-        /*NeoForge.EVENT_BUS.addListener(PlayerEvent.Clone.class, event -> {
-            if (event.isWasDeath() && event.getOriginal().hasData(DataInit.SPELL_HANDLER.get())) {
-                SpellUtil.getSpellHandler(event.getEntity()).deserializeNBT(event.getEntity().registryAccess(), SpellUtil.getSpellHandler(event.getOriginal()).serializeNBT(event.getEntity().registryAccess()));
-                SpellUtil.getSpellHandler(event.getEntity()).caster = SpellUtil.getSpellHandler(event.getOriginal()).caster;
-            }
-        });*/
         CommonClass.init(modEventBus);
     }
 
@@ -48,5 +43,6 @@ public class Spellbound {
     private void registerRegistry(NewRegistryEvent event) {
         event.register(SpellInit.REGISTRY);
         event.register(SkillInit.REGISTRY);
+        event.register(DataTypeInit.REGISTRY);
     }
 }

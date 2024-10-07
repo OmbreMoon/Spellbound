@@ -10,7 +10,7 @@ public record ShakeScreenPayload(int duration, float intensity, float maxOffset,
     public static final Type<ShakeScreenPayload> TYPE =
             new Type<>(CommonClass.customLocation("shake_screen"));
 
-    public static final StreamCodec<ByteBuf, ShakeScreenPayload> CODEC = StreamCodec.composite(
+    public static final StreamCodec<ByteBuf, ShakeScreenPayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.INT, ShakeScreenPayload::duration,
             ByteBufCodecs.FLOAT, ShakeScreenPayload::intensity,
             ByteBufCodecs.FLOAT, ShakeScreenPayload::maxOffset,

@@ -11,7 +11,7 @@ public record SyncSkillPayload(CompoundTag tag) implements CustomPacketPayload {
     public static final CustomPacketPayload.Type<SyncSkillPayload> TYPE =
             new CustomPacketPayload.Type<>(CommonClass.customLocation("client_skill_sync"));
 
-    public static final StreamCodec<ByteBuf, SyncSkillPayload> CODEC = StreamCodec.composite(
+    public static final StreamCodec<ByteBuf, SyncSkillPayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.COMPOUND_TAG,
             SyncSkillPayload::tag,
             SyncSkillPayload::new

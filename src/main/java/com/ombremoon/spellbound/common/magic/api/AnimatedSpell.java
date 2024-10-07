@@ -69,5 +69,10 @@ public abstract class AnimatedSpell extends AbstractSpell {
             this.shouldPersist = true;
             return this;
         }
+
+        public Builder<T> updateInterval(int updateInterval) {
+            this.updateInterval = updateInterval;
+            return this;
+        }
     }
 }

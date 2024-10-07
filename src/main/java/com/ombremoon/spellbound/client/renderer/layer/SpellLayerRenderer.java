@@ -20,7 +20,6 @@ import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.cache.texture.AnimatableTexture;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.renderer.GeoArmorRenderer;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayersContainer;
@@ -136,7 +135,7 @@ public class SpellLayerRenderer<T extends AbstractSpell> extends HumanoidModel i
     }
 
     public ResourceLocation getTextureLocation(AbstractSpell spell) {
-        return CommonClass.customLocation("textures/spell_layer/" + spell.getId().getPath() + ".png");
+        return CommonClass.customLocation("textures/spell_layer/" + spell.location().getPath() + ".png");
     }
 
     @Override

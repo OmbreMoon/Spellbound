@@ -86,5 +86,10 @@ public abstract class ChanneledSpell extends AnimatedSpell {
             this.castSound = castSound;
             return this;
         }
+
+        public Builder<T> updateInterval(int updateInterval) {
+            this.updateInterval = updateInterval;
+            return this;
+        }
     }
 }

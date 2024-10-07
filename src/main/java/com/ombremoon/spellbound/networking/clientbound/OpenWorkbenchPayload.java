@@ -9,7 +9,7 @@ public record OpenWorkbenchPayload() implements CustomPacketPayload {
     public static final Type<OpenWorkbenchPayload> TYPE =
             new Type<>(CommonClass.customLocation("open_workbench"));
 
-    public static final StreamCodec<ByteBuf, OpenWorkbenchPayload> CODEC = StreamCodec.unit(new OpenWorkbenchPayload());
+    public static final StreamCodec<ByteBuf, OpenWorkbenchPayload> STREAM_CODEC = StreamCodec.unit(new OpenWorkbenchPayload());
 
     @Override
     public Type<? extends CustomPacketPayload> type() {

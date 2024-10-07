@@ -43,9 +43,10 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     protected Set<SpellType<?>> spellSet = new ObjectOpenHashSet<>();
     protected Multimap<SpellType<?>, AbstractSpell> activeSpells = ArrayListMultimap.create();
     protected SpellType<?> selectedSpell;
+    protected AbstractSpell currentlyCastingSpell;
     private final Map<SummonSpell, Set<Integer>> activeSummons = new Object2ObjectOpenHashMap<>();
     private final Map<ModifierData, Integer> transientModifiers = new Object2IntOpenHashMap<>();
-    private final Set<Integer> afterGlowEntities = new IntOpenHashSet();
+    private final Set<Integer> glowEntities = new IntOpenHashSet();
     public int castTick;
     private boolean channelling;
 
@@ -171,12 +172,19 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.activeSpells.replaceValues(spell.getSpellType(), List.of(spell));
     }
 
-    public Collection<AbstractSpell> getActiveSpells(SpellType<?> spellType) {
-        return this.activeSpells.get(spellType);
+    public List<AbstractSpell> getActiveSpells(SpellType<?> spellType) {
+        return this.activeSpells.get(spellType).stream().toList();
     }
 
     public Collection<AbstractSpell> getActiveSpells() {
         return this.activeSpells.values();
+    }
+
+    public AbstractSpell getSpell(SpellType<?> spellType, int id) {
+        for (var spell : getActiveSpells(spellType)) {
+            if (spell.getId() == id) return spell;
+        }
+        return null;
     }
 
     public boolean isSpellActive(SpellType<?> spellType) {
@@ -185,6 +193,14 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     public SpellType<?> getSelectedSpell() {
         return this.selectedSpell != null ? this.selectedSpell : !getSpellList().isEmpty() && getSpellList().iterator().hasNext() ? getSpellList().iterator().next() : null;
+    }
+
+    public AbstractSpell getCurrentlyCastSpell() {
+        return this.currentlyCastingSpell;
+    }
+
+    public void setCurrentlyCastingSpell(AbstractSpell abstractSpell) {
+        this.currentlyCastingSpell = abstractSpell;
     }
 
     public void setSelectedSpell(SpellType<?> selectedSpell) {
@@ -232,16 +248,16 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         activeSummons.put(spell, mobIds);
     }
 
-    public void addAfterglow(LivingEntity livingEntity) {
-        this.afterGlowEntities.add(livingEntity.getId());
+    public void addGlowEffect(LivingEntity livingEntity) {
+        this.glowEntities.add(livingEntity.getId());
     }
 
-    public void removeAfterglow(LivingEntity livingEntity) {
-        this.afterGlowEntities.remove(livingEntity.getId());
+    public void removeGlowEffect(LivingEntity livingEntity) {
+        this.glowEntities.remove(livingEntity.getId());
     }
 
-    public boolean hasAfterGlow(LivingEntity livingEntity) {
-        return this.afterGlowEntities.contains(livingEntity.getId());
+    public boolean hasGlowEffect(LivingEntity livingEntity) {
+        return this.glowEntities.contains(livingEntity.getId());
     }
 
     public void endSpells() {

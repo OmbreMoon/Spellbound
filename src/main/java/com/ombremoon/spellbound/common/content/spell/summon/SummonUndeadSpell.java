@@ -27,7 +27,6 @@ public class SummonUndeadSpell extends SummonSpell {
             if (success == null) {
                 endSpell();
                 context.getSpellHandler().awardMana(this.getManaCost());
-                context.getSpellHandler().sync();
             }
         }
     }

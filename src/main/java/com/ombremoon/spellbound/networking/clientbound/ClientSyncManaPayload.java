@@ -1,6 +1,5 @@
 package com.ombremoon.spellbound.networking.clientbound;
 
-import com.mojang.serialization.Codec;
 import com.ombremoon.spellbound.CommonClass;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -11,7 +10,7 @@ public record ClientSyncManaPayload(double mana) implements CustomPacketPayload 
     public static final CustomPacketPayload.Type<ClientSyncManaPayload> TYPE =
             new CustomPacketPayload.Type<>(CommonClass.customLocation("client_mana_sync"));
 
-    public static final StreamCodec<ByteBuf, ClientSyncManaPayload> CODEC = StreamCodec.composite(
+    public static final StreamCodec<ByteBuf, ClientSyncManaPayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.DOUBLE,
             ClientSyncManaPayload::mana,
             ClientSyncManaPayload::new

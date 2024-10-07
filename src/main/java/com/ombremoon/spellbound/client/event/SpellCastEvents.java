@@ -6,7 +6,6 @@ import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.common.init.EffectInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import dev.kosmx.playerAnim.api.layered.IAnimation;
@@ -71,14 +70,20 @@ public class SpellCastEvents {
         var spellType = handler.getSelectedSpell();
         if (spellType == null) return;
 
-        AbstractSpell spell = spellType.createSpell();
+        AbstractSpell spell = handler.getCurrentlyCastSpell();
         boolean isRecast = handler.getActiveSpells(spellType).size() > 1;
-        var spellContext = new SpellContext(player, spell.getTargetEntity(player, 10), isRecast);
+        var spellContext = new SpellContext(player, isRecast);
+        if (spell == null || !spell.isInactive) {
+            spell = spellType.createSpell();
+            spell.setCastContext(spellContext);
+            handler.setCurrentlyCastingSpell(spell);
+            PayloadHandler.setCastingSpell(spellType, isRecast);
+        }
         if (KeyBinds.getSpellCastMapping().isDown()) {
             int castTime = spell.getCastTime();
             if (handler.castTick >= castTime && !handler.isChannelling()) {
                 if (spell.getCastType() != AbstractSpell.CastType.CHANNEL) KeyBinds.getSpellCastMapping().setDown(false);
-                castSpell(player, spellType);
+                castSpell(player, spell);
                 handler.castTick = 0;
             } else if (!handler.isChannelling()){
                 handler.castTick++;
@@ -109,13 +114,11 @@ public class SpellCastEvents {
     }
 
     @SuppressWarnings("unchecked")
-    public static void castSpell(Player player, SpellType<?> spellType) {
-        AbstractSpell spell = spellType.createSpell();
+    public static void castSpell(Player player, AbstractSpell spell) {
         if (player.isSpectator()) return;
-        if (spell == null) return;
         if (!SpellUtil.canCastSpell(player, spell)) return;
 
-        PayloadHandler.castSpell(spellType);
+        PayloadHandler.castSpell();
         spell.initSpell(player, player.level(), player.getOnPos());
         var animation = (ModifierLayer<IAnimation>) PlayerAnimationAccess.getPlayerAssociatedData((AbstractClientPlayer) player).get(CommonClass.customLocation("animation"));
         if (animation != null)

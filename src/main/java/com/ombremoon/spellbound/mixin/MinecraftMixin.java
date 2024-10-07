@@ -5,7 +5,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,7 +21,7 @@ public class MinecraftMixin {
     @Inject(method = "shouldEntityAppearGlowing", at = @At("RETURN"), cancellable = true)
     private void shouldEntityAppearGlowing(Entity entity, CallbackInfoReturnable<Boolean> cir) {
         var handler = SpellUtil.getSpellHandler(player);
-        if (entity instanceof LivingEntity livingEntity && handler.hasAfterGlow(livingEntity)) {
+        if (entity instanceof LivingEntity livingEntity && handler.hasGlowEffect(livingEntity)) {
             cir.setReturnValue(true);
         }
     }

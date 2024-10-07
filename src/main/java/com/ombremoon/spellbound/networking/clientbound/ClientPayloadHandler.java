@@ -2,16 +2,14 @@ package com.ombremoon.spellbound.networking.clientbound;
 
 import com.ombremoon.spellbound.client.CameraEngine;
 import com.ombremoon.spellbound.client.gui.WorkbenchScreen;
-import com.ombremoon.spellbound.common.data.SkillHandler;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
-import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
+import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class ClientPayloadHandler {
@@ -34,6 +32,15 @@ public class ClientPayloadHandler {
         context.enqueueWork(() -> {
             var handler = SpellUtil.getSkillHandler(context.player());
             handler.deserializeNBT(context.player().level().registryAccess(), payload.tag());
+        });
+    }
+
+    public static void handleClientSetSpellData(SetSpellDataPayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            var handler = SpellUtil.getSpellHandler(context.player());
+            AbstractSpell spell = handler.getSpell(payload.spellType(), payload.id());
+            if (spell != null)
+                spell.getSpellData().assignValues(payload.packedItems());
         });
     }
 
@@ -63,12 +70,12 @@ public class ClientPayloadHandler {
         });
     }
 
-    public static void handleRemoveAfterglow(RemoveAfterglowPayload payload, IPayloadContext context) {
+    public static void handleRemoveGlowEffect(RemoveGlowEffectPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             var handler = SpellUtil.getSpellHandler(context.player());
             Entity entity = context.player().level().getEntity(payload.entityId());
             if (entity instanceof LivingEntity livingEntity)
-                handler.removeAfterglow(livingEntity);
+                handler.removeGlowEffect(livingEntity);
         });
     }
 }

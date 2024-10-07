@@ -39,7 +39,7 @@ public class WildMushroomSpell extends SummonSpell {
     private int explosionInterval;
 
     public static Builder<AnimatedSpell> createMushroomBuilder() {
-        return createSimpleSpellBuilder().duration(180).manaCost(20);
+        return createSimpleSpellBuilder().duration(180).manaCost(20).partialRecast();
     }
 
     public WildMushroomSpell() {
@@ -55,7 +55,6 @@ public class WildMushroomSpell extends SummonSpell {
             if (mobs == null || !mobs.iterator().hasNext()) {
                 endSpell();
                 context.getSpellHandler().awardMana(this.getManaCost());
-                context.getSpellHandler().sync();
                 return;
             }
 
@@ -149,9 +148,7 @@ public class WildMushroomSpell extends SummonSpell {
                 SpellHandler handler = context.getSpellHandler();
                 int level = context.getSkillHandler().getSpellLevel(getSpellType());
                 handler.awardMana(52 + (2 * (level - 1)));
-                handler.sync();
             }
-
         }
     }
 

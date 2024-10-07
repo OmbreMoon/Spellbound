@@ -7,6 +7,9 @@ import com.ombremoon.spellbound.common.init.StatInit;
 import com.ombremoon.spellbound.common.magic.api.ModifierType;
 import com.ombremoon.spellbound.common.magic.events.SpellEvent;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
+import com.ombremoon.spellbound.common.magic.sync.SpellDataHolder;
+import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
+import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.Util;
@@ -39,12 +42,13 @@ import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.constant.dataticket.DataTicket;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unchecked")
-public abstract class AbstractSpell implements GeoAnimatable {
+public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder {
     protected static final Logger LOGGER = Constants.LOG;
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public static final DataTicket<AbstractSpell> DATA_TICKET = new DataTicket<>("abstract_spell", AbstractSpell.class);
@@ -59,12 +63,17 @@ public abstract class AbstractSpell implements GeoAnimatable {
     private final boolean partialRecast;
     private final boolean shouldPersist;
     private final boolean hasLayer;
+    private final int updateInterval;
+    protected final SyncedSpellData spellData;
+    @Nullable
+    private List<SyncedSpellData.DataValue<?>> trackedDataValues;
     private Level level;
     private Player caster;
     private BlockPos blockPos;
     private String nameId;
     private String descriptionId;
     private SpellContext context;
+    private SpellContext castContext;
     private boolean isRecast;
     public int ticks = 0;
     public boolean isInactive = false;
@@ -87,6 +96,10 @@ public abstract class AbstractSpell implements GeoAnimatable {
         this.partialRecast = builder.partialRecast;
         this.shouldPersist = builder.shouldPersist;
         this.hasLayer = builder.hasLayer;
+        this.updateInterval = builder.updateInterval;
+        SyncedSpellData.Builder dataBuilder = new SyncedSpellData.Builder(this);
+        this.defineSpellData(dataBuilder);
+        this.spellData = dataBuilder.build();
     }
 
     public SpellType<?> getSpellType() {
@@ -117,13 +130,13 @@ public abstract class AbstractSpell implements GeoAnimatable {
         return this.castTime;
     }
 
-    public ResourceLocation getId() {
+    public ResourceLocation location() {
         return SpellInit.REGISTRY.getKey(this.spellType);
     }
 
     protected String getOrCreateNameId() {
         if (this.nameId == null) {
-            this.nameId = Util.makeDescriptionId("spell", this.getId());
+            this.nameId = Util.makeDescriptionId("spell", this.location());
         }
         return this.nameId;
     }
@@ -134,7 +147,7 @@ public abstract class AbstractSpell implements GeoAnimatable {
 
     protected String getOrCreateDescriptionId() {
         if (this.descriptionId == null) {
-            this.descriptionId = Util.makeDescriptionId("spell.description", this.getId());
+            this.descriptionId = Util.makeDescriptionId("spell.description", this.location());
         }
         return this.descriptionId;
     }
@@ -144,7 +157,7 @@ public abstract class AbstractSpell implements GeoAnimatable {
     }
 
     public ResourceLocation getTexture() {
-        ResourceLocation name = this.getId();
+        ResourceLocation name = this.location();
         return CommonClass.customLocation("textures/gui/spells/" + name.getPath() + ".png");
     }
 
@@ -168,6 +181,26 @@ public abstract class AbstractSpell implements GeoAnimatable {
         return this.getSpellType().getSubPath();
     }
 
+    public SpellContext getCastContext() {
+        return this.castContext;
+    }
+
+    public void setCastContext(SpellContext context) {
+        this.castContext = context;
+    }
+
+    public int getId() {
+        return this.castId;
+    }
+
+    protected void defineSpellData(SyncedSpellData.Builder builder) {
+
+    }
+
+    public SyncedSpellData getSpellData() {
+        return this.spellData;
+    }
+
     public @UnknownNullability CompoundTag saveData(CompoundTag compoundTag) {
         return compoundTag;
     }
@@ -187,6 +220,11 @@ public abstract class AbstractSpell implements GeoAnimatable {
             if (this.getCastType() != CastType.CHANNEL && ticks % getDuration() == 0) {
                 this.endSpell();
             }
+        }
+
+        if (!this.level.isClientSide) {
+            if (this.spellData.isDirty() || this.ticks % this.updateInterval == 0)
+                this.sendDirtySpellData();
         }
     }
 
@@ -221,13 +259,29 @@ public abstract class AbstractSpell implements GeoAnimatable {
     }
 
     public void onCastStart(SpellContext context) {
+        if (!context.getLevel().isClientSide) {
+            this.trackedDataValues = this.spellData.getNonDefaultValues();
+            this.sendDirtySpellData();
+        }
     }
 
     public void whenCasting(SpellContext context, int castTime) {
+        if (!context.getLevel().isClientSide) {
+            if (this.spellData.isDirty() || castTime % this.updateInterval == 0)
+                this.sendDirtySpellData();
+        }
         Constants.LOG.info("{}", castTime);
     }
 
     public void onCastReset(SpellContext context) {
+    }
+
+    @Override
+    public void onSpellDataUpdated(List<SyncedSpellData.DataValue<?>> newData) {
+    }
+
+    @Override
+    public void onSpellDataUpdated(SpellDataKey<?> dataKey) {
     }
 
     protected boolean shouldTickEffect(SpellContext context) {
@@ -339,24 +393,6 @@ public abstract class AbstractSpell implements GeoAnimatable {
         return this.level.clip(setupRayTraceContext(this.caster, range, ClipContext.Fluid.NONE));
     }
 
-/*    protected List<LivingEntity> getEntitiesInLine(double range) {
-        List<LivingEntity> entityList = new ObjectArrayList<>();
-        double dist = range * range;
-        Vec3 startPos = this.caster.getEyePosition(1.0F);
-        LivingEntity startEntity = this.caster;
-        while (true) {
-            LivingEntity livingEntity = getTargetEntity(startEntity, startPos, range);
-            if (livingEntity != null && livingEntity.distanceToSqr(this.caster) < dist && !entityList.contains(livingEntity)) {
-                entityList.add(livingEntity);
-                startPos = livingEntity.getBoundingBox().getCenter();
-                startEntity = livingEntity;
-            } else {
-                break;
-            }
-        }
-        return entityList;
-    }*/
-
     protected @Nullable LivingEntity getTargetEntity(double range) {
         return getTargetEntity(this.caster, range);
     }
@@ -404,6 +440,15 @@ public abstract class AbstractSpell implements GeoAnimatable {
         Vec3 toPos = fromPos.add((double) xComponent * distance, (double) yComponent * distance,
                 (double) zComponent * distance);
         return new ClipContext(fromPos, toPos, ClipContext.Block.OUTLINE, fluidContext, livingEntity);
+    }
+
+    private void sendDirtySpellData() {
+        SyncedSpellData data = this.spellData;
+        List<SyncedSpellData.DataValue<?>> list = data.packDirty();
+        if (list != null) {
+            this.trackedDataValues = data.getNonDefaultValues();
+            PayloadHandler.setSpellData(this.caster, getSpellType(), this.castId, list);
+        }
     }
 
     public boolean shouldPersist() {
@@ -472,6 +517,8 @@ public abstract class AbstractSpell implements GeoAnimatable {
             handler.recastSpell(this);
         } else {
             handler.activateSpell(this);
+            if (!this.level.isClientSide)
+                this.sendDirtySpellData();
         }
         handler.consumeMana(getManaCost(), true);
     }
@@ -511,6 +558,7 @@ public abstract class AbstractSpell implements GeoAnimatable {
         protected boolean fullRecast;
         protected boolean shouldPersist;
         protected boolean hasLayer;
+        protected int updateInterval = 10;
 
         public Builder<T> manaCost(int fpCost) {
             this.manaCost = fpCost;
@@ -561,6 +609,11 @@ public abstract class AbstractSpell implements GeoAnimatable {
 
         public Builder<T> hasLayer() {
             this.hasLayer = true;
+            return this;
+        }
+
+        public Builder<T> updateInterval(int updateInterval) {
+            this.updateInterval = updateInterval;
             return this;
         }
     }

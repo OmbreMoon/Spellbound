@@ -9,7 +9,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 public record SetRotationPayload(float xRot, float yRot) implements CustomPacketPayload {
     public static final Type<SetRotationPayload> TYPE = new Type<>(CommonClass.customLocation("manipulate_camera"));
 
-    public static final StreamCodec<ByteBuf, SetRotationPayload> CODEC = StreamCodec.composite(
+    public static final StreamCodec<ByteBuf, SetRotationPayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.FLOAT, SetRotationPayload::xRot,
             ByteBufCodecs.FLOAT, SetRotationPayload::yRot,
             SetRotationPayload::new

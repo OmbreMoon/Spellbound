@@ -2,9 +2,9 @@ package com.ombremoon.spellbound.networking;
 
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.DataInit;
-import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
+import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import com.ombremoon.spellbound.networking.clientbound.*;
 import com.ombremoon.spellbound.networking.serverbound.*;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -27,8 +27,12 @@ public class PayloadHandler {
         PacketDistributor.sendToServer(new SwitchModePayload());
     }
 
-    public static void castSpell(SpellType<?> spellType) {
-        PacketDistributor.sendToServer(new CastSpellPayload(spellType));
+    public static void castSpell() {
+        PacketDistributor.sendToServer(new CastSpellPayload());
+    }
+
+    public static void setCastingSpell(SpellType<?> spellType, boolean isRecast) {
+        PacketDistributor.sendToServer(new SetCastingSpellPayload(spellType, isRecast));
     }
 
     public static void cycleSpell(SpellType<?> spellType) {
@@ -71,6 +75,10 @@ public class PayloadHandler {
                 ));
     }
 
+    public static void setSpellData(Player player, SpellType<?> spellType, int id, List<SyncedSpellData.DataValue<?>> packedItems) {
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new SetSpellDataPayload(spellType, id, packedItems));
+    }
+
     public static void syncMana(Player player) {
         PacketDistributor.sendToPlayer((ServerPlayer) player,
                 new ClientSyncManaPayload(player.getData(DataInit.MANA)));
@@ -93,7 +101,7 @@ public class PayloadHandler {
     }
 
     public static void removeAfterglow(Player player, int entityId) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player, new RemoveAfterglowPayload(entityId));
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new RemoveGlowEffectPayload(entityId));
     }
 
     @SubscribeEvent
@@ -101,84 +109,94 @@ public class PayloadHandler {
         final PayloadRegistrar registrar = event.registrar("1");
         registrar.playToServer(
                 SwitchModePayload.TYPE,
-                SwitchModePayload.CODEC,
+                SwitchModePayload.STREAM_CODEC,
                 ServerPayloadHandler::handleNetworkSwitchMode
         );
         registrar.playToServer(
                 CastSpellPayload.TYPE,
-                CastSpellPayload.CODEC,
+                CastSpellPayload.STREAM_CODEC,
                 ServerPayloadHandler::handleNetworkCastSpell
         );
         registrar.playToServer(
                 CycleSpellPayload.TYPE,
-                CycleSpellPayload.CODEC,
+                CycleSpellPayload.STREAM_CODEC,
                 ServerPayloadHandler::handleNetworkCycleSpell
         );
         registrar.playToServer(
+                SetCastingSpellPayload.TYPE,
+                SetCastingSpellPayload.STREAM_CODEC,
+                ServerPayloadHandler::handleNetworkSetCastSpell
+        );
+        registrar.playToServer(
                 CastStartPayload.TYPE,
-                CastStartPayload.CODEC,
+                CastStartPayload.STREAM_CODEC,
                 ServerPayloadHandler::handleNetworkCastStart
         );
         registrar.playToServer(
                 CastingPayload.TYPE,
-                CastingPayload.CODEC,
+                CastingPayload.STREAM_CODEC,
                 ServerPayloadHandler::handleNetworkCasting
         );
         registrar.playToServer(
                 CastResetPayload.TYPE,
-                CastResetPayload.CODEC,
+                CastResetPayload.STREAM_CODEC,
                 ServerPayloadHandler::handleNetworkCastReset
         );
         registrar.playToServer(
                 StopChannelPayload.TYPE,
-                StopChannelPayload.CODEC,
+                StopChannelPayload.STREAM_CODEC,
                 ServerPayloadHandler::handleNetworkStopChannel
         );
         registrar.playToServer(
                 UnlockSkillPayload.TYPE,
-                UnlockSkillPayload.CODEC,
+                UnlockSkillPayload.STREAM_CODEC,
                 ServerPayloadHandler::handleNetworkUnlockSKill
         );
 
         registrar.playToClient(
                 SyncSpellPayload.TYPE,
-                SyncSpellPayload.CODEC,
+                SyncSpellPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleClientSpellSync
         );
         registrar.playToClient(
                 SyncSkillPayload.TYPE,
-                SyncSkillPayload.CODEC,
+                SyncSkillPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleClientSkillSync
         );
         registrar.playToClient(
+                SetSpellDataPayload.TYPE,
+                SetSpellDataPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleClientSetSpellData
+        );
+        registrar.playToClient(
                 OpenWorkbenchPayload.TYPE,
-                OpenWorkbenchPayload.CODEC,
+                OpenWorkbenchPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleClientOpenWorkbenchScreen
         );
         registrar.playToClient(
                 ClientSyncManaPayload.TYPE,
-                ClientSyncManaPayload.CODEC,
+                ClientSyncManaPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleClientManaSync
         );
         registrar.playToClient(
                 UpdateTreePayload.TYPE,
-                UpdateTreePayload.CODEC,
+                UpdateTreePayload.STREAM_CODEC,
                 ClientPayloadHandler::handleClientUpdateTree
         );
         registrar.playToClient(
                 ShakeScreenPayload.TYPE,
-                ShakeScreenPayload.CODEC,
+                ShakeScreenPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleClientShakeScreen
         );
         registrar.playToClient(
                 SetRotationPayload.TYPE,
-                SetRotationPayload.CODEC,
+                SetRotationPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleClientSetRotation
         );
         registrar.playToClient(
-                RemoveAfterglowPayload.TYPE,
-                RemoveAfterglowPayload.CODEC,
-                ClientPayloadHandler::handleRemoveAfterglow
+                RemoveGlowEffectPayload.TYPE,
+                RemoveGlowEffectPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleRemoveGlowEffect
         );
     }
 }

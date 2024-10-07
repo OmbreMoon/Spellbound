@@ -10,7 +10,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 public record CastResetPayload(SpellType<?> spellType, boolean recast) implements CustomPacketPayload {
     public static final Type<CastResetPayload> TYPE = new Type<>(CommonClass.customLocation("cast_reset"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, CastResetPayload> CODEC = StreamCodec.composite(
+    public static final StreamCodec<RegistryFriendlyByteBuf, CastResetPayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.registry(SpellInit.SPELL_TYPE_REGISTRY_KEY), CastResetPayload::spellType,
             ByteBufCodecs.BOOL, CastResetPayload::recast,
             CastResetPayload::new

@@ -26,6 +26,10 @@ public class SpellContext {
     private final SkillHandler skillHandler;
     private final boolean isRecast;
 
+    public SpellContext(Player player, boolean isRecast) {
+        this(player, player.level(), player.getOnPos(), player.getOffhandItem(), null, isRecast);
+    }
+
     public SpellContext(Player player, LivingEntity target, boolean isRecast) {
         this(player, player.level(), player.getOnPos(), player.getOffhandItem(), target, isRecast);
     }
