@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.magic;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.common.init.DataTypeInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.init.StatInit;
 import com.ombremoon.spellbound.common.magic.api.ModifierType;
@@ -35,6 +36,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.joml.Vector3f;
 import org.slf4j.Logger;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -52,6 +54,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder {
     protected static final Logger LOGGER = Constants.LOG;
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public static final DataTicket<AbstractSpell> DATA_TICKET = new DataTicket<>("abstract_spell", AbstractSpell.class);
+    protected static final SpellDataKey<Vector3f> CAST_POS = SyncedSpellData.define(AbstractSpell.class, DataTypeInit.VECTOR3.get());
     private final SpellType<?> spellType;
     private final int manaCost;
     private final int duration;
@@ -98,6 +101,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder {
         this.hasLayer = builder.hasLayer;
         this.updateInterval = builder.updateInterval;
         SyncedSpellData.Builder dataBuilder = new SyncedSpellData.Builder(this);
+        dataBuilder.define(CAST_POS, new Vector3f());
         this.defineSpellData(dataBuilder);
         this.spellData = dataBuilder.build();
     }
@@ -260,6 +264,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder {
 
     public void onCastStart(SpellContext context) {
         if (!context.getLevel().isClientSide) {
+            BlockPos castPos = context.getBlockPos();
+            this.spellData.set(CAST_POS, new Vector3f(castPos.getX(), castPos.getY(), castPos.getZ()));
             this.trackedDataValues = this.spellData.getNonDefaultValues();
             this.sendDirtySpellData();
         }
@@ -274,6 +280,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder {
     }
 
     public void onCastReset(SpellContext context) {
+        context.getSpellHandler().setCurrentlyCastingSpell(null);
     }
 
     @Override

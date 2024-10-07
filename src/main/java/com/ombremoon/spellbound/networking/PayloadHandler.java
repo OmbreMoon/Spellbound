@@ -100,7 +100,11 @@ public class PayloadHandler {
         PacketDistributor.sendToPlayer((ServerPlayer) player, new SetRotationPayload(xRot, yRot));
     }
 
-    public static void removeAfterglow(Player player, int entityId) {
+    public static void addGlowEffect(Player player, int entityId) {
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new AddGlowEffectPayload(entityId));
+    }
+
+    public static void removeGlowEffect(Player player, int entityId) {
         PacketDistributor.sendToPlayer((ServerPlayer) player, new RemoveGlowEffectPayload(entityId));
     }
 
@@ -197,6 +201,11 @@ public class PayloadHandler {
                 RemoveGlowEffectPayload.TYPE,
                 RemoveGlowEffectPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleRemoveGlowEffect
+        );
+        registrar.playToClient(
+                AddGlowEffectPayload.TYPE,
+                AddGlowEffectPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleAddGlowEffect
         );
     }
 }

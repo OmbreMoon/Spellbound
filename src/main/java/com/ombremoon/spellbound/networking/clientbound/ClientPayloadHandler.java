@@ -70,6 +70,15 @@ public class ClientPayloadHandler {
         });
     }
 
+    public static void handleAddGlowEffect(AddGlowEffectPayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            var handler = SpellUtil.getSpellHandler(context.player());
+            Entity entity = context.player().level().getEntity(payload.entityId());
+            if (entity instanceof LivingEntity livingEntity)
+                handler.addGlowEffect(livingEntity);
+        });
+    }
+
     public static void handleRemoveGlowEffect(RemoveGlowEffectPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             var handler = SpellUtil.getSpellHandler(context.player());

@@ -1,11 +1,13 @@
 package com.ombremoon.spellbound.common.content.effects;
 
 import com.ombremoon.spellbound.common.init.EffectInit;
+import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 public class SBEffectInstance extends MobEffectInstance {
@@ -43,8 +45,10 @@ public class SBEffectInstance extends MobEffectInstance {
     @Override
     public void onEffectAdded(LivingEntity livingEntity) {
         super.onEffectAdded(livingEntity);
-        if (this.getEffect().is(EffectInit.AFTERGLOW)) {
-            var handler = SpellUtil.getSpellHandler(this.causeEntity);
+        if (this.causeEntity instanceof Player player) {
+            if (this.getEffect().equals(EffectInit.AFTERGLOW)) {
+                PayloadHandler.addGlowEffect(player, livingEntity.getId());
+            }
         }
     }
 }

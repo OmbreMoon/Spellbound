@@ -1,10 +1,12 @@
 package com.ombremoon.spellbound.common;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.ombremoon.sentinellib.common.event.RegisterPlayerSentinelBoxEvent;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.commands.LearnSkillsCommand;
 import com.ombremoon.spellbound.common.commands.LearnSpellCommand;
 import com.ombremoon.spellbound.common.content.effects.SBEffectInstance;
+import com.ombremoon.spellbound.common.content.spell.ruin.SolarRaySpell;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.data.StatusHandler;
 import com.ombremoon.spellbound.common.init.AttributesInit;
@@ -47,6 +49,11 @@ public class NeoForgeEvents {
         new LearnSpellCommand(dispatcher, context);
 
         ConfigCommand.register(dispatcher);
+    }
+
+    @SubscribeEvent
+    public static void registerSentinelBox(RegisterPlayerSentinelBoxEvent event) {
+        event.addEntry(SolarRaySpell.SOLAR_BEAM);
     }
 
     @SubscribeEvent

@@ -47,7 +47,7 @@ public class TestSpell extends ChanneledSpell {
             if (!context.getLevel().isClientSide) {
                 livingEntity.addEffect(new SBEffectInstance(context.getPlayer(), EffectInit.AFTERGLOW, 40, 0, false, false));
             } else {
-                context.getSpellHandler().addGlowEffect(livingEntity);
+//                context.getSpellHandler().addGlowEffect(livingEntity);
             }
         }
 

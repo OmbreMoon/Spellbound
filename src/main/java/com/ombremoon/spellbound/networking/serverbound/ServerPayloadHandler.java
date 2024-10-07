@@ -28,8 +28,8 @@ public class ServerPayloadHandler {
     public static void handleNetworkSetCastSpell(final SetCastingSpellPayload payload, final IPayloadContext context) {
         var spellContext = new SpellContext(context.player(), payload.isRecast());
         AbstractSpell spell = payload.spellType().createSpell();
-        spell.setCastContext(spellContext);
         var handler = SpellUtil.getSpellHandler(context.player());
+        spell.setCastContext(spellContext);
         handler.setCurrentlyCastingSpell(spell);
 
     }

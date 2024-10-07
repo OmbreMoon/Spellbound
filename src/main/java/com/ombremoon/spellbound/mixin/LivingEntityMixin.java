@@ -21,7 +21,7 @@ public class LivingEntityMixin {
             if (instance instanceof SBEffectInstance effectInstance && effectInstance.getEffect().equals(EffectInit.AFTERGLOW)) {
                 LivingEntity entity = effectInstance.getCauseEntity();
                 if (entity instanceof Player player)
-                    PayloadHandler.removeAfterglow(player, spellbound$self().getId());
+                    PayloadHandler.removeGlowEffect(player, spellbound$self().getId());
             }
         }
     }
