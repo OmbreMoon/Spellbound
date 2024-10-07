@@ -8,6 +8,7 @@ import com.ombremoon.spellbound.common.init.AttributesInit;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
@@ -49,6 +50,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     private final Set<Integer> glowEntities = new IntOpenHashSet();
     public int castTick;
     private boolean channelling;
+    private boolean isStationary;
 
     public void sync() {
         PayloadHandler.syncSpellsToClient(this.caster);
@@ -201,6 +203,14 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     public void setCurrentlyCastingSpell(AbstractSpell abstractSpell) {
         this.currentlyCastingSpell = abstractSpell;
+    }
+
+    public boolean isStationary() {
+        return this.isStationary;
+    }
+
+    public void setStationary(boolean stationary) {
+        this.isStationary = stationary;
     }
 
     public void setSelectedSpell(SpellType<?> selectedSpell) {

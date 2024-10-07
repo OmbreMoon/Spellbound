@@ -32,36 +32,8 @@ public class ShadowGate extends SpellEntity {
         return this.portalCooldown.containsKey(livingEntity.getUUID());
     }
 
-    public boolean isEnding() {
-        byte b0 = this.entityData.get(ID_FLAGS);
-        return (b0 & 1) != 0;
-    }
-
-    public void setEnding(boolean ending) {
-        this.setFlag(1, ending);
-    }
-
-    //CHECK
-    @Override
-    public void onAddedToLevel() {
-        super.onAddedToLevel();
-        if (this.getOwner() != null)
-            this.setYRot(this.getOwner().getYRot());
-    }
-
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, CONTROLLER, 5, this::shadowGateController));
-    }
-
-    private <T extends GeoAnimatable> PlayState shadowGateController(AnimationState<T> data) {
-        if (this.tickCount <= 20) {
-            data.setAnimation(RawAnimation.begin().thenPlay("spawn"));
-        } else if (isEnding()) {
-            data.setAnimation(RawAnimation.begin().thenPlay("end"));
-        } else {
-            data.setAnimation(RawAnimation.begin().thenLoop("idle"));
-        }
-        return PlayState.CONTINUE;
+        controllers.add(new AnimationController<>(this, CONTROLLER, 0, this::genericController));
     }
 }

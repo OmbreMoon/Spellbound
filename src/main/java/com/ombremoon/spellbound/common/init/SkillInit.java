@@ -62,16 +62,16 @@ public class SkillInit {
 
     //Solar Ray
     public static final Holder<Skill> SOLAR_RAY = registerSkill("solar_ray");
-    public static final Holder<Skill> SUNSHINE = registerSkill("sunshine", -50, 50, preReqs(SOLAR_RAY));
-    public static final Holder<Skill> RADIANCE = registerSkill("radiance", -50, 100, preReqs(SUNSHINE));
-    public static final Holder<Skill> HEALING_LIGHT = registerSkill("healing_light", -50, 150, preReqs(RADIANCE));
-    public static final Holder<Skill> CONCENTRATED_HEAT = registerSkill("concentrated_heat", 50, 50, preReqs(SOLAR_RAY));
-    public static final Holder<Skill> OVERHEAT = registerSkill("overheat", 50, 100, preReqs(CONCENTRATED_HEAT));
-    public static final Holder<Skill> SOLAR_BURST = registerSkill("solar_burst", 50, 150, preReqs(OVERHEAT));
-    public static final Holder<Skill> REFLECTION = registerSkill("reflection", 100, 200, preReqs(SOLAR_BURST));
-    public static final Holder<Skill> BLINDING_LIGHT = registerSkill("blinding_light", 100, 250, preReqs(REFLECTION));
-    public static final Holder<Skill> AFTERGLOW = registerSkill("afterglow", 50, 200, preReqs(SOLAR_BURST));
-    public static final Holder<Skill> POWER_OF_THE_SUN = registerSkill("power_of_the_sun", 50, 250, preReqs(AFTERGLOW));
+    public static final Holder<Skill> SUNSHINE = registerSkill("sunshine", -25, 50, preReqs(SOLAR_RAY));
+    public static final Holder<Skill> RADIANCE = registerSkill("radiance", -25, 100, preReqs(SUNSHINE));
+    public static final Holder<Skill> HEALING_LIGHT = registerSkill("healing_light", -25, 150, preReqs(RADIANCE));
+    public static final Holder<Skill> CONCENTRATED_HEAT = registerSkill("concentrated_heat", 25, 50, preReqs(SOLAR_RAY));
+    public static final Holder<Skill> OVERHEAT = registerSkill("overheat", 25, 100, preReqs(CONCENTRATED_HEAT));
+    public static final Holder<Skill> SOLAR_BURST = registerSkill("solar_burst", 25, 150, preReqs(OVERHEAT));
+    public static final Holder<Skill> REFLECTION = registerSkill("reflection", 75, 200, preReqs(SOLAR_BURST));
+    public static final Holder<Skill> BLINDING_LIGHT = registerSkill("blinding_light", 75, 250, preReqs(REFLECTION));
+    public static final Holder<Skill> AFTERGLOW = registerSkill("afterglow", 25, 200, preReqs(SOLAR_BURST));
+    public static final Holder<Skill> POWER_OF_THE_SUN = registerSkill("power_of_the_sun", 25, 250, preReqs(AFTERGLOW));
 
     //Healing Touch
     //TODO: Tree

@@ -11,9 +11,13 @@ import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.TraceableEntity;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.animation.PlayState;
+import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.UUID;
@@ -21,6 +25,8 @@ import java.util.UUID;
 public abstract class SpellEntity extends Entity implements GeoEntity, TraceableEntity {
     protected static final EntityDataAccessor<Byte> ID_FLAGS = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> END_TICK = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> START_TICK = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.INT);
     protected static final String CONTROLLER = "controller";
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -41,6 +47,8 @@ public abstract class SpellEntity extends Entity implements GeoEntity, Traceable
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(ID_FLAGS, (byte)0);
         builder.define(OWNER_ID, 0);
+        builder.define(START_TICK, 0);
+        builder.define(END_TICK, 0);
     }
 
     @Override
@@ -56,13 +64,24 @@ public abstract class SpellEntity extends Entity implements GeoEntity, Traceable
     @Override
     public void tick() {
         super.tick();
-        if (!this.hasOwner())
+        if (!this.hasOwner() || (this.isEnding() && this.tickCount >= this.getEndTick()))
             discard();
     }
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
 
+    }
+
+    protected <T extends GeoAnimatable> PlayState genericController(AnimationState<T> data) {
+        if (this.tickCount <= 20) {
+            data.setAnimation(RawAnimation.begin().thenPlay("spawn"));
+        } else if (isEnding()) {
+            data.setAnimation(RawAnimation.begin().thenPlay("end"));
+        } else {
+            data.setAnimation(RawAnimation.begin().thenLoop("idle"));
+        }
+        return PlayState.CONTINUE;
     }
 
     protected void setFlag(int id, boolean value) {
@@ -72,6 +91,30 @@ public abstract class SpellEntity extends Entity implements GeoEntity, Traceable
         } else {
             this.entityData.set(ID_FLAGS, (byte)(b0 & ~id));
         }
+    }
+
+    public boolean isStarting() {
+        return this.tickCount <= getStartTick();
+    }
+
+    public int getStartTick() {
+        return this.entityData.get(START_TICK);
+    }
+
+    public void setStartTick(int startTick) {
+        this.entityData.set(START_TICK, startTick);
+    }
+
+    public boolean isEnding() {
+        return getEndTick() > 0;
+    }
+
+    public int getEndTick() {
+        return this.entityData.get(END_TICK);
+    }
+
+    public void setEndTick(int endTick) {
+        this.entityData.set(END_TICK, this.tickCount + endTick);
     }
 
     public void setOwner(LivingEntity livingEntity) {

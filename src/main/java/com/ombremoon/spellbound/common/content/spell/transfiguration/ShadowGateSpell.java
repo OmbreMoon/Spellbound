@@ -88,6 +88,7 @@ public class ShadowGateSpell extends AnimatedSpell {
                 shadowGate.setOwner(context.getPlayer());
                 shadowGate.setPos(vec3.x(), vec3.y(), vec3.z());
                 shadowGate.setYRot(context.getRotation());
+                shadowGate.setStartTick(20);
                 level.addFreshEntity(shadowGate);
             }
         }
@@ -113,7 +114,7 @@ public class ShadowGateSpell extends AnimatedSpell {
                             }
                         }
 
-                        if (this.ticks >= 1175) shadowGate.setEnding(true);
+                        if (this.ticks >= 1175) shadowGate.setEndTick(25);
 
                         ShadowGate adjacentGate = this.getAdjacentGate(shadowGate, level);
                         if (adjacentGate != null) {

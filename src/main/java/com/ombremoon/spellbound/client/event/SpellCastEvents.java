@@ -72,13 +72,17 @@ public class SpellCastEvents {
 
         AbstractSpell spell = handler.getCurrentlyCastSpell();
         boolean isRecast = handler.getActiveSpells(spellType).size() > 1;
-        var spellContext = new SpellContext(player, isRecast);
-        if (spell == null) {
+        SpellContext spellContext;
+        if (spell != null) {
+            spellContext = spell.getCastContext();
+        } else {
+            spellContext = new SpellContext(player, isRecast);
             spell = spellType.createSpell();
             spell.setCastContext(spellContext);
             handler.setCurrentlyCastingSpell(spell);
             PayloadHandler.setCastingSpell(spellType, isRecast);
         }
+
         if (KeyBinds.getSpellCastMapping().isDown()) {
             int castTime = spell.getCastTime();
             if (handler.castTick >= castTime && !handler.isChannelling()) {

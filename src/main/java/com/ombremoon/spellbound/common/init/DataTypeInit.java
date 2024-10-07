@@ -9,11 +9,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.RegistryBuilder;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.function.Supplier;
 
@@ -28,6 +30,7 @@ public class DataTypeInit {
     public static final Supplier<SpellDataType<Float>> FLOAT = registerDataType("float", ByteBufCodecs.FLOAT);
     public static final Supplier<SpellDataType<String>> STRING = registerDataType("string", ByteBufCodecs.STRING_UTF8);
     public static final Supplier<SpellDataType<Component>> COMPONENT = registerDataType("component", ComponentSerialization.TRUSTED_STREAM_CODEC);
+    public static final Supplier<SpellDataType<Vector3f>> VECTOR3 = registerDataType("vec3", ByteBufCodecs.VECTOR3F);
 
     private static <T> Supplier<SpellDataType<T>> registerDataType(String name, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec) {
         return DATA_TYPES.register(name, () -> SpellDataType.forValueType(streamCodec));
