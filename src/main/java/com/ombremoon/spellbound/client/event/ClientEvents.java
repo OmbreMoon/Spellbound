@@ -85,5 +85,11 @@ public class ClientEvents {
             }
         }
 
+        @SubscribeEvent
+        public static void onSpellZoom(ComputeFovModifierEvent event) {
+            Player player = event.getPlayer();
+            var handler = SpellUtil.getSpellHandler(player);
+            event.setNewFovModifier(handler.getZoom());
+        }
     }
 }

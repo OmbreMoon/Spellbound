@@ -7,7 +7,6 @@ import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
 
 public class SolarRay extends SpellEntity {
-
     public SolarRay(EntityType<?> entityType, Level level) {
         super(entityType, level);
     }

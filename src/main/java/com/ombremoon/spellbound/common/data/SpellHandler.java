@@ -20,6 +20,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -51,6 +52,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     public int castTick;
     private boolean channelling;
     private boolean isStationary;
+    private float zoomModifier = 1.0F;
 
     public void sync() {
         PayloadHandler.syncSpellsToClient(this.caster);
@@ -182,6 +184,10 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         return this.activeSpells.values();
     }
 
+    public AbstractSpell getSpell(SpellType<?> spellType) {
+        return getSpell(spellType, 1);
+    }
+
     public AbstractSpell getSpell(SpellType<?> spellType, int id) {
         for (var spell : getActiveSpells(spellType)) {
             if (spell.getId() == id) return spell;
@@ -211,6 +217,18 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     public void setStationary(boolean stationary) {
         this.isStationary = stationary;
+    }
+
+    public boolean canZoom() {
+        return !Minecraft.getInstance().options.getCameraType().isFirstPerson();
+    }
+
+    public float getZoom() {
+        return this.zoomModifier;
+    }
+
+    public void setZoom(float zoomModifier) {
+        this.zoomModifier = zoomModifier;
     }
 
     public void setSelectedSpell(SpellType<?> selectedSpell) {

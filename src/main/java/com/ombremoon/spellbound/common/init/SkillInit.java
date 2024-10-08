@@ -68,9 +68,9 @@ public class SkillInit {
     public static final Holder<Skill> CONCENTRATED_HEAT = registerSkill("concentrated_heat", 25, 50, preReqs(SOLAR_RAY));
     public static final Holder<Skill> OVERHEAT = registerSkill("overheat", 25, 100, preReqs(CONCENTRATED_HEAT));
     public static final Holder<Skill> SOLAR_BURST = registerSkill("solar_burst", 25, 150, preReqs(OVERHEAT));
-    public static final Holder<Skill> REFLECTION = registerSkill("reflection", 75, 200, preReqs(SOLAR_BURST));
-    public static final Holder<Skill> BLINDING_LIGHT = registerSkill("blinding_light", 75, 250, preReqs(REFLECTION));
+    public static final Holder<Skill> SOLAR_BORE = registerSkill("solar_bore", 75, 200, preReqs(SOLAR_BURST));
     public static final Holder<Skill> AFTERGLOW = registerSkill("afterglow", 25, 200, preReqs(SOLAR_BURST));
+    public static final Holder<Skill> BLINDING_LIGHT = registerSkill("blinding_light", -25, 250, preReqs(AFTERGLOW));
     public static final Holder<Skill> POWER_OF_THE_SUN = registerSkill("power_of_the_sun", 25, 250, preReqs(AFTERGLOW));
 
     //Healing Touch

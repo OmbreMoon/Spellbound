@@ -74,7 +74,7 @@ public abstract class SpellEntity extends Entity implements GeoEntity, Traceable
     }
 
     protected <T extends GeoAnimatable> PlayState genericController(AnimationState<T> data) {
-        if (this.tickCount <= 20) {
+        if (isStarting()) {
             data.setAnimation(RawAnimation.begin().thenPlay("spawn"));
         } else if (isEnding()) {
             data.setAnimation(RawAnimation.begin().thenPlay("end"));

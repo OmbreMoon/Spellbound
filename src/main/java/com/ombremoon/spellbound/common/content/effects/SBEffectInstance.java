@@ -45,9 +45,11 @@ public class SBEffectInstance extends MobEffectInstance {
     @Override
     public void onEffectAdded(LivingEntity livingEntity) {
         super.onEffectAdded(livingEntity);
-        if (this.causeEntity instanceof Player player) {
-            if (this.getEffect().equals(EffectInit.AFTERGLOW)) {
-                PayloadHandler.addGlowEffect(player, livingEntity.getId());
+        if (!livingEntity.level().isClientSide) {
+            if (this.causeEntity instanceof Player player) {
+                if (this.getEffect().equals(EffectInit.AFTERGLOW)) {
+                    PayloadHandler.addGlowEffect(player, livingEntity.getId());
+                }
             }
         }
     }

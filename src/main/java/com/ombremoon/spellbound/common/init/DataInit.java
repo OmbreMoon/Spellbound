@@ -48,6 +48,10 @@ public class DataInit {
     public static final Supplier<AttachmentType<Integer>> TARGET_ID = ATTACHMENT_TYPES.register(
             "target_id", () -> AttachmentType.builder(() -> 0).build());
 
+    //Spell Data
+    public static final Supplier<AttachmentType<Integer>> HEAT_TICK = ATTACHMENT_TYPES.register(
+            "heat_tick", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
+
     //Components
     public static final Supplier<DataComponentType<String>> SPELL = COMPONENT_TYPES.registerComponentType("spell",
             builder -> builder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));

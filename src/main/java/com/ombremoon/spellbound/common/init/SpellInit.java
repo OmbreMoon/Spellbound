@@ -31,7 +31,7 @@ public class SpellInit {
     public static final Supplier<SpellType<SolarRaySpell>> SOLAR_RAY = registerSpell("solar_ray", fireRuinBuilder("solar_ray", SolarRaySpell::new)
             .skills(SkillInit.SOLAR_RAY, SkillInit.SUNSHINE, SkillInit.RADIANCE, SkillInit.HEALING_LIGHT,
                     SkillInit.CONCENTRATED_HEAT, SkillInit.OVERHEAT, SkillInit.SOLAR_BURST,
-                    SkillInit.REFLECTION, SkillInit.BLINDING_LIGHT, SkillInit.AFTERGLOW, SkillInit.POWER_OF_THE_SUN));
+                    SkillInit.SOLAR_BORE, SkillInit.BLINDING_LIGHT, SkillInit.AFTERGLOW, SkillInit.POWER_OF_THE_SUN));
     public static final Supplier<SpellType<VolcanoSpell>> VOLCANO = registerSpell("volcano", fireRuinBuilder("volcano", VolcanoSpell::new)
             .skills(SkillInit.VOLCANO, SkillInit.INFERNO_CORE, SkillInit.LAVA_FLOW, SkillInit.EXPLOSIVE_BARRAGE,
                     SkillInit.SHRAPNEL, SkillInit.HEATWAVE, SkillInit.SCORCHED_EARTH, SkillInit.SEISMIC_SHOCK,

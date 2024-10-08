@@ -306,7 +306,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder {
             listener.addListenerWithExpiry(event, uuid, consumer, livingEntity.tickCount + expiryTicks);
     }
 
-    protected float potency() {
+    public float potency() {
         return getModifier(ModifierType.POTENCY);
     }
 
@@ -499,7 +499,10 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder {
         }
 
         //Play Fail Animation
-        if (!this.castPredicate.test(this.context, this)) return;
+        if (!this.castPredicate.test(this.context, this)) {
+            onCastReset(this.context);
+            return;
+        }
 
         activateSpell();
         player.awardStat(StatInit.SPELLS_CAST.get());

@@ -5,13 +5,11 @@ import com.ombremoon.sentinellib.common.event.RegisterPlayerSentinelBoxEvent;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.commands.LearnSkillsCommand;
 import com.ombremoon.spellbound.common.commands.LearnSpellCommand;
-import com.ombremoon.spellbound.common.content.effects.SBEffectInstance;
 import com.ombremoon.spellbound.common.content.spell.ruin.SolarRaySpell;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.data.StatusHandler;
 import com.ombremoon.spellbound.common.init.AttributesInit;
 import com.ombremoon.spellbound.common.init.DataInit;
-import com.ombremoon.spellbound.common.init.EffectInit;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.events.*;
 import com.ombremoon.spellbound.networking.PayloadHandler;
@@ -20,7 +18,6 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -53,7 +50,12 @@ public class NeoForgeEvents {
 
     @SubscribeEvent
     public static void registerSentinelBox(RegisterPlayerSentinelBoxEvent event) {
-        event.addEntry(SolarRaySpell.SOLAR_BEAM);
+        event.addEntry(SolarRaySpell.SOLAR_RAY);
+        event.addEntry(SolarRaySpell.SOLAR_RAY_EXTENDED);
+        event.addEntry(SolarRaySpell.OVERHEAT);
+        event.addEntry(SolarRaySpell.SOLAR_BURST_FRONT);
+        event.addEntry(SolarRaySpell.SOLAR_BURST_END);
+        event.addEntry(SolarRaySpell.SOLAR_BURST_END_EXTENDED);
     }
 
     @SubscribeEvent
