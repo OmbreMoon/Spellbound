@@ -101,6 +101,20 @@ public class SkillInit {
     public static final Holder<Skill> REINFORCED = registerSkill("reinforced", 0, 50, preReqs(COBBLED_HIDE));
     public static final Holder<Skill> VIRAL = registerSkill("viral", 0, 50, preReqs(COBBLED_HIDE));
 
+    //Shadowbond
+    public static Holder<Skill> SHADOWBOND = registerSkill("shadowbond");
+    public static Holder<Skill> SHADOW_STEP = registerSkill("shadow_step", -50 , 50 , preReqs(SHADOWBOND));
+    public static Holder<Skill> SNEAK_ATTACK = registerSkill("sneak_attack", -50, 100, preReqs(SHADOW_STEP));
+    public static Holder<Skill> SILENT_EXCHANGE = registerSkill("silent_exchange", 50, 50, preReqs(SHADOWBOND));
+    public static Holder<Skill> SNARE = registerSkill("snare", 50, 100, preReqs(SILENT_EXCHANGE));
+    public static Holder<Skill> DISORIENTED = registerSkill("disoriented", 100, 100, preReqs(SILENT_EXCHANGE));
+    public static Holder<Skill> EVERLASTING_BOND = registerSkill("everlasting_bond", 0, 50, preReqs(SHADOWBOND));
+    public static Holder<Skill> OBSERVANT = registerSkill("observant", 0, 100, preReqs(EVERLASTING_BOND));
+    public static Holder<Skill> LIVING_SHADOW = registerSkill("living_shadow", -50, 150, preReqs(OBSERVANT));
+    public static Holder<Skill> REVERSAL = registerSkill("reversal", 0, 150, preReqs(OBSERVANT));
+    public static Holder<Skill> SHADOW_CHAIN = registerSkill("shadow_chain", 50, 150, preReqs(OBSERVANT));
+
+
     private static Holder<Skill> registerSkill(String name) {
         return SKILLS.register(name, () -> new Skill(CommonClass.customLocation(name)));
     }

@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.common.init;
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.content.spell.TestSpell;
+import com.ombremoon.spellbound.common.content.spell.deception.ShadowbondSpell;
 import com.ombremoon.spellbound.common.content.spell.divine.HealingTouchSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.SolarRaySpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.VolcanoSpell;
@@ -44,8 +45,8 @@ public class SpellInit {
                     SkillInit.DARKNESS_PREVAILS, SkillInit.GRAVITY_SHIFT, SkillInit.DUAL_DESTINATION));
 
     //Summons
-    public static final Supplier<SpellType<SummonUndeadSpell>> SUMMON_UNDEAD_SPELL = registerSpell("summon_undead", summonBuilder("summon_undead", SummonUndeadSpell::new));
-    public static final Supplier<SpellType<WildMushroomSpell>> WILD_MUSHROOM_SPELL = registerSpell("wild_mushroom", summonBuilder("wild_mushroom", WildMushroomSpell::new)
+    public static final Supplier<SpellType<SummonUndeadSpell>> SUMMON_UNDEAD = registerSpell("summon_undead", summonBuilder("summon_undead", SummonUndeadSpell::new));
+    public static final Supplier<SpellType<WildMushroomSpell>> WILD_MUSHROOM = registerSpell("wild_mushroom", summonBuilder("wild_mushroom", WildMushroomSpell::new)
             .skills(SkillInit.WILD_MUSHROOM, SkillInit.VILE_INFLUENCE, SkillInit.HASTENED_GROWTH, SkillInit.ENVENOM,
                     SkillInit.DECOMPOSE, SkillInit.NATURES_DOMINANCE, SkillInit.POISON_ESSENCE,
                     SkillInit.CIRCLE_OF_LIFE, SkillInit.CATALEPSY, SkillInit.RECYCLED, SkillInit.SYNTHESIS));
@@ -55,6 +56,12 @@ public class SpellInit {
             .skills(SkillInit.HEALING_TOUCH, SkillInit.DIVINE_BALANCE, SkillInit.HEALING_STREAM, SkillInit.ACCELERATED_GROWTH,
                     SkillInit.TRANQUILITY_OF_WATER, SkillInit.NATURES_TOUCH, SkillInit.CLEANSING_TOUCH,
                     SkillInit.OVERGROWTH, SkillInit.BLASPHEMY, SkillInit.CONVALESCENCE));
+
+    //Deception
+    public static final Supplier<SpellType<ShadowbondSpell>> SHADOWBOND = registerSpell("shadowbond", deceptionBuilder("shadowbond", ShadowbondSpell::new)
+            .skills(SkillInit.SHADOWBOND, SkillInit.EVERLASTING_BOND, SkillInit.SHADOW_STEP, SkillInit.SNEAK_ATTACK,
+                    SkillInit.SILENT_EXCHANGE, SkillInit.SNARE, SkillInit.DISORIENTED,
+                    SkillInit.OBSERVANT, SkillInit.LIVING_SHADOW, SkillInit.REVERSAL, SkillInit.SHADOW_CHAIN));
 
     private static <T extends AbstractSpell> Supplier<SpellType<T>> registerSpell(String name, SpellType.Builder<T> builder) {
         return SPELL_TYPES.register(name, builder::build);

@@ -69,8 +69,6 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     private final boolean hasLayer;
     private final int updateInterval;
     protected final SyncedSpellData spellData;
-    @Nullable
-    private List<SyncedSpellData.DataValue<?>> trackedDataValues;
     private Level level;
     private Player caster;
     private BlockPos blockPos;
@@ -267,7 +265,6 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         if (!context.getLevel().isClientSide) {
             BlockPos castPos = context.getBlockPos();
             this.spellData.set(CAST_POS, new Vector3f(castPos.getX(), castPos.getY(), castPos.getZ()));
-            this.trackedDataValues = this.spellData.getNonDefaultValues();
             this.sendDirtySpellData();
         }
     }
@@ -451,10 +448,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     private void sendDirtySpellData() {
-        SyncedSpellData data = this.spellData;
-        List<SyncedSpellData.DataValue<?>> list = data.packDirty();
+        List<SyncedSpellData.DataValue<?>> list = this.spellData.packDirty();
         if (list != null) {
-            this.trackedDataValues = data.getNonDefaultValues();
             Player player = !this.isInactive ? this.castContext.getPlayer() : this.caster;
             PayloadHandler.setSpellData(player, getSpellType(), this.castId, list);
         }

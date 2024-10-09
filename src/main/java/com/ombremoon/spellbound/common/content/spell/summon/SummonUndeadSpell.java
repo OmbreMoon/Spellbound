@@ -16,7 +16,7 @@ public class SummonUndeadSpell extends SummonSpell {
     }
 
     public SummonUndeadSpell() {
-        super(SpellInit.SUMMON_UNDEAD_SPELL.get(), createSummonBuilder());
+        super(SpellInit.SUMMON_UNDEAD.get(), createSummonBuilder());
     }
 
     @Override

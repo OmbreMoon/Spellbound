@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+//TODO: ADD OPEN/CLOSE ANIMATIONS
+
 public class ShadowGateSpell extends AnimatedSpell {
     private static Builder<AnimatedSpell> createShadowGateBuilder() {
         return createSimpleSpellBuilder().manaCost(30).castTime(20).duration(1200).castCondition((context, spell) -> {

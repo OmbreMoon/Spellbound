@@ -3,7 +3,6 @@ package com.ombremoon.spellbound.common.magic;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.ombremoon.spellbound.common.magic.events.*;
-import com.ombremoon.spellbound.common.magic.tree.SkillNode;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.world.entity.player.Player;
 
@@ -84,9 +83,10 @@ public class SpellEventListener {
 
     public static class Events<T extends SpellEvent> implements IEvent<T> {
         public static Events<PlayerJumpEvent> JUMP = new Events<>(false);
+        public static Events<PlayerAttackEvent> ATTACK = new Events<>(false);
         public static Events<PlayerDamageEvent.Post> POST_DAMAGE = new Events<>(false);
         public static Events<PlayerDamageEvent.Pre> PRE_DAMAGE = new Events<>(false);
-        public static Events<ChangeTargetEvent> TARGETING_EVENT = new Events<>(false);
+        public static Events<ChangeTargetEvent> CHANGE_TARGET = new Events<>(false);
         public static Events<PlayerKillEvent> PLAYER_KILL = new Events<>(false);
 
         private final boolean isClientSide;

@@ -36,6 +36,7 @@ import org.jetbrains.annotations.UnknownNullability;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unchecked")
 public class SpellHandler implements INBTSerializable<CompoundTag> {
     private SpellEventListener listener;
     public Player caster;
@@ -184,13 +185,13 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         return this.activeSpells.values();
     }
 
-    public AbstractSpell getSpell(SpellType<?> spellType) {
+    public <T extends AbstractSpell> T getSpell(SpellType<T> spellType) {
         return getSpell(spellType, 1);
     }
 
-    public AbstractSpell getSpell(SpellType<?> spellType, int id) {
+    public <T extends AbstractSpell> T getSpell(SpellType<T> spellType, int id) {
         for (var spell : getActiveSpells(spellType)) {
-            if (spell.getId() == id) return spell;
+            if (spell.getId() == id) return (T) spell;
         }
         return null;
     }

@@ -43,7 +43,7 @@ public class WildMushroomSpell extends SummonSpell {
     }
 
     public WildMushroomSpell() {
-        super(SpellInit.WILD_MUSHROOM_SPELL.get(), createMushroomBuilder());
+        super(SpellInit.WILD_MUSHROOM.get(), createMushroomBuilder());
     }
 
     @Override

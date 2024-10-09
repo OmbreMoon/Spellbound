@@ -1,18 +1,14 @@
 package com.ombremoon.spellbound.common.magic.api;
 
 import com.ombremoon.spellbound.common.content.entity.SpellEntity;
-import com.ombremoon.spellbound.common.data.SpellHandler;
-import com.ombremoon.spellbound.common.init.AttributesInit;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.events.ChangeTargetEvent;
 import com.ombremoon.spellbound.common.magic.events.PlayerDamageEvent;
-import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -24,7 +20,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 
 import java.util.*;
 
@@ -47,7 +42,7 @@ public abstract class SummonSpell extends AnimatedSpell {
         super.onSpellStart(context);
 
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.POST_DAMAGE, DAMAGE_EVENT, this::damageEvent);
-        context.getSpellHandler().getListener().addListener(SpellEventListener.Events.TARGETING_EVENT, TARGETING_EVENT, this::changeTargetEvent);
+        context.getSpellHandler().getListener().addListener(SpellEventListener.Events.CHANGE_TARGET, TARGETING_EVENT, this::changeTargetEvent);
     }
 
     /**
@@ -66,7 +61,7 @@ public abstract class SummonSpell extends AnimatedSpell {
         }
 
         context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.POST_DAMAGE, DAMAGE_EVENT);
-        context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.TARGETING_EVENT, TARGETING_EVENT);
+        context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.CHANGE_TARGET, TARGETING_EVENT);
     }
 
     /**

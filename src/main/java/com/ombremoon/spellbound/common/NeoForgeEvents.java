@@ -26,6 +26,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.living.*;
+import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
@@ -33,7 +34,6 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.server.command.ConfigCommand;
 
 import java.util.List;
-import java.util.Set;
 
 @EventBusSubscriber(modid = Constants.MOD_ID)
 public class NeoForgeEvents {
@@ -146,7 +146,14 @@ public class NeoForgeEvents {
         if (event.getEntity().level().isClientSide) return;
 
         if (event.getEntity() instanceof Player player)
-            SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.TARGETING_EVENT, new ChangeTargetEvent(player, event));
+            SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.CHANGE_TARGET, new ChangeTargetEvent(player, event));
+    }
+
+    @SubscribeEvent
+    public static void onLivingAttack(AttackEntityEvent event) {
+        if (event.getEntity().level().isClientSide) return;
+
+        SpellUtil.getSpellHandler(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.POST_DAMAGE, new PlayerAttackEvent(event.getEntity(), event));
     }
 
     @SubscribeEvent
