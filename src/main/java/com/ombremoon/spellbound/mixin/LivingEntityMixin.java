@@ -18,7 +18,7 @@ public class LivingEntityMixin {
     @Inject(method = "onEffectRemoved", at = @At(value = "TAIL"))
     private void onEffectRemoved(MobEffectInstance instance, CallbackInfo info) {
         if (!spellbound$self().level().isClientSide) {
-            if (instance instanceof SBEffectInstance effectInstance && effectInstance.getEffect().equals(EffectInit.AFTERGLOW)) {
+            if (instance instanceof SBEffectInstance effectInstance && effectInstance.willGlow()) {
                 LivingEntity entity = effectInstance.getCauseEntity();
                 if (entity instanceof Player player)
                     PayloadHandler.removeGlowEffect(player, spellbound$self().getId());

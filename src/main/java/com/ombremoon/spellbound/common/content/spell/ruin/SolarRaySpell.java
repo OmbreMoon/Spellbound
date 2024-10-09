@@ -258,7 +258,7 @@ public class SolarRaySpell extends ChanneledSpell {
                             livingEntity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 60, 0, false, false));
 
                         if (skillHandler.hasSkill(SkillInit.AFTERGLOW.value()))
-                            livingEntity.addEffect(new SBEffectInstance(player, EffectInit.AFTERGLOW, 100, 0, false, false));
+                            livingEntity.addEffect(new SBEffectInstance(player, EffectInit.AFTERGLOW, 100, true, 0, false, false));
                     }
                 })
                 .typeDamage(DamageTypeInit.RUIN_FIRE, (entity, living) -> {

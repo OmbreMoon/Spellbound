@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.common.content.spell.deception;
 
 import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.common.content.effects.SBEffectInstance;
 import com.ombremoon.spellbound.common.init.EffectInit;
 import com.ombremoon.spellbound.common.init.SkillInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
@@ -32,7 +33,7 @@ public class ShadowbondSpell extends AnimatedSpell {
             if (context.isRecast()) {
                 ShadowbondSpell shadowBond = (ShadowbondSpell) spell;
                 if (shadowBond.canReverse) {
-
+                    return true;
                 } else if (context.getSkillHandler().hasSkill(SkillInit.SHADOW_CHAIN.value())) {
                     return context.getTarget() != null && shadowBond.secondTarget == 0;
                 }
@@ -53,13 +54,11 @@ public class ShadowbondSpell extends AnimatedSpell {
     @Override
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
-        LivingEntity livingEntity = context.getTarget();
-        var handler = context.getSpellHandler();
-        var skillHandler = context.getSkillHandler();
         Level level = context.getLevel();
+        LivingEntity livingEntity = context.getTarget();
+        var skillHandler = context.getSkillHandler();
         if (livingEntity == null) return;
         int id = livingEntity.getId();
-        this.targetList.add(id);
 
         if (context.isRecast()) {
             this.secondTarget = id;
@@ -67,15 +66,16 @@ public class ShadowbondSpell extends AnimatedSpell {
             this.firstTarget = id;
         }
 
+        this.targetList.add(this.firstTarget);
+        this.targetList.add(this.secondTarget);
         if (!level.isClientSide) {
-            MobEffectInstance mobEffectInstance = new MobEffectInstance(MobEffects.INVISIBILITY, this.getDuration() - 5, 0, false, false);
-            context.getPlayer().addEffect(mobEffectInstance);
-            for (Integer entityId : this.targetList) {
-                Entity entity = level.getEntity(entityId);
-                if (entity instanceof LivingEntity living) {
-                    living.addEffect(mobEffectInstance);
-                    if (skillHandler.hasSkill(SkillInit.OBSERVANT.value()))
-                        handler.addGlowEffect(livingEntity);
+            if (!this.canReverse) {
+                MobEffectInstance mobEffectInstance = new SBEffectInstance(context.getPlayer(), MobEffects.INVISIBILITY, -1, skillHandler.hasSkill(SkillInit.OBSERVANT.value()), 0, false, false);
+                context.getPlayer().addEffect(mobEffectInstance);
+                for (Integer entityId : this.targetList) {
+                    Entity entity = level.getEntity(entityId);
+                    if (entity instanceof LivingEntity living)
+                        living.addEffect(mobEffectInstance);
                 }
             }
         }
@@ -119,7 +119,8 @@ public class ShadowbondSpell extends AnimatedSpell {
                     this.targetList.remove(entityId);
             }
 
-            if (this.ticks == this.getDuration() - 100) {
+            int extension = skillHandler.hasSkill(SkillInit.EVERLASTING_BOND.value()) ? 200 : 100;
+            if (this.ticks == this.getDuration() - extension) {
                 Vec3 playerPos = player.position();
                 Entity entity = level.getEntity(this.firstTarget);
                 Entity secondEntity = level.getEntity(this.secondTarget);
@@ -147,9 +148,11 @@ public class ShadowbondSpell extends AnimatedSpell {
                     });
                 }
 
+                player.removeEffect(MobEffects.INVISIBILITY);
                 for (Integer entityId : this.targetList) {
                     Entity effectEntity = level.getEntity(entityId);
                     if (effectEntity instanceof LivingEntity living) {
+                        living.removeEffect(MobEffects.INVISIBILITY);
                         if (skillHandler.hasSkill(SkillInit.SILENT_EXCHANGE.value()))
                             living.addEffect(new MobEffectInstance(EffectInit.SILENCED, 100, 0, false, true));
 
@@ -164,7 +167,7 @@ public class ShadowbondSpell extends AnimatedSpell {
                         }
                     }
                 }
-            } else if (this.ticks > this.getDuration() - 100) {
+            } else if (this.ticks > this.getDuration() - extension) {
                 if (skillHandler.hasSkill(SkillInit.REVERSAL.value()) && !this.targetList.isEmpty())
                     this.canReverse = true;
             }
