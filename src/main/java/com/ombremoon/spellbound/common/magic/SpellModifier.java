@@ -18,6 +18,7 @@ public record SpellModifier(ResourceLocation id, ModifierType modifierType, Pred
     public static final SpellModifier DIVINE_BALANCE_MANA = registerModifier("divine_balance_mana", ModifierType.MANA, spell -> spell == SpellInit.HEALING_TOUCH, 1.5F);
     public static final SpellModifier DIVINE_BALANCE_DURATION = registerModifier("divine_balance_duration", ModifierType.DURATION, spell -> spell == SpellInit.HEALING_TOUCH, 2F);
     public static final SpellModifier SYNTHESIS = registerModifier("synthesis", ModifierType.MANA, spell -> spell == SpellInit.WILD_MUSHROOM, 0F);
+    public static final SpellModifier EVERLASTING_BOND = registerModifier("everlasting_bond", ModifierType.DURATION, spell -> spell == SpellInit.SHADOWBOND, 2F);
 
     private static SpellModifier registerModifier(String name, ModifierType type, Predicate<SpellType<?>> spellPredicate, float modifier) {
         SpellModifier spellModifier = new SpellModifier(CommonClass.customLocation(name), type, spellPredicate, modifier);
