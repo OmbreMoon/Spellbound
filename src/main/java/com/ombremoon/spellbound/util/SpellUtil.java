@@ -64,6 +64,7 @@ public class SpellUtil {
                 return spellList.iterator().next();
             }
         }
-        return currentSpell;
+
+        return spellList.isEmpty() ? currentSpell : spellList.iterator().next();
     }
 }

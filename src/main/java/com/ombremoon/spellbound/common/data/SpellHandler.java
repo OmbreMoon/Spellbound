@@ -7,10 +7,7 @@ import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.AttributesInit;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
-import com.ombremoon.spellbound.common.magic.AbstractSpell;
-import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.SpellEventListener;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.*;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
@@ -47,7 +44,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     protected Multimap<SpellType<?>, AbstractSpell> activeSpells = ArrayListMultimap.create();
     protected SpellType<?> selectedSpell;
     protected AbstractSpell currentlyCastingSpell;
-    private final Map<SummonSpell, Set<Integer>> activeSummons = new Object2ObjectOpenHashMap<>();
     private final Map<ModifierData, Integer> transientModifiers = new Object2IntOpenHashMap<>();
     private final Set<Integer> glowEntities = new IntOpenHashSet();
     public int castTick;
@@ -248,34 +244,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     public void addTransientModifier(Holder<Attribute> attribute, AttributeModifier attributeModifier, int ticks) {
         this.transientModifiers.put(new ModifierData(attribute, attributeModifier), this.caster.tickCount + ticks);
-    }
-
-    public Set<Integer> getSummonsForRemoval(SummonSpell spell) {
-        Set<Integer> expiredSummons = activeSummons.get(spell);
-        activeSummons.remove(spell);
-        return expiredSummons == null ? Set.of() : expiredSummons;
-    }
-
-    public void clearAllSummons(ServerLevel level) {
-        for (Set<Integer> summons : activeSummons.values()) {
-            for (int mob : summons) {
-                if (level.getEntity(mob) == null) continue;
-                level.getEntity(mob).discard();
-            }
-        }
-        activeSummons.clear();
-    }
-
-    public Set<Integer> getAllSummons() {
-        Set<Integer> toReturn = new HashSet<>();
-        for (Set<Integer> mobs : activeSummons.values()) {
-            toReturn.addAll(mobs);
-        }
-        return toReturn;
-    }
-
-    public void addSummons(SummonSpell spell, Set<Integer> mobIds) {
-        activeSummons.put(spell, mobIds);
     }
 
     public void addGlowEffect(LivingEntity livingEntity) {

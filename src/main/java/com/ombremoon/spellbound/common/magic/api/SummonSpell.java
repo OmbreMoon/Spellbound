@@ -1,12 +1,15 @@
 package com.ombremoon.spellbound.common.magic.api;
 
 import com.ombremoon.spellbound.common.content.entity.SpellEntity;
+import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.events.ChangeTargetEvent;
 import com.ombremoon.spellbound.common.magic.events.PlayerDamageEvent;
+import com.ombremoon.spellbound.util.SpellUtil;
+import com.ombremoon.spellbound.util.SummonUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -20,6 +23,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -91,9 +95,8 @@ public abstract class SummonSpell extends AnimatedSpell {
         Vec3 spawnPos = blockPos.getCenter();
         for (int i = 0; i < mobCount; i++) {
             T summon = entityType.create(level);
-            summon.setData(DataInit.OWNER_UUID, context.getPlayer().getUUID().toString());
+            SummonUtil.setOwner(summon, player);
             summon.teleportTo(spawnPos.x, blockPos.getY(), spawnPos.z);
-            if (summon instanceof SpellEntity entity) entity.setOwner(context.getPlayer());
             level.addFreshEntity(summon);
             summonedMobs.add(summon.getId());
         }
@@ -116,27 +119,24 @@ public abstract class SummonSpell extends AnimatedSpell {
         return blockHit.getBlockPos().relative(blockHit.getDirection());
     }
 
-    /**
-     * Updates all of a summons target with the current players target
-     * @param level level containing the summon
-     * @param summons the set of summons to update the targeting for
-     * @param target the new target
-     */
-    private void setSummonsTarget(Level level, Set<Integer> summons, LivingEntity target) {
+    protected final void setSummonsTarget(Level level, Set<Integer> summons, LivingEntity target) {
         for (int mobId : summons) {
             if (level.getEntity(mobId) instanceof Monster monster) {
-                monster.setData(DataInit.TARGET_ID, target.getId());
-                monster.setTarget(target);
+                SummonUtil.setTarget(monster, target);
             }
         }
     }
 
-    private void damageEvent(PlayerDamageEvent.Post damageEvent) {
+    protected final void damageEvent(PlayerDamageEvent.Post damageEvent) {
+        if (damageEvent.getSource().getEntity() == null) return;
         Player player = damageEvent.getPlayer();
-        if (damageEvent.getSource().getEntity() instanceof LivingEntity newTarget) {
-            setSummonsTarget(player.level(), getSummons(), newTarget);
-        } else if (!player.getData(DataInit.OWNER_UUID).equals(player.getUUID().toString())) {
-            setSummonsTarget(player.level(), getSummons(), player);
+
+        if (damageEvent.getSource().getEntity().is(player)) {
+            if (!damageEvent.getEntity().is(player) && !SummonUtil.isSummonOf(damageEvent.getEntity(), player))
+                setSummonsTarget(damageEvent.getEntity().level(), getSummons(), damageEvent.getEntity());
+        } else if (damageEvent.getEntity().is(player) && damageEvent.getSource().getEntity() instanceof LivingEntity entity) {
+            if (!SummonUtil.isSummonOf(entity, player))
+                setSummonsTarget(entity.level(), getSummons(), entity);
         }
     }
 
@@ -144,12 +144,11 @@ public abstract class SummonSpell extends AnimatedSpell {
         LivingChangeTargetEvent event = targetEvent.getTargetEvent();
 
         if (event.getNewAboutToBeSetTarget() == null) return;
-        if (event.getEntity().getData(DataInit.OWNER_UUID).isEmpty()) return;
 
-        int targetId = event.getEntity().getData(DataInit.TARGET_ID);
+        LivingEntity owner = SummonUtil.getOwner(event.getEntity());
+        if (owner == null) return;
 
-        if (targetId == 0) event.setNewAboutToBeSetTarget(null);
-        else if (targetId != event.getNewAboutToBeSetTarget().getId())
-            event.setNewAboutToBeSetTarget((LivingEntity) event.getEntity().level().getEntity(targetId));
+        LivingEntity target = SummonUtil.getTarget(event.getEntity());
+        event.setNewAboutToBeSetTarget(target);
     }
 }
