@@ -10,58 +10,83 @@ import com.ombremoon.spellbound.common.content.effects.SBEffectInstance;
 import com.ombremoon.spellbound.common.content.entity.spell.SolarRay;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
+import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
+import com.ombremoon.spellbound.common.magic.events.PlayerDamageEvent;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.tslat.smartbrainlib.util.RandomUtil;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+
+//TODO: CHANGE MODEL BASED ON SKILL
+//TODO: ADD SOLAR BURST ANIMATIONS
 
 public class SolarRaySpell extends ChanneledSpell {
     protected static final SpellDataKey<Integer> SOLAR_RAY_ID = SyncedSpellData.define(SolarRaySpell.class, DataTypeInit.INT.get());
+    private static final UUID POST_DAMAGE = UUID.fromString("45a2145b-7045-4dac-8dbf-dd420000a0b7");
     private static final List<SentinelBox> BOXES = new ObjectArrayList<>();
+    private static final BiFunction<Entity, LivingEntity, Float> POTENCY = (entity, livingEntity) -> {
+        float damage = 5F;
+        if (entity instanceof LivingEntity living) {
+            var handler = SpellUtil.getSpellHandler(living);
+            float f = handler.getSpell(SpellInit.SOLAR_RAY.get()).potency();
+            damage *= f;
+        }
+        return damage;
+    };
     public static final OBBSentinelBox SOLAR_RAY = createSolarRay(false);
     public static final OBBSentinelBox SOLAR_RAY_EXTENDED = createSolarRay(true);
     public static final AABBSentinelBox OVERHEAT = AABBSentinelBox.Builder.of("overheat")
             .sizeAndOffset(3, 0, 1.5F, 0)
             .noDuration(entity -> false)
+            .onBoxTick((entity, boxInstance) -> {
+                Vec3 vec3 = boxInstance.getWorldCenter();
+                if (entity.level().isClientSide) {
+                    double x = vec3.x;
+                    double y = vec3.y;
+                    double z = vec3.z;
+                    for (int i = 0; i < 15; i++) {
+                        entity.level().addParticle(ParticleTypes.FLAME,
+                                x + RandomUtil.randomValueBetween(-3, 3),
+                                y + RandomUtil.randomValueBetween(-3, 3),
+                                z + RandomUtil.randomValueBetween(-3, 3),
+                                entity.getRandom().nextDouble() * 0.05,
+                                entity.getRandom().nextDouble() * 0.05,
+                                entity.getRandom().nextDouble() * 0.05);
+                    }
+                }
+            })
             .activeTicks((entity, integer) -> integer == 1 || integer % 20 == 0)
             .attackCondition((entity, livingEntity) -> entity instanceof LivingEntity living && !living.isAlliedTo(livingEntity))
-            .typeDamage(DamageTypes.IN_FIRE, (entity, livingEntity) -> {
-                if (entity instanceof LivingEntity living) {
-                    var handler = SpellUtil.getSpellHandler(living);
-                    double d = handler.getSpell(SpellInit.SOLAR_RAY.get()).potency();
-                    return (float) (5 * d);
-                }
-                return 5F;
-            }).build();
+            .typeDamage(DamageTypeInit.RUIN_FIRE, POTENCY).build();
     public static final AABBSentinelBox SOLAR_BURST_FRONT = AABBSentinelBox.Builder.of("solar_burst_front")
             .sizeAndOffset(2, 0, 2, 0)
             .noDuration(entity -> false)
             .activeTicks((entity, integer) -> integer % 60 == 0)
             .attackCondition((entity, livingEntity) -> entity instanceof LivingEntity living && !living.isAlliedTo(livingEntity))
-            .typeDamage(DamageTypes.IN_FIRE, (entity, livingEntity) -> {
-                if (entity instanceof LivingEntity living) {
-                    var handler = SpellUtil.getSpellHandler(living);
-                    double d = handler.getSpell(SpellInit.SOLAR_RAY.get()).potency();
-                    return (float) (5 * d);
-                }
-                return 5F;
-            }).build();
+            .typeDamage(DamageTypeInit.RUIN_FIRE, POTENCY).build();
     public static final OBBSentinelBox SOLAR_BURST_END = createSolarBurstEnd(false);
     public static final OBBSentinelBox SOLAR_BURST_END_EXTENDED = createSolarBurstEnd(true);
     private final Set<LivingEntity> concentratedHeatSet = new ObjectOpenHashSet<>();
@@ -85,6 +110,7 @@ public class SolarRaySpell extends ChanneledSpell {
         Player player = context.getPlayer();
         Level level = context.getLevel();
         var handler = context.getSpellHandler();
+        handler.getListener().addListener(SpellEventListener.Events.POST_DAMAGE, POST_DAMAGE, this::playerDamage);
         handler.setStationary(true);
         if (!level.isClientSide) {
             SolarRay solarRay = EntityInit.SOLAR_RAY.get().create(level);
@@ -133,8 +159,7 @@ public class SolarRaySpell extends ChanneledSpell {
                 BoxUtil.triggerPlayerBox(player, flag ? SOLAR_BURST_END_EXTENDED : SOLAR_BURST_END);
             }
         } else {
-            if (handler.canZoom())
-                context.getSpellHandler().setZoom(0.3F);
+            handler.setZoom(0.3F);
         }
 
     }
@@ -159,16 +184,17 @@ public class SolarRaySpell extends ChanneledSpell {
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
         var handler = context.getSpellHandler();
+        handler.getListener().removeListener(SpellEventListener.Events.POST_DAMAGE, POST_DAMAGE);
         handler.setStationary(false);
+        handler.setZoom(1.0F);
         for (SentinelBox box : BOXES) {
-            ((IPlayerSentinel) context.getPlayer()).removeSentinelInstance(box);
+            BoxUtil.removePlayerBox(context.getPlayer(), box);
         }
 
         SolarRay solarRay = getSolarRay(context);
         if (solarRay != null)
             solarRay.setEndTick(15);
 
-        context.getSpellHandler().setZoom(1.0F);
     }
 
     private void setSolarRay(int solarRay) {
@@ -180,6 +206,10 @@ public class SolarRaySpell extends ChanneledSpell {
         return entity instanceof SolarRay solarRay ? solarRay : null;
     }
 
+    private void playerDamage(PlayerDamageEvent.Post event) {
+        log(event.getOriginalDamage());
+    }
+
     private static OBBSentinelBox createSolarRay(boolean isExtended) {
         String name = "solar_ray";
         float range = isExtended ? 7.7F : 3.85F;
@@ -187,7 +217,7 @@ public class SolarRaySpell extends ChanneledSpell {
                 .sizeAndOffset(0.75F, 0.75F, range, 0.0F, 1.7F, range)
                 .noDuration(entity -> false)
                 .activeTicks(BoxUtil.PER_SEC)
-                .attackCondition((entity, livingEntity) -> entity instanceof LivingEntity living && !living.isAlliedTo(livingEntity))
+                .attackCondition((entity, livingEntity) -> !entity.isAlliedTo(livingEntity) || (livingEntity instanceof OwnableEntity ownable && ownable.getOwner() != entity))
                 .onCollisionTick((entity, living) -> {
                     if (entity instanceof LivingEntity livingEntity) {
                         var skillHandler = SpellUtil.getSkillHandler(livingEntity);
@@ -229,19 +259,20 @@ public class SolarRaySpell extends ChanneledSpell {
                             livingEntity.addEffect(new SBEffectInstance(player, EffectInit.AFTERGLOW, 100, 0, false, false));
                     }
                 })
-                .typeDamage(DamageTypes.FREEZE, (entity, living) -> {
-                    float defaultDamage = 5F;
+                .typeDamage(DamageTypeInit.RUIN_FIRE, (entity, living) -> {
+                    float damage = 5F;
                     if (entity instanceof LivingEntity livingEntity) {
                         var handler = SpellUtil.getSpellHandler(livingEntity);
                         var skillHandler = SpellUtil.getSkillHandler(livingEntity);
-                        double d = handler.getSpell(SpellInit.SOLAR_RAY.get()).potency();
+                        float f = handler.getSpell(SpellInit.SOLAR_RAY.get()).potency();
                         SolarRaySpell spell = (SolarRaySpell) handler.getSpell(SpellInit.SOLAR_RAY.get());
-                        int startTick = spell.heatTracker.computeIfAbsent(living, livingEntity1 -> 0);
+                        int startTick = spell.heatTracker.computeIfAbsent(living, target -> 0);
                         int bonus = startTick > 0 && living.tickCount >= startTick + 60 ? 2 : 1;
-                        float modifiedDamage = (float) (defaultDamage * d * bonus);
-                        return skillHandler.hasSkill(SkillInit.POWER_OF_THE_SUN.value()) && livingEntity.level().isDay() ? modifiedDamage * 1.5F : modifiedDamage;
+                        damage *= f * bonus;
+                        if (skillHandler.hasSkill(SkillInit.POWER_OF_THE_SUN.value()) && livingEntity.level().isDay())
+                            damage *= 1.5F;
                     }
-                    return defaultDamage;
+                    return damage;
                 }).build();
     }
 
@@ -252,28 +283,21 @@ public class SolarRaySpell extends ChanneledSpell {
                 .sizeAndOffset(2, 0, 2, 9.2F)
                 .noDuration(entity -> false)
                 .activeTicks((entity, integer) -> integer % 60 == 0)
-                .attackCondition((entity, livingEntity) -> entity instanceof LivingEntity living && !living.isAlliedTo(livingEntity))
-                .onBoxTick(entity -> {
+                .attackCondition(BoxUtil.IS_ALLIED)
+                .onBoxTick((entity, instance) -> {
                     Level level = entity.level();
                     if (!(entity instanceof LivingEntity livingEntity)) return;
 
                     var skillHandler = SpellUtil.getSkillHandler(livingEntity);
                     if (!level.isClientSide) {
                         if (skillHandler.hasSkill(SkillInit.SOLAR_BORE.value())) {
-                            Vec3 vec3 = ((ISentinel)livingEntity).getBoxManager().getBoxInstance(newName).getCenter();
-                            if (livingEntity.tickCount % 20 == 0)
-                                level.explode(livingEntity, Explosion.getDefaultDamageSource(level, livingEntity), null, -vec3.x(), vec3.y(), -vec3.z(), 4.0F, true, Level.ExplosionInteraction.TNT);
+                            Vec3 vec3 = instance.getWorldCenter();
+                            if (instance.tickCount % 20 == 0)
+                                level.explode(livingEntity, Explosion.getDefaultDamageSource(level, livingEntity), null, vec3.x(), vec3.y(), vec3.z(), 4.0F, true, Level.ExplosionInteraction.TNT);
                         }
                     }
                 })
-                .typeDamage(DamageTypes.IN_FIRE, (entity, livingEntity) -> {
-                    if (entity instanceof LivingEntity living) {
-                        var handler = SpellUtil.getSpellHandler(living);
-                        double d = handler.getSpell(SpellInit.SOLAR_RAY.get()).potency();
-                        return (float) (5 * d);
-                    }
-                    return 5F;
-                }).build();
+                .typeDamage(DamageTypeInit.RUIN_FIRE, POTENCY).build();
     }
 
     static {

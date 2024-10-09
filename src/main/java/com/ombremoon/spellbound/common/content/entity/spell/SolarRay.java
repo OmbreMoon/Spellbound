@@ -12,12 +12,6 @@ public class SolarRay extends SpellEntity {
     }
 
     @Override
-    public void tick() {
-        super.tick();
-//        discard();
-    }
-
-    @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, CONTROLLER, 0, this::genericController));
     }

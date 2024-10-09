@@ -140,9 +140,8 @@ public class ShadowGateSpell extends AnimatedSpell {
                                         player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 100, 0, false, false, true));
 
                                     if (skillHandler.hasSkill(SkillInit.UNWANTED_GUESTS.value()) && !entity.isAlliedTo(context.getPlayer())) {
-                                        addTimedListener(entity, SpellEventListener.Events.PRE_DAMAGE, UNWANTED_GUESTS, spellEvent -> {
-                                            var event = (PlayerDamageEvent.Pre) spellEvent;
-                                            event.getDamageEvent().setNewDamage(event.getDamageEvent().getOriginalDamage() * .9F);
+                                        addTimedListener(entity, SpellEventListener.Events.PRE_DAMAGE, UNWANTED_GUESTS, event -> {
+                                            event.setNewDamage(event.getOriginalDamage() * .9F);
                                         }, 200);
                                         addTimedModifier(entity, SpellModifier.UNWANTED_GUESTS, 200);
                                     }

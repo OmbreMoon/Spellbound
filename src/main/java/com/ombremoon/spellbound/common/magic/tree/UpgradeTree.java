@@ -102,6 +102,11 @@ public class UpgradeTree implements INBTSerializable<CompoundTag> {
         update(player, true, List.of(), Set.of());
     }
 
+    public void refreshTree(Player player, List<Skill> added) {
+        clear();
+        update(player, added);
+    }
+
     public void update(Player player, boolean reset, List<Skill> added, Set<ResourceLocation> removed) {
         PayloadHandler.updateTree(player, reset, added, removed);
     }

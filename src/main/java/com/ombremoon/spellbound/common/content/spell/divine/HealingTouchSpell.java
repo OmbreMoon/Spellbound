@@ -108,13 +108,11 @@ public class HealingTouchSpell extends AnimatedSpell {
         return ticks % 20 == 0;
     }
 
-    private void onDamagePost(PlayerDamageEvent.Post spellEvent) {
-        LivingDamageEvent.Post  event = spellEvent.getDamageEvent();
+    private void onDamagePost(PlayerDamageEvent.Post event) {
         SkillHandler skills = SpellUtil.getSkillHandler(caster);
-        if (event.getSource().getEntity() != null && event.getSource().getEntity().is(caster)) {
-            if (event.getEntity().hasEffect(EffectInit.POISON) && skills.hasSkill(SkillInit.CONVALESCENCE.value()))
-                caster.heal(0.5f);
-        }
+        Player player = event.getPlayer();
+        if (event.getEntity().hasEffect(EffectInit.POISON) && skills.hasSkill(SkillInit.CONVALESCENCE.value()))
+            caster.heal(0.5f);
 
         if (!event.getEntity().is(caster)) return;
         if (overgrowthStacks > 0) {
@@ -122,7 +120,7 @@ public class HealingTouchSpell extends AnimatedSpell {
             overgrowthStacks--;
         }
         if (skills.hasSkillReady(SkillInit.BLASPHEMY.value())) {
-            StatusHandler status = event.getSource().getEntity().getData(DataInit.STATUS_EFFECTS);
+            StatusHandler status = event.getEntity().getData(DataInit.STATUS_EFFECTS);
             status.increment(StatusHandler.Effect.DISEASE, 100);
             addCooldown(SkillInit.BLASPHEMY.value(), 100);
         }

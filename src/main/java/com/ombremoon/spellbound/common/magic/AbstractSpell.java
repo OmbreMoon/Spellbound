@@ -12,6 +12,7 @@ import com.ombremoon.spellbound.common.magic.sync.SpellDataHolder;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import com.ombremoon.spellbound.networking.PayloadHandler;
+import com.ombremoon.spellbound.util.Loggable;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -50,7 +51,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unchecked")
-public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder {
+public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, Loggable {
     protected static final Logger LOGGER = Constants.LOG;
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public static final DataTicket<AbstractSpell> DATA_TICKET = new DataTicket<>("abstract_spell", AbstractSpell.class);
@@ -300,7 +301,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder {
         handler.addModifierWithExpiry(spellModifier, livingEntity.tickCount + expiryTick);
     }
 
-    public void addTimedListener(LivingEntity livingEntity, SpellEventListener.IEvent event, UUID uuid, Consumer<? extends SpellEvent> consumer, int expiryTicks) {
+    public <T extends SpellEvent> void addTimedListener(LivingEntity livingEntity, SpellEventListener.IEvent<T> event, UUID uuid, Consumer<T> consumer, int expiryTicks) {
         var listener = SpellUtil.getSpellHandler(livingEntity).getListener();
         if (!listener.hasListener(event, uuid))
             listener.addListenerWithExpiry(event, uuid, consumer, livingEntity.tickCount + expiryTicks);

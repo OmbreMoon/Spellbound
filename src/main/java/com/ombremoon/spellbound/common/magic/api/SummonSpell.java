@@ -137,13 +137,11 @@ public abstract class SummonSpell extends AnimatedSpell {
     }
 
     private void damageEvent(PlayerDamageEvent.Post damageEvent) {
-        LivingDamageEvent.Post event = damageEvent.getDamageEvent();
-
-        if (event.getEntity() instanceof Player player && event.getSource().getEntity() instanceof LivingEntity newTarget) {
+        Player player = damageEvent.getPlayer();
+        if (damageEvent.getSource().getEntity() instanceof LivingEntity newTarget) {
             setSummonsTarget(player.level(), getSummons(), newTarget);
-        } else if (event.getSource().getEntity() instanceof Player player
-                && !event.getEntity().getData(DataInit.OWNER_UUID).equals(player.getUUID().toString())) {
-            setSummonsTarget(player.level(), getSummons(), event.getEntity());
+        } else if (!player.getData(DataInit.OWNER_UUID).equals(player.getUUID().toString())) {
+            setSummonsTarget(player.level(), getSummons(), player);
         }
     }
 

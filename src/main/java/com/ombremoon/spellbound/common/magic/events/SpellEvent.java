@@ -18,7 +18,7 @@ public class SpellEvent {
         return this.player;
     }
 
-    public LivingEvent getEvent() {
+    protected LivingEvent getEvent() {
         return this.livingEvent;
     }
 

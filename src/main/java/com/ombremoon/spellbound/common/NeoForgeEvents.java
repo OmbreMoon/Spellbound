@@ -33,6 +33,7 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.server.command.ConfigCommand;
 
 import java.util.List;
+import java.util.Set;
 
 @EventBusSubscriber(modid = Constants.MOD_ID)
 public class NeoForgeEvents {
@@ -73,7 +74,7 @@ public class NeoForgeEvents {
                     skillHandler.sync(player);
 
                     var tree = player.getData(DataInit.UPGRADE_TREE);
-                    tree.update(player, tree.getUnlockedSkills());
+                    tree.refreshTree(player, tree.getUnlockedSkills());
                 }
             }
         }
