@@ -2,11 +2,10 @@ package com.ombremoon.spellbound.common.content.spell.deception;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.common.content.effects.SBEffectInstance;
+import com.ombremoon.spellbound.common.content.entity.living.LivingShadow;
 import com.ombremoon.spellbound.common.data.SkillHandler;
 import com.ombremoon.spellbound.common.data.SpellHandler;
-import com.ombremoon.spellbound.common.init.EffectInit;
-import com.ombremoon.spellbound.common.init.SkillInit;
-import com.ombremoon.spellbound.common.init.SpellInit;
+import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
@@ -193,6 +192,14 @@ public class ShadowbondSpell extends AnimatedSpell {
                     }, 100);
                 }
             }
+        }
+
+        if (skillHandler.hasSkill(SkillInit.LIVING_SHADOW.value())) {
+            LivingShadow livingShadow = EntityInit.LIVING_SHADOW.get().create(level);
+            livingShadow.setData(DataInit.OWNER_UUID, player.getStringUUID());
+            livingShadow.setPos(player.position());
+            level.addFreshEntity(livingShadow);
+            player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 100, 0, false, false));
         }
     }
 
