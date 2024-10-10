@@ -4,6 +4,7 @@ import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.data.SkillHandler;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.SpellInit;
+import com.ombremoon.spellbound.util.Loggable;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -13,7 +14,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-public class DebugItem extends Item {
+public class DebugItem extends Item implements Loggable {
     public DebugItem(Properties properties) {
         super(properties);
     }
@@ -40,12 +41,13 @@ public class DebugItem extends Item {
 
     private void ombreDebug(Level level, Player player, InteractionHand usedHand, SpellHandler spellHandler, SkillHandler skillHandler) {
 //        spellHandler.getActiveSpells(SpellInit.WILD_MUSHROOM_SPELL.get()).forEach(spell -> Constants.LOG.info("{}", spell.getId()));
-        Constants.LOG.info("{}", skillHandler.getModifiers());
+        Constants.LOG.info("{}", spellHandler.getActiveSpells(SpellInit.SHADOWBOND.get()));
         if (!level.isClientSide) {
 //            spellHandler.clearList();
+//            spellHandler.clearList();
 //            spellHandler.setSelectedSpell(SpellInit.WILD_MUSHROOM_SPELL.get());
-//            Constants.LOG.info("{}", skillHandler.getModifiers());
-//            spellHandler.learnSpell(SpellInit.VOLCANO.get());
+            log(spellHandler.getListener().events);
+//            spellHandler.setSelectedSpell(SpellInit.TEST_SPELL.get());
 //            Constants.LOG.info("{}", tree.nodes());
 //            Constants.LOG.info("{}", tree.children());
 //            Constants.LOG.info("{}", tree.roots());

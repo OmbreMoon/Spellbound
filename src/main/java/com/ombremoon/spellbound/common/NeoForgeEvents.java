@@ -74,7 +74,7 @@ public class NeoForgeEvents {
                     skillHandler.sync(player);
 
                     var tree = player.getData(DataInit.UPGRADE_TREE);
-                    tree.refreshTree(player, tree.getUnlockedSkills());
+                    tree.update(player, tree.getUnlockedSkills());
                 }
             }
         }

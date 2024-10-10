@@ -29,7 +29,7 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
     protected final Map<SpellPath, Float> pathXp = new Object2FloatOpenHashMap<>();
     protected final Map<SpellType<?>, Float> spellXp = new Object2FloatOpenHashMap<>();
     public final Map<SpellType<?>, Set<Skill>> unlockedSkills = new Object2ObjectOpenHashMap<>();
-    private final Set<SpellModifier> permanentModifiers = new ObjectOpenHashSet<>();
+    protected final Set<SpellModifier> permanentModifiers = new ObjectOpenHashSet<>();
     private final Map<SpellModifier, Integer> timedModifiers = new Object2IntOpenHashMap<>();
     private final SkillCooldowns cooldowns = new SkillCooldowns();
 
@@ -141,6 +141,7 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
             newTag.putString("Spell", spellType.location().toString());
             ListTag savedSkills = new ListTag();
             for (Skill skill : unlockedSkills.get(spellType)) {
+                if (skill == null) continue;
                 CompoundTag newSkillTag = new CompoundTag();
                 newSkillTag.putString("Skill", skill.getResourceLocation().toString());
                 savedSkills.add(newSkillTag);
