@@ -4,19 +4,14 @@ import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.gui.CastModeOverlay;
-import com.ombremoon.spellbound.client.renderer.GenericSpellRenderer;
-import com.ombremoon.spellbound.client.renderer.OutlineSpellRenderer;
-import com.ombremoon.spellbound.client.renderer.ShadowGateRenderer;
+import com.ombremoon.spellbound.client.renderer.spell.*;
 import com.ombremoon.spellbound.client.renderer.entity.LivingShadowRenderer;
-import com.ombremoon.spellbound.client.renderer.layer.EmissiveOutlineSpellRenderer;
 import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.EffectInit;
 import com.ombremoon.spellbound.common.init.EntityInit;
-import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.events.MouseInputEvent;
-import com.ombremoon.spellbound.common.magic.events.PlayerKillEvent;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
@@ -44,6 +39,7 @@ public class ClientEvents {
             event.registerEntityRenderer(EntityInit.MUSHROOM.get(), GenericSpellRenderer::new);
             event.registerEntityRenderer(EntityInit.SHADOW_GATE.get(), ShadowGateRenderer::new);
             event.registerEntityRenderer(EntityInit.SOLAR_RAY.get(), EmissiveOutlineSpellRenderer::new);
+            event.registerEntityRenderer(EntityInit.STORMSTRIKE_BOLT.get(), EmissiveSpellProjectileRenderer::new);
             event.registerEntityRenderer(EntityInit.LIVING_SHADOW.get(), LivingShadowRenderer::new);
         }
 

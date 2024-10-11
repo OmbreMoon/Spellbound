@@ -11,11 +11,11 @@ import java.util.function.BiPredicate;
 public abstract class ChanneledSpell extends AnimatedSpell {
     protected int manaTickCost;
 
-    public static Builder<ChanneledSpell> createChannelledSpellBuilder() {
+    public static <T extends ChanneledSpell> Builder<T> createChannelledSpellBuilder(Class<T> spellClass) {
         return new Builder<>();
     }
 
-    public ChanneledSpell(SpellType<?> spellType, Builder<ChanneledSpell> builder) {
+    public ChanneledSpell(SpellType<?> spellType, Builder<?> builder) {
         super(spellType, builder);
         this.manaTickCost = builder.manaTickCost;
     }

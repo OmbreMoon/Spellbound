@@ -8,6 +8,7 @@ import com.ombremoon.spellbound.common.content.spell.divine.HealingTouchSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.VolcanoSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.ElectricChargeSpell;
+import com.ombremoon.spellbound.common.content.spell.ruin.shock.StormstrikeSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.SummonUndeadSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.WildMushroomSpell;
 import com.ombremoon.spellbound.common.content.spell.transfiguration.ShadowGateSpell;
@@ -38,6 +39,10 @@ public class SpellInit {
             .skills(SkillInit.VOLCANO, SkillInit.INFERNO_CORE, SkillInit.LAVA_FLOW, SkillInit.EXPLOSIVE_BARRAGE,
                     SkillInit.SHRAPNEL, SkillInit.HEATWAVE, SkillInit.SCORCHED_EARTH, SkillInit.SEISMIC_SHOCK,
                     SkillInit.MOLTEN_SHIELD, SkillInit.PYROCLASTIC_CLOUD, SkillInit.APOCALYPSE));
+    public static final Supplier<SpellType<StormstrikeSpell>> STORMSTRIKE = registerSpell("stormstrike", shockRuinBuilder("stormstrike", StormstrikeSpell::new)
+            .skills(SkillInit.STORMSTRIKE, SkillInit.STATIC_SHOCK, SkillInit.ELECTRIFY,
+                    SkillInit.SHOCK_FACTOR, SkillInit.PURGE, SkillInit.REFRACTION, SkillInit.CHARGED_ATMOSPHERE,
+                    SkillInit.PULSATION, SkillInit.DISCHARGE, SkillInit.STORM_SHARD, SkillInit.SUPERCHARGE));
     public static final Supplier<SpellType<ElectricChargeSpell>> ELECTRIC_CHARGE = registerSpell("electric_charge", shockRuinBuilder("electric_charge", ElectricChargeSpell::new)
             .skills(SkillInit.ELECTRIC_CHARGE, SkillInit.ELECTRIFICATION, SkillInit.SUPERCONDUCTOR, SkillInit.CYCLONIC_FURY,
                     SkillInit.OSCILLATION, SkillInit.HIGH_VOLTAGE, SkillInit.UNLEASHED_STORM, SkillInit.STORM_SURGE,

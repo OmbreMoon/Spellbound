@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.init;
 
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.content.effects.SBEffect;
+import com.ombremoon.spellbound.common.content.effects.StormstrikeEffect;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.effect.MobEffect;
@@ -30,6 +31,7 @@ public class EffectInit {
 
     public static final Holder<MobEffect> HEALING_TOUCH = EFFECTS.register("healing_touch", () -> new SBEffect(MobEffectCategory.BENEFICIAL, 8889187));
     public static final Holder<MobEffect> AFTERGLOW = EFFECTS.register("afterglow", () -> new SBEffect(MobEffectCategory.BENEFICIAL, 8889187));
+    public static final Holder<MobEffect> STORMSTRIKE = EFFECTS.register("stormstrike", () -> new StormstrikeEffect(MobEffectCategory.BENEFICIAL, 8889187));
 
     public static void register(IEventBus eventBus) {
         EFFECTS.register(eventBus);

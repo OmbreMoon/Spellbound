@@ -47,6 +47,19 @@ public class SkillInit {
     public static final Holder<Skill> BLINDING_LIGHT = registerSkill("blinding_light", -25, 250, preReqs(AFTERGLOW));
     public static final Holder<Skill> POWER_OF_THE_SUN = registerSkill("power_of_the_sun", 25, 250, preReqs(AFTERGLOW));
 
+    //Stormstrike
+    public static final Holder<Skill> STORMSTRIKE = registerSkill("stormstrike");
+    public static final Holder<Skill> STATIC_SHOCK = registerSkill("static_shock", -75, 50, preReqs(STORMSTRIKE));
+    public static final Holder<Skill> ELECTRIFY = registerSkill("electrify", 0, 75, preReqs(STORMSTRIKE));
+    public static final Holder<Skill> SHOCK_FACTOR = registerSkill("shock_factor", 50, 50, preReqs(STORMSTRIKE));
+    public static final Holder<Skill> PURGE = registerSkill("purge", 50, 100, preReqs(SHOCK_FACTOR));
+    public static final Holder<Skill> REFRACTION = registerSkill("refraction", -25, 100, preReqs(ELECTRIFY));
+    public static final Holder<Skill> CHARGED_ATMOSPHERE = registerSkill("charged_atmosphere", 25, 100, preReqs(ELECTRIFY));
+    public static final Holder<Skill> PULSATION = registerSkill("pulsation", -25, 150, preReqs(REFRACTION, CHARGED_ATMOSPHERE));
+    public static final Holder<Skill> DISCHARGE = registerSkill("discharge", 25, 150, preReqs(REFRACTION, CHARGED_ATMOSPHERE));
+    public static final Holder<Skill> STORM_SHARD = registerSkill("storm_shard", -25, 200, preReqs(PULSATION, DISCHARGE));
+    public static final Holder<Skill> SUPERCHARGE = registerSkill("supercharge", 25, 200, preReqs(PULSATION, DISCHARGE));
+
     //Electric Charge
     public static final Holder<Skill> ELECTRIC_CHARGE = registerSkill("electric_charge");
     public static final Holder<Skill> ELECTRIFICATION = registerSkill("electrification", -25, 50, preReqs(ELECTRIC_CHARGE));

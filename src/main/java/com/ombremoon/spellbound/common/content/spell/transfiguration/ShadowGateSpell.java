@@ -38,32 +38,29 @@ import java.util.UUID;
 //TODO: ADD OPEN/CLOSE ANIMATIONS
 
 public class ShadowGateSpell extends AnimatedSpell {
-    private static Builder<AnimatedSpell> createShadowGateBuilder() {
-        return createSimpleSpellBuilder().manaCost(30).castTime(20).duration(1200).castCondition((context, spell) -> {
-            if (spell instanceof ShadowGateSpell shadowGate) {
-                var skills = context.getSkills();
-                int activePortals = shadowGate.portalInfo.size();
-                if ((!skills.hasSkill(SkillInit.DUAL_DESTINATION.value()) && activePortals == 2) || activePortals == 3)
-                    return false;
+    private static Builder<ShadowGateSpell> createShadowGateBuilder() {
+        return createSimpleSpellBuilder(ShadowGateSpell.class).manaCost(30).castTime(20).duration(1200).castCondition((context, spell) -> {
+            var skills = context.getSkills();
+            int activePortals = spell.portalInfo.size();
+            if ((!skills.hasSkill(SkillInit.DUAL_DESTINATION.value()) && activePortals == 2) || activePortals == 3)
+                return false;
 
-                boolean hasReach = skills.hasSkill(SkillInit.REACH.value());
-                BlockHitResult hitResult = shadowGate.getTargetBlock(hasReach ? 100 : 50);
-                if (hitResult.getType() == HitResult.Type.MISS || hitResult.getDirection() == Direction.DOWN) return false;
+            boolean hasReach = skills.hasSkill(SkillInit.REACH.value());
+            BlockHitResult hitResult = spell.getTargetBlock(hasReach ? 100 : 50);
+            if (hitResult.getType() == HitResult.Type.MISS || hitResult.getDirection() == Direction.DOWN) return false;
 
-                BlockPos blockPos = hitResult.getBlockPos().above();
-                if (!context.getLevel().getBlockState(blockPos).isAir()) return false;
-                if (activePortals > 1) {
-                    int portalRange = hasReach ? 10000 : 2500;
-                    PortalInfo info = shadowGate.portalInfo.get(shadowGate.getPreviousGate());
-                    double distance = info.position().distanceToSqr(blockPos.getCenter());
-                    if (distance > portalRange) return false;
-                }
-
-                if (skills.hasSkill(SkillInit.DARKNESS_PREVAILS.value())) return true;
-                int i = context.getLevel().getRawBrightness(blockPos, 0) + context.getLevel().getBrightness(LightLayer.BLOCK, blockPos) - context.getLevel().getSkyDarken();
-                return i <= 4;
+            BlockPos blockPos = hitResult.getBlockPos().above();
+            if (!context.getLevel().getBlockState(blockPos).isAir()) return false;
+            if (activePortals > 1) {
+                int portalRange = hasReach ? 10000 : 2500;
+                PortalInfo info = spell.portalInfo.get(spell.getPreviousGate());
+                double distance = info.position().distanceToSqr(blockPos.getCenter());
+                if (distance > portalRange) return false;
             }
-            return false;
+
+            if (skills.hasSkill(SkillInit.DARKNESS_PREVAILS.value())) return true;
+            int i = context.getLevel().getRawBrightness(blockPos, 0) + context.getLevel().getBrightness(LightLayer.BLOCK, blockPos) - context.getLevel().getSkyDarken();
+            return i <= 4;
         }).fullRecast().skipEndOnRecast();
     }
     private static final UUID UNWANTED_GUESTS = UUID.fromString("ba20a80b-aa41-4598-9ab5-c583a80b6a09");

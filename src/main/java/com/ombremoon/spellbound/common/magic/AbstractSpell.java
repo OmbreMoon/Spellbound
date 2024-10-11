@@ -304,7 +304,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
             listener.addListenerWithExpiry(event, uuid, consumer, livingEntity.tickCount + expiryTicks);
     }
 
-    public float potency(float initialAmount) {
+    protected float potency(float initialAmount) {
         return initialAmount * getModifier(ModifierType.POTENCY);
     }
 
@@ -312,8 +312,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         return getModifier(modifierType, this.caster);
     }
 
-    private float getModifier(ModifierType modifierType, Player player) {
-        var handler = SpellUtil.getSkillHandler(player);
+    public float getModifier(ModifierType modifierType, LivingEntity livingEntity) {
+        var handler = SpellUtil.getSkillHandler(livingEntity);
         float f = 1;
         for (var modifier : handler.getModifiers()) {
             if (modifierType.equals(modifier.modifierType()) && modifier.spellPredicate().test(getSpellType())) {

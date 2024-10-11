@@ -83,8 +83,8 @@ public class SolarRaySpell extends ChanneledSpell {
     private final Set<LivingEntity> concentratedHeatSet = new ObjectOpenHashSet<>();
     private final Map<LivingEntity, Integer> heatTracker = new Object2IntOpenHashMap<>();
 
-    public static Builder<ChanneledSpell> createSolarRayBuilder() {
-        return createChannelledSpellBuilder().castTime(18);
+    public static Builder<SolarRaySpell> createSolarRayBuilder() {
+        return createChannelledSpellBuilder(SolarRaySpell.class).castTime(18);
     }
 
     public SolarRaySpell() {

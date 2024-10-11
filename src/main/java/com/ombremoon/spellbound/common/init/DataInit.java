@@ -51,6 +51,8 @@ public class DataInit {
     //Spell Data
     public static final Supplier<AttachmentType<Integer>> HEAT_TICK = ATTACHMENT_TYPES.register(
             "heat_tick", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
+    public static final Supplier<AttachmentType<Integer>> STORMSTRIKE_OWNER = ATTACHMENT_TYPES.register(
+            "stormstrike_owner", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
 
     //Components
     public static final Supplier<DataComponentType<String>> SPELL = COMPONENT_TYPES.registerComponentType("spell",

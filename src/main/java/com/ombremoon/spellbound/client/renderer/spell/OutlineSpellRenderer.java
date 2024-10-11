@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.client.renderer;
+package com.ombremoon.spellbound.client.renderer.spell;
 
 import com.ombremoon.spellbound.common.content.entity.SpellEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
