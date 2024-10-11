@@ -2,9 +2,9 @@ package com.ombremoon.spellbound.common.content.spell.summon;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.common.content.entity.spell.WildMushroom;
+import com.ombremoon.spellbound.common.data.EffectHandler;
 import com.ombremoon.spellbound.common.data.SkillHandler;
 import com.ombremoon.spellbound.common.data.SpellHandler;
-import com.ombremoon.spellbound.common.data.StatusHandler;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
@@ -78,46 +78,45 @@ public class WildMushroomSpell extends SummonSpell {
     @Override
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
-        if (!context.getLevel().isClientSide) {
+        if (context.getLevel().isClientSide) return;
 
-            if (poisonEssenceExpiry > 0) poisonEssenceExpiry--;
-            this.mushroom.explode();
-            Player caster = context.getPlayer();
-            SkillHandler skills = context.getSkills();
+        if (poisonEssenceExpiry > 0) poisonEssenceExpiry--;
+        this.mushroom.explode(); //Visual stuff
+        Player caster = context.getPlayer();
+        SkillHandler skills = context.getSkills();
 
-            List<LivingEntity> entities = caster.level().getEntitiesOfClass(
-                    LivingEntity.class,
-                    this.damageZone,
-                    entity -> !entity.is(caster) && !entity.isInvulnerable());
+        List<LivingEntity> entities = caster.level().getEntitiesOfClass(
+                LivingEntity.class,
+                this.damageZone,
+                entity -> !entity.is(caster) && !entity.isInvulnerable());
 
-            for (LivingEntity entity : entities) {
-                if (skills.hasSkillReady(SkillInit.CATALEPSY.value())) {
-                    entity.addEffect(new MobEffectInstance(EffectInit.STUNNED, 100), caster); //TODO: Use Catalepsy effect instead
-                }
-
-                if (skills.hasSkill(SkillInit.ENVENOM.value())) {
-                    entity.getData(DataInit.STATUS_EFFECTS).increment(StatusHandler.Effect.POISON, 100);
-                } else {
-                    entity.getData(DataInit.STATUS_EFFECTS).increment(StatusHandler.Effect.POISON, 33);
-                }
-
-                entity.hurt(entity.damageSources().explosion(caster, null), calculateDamage(context, entity));
-                targetsHit.add(entity);
-
-                if (awardedXp < MAX_XP) {
-                    awardedXp++;
-                    context.getSkills().awardSpellXp(getSpellType(), XP_PER_HIT);
-                    context.getSkills().sync(caster);
-                }
+        for (LivingEntity entity : entities) {
+            if (skills.hasSkillReady(SkillInit.CATALEPSY.value())) {
+                entity.addEffect(new MobEffectInstance(EffectInit.CATALEPSY, 100), caster);
             }
 
-            if (!entities.isEmpty() && skills.hasSkillReady(SkillInit.CATALEPSY.value()))
-                this.addCooldown(SkillInit.CATALEPSY.value(), 200);
-
-            if (context.getSpellHandler().getActiveSpells(getSpellType()).size() <= 2
-                    && this.hasAttributeModifier(context.getPlayer(), AttributesInit.MANA_REGEN, RECYCLED_LOCATION)) {
-                this.removeAttributeModifier(context.getPlayer(), AttributesInit.MANA_REGEN, RECYCLED_LOCATION);
+            if (skills.hasSkill(SkillInit.ENVENOM.value())) {
+                entity.getData(DataInit.STATUS_EFFECTS).increment(EffectHandler.Effect.POISON, 100);
+            } else {
+                entity.getData(DataInit.STATUS_EFFECTS).increment(EffectHandler.Effect.POISON, 33);
             }
+
+            entity.hurt(entity.damageSources().explosion(caster, null), calculateDamage(context, entity));
+            targetsHit.add(entity);
+
+            if (awardedXp < MAX_XP) {
+                awardedXp++;
+                context.getSkills().awardSpellXp(getSpellType(), XP_PER_HIT);
+                context.getSkills().sync(caster);
+            }
+        }
+
+        if (!entities.isEmpty() && skills.hasSkillReady(SkillInit.CATALEPSY.value()))
+            this.addCooldown(SkillInit.CATALEPSY.value(), 200);
+
+        if (context.getSpellHandler().getActiveSpells(getSpellType()).size() <= 2
+                && this.hasAttributeModifier(context.getPlayer(), AttributesInit.MANA_REGEN, RECYCLED_LOCATION)) {
+            this.removeAttributeModifier(context.getPlayer(), AttributesInit.MANA_REGEN, RECYCLED_LOCATION);
         }
     }
 

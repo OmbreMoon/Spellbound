@@ -4,13 +4,11 @@ import com.mojang.serialization.Codec;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.data.SkillHandler;
 import com.ombremoon.spellbound.common.data.SpellHandler;
-import com.ombremoon.spellbound.common.data.StatusHandler;
+import com.ombremoon.spellbound.common.data.EffectHandler;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
-import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -31,8 +29,8 @@ public class DataInit {
             "spell_handler", () -> AttachmentType.serializable(SpellHandler::new).copyOnDeath().build());
     public static final Supplier<AttachmentType<SkillHandler>> SKILL_HANDLER = ATTACHMENT_TYPES.register(
             "skill_handler", () -> AttachmentType.serializable(SkillHandler::new).copyOnDeath().build());
-    public static final Supplier<AttachmentType<StatusHandler>> STATUS_EFFECTS = ATTACHMENT_TYPES.register(
-            "effect_handler", () -> AttachmentType.serializable(StatusHandler::new).build());
+    public static final Supplier<AttachmentType<EffectHandler>> STATUS_EFFECTS = ATTACHMENT_TYPES.register(
+            "effect_handler", () -> AttachmentType.serializable(EffectHandler::new).build());
 
     //Mana
     public static final Supplier<AttachmentType<Double>> MANA = ATTACHMENT_TYPES.register(

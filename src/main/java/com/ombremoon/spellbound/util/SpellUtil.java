@@ -2,12 +2,10 @@ package com.ombremoon.spellbound.util;
 
 import com.ombremoon.spellbound.common.data.SkillHandler;
 import com.ombremoon.spellbound.common.data.SpellHandler;
+import com.ombremoon.spellbound.common.data.EffectHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
-import com.ombremoon.spellbound.common.init.EffectInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellType;
-import com.ombremoon.spellbound.common.magic.skills.Skill;
-import com.ombremoon.spellbound.networking.PayloadHandler;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -41,8 +39,9 @@ public class SpellUtil {
     }
 
     public static boolean canCastSpell(Player player, AbstractSpell spell) {
+        if (EffectHandler.isSilenced(player)) return false;
+
         var handler = getSpellHandler(player);
-        if (player.hasEffect(EffectInit.SILENCED) || player.hasEffect(EffectInit.STUNNED)) return false;
         return handler.inCastMode() && handler.consumeMana(spell.getManaCost(player), false);
     }
 

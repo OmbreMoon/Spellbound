@@ -1,5 +1,7 @@
 package com.ombremoon.spellbound.util;
 
+import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
+import com.ombremoon.spellbound.common.content.entity.SmartSpellEntity;
 import com.ombremoon.spellbound.common.content.entity.SpellEntity;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
@@ -26,7 +28,7 @@ public class SummonUtil {
      */
     public static void setOwner(@NotNull Entity entity, @NotNull LivingEntity owner) {
         entity.setData(DataInit.OWNER_UUID, owner.getUUID().toString());
-        if (entity instanceof SpellEntity spellEntity)
+        if (entity instanceof ISpellEntity spellEntity)
             spellEntity.setOwner(owner);
     }
 

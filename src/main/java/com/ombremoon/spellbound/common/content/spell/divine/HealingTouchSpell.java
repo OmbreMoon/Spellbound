@@ -1,8 +1,8 @@
 package com.ombremoon.spellbound.common.content.spell.divine;
 
 import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.common.data.EffectHandler;
 import com.ombremoon.spellbound.common.data.SkillHandler;
-import com.ombremoon.spellbound.common.data.StatusHandler;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
@@ -49,9 +49,10 @@ public class HealingTouchSpell extends AnimatedSpell {
         if (context.isRecast() || context.getLevel().isClientSide) return;
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.POST_DAMAGE, PLAYER_DAMAGE, this::onDamagePost);
 
+        context.getPlayer().addEffect(new MobEffectInstance(EffectInit.HEALING_TOUCH, getDuration()));
+
         SkillHandler skills = context.getSkills();
         this.caster = context.getPlayer();
-        context.getPlayer().addEffect(new MobEffectInstance(EffectInit.HEALING_TOUCH, getDuration()));
         if (skills.hasSkill(SkillInit.NATURES_TOUCH.value())) context.getPlayer().heal(2f);
 
         if (skills.hasSkill(SkillInit.CLEANSING_TOUCH.value())) {
@@ -75,7 +76,8 @@ public class HealingTouchSpell extends AnimatedSpell {
         SkillHandler skills = context.getSkills();
         Player player = context.getPlayer();
         double maxMana = player.getAttribute(AttributesInit.MAX_MANA).getValue();
-        if (player.getEffect(EffectInit.HEALING_TOUCH) == null) {
+
+        if (!player.hasEffect(EffectInit.HEALING_TOUCH)) {
             endSpell();
             return;
         }
@@ -83,6 +85,7 @@ public class HealingTouchSpell extends AnimatedSpell {
         float heal = 0.2f;
         if (skills.hasSkill(SkillInit.HEALING_STREAM.value()))
             heal += (float) maxMana * 0.02f;
+
         player.heal(heal);
 
         if (skills.hasSkill(SkillInit.ACCELERATED_GROWTH.value())) {
@@ -102,13 +105,19 @@ public class HealingTouchSpell extends AnimatedSpell {
     }
 
     @Override
+    protected void onSpellStop(SpellContext context) {
+        super.onSpellStop(context);
+        context.getPlayer().removeEffect(EffectInit.HEALING_TOUCH);
+    }
+
+    @Override
     protected boolean shouldTickEffect(SpellContext context) {
         return ticks % 20 == 0;
     }
 
     private void onDamagePost(PlayerDamageEvent.Post event) {
         SkillHandler skills = SpellUtil.getSkillHandler(caster);
-        Player player = event.getPlayer();
+
         if (event.getEntity().hasEffect(EffectInit.POISON) && skills.hasSkill(SkillInit.CONVALESCENCE.value()))
             caster.heal(0.5f);
 
@@ -118,8 +127,8 @@ public class HealingTouchSpell extends AnimatedSpell {
             overgrowthStacks--;
         }
         if (skills.hasSkillReady(SkillInit.BLASPHEMY.value())) {
-            StatusHandler status = event.getEntity().getData(DataInit.STATUS_EFFECTS);
-            status.increment(StatusHandler.Effect.DISEASE, 100);
+            EffectHandler status = event.getEntity().getData(DataInit.STATUS_EFFECTS);
+            status.increment(EffectHandler.Effect.DISEASE, 100);
             addCooldown(SkillInit.BLASPHEMY.value(), 100);
         }
         if (skills.hasSkillReady(SkillInit.OAK_BLESSING.value())) {
