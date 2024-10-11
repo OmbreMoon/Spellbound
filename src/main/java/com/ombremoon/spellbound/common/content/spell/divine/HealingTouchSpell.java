@@ -1,14 +1,13 @@
 package com.ombremoon.spellbound.common.content.spell.divine;
 
 import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.common.data.EffectHandler;
 import com.ombremoon.spellbound.common.data.SkillHandler;
-import com.ombremoon.spellbound.common.data.StatusHandler;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.events.PlayerDamageEvent;
-import com.ombremoon.spellbound.common.magic.skills.SkillCooldowns;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
@@ -20,7 +19,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.ArrayList;
@@ -120,8 +118,8 @@ public class HealingTouchSpell extends AnimatedSpell {
             overgrowthStacks--;
         }
         if (skills.hasSkillReady(SkillInit.BLASPHEMY.value())) {
-            StatusHandler status = event.getEntity().getData(DataInit.STATUS_EFFECTS);
-            status.increment(StatusHandler.Effect.DISEASE, 100);
+            EffectHandler status = event.getEntity().getData(DataInit.STATUS_EFFECTS);
+            status.increment(EffectHandler.Effect.DISEASE, 100);
             addCooldown(SkillInit.BLASPHEMY.value(), 100);
         }
         if (skills.hasSkillReady(SkillInit.OAK_BLESSING.value())) {

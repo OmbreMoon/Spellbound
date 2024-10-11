@@ -5,14 +5,12 @@ import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.gui.CastModeOverlay;
 import com.ombremoon.spellbound.client.renderer.GenericSpellRenderer;
-import com.ombremoon.spellbound.client.renderer.OutlineSpellRenderer;
 import com.ombremoon.spellbound.client.renderer.ShadowGateRenderer;
 import com.ombremoon.spellbound.client.renderer.layer.EmissiveOutlineSpellRenderer;
 import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
 import com.ombremoon.spellbound.common.data.SpellHandler;
-import com.ombremoon.spellbound.common.init.EffectInit;
+import com.ombremoon.spellbound.common.data.EffectHandler;
 import com.ombremoon.spellbound.common.init.EntityInit;
-import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
@@ -77,8 +75,7 @@ public class ClientEvents {
 
         @SubscribeEvent
         public static void onMovementInput(MovementInputUpdateEvent event) {
-            var handler = SpellUtil.getSpellHandler(event.getEntity());
-            if (event.getEntity().hasEffect(EffectInit.ROOTED) || event.getEntity().hasEffect(EffectInit.STUNNED) || handler.isStationary()) {
+            if (EffectHandler.isRooted(event.getEntity())) {
                 event.getInput().leftImpulse = 0;
                 event.getInput().forwardImpulse = 0;
                 event.getInput().jumping = false;

@@ -1,6 +1,9 @@
 package com.ombremoon.spellbound.common.content.entity;
 
 import com.ombremoon.spellbound.common.init.DataInit;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -19,8 +22,9 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 public abstract class SmartSpellEntity extends PathfinderMob implements GeoEntity, SmartBrainOwner<SmartSpellEntity>, OwnableEntity {
+    private final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(SmartSpellEntity.class, EntityDataSerializers.INT);
+    
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    private LivingEntity owner;
 
     protected SmartSpellEntity(EntityType<? extends Monster> entityType, Level level) {
         super(entityType, level);
@@ -37,9 +41,9 @@ public abstract class SmartSpellEntity extends PathfinderMob implements GeoEntit
     }
 
     protected Predicate<LivingEntity> summonAttackPredicate() {
-        if (this.getBrain() == null) return livingEntity -> false;
+        if (this.getBrain() == null) return livingEntity -> false; //This is needed, ignore intellij
         Entity target = BrainUtils.getMemory(this, MemoryModuleType.HURT_BY_ENTITY);
-        return livingEntity -> !isOwner(livingEntity) && ((target != null &&  target.getUUID() == livingEntity.getUUID()) || isOwnersTarget(livingEntity));
+        return livingEntity -> !isOwner(livingEntity) && ((target != null &&  target.is(livingEntity)) || isOwnersTarget(livingEntity));
     }
 
     @Override
@@ -49,17 +53,12 @@ public abstract class SmartSpellEntity extends PathfinderMob implements GeoEntit
 
     @Nullable
     @Override
-    public UUID getOwnerUUID() {
-        return getOwner() == null ? null : this.owner.getUUID();
+    public LivingEntity getOwner() {
+        return (LivingEntity) this.level().getEntity(this.entityData.get(OWNER_ID));
     }
 
-    @Nullable
-    @Override
-    public LivingEntity getOwner() {
-        if (this.owner == null && this.hasData(DataInit.OWNER_UUID)) {
-            this.owner = level().getPlayerByUUID(UUID.fromString(this.getData(DataInit.OWNER_UUID)));
-        }
-        return this.owner;
+    public void setOwner(LivingEntity entity) {
+        this.entityData.set(OWNER_ID, entity.getId());
     }
 
     protected boolean isOwner(LivingEntity entity) {

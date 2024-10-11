@@ -7,7 +7,7 @@ import com.ombremoon.spellbound.common.commands.LearnSkillsCommand;
 import com.ombremoon.spellbound.common.commands.LearnSpellCommand;
 import com.ombremoon.spellbound.common.content.spell.ruin.SolarRaySpell;
 import com.ombremoon.spellbound.common.data.SpellHandler;
-import com.ombremoon.spellbound.common.data.StatusHandler;
+import com.ombremoon.spellbound.common.data.EffectHandler;
 import com.ombremoon.spellbound.common.init.AttributesInit;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
@@ -89,7 +89,7 @@ public class NeoForgeEvents {
     @SubscribeEvent
     public static void onPostEntityTick(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof LivingEntity entity) {
-            StatusHandler status = entity.getData(DataInit.STATUS_EFFECTS);
+            EffectHandler status = entity.getData(DataInit.STATUS_EFFECTS);
             if (status.isInitialised()) status.tick(entity.tickCount);
 
             if (entity instanceof Player player) {
