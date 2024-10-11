@@ -124,6 +124,8 @@ public class SpellEventListener {
         public static Events<PlayerDamageEvent.Pre> PRE_DAMAGE = new Events<>(false);
         public static Events<ChangeTargetEvent> CHANGE_TARGET = new Events<>(false);
         public static Events<PlayerKillEvent> PLAYER_KILL = new Events<>(false);
+        public static Events<MouseInputEvent.Pre> PRE_MOUSE_INPUT = new Events<>(true);
+        public static Events<MouseInputEvent.Post> POST_MOUSE_INPUT = new Events<>(true);
 
         private final boolean isClientSide;
 

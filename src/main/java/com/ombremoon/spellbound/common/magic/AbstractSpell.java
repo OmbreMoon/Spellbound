@@ -304,8 +304,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
             listener.addListenerWithExpiry(event, uuid, consumer, livingEntity.tickCount + expiryTicks);
     }
 
-    public float potency() {
-        return getModifier(ModifierType.POTENCY);
+    public float potency(float initialAmount) {
+        return initialAmount * getModifier(ModifierType.POTENCY);
     }
 
     private float getModifier(ModifierType modifierType) {
@@ -371,7 +371,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     protected void addCooldown(Skill skill, int ticks) {
-        this.context.getSkillHandler().getCooldowns().addCooldown(skill, ticks);
+        this.context.getSkills().getCooldowns().addCooldown(skill, ticks);
     }
 
     protected void addScreenShake(Player player) {
@@ -559,7 +559,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         protected int manaCost;
         protected int castTime = 1;
         protected BiPredicate<SpellContext, T> castPredicate = (context, abstractSpell) -> true;
-        protected CastType castType = CastType.CHARGING;
+        protected CastType castType = CastType.INSTANT;
         protected SoundEvent castSound;
         protected boolean partialRecast;
         protected boolean fullRecast;
@@ -609,7 +609,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
             return this;
         }
 
-        public Builder<T> shouldPersist() {
+        public Builder<T> skipEndOnRecast() {
             this.shouldPersist = true;
             return this;
         }

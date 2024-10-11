@@ -7,22 +7,21 @@ import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.AttributesInit;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
-import com.ombremoon.spellbound.common.magic.*;
-import com.ombremoon.spellbound.common.magic.api.SummonSpell;
+import com.ombremoon.spellbound.common.magic.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.SpellEventListener;
+import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -30,7 +29,10 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.UnknownNullability;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
@@ -49,6 +51,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     public int castTick;
     private boolean channelling;
     private boolean isStationary;
+    private boolean castKeyDown;
     private float zoomModifier = 1.0F;
 
     public void sync() {
@@ -215,6 +218,14 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     public void setStationary(boolean stationary) {
         this.isStationary = stationary;
+    }
+
+    public boolean isCastKeyDown() {
+        return this.castKeyDown;
+    }
+
+    public void setCastKeyDown(boolean isDown) {
+        this.castKeyDown = isDown;
     }
 
     public boolean canZoom() {

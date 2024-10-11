@@ -14,6 +14,9 @@ import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.EffectInit;
 import com.ombremoon.spellbound.common.init.EntityInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.SpellEventListener;
+import com.ombremoon.spellbound.common.magic.events.MouseInputEvent;
+import com.ombremoon.spellbound.common.magic.events.PlayerKillEvent;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
@@ -75,6 +78,20 @@ public class ClientEvents {
                 player.displayClientMessage(Component.literal("Switched to " + (handler.inCastMode() ? "Cast mode" : "Normal mode")), true);
                 PayloadHandler.switchMode();
             }
+        }
+
+        @SubscribeEvent
+        public static void onMouseInputPre(InputEvent.MouseButton.Pre event) {
+            Player player = Minecraft.getInstance().player;
+            if (player != null)
+                SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.PRE_MOUSE_INPUT, new MouseInputEvent.Pre(player, event));
+        }
+
+        @SubscribeEvent
+        public static void onMouseInputPost(InputEvent.MouseButton.Post event) {
+            Player player = Minecraft.getInstance().player;
+            if (player != null)
+                SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.POST_MOUSE_INPUT, new MouseInputEvent.Post(player, event));
         }
 
         @SubscribeEvent

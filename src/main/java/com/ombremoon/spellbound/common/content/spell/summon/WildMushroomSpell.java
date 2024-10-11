@@ -59,7 +59,7 @@ public class WildMushroomSpell extends SummonSpell {
             }
 
             this.mushroom = (WildMushroom) context.getLevel().getEntity(mobs.iterator().next());
-            SkillHandler skillHandler = context.getSkillHandler();
+            SkillHandler skillHandler = context.getSkills();
             double radius = skillHandler.hasSkill(SkillInit.VILE_INFLUENCE.value()) ? 3D : 2D;
             this.damageZone = mushroom.getBoundingBox().inflate(radius, 0, radius);
             this.explosionInterval = skillHandler.hasSkill(SkillInit.HASTENED_GROWTH.value()) ? 40 : 60;
@@ -83,7 +83,7 @@ public class WildMushroomSpell extends SummonSpell {
             if (poisonEssenceExpiry > 0) poisonEssenceExpiry--;
             this.mushroom.explode();
             Player caster = context.getPlayer();
-            SkillHandler skills = context.getSkillHandler();
+            SkillHandler skills = context.getSkills();
 
             List<LivingEntity> entities = caster.level().getEntitiesOfClass(
                     LivingEntity.class,
@@ -106,8 +106,8 @@ public class WildMushroomSpell extends SummonSpell {
 
                 if (awardedXp < MAX_XP) {
                     awardedXp++;
-                    context.getSkillHandler().awardSpellXp(getSpellType(), XP_PER_HIT);
-                    context.getSkillHandler().sync(caster);
+                    context.getSkills().awardSpellXp(getSpellType(), XP_PER_HIT);
+                    context.getSkills().sync(caster);
                 }
             }
 
@@ -128,9 +128,9 @@ public class WildMushroomSpell extends SummonSpell {
 
     private float calculateDamage(SpellContext context, LivingEntity target) {
         float damage = 2f;
-        SkillHandler handler = context.getSkillHandler();
+        SkillHandler handler = context.getSkills();
 
-        if (context.getSkillHandler().hasSkill(SkillInit.DECOMPOSE.value())
+        if (context.getSkills().hasSkill(SkillInit.DECOMPOSE.value())
                 && target.hasEffect(EffectInit.POISON)) damage += (float) (context.getPlayer().getData(DataInit.MANA)/100f);
 
         if (handler.hasSkill(SkillInit.NATURES_DOMINANCE.value())) damage *= 1f + (0.1f * context.getSpellHandler().getActiveSpells(getSpellType()).size());
@@ -144,9 +144,9 @@ public class WildMushroomSpell extends SummonSpell {
         super.onSpellStop(context);
         context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.PLAYER_KILL, PLAYER_KILL);
         if (!context.getLevel().isClientSide) {
-            if (context.getSkillHandler().hasSkill(SkillInit.CIRCLE_OF_LIFE.value())) {
+            if (context.getSkills().hasSkill(SkillInit.CIRCLE_OF_LIFE.value())) {
                 SpellHandler handler = context.getSpellHandler();
-                int level = context.getSkillHandler().getSpellLevel(getSpellType());
+                int level = context.getSkills().getSpellLevel(getSpellType());
                 handler.awardMana(52 + (2 * (level - 1)));
             }
         }

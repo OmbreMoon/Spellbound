@@ -52,6 +52,11 @@ public class ServerPayloadHandler {
         spell.onCastReset(spell.getCastContext());
     }
 
+    public static void handleNetworkSetCastKey(final SetCastKeyPayload payload, final IPayloadContext context) {
+        var handler = SpellUtil.getSpellHandler(context.player());
+        handler.setCastKeyDown(payload.isDown());
+    }
+
     public static void handleNetworkStopChannel(final StopChannelPayload payload, final IPayloadContext context) {
         var handler = SpellUtil.getSpellHandler(context.player());
         handler.setChannelling(false);

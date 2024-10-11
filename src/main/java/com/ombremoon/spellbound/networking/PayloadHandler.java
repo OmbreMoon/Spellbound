@@ -51,6 +51,10 @@ public class PayloadHandler {
         PacketDistributor.sendToServer(new CastResetPayload(spellType, recast));
     }
 
+    public static void setCastKey(boolean isDown) {
+        PacketDistributor.sendToServer(new SetCastKeyPayload(isDown));
+    }
+
     public static void stopChannel() {
         PacketDistributor.sendToServer(new StopChannelPayload());
     }
@@ -145,6 +149,11 @@ public class PayloadHandler {
                 CastResetPayload.TYPE,
                 CastResetPayload.STREAM_CODEC,
                 ServerPayloadHandler::handleNetworkCastReset
+        );
+        registrar.playToServer(
+                SetCastKeyPayload.TYPE,
+                SetCastKeyPayload.STREAM_CODEC,
+                ServerPayloadHandler::handleNetworkSetCastKey
         );
         registrar.playToServer(
                 StopChannelPayload.TYPE,

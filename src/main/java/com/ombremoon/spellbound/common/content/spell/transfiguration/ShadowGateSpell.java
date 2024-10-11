@@ -9,7 +9,6 @@ import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.SpellModifier;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
-import com.ombremoon.spellbound.common.magic.events.PlayerDamageEvent;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -42,12 +41,12 @@ public class ShadowGateSpell extends AnimatedSpell {
     private static Builder<AnimatedSpell> createShadowGateBuilder() {
         return createSimpleSpellBuilder().manaCost(30).castTime(20).duration(1200).castCondition((context, spell) -> {
             if (spell instanceof ShadowGateSpell shadowGate) {
-                var skillhandler = context.getSkillHandler();
+                var skills = context.getSkills();
                 int activePortals = shadowGate.portalInfo.size();
-                if ((!skillhandler.hasSkill(SkillInit.DUAL_DESTINATION.value()) && activePortals == 2) || activePortals == 3)
+                if ((!skills.hasSkill(SkillInit.DUAL_DESTINATION.value()) && activePortals == 2) || activePortals == 3)
                     return false;
 
-                boolean hasReach = skillhandler.hasSkill(SkillInit.REACH.value());
+                boolean hasReach = skills.hasSkill(SkillInit.REACH.value());
                 BlockHitResult hitResult = shadowGate.getTargetBlock(hasReach ? 100 : 50);
                 if (hitResult.getType() == HitResult.Type.MISS || hitResult.getDirection() == Direction.DOWN) return false;
 
@@ -60,12 +59,12 @@ public class ShadowGateSpell extends AnimatedSpell {
                     if (distance > portalRange) return false;
                 }
 
-                if (skillhandler.hasSkill(SkillInit.DARKNESS_PREVAILS.value())) return true;
+                if (skills.hasSkill(SkillInit.DARKNESS_PREVAILS.value())) return true;
                 int i = context.getLevel().getRawBrightness(blockPos, 0) + context.getLevel().getBrightness(LightLayer.BLOCK, blockPos) - context.getLevel().getSkyDarken();
                 return i <= 4;
             }
             return false;
-        }).fullRecast().shouldPersist();
+        }).fullRecast().skipEndOnRecast();
     }
     private static final UUID UNWANTED_GUESTS = UUID.fromString("ba20a80b-aa41-4598-9ab5-c583a80b6a09");
 
@@ -81,7 +80,7 @@ public class ShadowGateSpell extends AnimatedSpell {
         Level level = context.getLevel();
         if (!level.isClientSide) {
             int activePortals = this.portalInfo.size();
-            boolean hasReach = context.getSkillHandler().hasSkill(SkillInit.REACH.value());
+            boolean hasReach = context.getSkills().hasSkill(SkillInit.REACH.value());
             BlockHitResult hitResult = this.getTargetBlock(hasReach ? 100 : 50);
             Vec3 vec3 = Vec3.atBottomCenterOf(hitResult.getBlockPos().above());
             ShadowGate shadowGate = EntityInit.SHADOW_GATE.get().create(context.getLevel());
@@ -103,7 +102,7 @@ public class ShadowGateSpell extends AnimatedSpell {
         Player player = context.getPlayer();
         Level level = context.getLevel();
         if (!level.isClientSide()) {
-            var skillHandler = context.getSkillHandler();
+            var skills = context.getSkills();
             if (!this.portalInfo.isEmpty()) {
                 for (var entry : this.portalInfo.entrySet()) {
                     ShadowGate shadowGate = (ShadowGate) level.getEntity(entry.getKey());
@@ -111,14 +110,12 @@ public class ShadowGateSpell extends AnimatedSpell {
                         List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, shadowGate.getBoundingBox());
                         List<LivingEntity> teleportList = new ObjectArrayList<>();
                         for (LivingEntity entity : entities) {
-                            if (skillHandler.hasSkill(SkillInit.OPEN_INVITATION.value())) {
+                            if (skills.hasSkill(SkillInit.OPEN_INVITATION.value())) {
                                 teleportList.add(entity);
                             } else if (isCaster(entity)) {
                                 teleportList.add(entity);
                             }
                         }
-
-                        if (this.ticks >= 1175) shadowGate.setEndTick(25);
 
                         ShadowGate adjacentGate = this.getAdjacentGate(shadowGate, level);
                         if (adjacentGate != null) {
@@ -130,30 +127,30 @@ public class ShadowGateSpell extends AnimatedSpell {
                                     if (entity instanceof Player teleportedPlayer)
                                         PayloadHandler.setRotation(teleportedPlayer, teleportedPlayer.getXRot(), adjacentGate.getYRot());
 
-                                    if (skillHandler.hasSkill(SkillInit.BLINK.value()) && isCaster(entity))
+                                    if (skills.hasSkill(SkillInit.BLINK.value()) && isCaster(entity))
                                         addTimedAttributeModifier(entity, Attributes.MOVEMENT_SPEED, new AttributeModifier(CommonClass.customLocation("blink"), 1.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), 100);
 
-                                    if (skillHandler.hasSkillReady(SkillInit.QUICK_RECHARGE.value())) {
+                                    if (skills.hasSkillReady(SkillInit.QUICK_RECHARGE.value())) {
                                         context.getSpellHandler().awardMana(20);
                                         addCooldown(SkillInit.QUICK_RECHARGE.value(), 200);
                                     }
 
-                                    if (skillHandler.hasSkill(SkillInit.SHADOW_ESCAPE.value()) && isCaster(entity) && player.getHealth() < player.getMaxHealth() * 0.5F && !player.hasEffect(MobEffects.INVISIBILITY))
+                                    if (skills.hasSkill(SkillInit.SHADOW_ESCAPE.value()) && isCaster(entity) && player.getHealth() < player.getMaxHealth() * 0.5F && !player.hasEffect(MobEffects.INVISIBILITY))
                                         player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 100, 0, false, false, true));
 
-                                    if (skillHandler.hasSkill(SkillInit.UNWANTED_GUESTS.value()) && !entity.isAlliedTo(context.getPlayer())) {
+                                    if (skills.hasSkill(SkillInit.UNWANTED_GUESTS.value()) && !entity.isAlliedTo(context.getPlayer())) {
                                         addTimedListener(entity, SpellEventListener.Events.PRE_DAMAGE, UNWANTED_GUESTS, event -> {
                                             event.setNewDamage(event.getOriginalDamage() * .9F);
                                         }, 200);
                                         addTimedModifier(entity, SpellModifier.UNWANTED_GUESTS, 200);
                                     }
 
-                                    if (skillHandler.hasSkill(SkillInit.BAIT_AND_SWITCH.value()) && !entity.isAlliedTo(player)) {
+                                    if (skills.hasSkill(SkillInit.BAIT_AND_SWITCH.value()) && !entity.isAlliedTo(player)) {
                                         entity.hurt(level.damageSources().magic(), 10);
                                         SpellUtil.getSpellHandler(entity).consumeMana(10);
                                     }
 
-                                    if (skillHandler.hasSkill(SkillInit.GRAVITY_SHIFT.value())) {
+                                    if (skills.hasSkill(SkillInit.GRAVITY_SHIFT.value())) {
                                         Vec3 lookVec = adjacentGate.getViewVector(1.0F);
                                         entity.setDeltaMovement(lookVec.x, 2, lookVec.z);
                                         entity.hurtMarked = true;
@@ -177,7 +174,7 @@ public class ShadowGateSpell extends AnimatedSpell {
             this.portalInfo.forEach((integer, portalInfo) -> {
                 Entity entity = context.getLevel().getEntity(integer);
                 if (entity instanceof ShadowGate shadowGate)
-                    shadowGate.setEndTick(25);
+                    shadowGate.setEndTick(20);
             });
         }
     }

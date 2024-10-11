@@ -5,11 +5,12 @@ import com.ombremoon.sentinellib.common.event.RegisterPlayerSentinelBoxEvent;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.commands.LearnSkillsCommand;
 import com.ombremoon.spellbound.common.commands.LearnSpellCommand;
-import com.ombremoon.spellbound.common.content.spell.ruin.SolarRaySpell;
+import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.data.StatusHandler;
 import com.ombremoon.spellbound.common.init.AttributesInit;
 import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.init.EffectInit;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.events.*;
 import com.ombremoon.spellbound.networking.PayloadHandler;
@@ -101,6 +102,9 @@ public class NeoForgeEvents {
                     }
                 }
             }
+
+            if (entity.hasEffect(EffectInit.STUNNED) || entity.hasEffect(EffectInit.ROOTED))
+                entity.setDeltaMovement(0, 0, 0);
         }
     }
 

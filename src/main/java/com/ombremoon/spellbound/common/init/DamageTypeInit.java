@@ -9,6 +9,7 @@ import net.minecraft.world.damagesource.DamageType;
 public interface DamageTypeInit {
     ResourceKey<DamageType> DISEASE = register("disease");
     ResourceKey<DamageType> RUIN_FIRE = register("ruin_fire");
+    ResourceKey<DamageType> RUIN_SHOCK = register("ruin_shock");
 
     private static ResourceKey<DamageType> register(String name) {
         return ResourceKey.create(Registries.DAMAGE_TYPE, CommonClass.customLocation(name));
@@ -17,5 +18,6 @@ public interface DamageTypeInit {
     static void bootstrap(BootstrapContext<DamageType> context) {
         context.register(DISEASE, new DamageType("disease", 0.1F));
         context.register(RUIN_FIRE, new DamageType("ruin_fire", 0.1F));
+        context.register(RUIN_SHOCK, new DamageType("ruin_shock", 0.1F));
     }
 }

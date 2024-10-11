@@ -2,23 +2,17 @@ package com.ombremoon.spellbound.common.content.spell.transfiguration;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.common.data.SkillHandler;
-import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.SkillInit;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
-import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.common.data.fixes.NeoForgeEntityLegacyAttributesFix;
 
-import javax.swing.text.PlainDocument;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -42,7 +36,7 @@ public class CobbledHideSpell extends AnimatedSpell {
     @Override
     protected void onSpellStart(SpellContext context) {
         if (context.isRecast()) return;
-        SkillHandler skills = context.getSkillHandler();
+        SkillHandler skills = context.getSkills();
 
         float modAmount = 1.1f;
         if (skills.hasSkill(SkillInit.DRAGON_HIDE.value())) modAmount = 1.5f;
@@ -84,7 +78,7 @@ public class CobbledHideSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellRecast(SpellContext context) {
-        if (context.getSkillHandler().hasSkill(SkillInit.REPULSIVE_SKIN.value())) {
+        if (context.getSkills().hasSkill(SkillInit.REPULSIVE_SKIN.value())) {
             Player player = context.getPlayer();
             List<LivingEntity> entities = context.getLevel().getEntitiesOfClass(LivingEntity.class,
                     player.getBoundingBox().inflate(8d));

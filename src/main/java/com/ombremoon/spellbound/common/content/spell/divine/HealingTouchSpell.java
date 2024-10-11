@@ -8,7 +8,6 @@ import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.events.PlayerDamageEvent;
-import com.ombremoon.spellbound.common.magic.skills.SkillCooldowns;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
@@ -20,7 +19,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.ArrayList;
@@ -51,7 +49,7 @@ public class HealingTouchSpell extends AnimatedSpell {
         if (context.isRecast() || context.getLevel().isClientSide) return;
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.POST_DAMAGE, PLAYER_DAMAGE, this::onDamagePost);
 
-        SkillHandler skills = context.getSkillHandler();
+        SkillHandler skills = context.getSkills();
         this.caster = context.getPlayer();
         context.getPlayer().addEffect(new MobEffectInstance(EffectInit.HEALING_TOUCH, getDuration()));
         if (skills.hasSkill(SkillInit.NATURES_TOUCH.value())) context.getPlayer().heal(2f);
@@ -74,7 +72,7 @@ public class HealingTouchSpell extends AnimatedSpell {
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
         if (context.getLevel().isClientSide) return;
-        SkillHandler skills = context.getSkillHandler();
+        SkillHandler skills = context.getSkills();
         Player player = context.getPlayer();
         double maxMana = player.getAttribute(AttributesInit.MAX_MANA).getValue();
         if (player.getEffect(EffectInit.HEALING_TOUCH) == null) {
