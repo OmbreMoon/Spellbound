@@ -2,7 +2,10 @@ package com.ombremoon.spellbound.common.content.spell;
 
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.content.effects.SBEffectInstance;
+import com.ombremoon.spellbound.common.content.entity.living.LivingShadow;
+import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.init.EffectInit;
+import com.ombremoon.spellbound.common.init.EntityInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
@@ -29,6 +32,12 @@ public class TestSpell extends ChanneledSpell {
             Constants.LOG.info("Jumped");
         });
         Constants.LOG.info("Working");
+        if (!context.getLevel().isClientSide) {
+            LivingShadow livingShadow = EntityInit.LIVING_SHADOW.get().create(context.getLevel());
+            livingShadow.setData(DataInit.OWNER_UUID, context.getPlayer().getStringUUID());
+            livingShadow.setPos(context.getPlayer().position());
+            context.getLevel().addFreshEntity(livingShadow);
+        }
     }
 
     @Override
@@ -45,7 +54,6 @@ public class TestSpell extends ChanneledSpell {
         LivingEntity livingEntity = this.getTargetEntity(10);
         if (livingEntity != null) {
             if (!context.getLevel().isClientSide) {
-                log(livingEntity.isAlliedTo(context.getPlayer()));
                 livingEntity.addEffect(new SBEffectInstance(context.getPlayer(), EffectInit.AFTERGLOW, 40, true, 0, false, false));
             } else {
 //                context.getSpellHandler().addGlowEffect(livingEntity);

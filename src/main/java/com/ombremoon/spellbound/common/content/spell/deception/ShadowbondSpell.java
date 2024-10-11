@@ -2,9 +2,10 @@ package com.ombremoon.spellbound.common.content.spell.deception;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.common.content.effects.SBEffectInstance;
-import com.ombremoon.spellbound.common.init.EffectInit;
-import com.ombremoon.spellbound.common.init.SkillInit;
-import com.ombremoon.spellbound.common.init.SpellInit;
+import com.ombremoon.spellbound.common.content.entity.living.LivingShadow;
+import com.ombremoon.spellbound.common.data.SkillHandler;
+import com.ombremoon.spellbound.common.data.SpellHandler;
+import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
@@ -34,18 +35,22 @@ public class ShadowbondSpell extends AnimatedSpell {
                 ShadowbondSpell shadowBond = (ShadowbondSpell) spell;
                 if (shadowBond.canReverse) {
                     return true;
-                } else if (context.getSkillHandler().hasSkill(SkillInit.SHADOW_CHAIN.value())) {
-                    return context.getTarget() != null && shadowBond.secondTarget == 0;
+                } else if (context.getSkills().hasSkill(SkillInit.SHADOW_CHAIN.value()) && context.getTarget() != null && context.getTarget().getId() != shadowBond.firstTarget) {
+                    return shadowBond.secondTarget == 0;
+                } else {
+                    shadowBond.earlyEnd = true;
+                    return true;
                 }
             }
             return !context.isRecast() && context.getTarget() != null;
-        }).duration(300).fullRecast().shouldPersist();
+        }).duration(300).fullRecast();
     }
 
     private int firstTarget;
     private int secondTarget;
+    private boolean earlyEnd;
     private boolean canReverse = false;
-    private final List<Integer> targetList = new IntArrayList();
+    private List<Integer> targetList = new IntArrayList();
 
     public ShadowbondSpell() {
         super(SpellInit.SHADOWBOND.get(), createShadowbondBuilder());
@@ -56,21 +61,23 @@ public class ShadowbondSpell extends AnimatedSpell {
         super.onSpellStart(context);
         Level level = context.getLevel();
         LivingEntity livingEntity = context.getTarget();
-        var skillHandler = context.getSkillHandler();
+        var skills = context.getSkills();
         if (livingEntity == null) return;
         int id = livingEntity.getId();
 
-        if (context.isRecast()) {
-            this.secondTarget = id;
-        } else {
-            this.firstTarget = id;
+        if (id > 0) {
+            if (context.isRecast() && !this.canReverse) {
+                this.secondTarget = id;
+            } else if (!context.isRecast()){
+                this.firstTarget = id;
+            }
         }
 
         this.targetList.add(this.firstTarget);
         this.targetList.add(this.secondTarget);
         if (!level.isClientSide) {
             if (!this.canReverse) {
-                MobEffectInstance mobEffectInstance = new SBEffectInstance(context.getPlayer(), MobEffects.INVISIBILITY, -1, skillHandler.hasSkill(SkillInit.OBSERVANT.value()), 0, false, false);
+                MobEffectInstance mobEffectInstance = new SBEffectInstance(context.getPlayer(), MobEffects.INVISIBILITY, -1, skills.hasSkill(SkillInit.OBSERVANT.value()), 0, false, false);
                 context.getPlayer().addEffect(mobEffectInstance);
                 for (Integer entityId : this.targetList) {
                     Entity entity = level.getEntity(entityId);
@@ -86,22 +93,17 @@ public class ShadowbondSpell extends AnimatedSpell {
         super.onSpellRecast(context);
         Player player = context.getPlayer();
         Level level = context.getLevel();
-        if (this.canReverse) {
-            Vec3 playerPos = player.position();
-            Entity entity = level.getEntity(this.firstTarget);
-            Entity secondEntity = level.getEntity(this.secondTarget);
-            if (entity instanceof LivingEntity living && secondEntity instanceof LivingEntity secondLiving) {
-                Vec3 firstPos = living.position();
-                Vec3 secondPos = secondLiving.position();
-                player.teleportTo(secondPos.x, secondPos.y, secondPos.z);
-                secondEntity.teleportTo(firstPos.x, firstPos.y, firstPos.z);
-                living.teleportTo(playerPos.x, playerPos.y, playerPos.z);
-            } else if (entity instanceof LivingEntity living) {
-                teleport(player, living);
-            } else if (secondEntity instanceof LivingEntity secondLiving) {
-                teleport(player, secondLiving);
+        var handler = context.getSpellHandler();
+        var skills = context.getSkills();
+        if (this.canReverse || this.earlyEnd) {
+            swapTargets(player, level);
+
+            if (this.earlyEnd) {
+                this.canReverse = skills.hasSkill(SkillInit.REVERSAL.value()) && !this.targetList.isEmpty();
+                handleSwapEffect(player, level, handler, skills);
+            } else {
+                endSpell();
             }
-            endSpell();
         }
     }
 
@@ -110,7 +112,7 @@ public class ShadowbondSpell extends AnimatedSpell {
         super.onSpellTick(context);
         Player player = context.getPlayer();
         Level level = context.getLevel();
-        var skillHandler = context.getSkillHandler();
+        var skills = context.getSkills();
         var handler = context.getSpellHandler();
         if (!level.isClientSide) {
             for (Integer entityId : this.targetList) {
@@ -119,66 +121,17 @@ public class ShadowbondSpell extends AnimatedSpell {
                     this.targetList.remove(entityId);
             }
 
-            int extension = skillHandler.hasSkill(SkillInit.EVERLASTING_BOND.value()) ? 200 : 100;
+            int extension = skills.hasSkill(SkillInit.EVERLASTING_BOND.value()) ? 200 : 100;
             if (this.ticks == this.getDuration() - extension) {
-                Vec3 playerPos = player.position();
-                Entity entity = level.getEntity(this.firstTarget);
-                Entity secondEntity = level.getEntity(this.secondTarget);
-                if (entity instanceof LivingEntity living && secondEntity instanceof LivingEntity secondLiving) {
-                    Vec3 firstPos = living.position();
-                    Vec3 secondPos = secondLiving.position();
-                    player.teleportTo(secondPos.x, secondPos.y, secondPos.z);
-                    secondEntity.teleportTo(firstPos.x, firstPos.y, firstPos.z);
-                    living.teleportTo(playerPos.x, playerPos.y, playerPos.z);
-                } else if (entity instanceof LivingEntity living) {
-                    teleport(player, living);
-                } else if (secondEntity instanceof LivingEntity secondLiving) {
-                    teleport(player, secondLiving);
-                } else {
-                    endSpell();
-                }
-
-                if (skillHandler.hasSkill(SkillInit.SHADOW_STEP.value()))
-                    addTimedAttributeModifier(player, Attributes.MOVEMENT_SPEED, new AttributeModifier(CommonClass.customLocation("shadow_step"), 1.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), 100);
-
-                if (skillHandler.hasSkill(SkillInit.SNEAK_ATTACK.value())) {
-                    handler.getListener().addListener(SpellEventListener.Events.PRE_DAMAGE, SNEAK_ATTACK, pre -> {
-                        pre.setNewDamage(pre.getOriginalDamage() * 1.5F);
-                        handler.getListener().removeListener(SpellEventListener.Events.PRE_DAMAGE, SNEAK_ATTACK);
-                    });
-                }
-
-                player.removeEffect(MobEffects.INVISIBILITY);
-                for (Integer entityId : this.targetList) {
-                    Entity effectEntity = level.getEntity(entityId);
-                    if (effectEntity instanceof LivingEntity living) {
-                        living.removeEffect(MobEffects.INVISIBILITY);
-                        if (skillHandler.hasSkill(SkillInit.SILENT_EXCHANGE.value()))
-                            living.addEffect(new MobEffectInstance(EffectInit.SILENCED, 100, 0, false, true));
-
-                        if (skillHandler.hasSkill(SkillInit.SNARE.value()))
-                            living.addEffect(new MobEffectInstance(EffectInit.ROOTED, 100, 0, false, true));
-
-                        if (skillHandler.hasSkill(SkillInit.DISORIENTED.value())) {
-                            living.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 100, 0, false, false));
-                            addTimedListener(living, SpellEventListener.Events.PRE_DAMAGE, DISORIENTED, pre -> {
-                                pre.setNewDamage(pre.getOriginalDamage() * 0.8F);
-                            }, 100);
-                        }
-                    }
-                }
+                swapTargets(player, level);
+                handleSwapEffect(player, level, handler, skills);
             } else if (this.ticks > this.getDuration() - extension) {
-                if (skillHandler.hasSkill(SkillInit.REVERSAL.value()) && !this.targetList.isEmpty())
-                    this.canReverse = true;
+                this.canReverse = skills.hasSkill(SkillInit.REVERSAL.value()) && !this.targetList.isEmpty();
             }
         }
-    }
-
-    @Override
-    protected void onSpellStop(SpellContext context) {
-        super.onSpellStop(context);
-        var handler = context.getSpellHandler();
-        handler.getListener().removeListener(SpellEventListener.Events.PRE_DAMAGE, SNEAK_ATTACK);
+        if (this.earlyEnd && this.ticks >= 100) {
+            endSpell();
+        }
     }
 
     private void teleport(LivingEntity first, LivingEntity second) {
@@ -188,10 +141,70 @@ public class ShadowbondSpell extends AnimatedSpell {
         second.teleportTo(firstPos.x, firstPos.y, firstPos.z);
     }
 
+    private void swapTargets(Player player, Level level) {
+        Vec3 playerPos = player.position();
+        Entity entity = level.getEntity(this.firstTarget);
+        Entity secondEntity = level.getEntity(this.secondTarget);
+        if (entity instanceof LivingEntity living && secondEntity instanceof LivingEntity secondLiving) {
+            Vec3 firstPos = living.position();
+            Vec3 secondPos = secondLiving.position();
+            player.teleportTo(secondPos.x, secondPos.y, secondPos.z);
+            secondEntity.teleportTo(firstPos.x, firstPos.y, firstPos.z);
+            living.teleportTo(playerPos.x, playerPos.y, playerPos.z);
+        } else if (entity instanceof LivingEntity living) {
+            teleport(player, living);
+        } else if (secondEntity instanceof LivingEntity secondLiving) {
+            teleport(player, secondLiving);
+        } else {
+            endSpell();
+        }
+    }
+
+    private void handleSwapEffect(Player player, Level level, SpellHandler handler, SkillHandler skills) {
+        if (skills.hasSkill(SkillInit.SHADOW_STEP.value()))
+            addTimedAttributeModifier(player, Attributes.MOVEMENT_SPEED, new AttributeModifier(CommonClass.customLocation("shadow_step"), 1.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), 100);
+
+        if (skills.hasSkill(SkillInit.SNEAK_ATTACK.value())) {
+            addTimedListener(player, SpellEventListener.Events.PRE_DAMAGE, SNEAK_ATTACK, pre -> {
+                pre.setNewDamage(pre.getOriginalDamage() * 1.5F);
+                handler.getListener().removeListener(SpellEventListener.Events.PRE_DAMAGE, SNEAK_ATTACK);
+            }, 100);
+        }
+
+        player.removeEffect(MobEffects.INVISIBILITY);
+        for (Integer entityId : this.targetList) {
+            Entity effectEntity = level.getEntity(entityId);
+            if (effectEntity instanceof LivingEntity living) {
+                living.removeEffect(MobEffects.INVISIBILITY);
+                if (skills.hasSkill(SkillInit.SILENT_EXCHANGE.value()))
+                    living.addEffect(new MobEffectInstance(EffectInit.SILENCED, 100, 0, false, true));
+
+                if (skills.hasSkill(SkillInit.SNARE.value()))
+                    living.addEffect(new MobEffectInstance(EffectInit.ROOTED, 100, 0, false, true));
+
+                if (skills.hasSkill(SkillInit.DISORIENTED.value())) {
+                    living.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 100, 0, false, false));
+                    addTimedListener(living, SpellEventListener.Events.PRE_DAMAGE, DISORIENTED, pre -> {
+                        pre.setNewDamage(pre.getOriginalDamage() * 0.8F);
+                    }, 100);
+                }
+            }
+        }
+
+        if (skills.hasSkill(SkillInit.LIVING_SHADOW.value())) {
+            LivingShadow livingShadow = EntityInit.LIVING_SHADOW.get().create(level);
+            livingShadow.setData(DataInit.OWNER_UUID, player.getStringUUID());
+            livingShadow.setPos(player.position());
+            level.addFreshEntity(livingShadow);
+            player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 100, 0, false, false));
+        }
+    }
+
     @Override
     public @UnknownNullability CompoundTag saveData(CompoundTag compoundTag) {
         compoundTag.putInt("FirstTargetId", this.firstTarget);
         compoundTag.putInt("SecondTargetId", this.secondTarget);
+        compoundTag.putIntArray("TargetList", this.targetList);
         compoundTag.putBoolean("CanReverse", this.canReverse);
         return compoundTag;
     }
@@ -201,6 +214,7 @@ public class ShadowbondSpell extends AnimatedSpell {
         super.load(nbt);
         this.firstTarget = nbt.getInt("FirstTargetId");
         this.secondTarget = nbt.getInt("SecondTargetId");
+        this.targetList = IntArrayList.of(nbt.getIntArray("TargetList"));
         this.canReverse = nbt.getBoolean("CanReverse");
     }
 }

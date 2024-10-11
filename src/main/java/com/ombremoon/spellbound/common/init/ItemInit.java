@@ -28,6 +28,10 @@ public class ItemInit {
 
     public static final Supplier<Item> DEBUG = ITEMS.register("debug", () -> new DebugItem(getItemProperties()));
     public static final Supplier<Item> SOUL_SHARD = registerSimpleItem("soul_shard");
+    public static final Supplier<Item> SMOLDERING_SHARD = registerSimpleItem("smoldering_shard");
+    public static final Supplier<Item> FROZEN_SHARD = registerSimpleItem("frozen_shard");
+    public static final Supplier<Item> STORM_SHARD = registerSimpleItem("storm_shard");
+    public static final Supplier<Item> HOLY_SHARD = registerSimpleItem("holy_shard");
 
     public static final Supplier<Item> SPELL_TOME = ITEMS.register("spell_tome", () -> new SpellTomeItem(getItemProperties()));
     public static final Supplier<Item> MANA_TEAR = registerItem("mana_tear", () -> new ManaTearItem(getItemProperties()));

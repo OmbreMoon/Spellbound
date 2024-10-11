@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common.content.spell.ruin;
+package com.ombremoon.spellbound.common.content.spell.ruin.fire;
 
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;

@@ -1,29 +1,30 @@
 package com.ombremoon.spellbound.common.magic.events;
 
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
 
 public class SpellEvent {
     private final Player player;
-    private final LivingEvent livingEvent;
+    private final Event event;
     protected boolean cancelled;
 
-    public SpellEvent(Player player, LivingEvent event) {
+    public SpellEvent(Player player, Event event) {
         this.player = player;
-        this.livingEvent = event;
+        this.event = event;
     }
 
     public Player getPlayer() {
         return this.player;
     }
 
-    protected LivingEvent getEvent() {
-        return this.livingEvent;
+    protected Event getEvent() {
+        return this.event;
     }
 
     private boolean canCancel() {
-        return this.livingEvent instanceof ICancellableEvent;
+        return this.event instanceof ICancellableEvent;
     }
 
     public boolean isCancelled() {
@@ -32,7 +33,7 @@ public class SpellEvent {
 
     public void cancelEvent() {
         if (!canCancel()) return;
-        ((ICancellableEvent)this.livingEvent).setCanceled(true);
+        ((ICancellableEvent)this.event).setCanceled(true);
         this.cancelled = true;
     }
 }

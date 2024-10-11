@@ -5,8 +5,9 @@ import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.content.spell.TestSpell;
 import com.ombremoon.spellbound.common.content.spell.deception.ShadowbondSpell;
 import com.ombremoon.spellbound.common.content.spell.divine.HealingTouchSpell;
-import com.ombremoon.spellbound.common.content.spell.ruin.SolarRaySpell;
-import com.ombremoon.spellbound.common.content.spell.ruin.VolcanoSpell;
+import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
+import com.ombremoon.spellbound.common.content.spell.ruin.fire.VolcanoSpell;
+import com.ombremoon.spellbound.common.content.spell.ruin.shock.ElectricChargeSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.SummonUndeadSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.WildMushroomSpell;
 import com.ombremoon.spellbound.common.content.spell.transfiguration.ShadowGateSpell;
@@ -37,6 +38,10 @@ public class SpellInit {
             .skills(SkillInit.VOLCANO, SkillInit.INFERNO_CORE, SkillInit.LAVA_FLOW, SkillInit.EXPLOSIVE_BARRAGE,
                     SkillInit.SHRAPNEL, SkillInit.HEATWAVE, SkillInit.SCORCHED_EARTH, SkillInit.SEISMIC_SHOCK,
                     SkillInit.MOLTEN_SHIELD, SkillInit.PYROCLASTIC_CLOUD, SkillInit.APOCALYPSE));
+    public static final Supplier<SpellType<ElectricChargeSpell>> ELECTRIC_CHARGE = registerSpell("electric_charge", shockRuinBuilder("electric_charge", ElectricChargeSpell::new)
+            .skills(SkillInit.ELECTRIC_CHARGE, SkillInit.ELECTRIFICATION, SkillInit.SUPERCONDUCTOR, SkillInit.CYCLONIC_FURY,
+                    SkillInit.OSCILLATION, SkillInit.HIGH_VOLTAGE, SkillInit.UNLEASHED_STORM, SkillInit.STORM_SURGE,
+                    SkillInit.CHAIN_REACTION, SkillInit.AMPLIFY, SkillInit.ALTERNATING_CURRENT));
 
     //Transfiguration
     public static final Supplier<SpellType<ShadowGateSpell>> SHADOW_GATE = registerSpell("shadow_gate", trasnfigurationBuilder("shadow_gate", ShadowGateSpell::new)
@@ -69,6 +74,10 @@ public class SpellInit {
 
     private static <T extends AbstractSpell> SpellType.Builder<T> fireRuinBuilder(String name, SpellType.SpellFactory<T> factory) {
         return new SpellType.Builder<>(name, factory).setPath(SpellPath.RUIN, SpellPath.FIRE);
+    }
+
+    private static <T extends AbstractSpell> SpellType.Builder<T> shockRuinBuilder(String name, SpellType.SpellFactory<T> factory) {
+        return new SpellType.Builder<>(name, factory).setPath(SpellPath.RUIN, SpellPath.SHOCK);
     }
 
     private static <T extends AbstractSpell> SpellType.Builder<T> trasnfigurationBuilder(String name, SpellType.SpellFactory<T> factory) {

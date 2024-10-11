@@ -29,6 +29,7 @@ public class DataTypeInit {
     public static final Supplier<SpellDataType<Long>> LONG = registerDataType("long", ByteBufCodecs.VAR_LONG);
     public static final Supplier<SpellDataType<Float>> FLOAT = registerDataType("float", ByteBufCodecs.FLOAT);
     public static final Supplier<SpellDataType<String>> STRING = registerDataType("string", ByteBufCodecs.STRING_UTF8);
+    public static final Supplier<SpellDataType<Boolean>> BOOLEAN = registerDataType("boolean", ByteBufCodecs.BOOL);
     public static final Supplier<SpellDataType<Component>> COMPONENT = registerDataType("component", ComponentSerialization.TRUSTED_STREAM_CODEC);
     public static final Supplier<SpellDataType<Vector3f>> VECTOR3 = registerDataType("vec3", ByteBufCodecs.VECTOR3F);
 

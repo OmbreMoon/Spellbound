@@ -83,10 +83,11 @@ public class SpellCastEvents {
             PayloadHandler.setCastingSpell(spellType, isRecast);
         }
 
-        if (KeyBinds.getSpellCastMapping().isDown()) {
+        boolean flag = KeyBinds.getSpellCastMapping().isDown();
+        if (flag) {
             int castTime = spell.getCastTime();
             if (handler.castTick >= castTime && !handler.isChannelling()) {
-                if (spell.getCastType() != AbstractSpell.CastType.CHANNEL) KeyBinds.getSpellCastMapping().setDown(false);
+                if (spell.getCastType() == AbstractSpell.CastType.INSTANT) KeyBinds.getSpellCastMapping().setDown(false);
                 castSpell(player, spell);
                 handler.castTick = 0;
             } else if (!handler.isChannelling()){
@@ -107,6 +108,9 @@ public class SpellCastEvents {
             handler.setChannelling(false);
             PayloadHandler.stopChannel();
         }
+
+        handler.setCastKeyDown(flag);
+        PayloadHandler.setCastKey(flag);
     }
 
     private static boolean isAbleToSpellCast() {
@@ -128,6 +132,6 @@ public class SpellCastEvents {
         handler.setCurrentlyCastingSpell(null);
         var animation = (ModifierLayer<IAnimation>) PlayerAnimationAccess.getPlayerAssociatedData((AbstractClientPlayer) player).get(CommonClass.customLocation("animation"));
         if (animation != null)
-            animation.setAnimation(new KeyframeAnimationPlayer((KeyframeAnimation) PlayerAnimationRegistry.getAnimation(CommonClass.customLocation("waving"))));
+            animation.setAnimation(new KeyframeAnimationPlayer((KeyframeAnimation) PlayerAnimationRegistry.getAnimation(CommonClass.customLocation("test"))));
     }
 }

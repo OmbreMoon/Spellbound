@@ -65,7 +65,7 @@ public abstract class AnimatedSpell extends AbstractSpell {
             return this;
         }
 
-        public Builder<T> shouldPersist() {
+        public Builder<T> skipEndOnRecast() {
             this.shouldPersist = true;
             return this;
         }

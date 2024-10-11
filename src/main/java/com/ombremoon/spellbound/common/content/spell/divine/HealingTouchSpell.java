@@ -49,7 +49,7 @@ public class HealingTouchSpell extends AnimatedSpell {
         if (context.isRecast() || context.getLevel().isClientSide) return;
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.POST_DAMAGE, PLAYER_DAMAGE, this::onDamagePost);
 
-        SkillHandler skills = context.getSkillHandler();
+        SkillHandler skills = context.getSkills();
         this.caster = context.getPlayer();
         context.getPlayer().addEffect(new MobEffectInstance(EffectInit.HEALING_TOUCH, getDuration()));
         if (skills.hasSkill(SkillInit.NATURES_TOUCH.value())) context.getPlayer().heal(2f);
@@ -72,7 +72,7 @@ public class HealingTouchSpell extends AnimatedSpell {
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
         if (context.getLevel().isClientSide) return;
-        SkillHandler skills = context.getSkillHandler();
+        SkillHandler skills = context.getSkills();
         Player player = context.getPlayer();
         double maxMana = player.getAttribute(AttributesInit.MAX_MANA).getValue();
         if (player.getEffect(EffectInit.HEALING_TOUCH) == null) {

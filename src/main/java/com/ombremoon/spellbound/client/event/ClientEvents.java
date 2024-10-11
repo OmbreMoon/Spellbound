@@ -6,11 +6,14 @@ import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.gui.CastModeOverlay;
 import com.ombremoon.spellbound.client.renderer.GenericSpellRenderer;
 import com.ombremoon.spellbound.client.renderer.ShadowGateRenderer;
+import com.ombremoon.spellbound.client.renderer.entity.LivingShadowRenderer;
 import com.ombremoon.spellbound.client.renderer.layer.EmissiveOutlineSpellRenderer;
 import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.data.EffectHandler;
 import com.ombremoon.spellbound.common.init.EntityInit;
+import com.ombremoon.spellbound.common.magic.SpellEventListener;
+import com.ombremoon.spellbound.common.magic.events.MouseInputEvent;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
@@ -38,6 +41,7 @@ public class ClientEvents {
             event.registerEntityRenderer(EntityInit.MUSHROOM.get(), GenericSpellRenderer::new);
             event.registerEntityRenderer(EntityInit.SHADOW_GATE.get(), ShadowGateRenderer::new);
             event.registerEntityRenderer(EntityInit.SOLAR_RAY.get(), EmissiveOutlineSpellRenderer::new);
+            event.registerEntityRenderer(EntityInit.LIVING_SHADOW.get(), LivingShadowRenderer::new);
         }
 
         @SubscribeEvent
@@ -71,6 +75,20 @@ public class ClientEvents {
                 player.displayClientMessage(Component.literal("Switched to " + (handler.inCastMode() ? "Cast mode" : "Normal mode")), true);
                 PayloadHandler.switchMode();
             }
+        }
+
+        @SubscribeEvent
+        public static void onMouseInputPre(InputEvent.MouseButton.Pre event) {
+            Player player = Minecraft.getInstance().player;
+            if (player != null)
+                SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.PRE_MOUSE_INPUT, new MouseInputEvent.Pre(player, event));
+        }
+
+        @SubscribeEvent
+        public static void onMouseInputPost(InputEvent.MouseButton.Post event) {
+            Player player = Minecraft.getInstance().player;
+            if (player != null)
+                SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.POST_MOUSE_INPUT, new MouseInputEvent.Post(player, event));
         }
 
         @SubscribeEvent

@@ -26,7 +26,7 @@ public abstract class SmartSpellEntity extends PathfinderMob implements GeoEntit
     
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-    protected SmartSpellEntity(EntityType<? extends Monster> entityType, Level level) {
+    protected SmartSpellEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
     }
 
