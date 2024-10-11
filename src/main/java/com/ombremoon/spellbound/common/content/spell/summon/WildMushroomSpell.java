@@ -39,7 +39,7 @@ public class WildMushroomSpell extends SummonSpell {
     private int explosionInterval;
 
     public static Builder<AnimatedSpell> createMushroomBuilder() {
-        return createSimpleSpellBuilder().duration(180).manaCost(20).partialRecast();
+        return createSummonBuilder().duration(180).manaCost(20).partialRecast();
     }
 
     public WildMushroomSpell() {

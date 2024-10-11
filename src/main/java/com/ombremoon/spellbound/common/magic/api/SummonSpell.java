@@ -33,6 +33,11 @@ public abstract class SummonSpell extends AnimatedSpell {
 
     private final Set<Integer> summons = new HashSet<>();
 
+    public static Builder<AnimatedSpell> createSummonBuilder() {
+        return createSimpleSpellBuilder()
+                .castCondition((context, spell) -> getSpawnPos(context.getPlayer(), context.getLevel()) != null);
+    }
+
     public SummonSpell(SpellType<?> spellType, Builder<?> builder) {
         super(spellType, builder);
     }
@@ -111,7 +116,7 @@ public abstract class SummonSpell extends AnimatedSpell {
      * @param level the Level to check blockstates on
      * @return the BlockPos of a valid spawn position, null if none found
      */
-    private BlockPos getSpawnPos(Player player, Level level) {
+    private static BlockPos getSpawnPos(Player player, Level level) {
         BlockHitResult blockHit = level.clip(setupRayTraceContext(player, 5d, ClipContext.Fluid.NONE));
         if (blockHit.getType() == HitResult.Type.MISS) return null;
         if (blockHit.getDirection() == Direction.DOWN) return null;
