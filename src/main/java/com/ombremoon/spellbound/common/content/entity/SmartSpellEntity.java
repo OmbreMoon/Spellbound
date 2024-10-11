@@ -21,7 +21,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-public abstract class SmartSpellEntity extends PathfinderMob implements GeoEntity, SmartBrainOwner<SmartSpellEntity>, OwnableEntity {
+public abstract class SmartSpellEntity extends PathfinderMob implements GeoEntity, SmartBrainOwner<SmartSpellEntity> {
     private final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(SmartSpellEntity.class, EntityDataSerializers.INT);
     
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -52,7 +52,6 @@ public abstract class SmartSpellEntity extends PathfinderMob implements GeoEntit
     }
 
     @Nullable
-    @Override
     public LivingEntity getOwner() {
         return (LivingEntity) this.level().getEntity(this.entityData.get(OWNER_ID));
     }
