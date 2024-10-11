@@ -34,8 +34,8 @@ public class HealingTouchSpell extends AnimatedSpell {
     private int overgrowthStacks = 0;
     private int blessingDuration = 0;
 
-    private static Builder<AnimatedSpell> createHealingSpell() {
-        return new Builder<>().manaCost(50).duration(300).fullRecast();
+    private static Builder<HealingTouchSpell> createHealingSpell() {
+        return createSimpleSpellBuilder(HealingTouchSpell.class).manaCost(50).duration(300).fullRecast();
     }
 
 

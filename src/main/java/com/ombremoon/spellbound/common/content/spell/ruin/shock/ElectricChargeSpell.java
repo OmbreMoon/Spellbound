@@ -160,7 +160,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
                     target.kill();
                     if (stormSurgeFlag) player.addItem(new ItemStack(ItemInit.STORM_SHARD.get()));
                 } else {
-                    player.hurt(BoxUtil.sentinelDamageSource(level, DamageTypeInit.RUIN_SHOCK, player), player.getMaxHealth() * 0.05F);
+                    player.hurt(BoxUtil.sentinelDamageSource(level, DamageTypeInit.RUIN_SHOCK, player), potency(player.getMaxHealth() * 0.05F));
                 }
             }
 
