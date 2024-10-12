@@ -33,6 +33,7 @@ public class EffectInit {
     public static final Holder<MobEffect> HEALING_TOUCH = EFFECTS.register("healing_touch", () -> new SBEffect(MobEffectCategory.BENEFICIAL, 8889187));
     public static final Holder<MobEffect> AFTERGLOW = EFFECTS.register("afterglow", () -> new SBEffect(MobEffectCategory.BENEFICIAL, 8889187));
     public static final Holder<MobEffect> CATALEPSY = EFFECTS.register("catalepsy", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
+    public static final Holder<MobEffect> BATTLE_CRY = EFFECTS.register("battle_cry", () -> new SBEffect(MobEffectCategory.BENEFICIAL, 8889187)); //Increase damage by 15%
 
     public static void register(IEventBus eventBus) {
         EFFECTS.register(eventBus);

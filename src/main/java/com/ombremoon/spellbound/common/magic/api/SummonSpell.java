@@ -89,11 +89,12 @@ public abstract class SummonSpell extends AnimatedSpell {
      * @return Set containing the IDs of the summoned entities
      * @param <T> Chosen Entity
      */
-    protected <T extends Entity> Set<Integer> addMobs(SpellContext context, EntityType<T> entityType, int mobCount) {
+    protected <T extends Entity> Set<T> addMobs(SpellContext context, EntityType<T> entityType, int mobCount) {
         Level level = context.getLevel();
         Player player = context.getPlayer();
 
         Set<Integer> summonedMobs = new HashSet<>();
+        Set<T> toReturn = new HashSet<>();
         BlockPos blockPos = getSpawnPos(player, level);
         if (blockPos == null) return null;
 
@@ -104,10 +105,11 @@ public abstract class SummonSpell extends AnimatedSpell {
             summon.teleportTo(spawnPos.x, blockPos.getY(), spawnPos.z);
             level.addFreshEntity(summon);
             summonedMobs.add(summon.getId());
+            toReturn.add(summon);
         }
 
         this.summons.addAll(summonedMobs);
-        return summonedMobs;
+        return toReturn;
     }
 
     /**

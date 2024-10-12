@@ -45,6 +45,6 @@ public class ApplySurroundingEffectBehavior<E extends SmartSpellEntity> extends 
     @Override
     protected void start(E entity) {
         List<LivingEntity> entities = entity.level().getEntitiesOfClass(LivingEntity.class, effectArea.apply(entity), applyPredicate);
-        entities.forEach(e -> e.addEffect(mobEffect));
+        entities.forEach(e -> e.addEffect(mobEffect)); //Honestly no clue if u can reuse mob effect instances like this something tells me no for some reason
     }
 }

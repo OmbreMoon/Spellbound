@@ -8,6 +8,7 @@ import com.ombremoon.spellbound.common.content.spell.divine.HealingTouchSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.VolcanoSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.ElectricChargeSpell;
+import com.ombremoon.spellbound.common.content.spell.summon.SpiritTotemSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.SummonUndeadSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.WildMushroomSpell;
 import com.ombremoon.spellbound.common.content.spell.transfiguration.ShadowGateSpell;
@@ -55,6 +56,10 @@ public class SpellInit {
             .skills(SkillInit.WILD_MUSHROOM, SkillInit.VILE_INFLUENCE, SkillInit.HASTENED_GROWTH, SkillInit.ENVENOM,
                     SkillInit.DECOMPOSE, SkillInit.NATURES_DOMINANCE, SkillInit.POISON_ESSENCE,
                     SkillInit.CIRCLE_OF_LIFE, SkillInit.CATALEPSY, SkillInit.RECYCLED, SkillInit.SYNTHESIS));
+    public static final Supplier<SpellType<SpiritTotemSpell>> SPIRIT_TOTEM = registerSpell("conjure_spirit_totem", summonBuilder("conjure_spirit_totem", SpiritTotemSpell::new)
+            .skills(SkillInit.CONJURE_SPIRIT_TOTEM, SkillInit.CATS_AGILITY, SkillInit.FERAL_FURY,
+                    SkillInit.PRIMAL_RESILIENCE, SkillInit.TOTEMIC_BOND, SkillInit.STEALTH_TACTIC, SkillInit.SAVAGE_LEAP,
+                    SkillInit.TOTEMIC_ARMOR, SkillInit.WARRIORS_ROAR, SkillInit.TWIN_SPIRITS, SkillInit.NINE_LIVES));
 
     //Divine
     public static final Supplier<SpellType<HealingTouchSpell>> HEALING_TOUCH = registerSpell("healing_touch", divineBuilder("healing_touch", HealingTouchSpell::new)

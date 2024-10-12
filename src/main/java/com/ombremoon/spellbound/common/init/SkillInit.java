@@ -127,6 +127,19 @@ public class SkillInit {
     public static Holder<Skill> REVERSAL = registerSkill("reversal", 0, 150, preReqs(OBSERVANT));
     public static Holder<Skill> SHADOW_CHAIN = registerSkill("shadow_chain", 50, 150, preReqs(OBSERVANT));
 
+    //Totem Spirit
+    //TODO: Tree
+    public static Holder<Skill> CONJURE_SPIRIT_TOTEM = registerSkill("conjure_cat_totem");
+    public static Holder<Skill> CATS_AGILITY = registerSkill("cats_agility", -50 , 50 , preReqs(CONJURE_SPIRIT_TOTEM));
+    public static Holder<Skill> FERAL_FURY = registerSkill("feral_fury", -50 , 50 , preReqs(CONJURE_SPIRIT_TOTEM));
+    public static Holder<Skill> PRIMAL_RESILIENCE = registerSkill("primal_resilience", -50 , 50 , preReqs(CONJURE_SPIRIT_TOTEM));
+    public static Holder<Skill> TOTEMIC_BOND = registerSkill("totemic_bond", -50 , 50 , preReqs(CONJURE_SPIRIT_TOTEM)); //TODO
+    public static Holder<Skill> STEALTH_TACTIC = registerSkill("stealth_tactic", -50 , 50 , preReqs(CONJURE_SPIRIT_TOTEM)); //TODO
+    public static Holder<Skill> SAVAGE_LEAP = registerSkill("savage_leap", -50 , 50 , preReqs(CONJURE_SPIRIT_TOTEM)); //TODO
+    public static Holder<Skill> TOTEMIC_ARMOR = registerSkill("totemic_armor", -50 , 50 , preReqs(CONJURE_SPIRIT_TOTEM)); //TODO
+    public static Holder<Skill> WARRIORS_ROAR = registerSkill("warriors_roar", -50 , 50 , preReqs(CONJURE_SPIRIT_TOTEM)); //TODO
+    public static Holder<Skill> TWIN_SPIRITS = registerSkill("twin_spirits", -50 , 50 , preReqs(CONJURE_SPIRIT_TOTEM)); //TODO
+    public static Holder<Skill> NINE_LIVES = registerSkill("nine_lives", -50 , 50 , preReqs(CONJURE_SPIRIT_TOTEM)); //TODO
 
     private static Holder<Skill> registerSkill(String name) {
         return SKILLS.register(name, () -> new Skill(CommonClass.customLocation(name)));

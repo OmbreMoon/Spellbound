@@ -58,7 +58,7 @@ public class WildMushroomSpell extends SummonSpell {
                 return;
             }
 
-            this.mushroom = (WildMushroom) context.getLevel().getEntity(mobs.iterator().next());
+            this.mushroom = mobs.iterator().next();
             SkillHandler skillHandler = context.getSkills();
             double radius = skillHandler.hasSkill(SkillInit.VILE_INFLUENCE.value()) ? 3D : 2D;
             this.damageZone = mushroom.getBoundingBox().inflate(radius, 0, radius);
