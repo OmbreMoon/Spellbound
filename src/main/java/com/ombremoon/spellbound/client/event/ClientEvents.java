@@ -4,13 +4,11 @@ import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.gui.CastModeOverlay;
-import com.ombremoon.spellbound.client.renderer.GenericSpellRenderer;
-import com.ombremoon.spellbound.client.renderer.ShadowGateRenderer;
+import com.ombremoon.spellbound.client.renderer.spell.*;
 import com.ombremoon.spellbound.client.renderer.entity.LivingShadowRenderer;
-import com.ombremoon.spellbound.client.renderer.layer.EmissiveOutlineSpellRenderer;
 import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
 import com.ombremoon.spellbound.common.data.SpellHandler;
-import com.ombremoon.spellbound.common.data.EffectHandler;
+import com.ombremoon.spellbound.common.init.EffectInit;
 import com.ombremoon.spellbound.common.init.EntityInit;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.events.MouseInputEvent;
@@ -41,6 +39,7 @@ public class ClientEvents {
             event.registerEntityRenderer(EntityInit.MUSHROOM.get(), GenericSpellRenderer::new);
             event.registerEntityRenderer(EntityInit.SHADOW_GATE.get(), ShadowGateRenderer::new);
             event.registerEntityRenderer(EntityInit.SOLAR_RAY.get(), EmissiveOutlineSpellRenderer::new);
+            event.registerEntityRenderer(EntityInit.STORMSTRIKE_BOLT.get(), EmissiveSpellProjectileRenderer::new);
             event.registerEntityRenderer(EntityInit.LIVING_SHADOW.get(), LivingShadowRenderer::new);
         }
 
@@ -93,7 +92,8 @@ public class ClientEvents {
 
         @SubscribeEvent
         public static void onMovementInput(MovementInputUpdateEvent event) {
-            if (EffectHandler.isRooted(event.getEntity())) {
+            var handler = SpellUtil.getSpellHandler(event.getEntity());
+            if (event.getEntity().hasEffect(EffectInit.ROOTED) || event.getEntity().hasEffect(EffectInit.STUNNED) || handler.isStationary()) {
                 event.getInput().leftImpulse = 0;
                 event.getInput().forwardImpulse = 0;
                 event.getInput().jumping = false;

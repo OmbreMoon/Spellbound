@@ -29,16 +29,15 @@ public class ShadowbondSpell extends AnimatedSpell {
     private final UUID SNEAK_ATTACK = UUID.fromString("c53db9d5-11f4-46ee-b44c-28bc92a2f170");
     private final UUID DISORIENTED = UUID.fromString("77d4c9dc-d806-4f15-a293-1160cf9fb874");
 
-    public static AnimatedSpell.Builder<AnimatedSpell> createShadowbondBuilder() {
-        return createSimpleSpellBuilder().castCondition((context, spell) -> {
+    public static Builder<ShadowbondSpell> createShadowbondBuilder() {
+        return createSimpleSpellBuilder(ShadowbondSpell.class).castCondition((context, spell) -> {
             if (context.isRecast()) {
-                ShadowbondSpell shadowBond = (ShadowbondSpell) spell;
-                if (shadowBond.canReverse) {
+                if (spell.canReverse) {
                     return true;
-                } else if (context.getSkills().hasSkill(SkillInit.SHADOW_CHAIN.value()) && context.getTarget() != null && context.getTarget().getId() != shadowBond.firstTarget) {
-                    return shadowBond.secondTarget == 0;
+                } else if (context.getSkills().hasSkill(SkillInit.SHADOW_CHAIN.value()) && context.getTarget() != null && context.getTarget().getId() != spell.firstTarget) {
+                    return spell.secondTarget == 0;
                 } else {
-                    shadowBond.earlyEnd = true;
+                    spell.earlyEnd = true;
                     return true;
                 }
             }

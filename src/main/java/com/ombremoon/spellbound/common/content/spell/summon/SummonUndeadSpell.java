@@ -8,8 +8,8 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntityType;
 
 public class SummonUndeadSpell extends SummonSpell {
-    public static AnimatedSpell.Builder<AnimatedSpell> createSummonBuilder() {
-        return createSimpleSpellBuilder()
+    public static Builder<SummonUndeadSpell> createSummonBuilder() {
+        return createSimpleSpellBuilder(SummonUndeadSpell.class)
                 .manaCost(10)
                 .duration(180)
                 .castCondition((context, spell) -> context.getLevel().getDifficulty() != Difficulty.PEACEFUL);

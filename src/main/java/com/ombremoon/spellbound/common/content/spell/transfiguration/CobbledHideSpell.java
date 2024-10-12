@@ -23,8 +23,8 @@ public class CobbledHideSpell extends AnimatedSpell {
 
     private List<LivingEntity> buffedTargets;
 
-    private static Builder<AnimatedSpell> hideSpellBuilder() {
-        return createSimpleSpellBuilder().manaCost(30).castTime(20).duration(1200);
+    private static Builder<CobbledHideSpell> hideSpellBuilder() {
+        return createSimpleSpellBuilder(CobbledHideSpell.class).manaCost(30).castTime(20).duration(1200);
     }
 
     public CobbledHideSpell(SpellType<?> spellType) {

@@ -5,8 +5,8 @@ import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 
 public class VolcanoSpell extends AnimatedSpell {
 
-    private static Builder<AnimatedSpell> createVolcanoBuilder() {
-        return createSimpleSpellBuilder().castTime(20);
+    private static Builder<VolcanoSpell> createVolcanoBuilder() {
+        return createSimpleSpellBuilder(VolcanoSpell.class).castTime(20);
     }
 
     public VolcanoSpell() {

@@ -9,7 +9,7 @@ import java.util.function.BiPredicate;
 
 public abstract class AnimatedSpell extends AbstractSpell {
 
-    public static Builder<AnimatedSpell> createSimpleSpellBuilder() {
+    public static <T extends AnimatedSpell> Builder<T> createSimpleSpellBuilder(Class<T> spellClass) {
         return new Builder<>();
     }
 

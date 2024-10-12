@@ -38,8 +38,8 @@ public class WildMushroomSpell extends SummonSpell {
     private int awardedXp = 0;
     private int explosionInterval;
 
-    public static Builder<AnimatedSpell> createMushroomBuilder() {
-        return createSummonBuilder().duration(180).manaCost(20).partialRecast();
+    public static Builder<WildMushroomSpell> createMushroomBuilder() {
+        return createSimpleSpellBuilder(WildMushroomSpell.class).duration(180).manaCost(20).partialRecast();
     }
 
     public WildMushroomSpell() {

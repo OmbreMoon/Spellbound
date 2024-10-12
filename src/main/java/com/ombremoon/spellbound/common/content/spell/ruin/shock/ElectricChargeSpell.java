@@ -6,6 +6,7 @@ import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
+import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
@@ -22,19 +23,16 @@ import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.Set;
 
-//TODO: FIX BUG - DISCHARGE TICK SOMETIMES WILL
-
 public class ElectricChargeSpell extends AnimatedSpell {
     private static final SpellDataKey<Integer> DISCHARGE_TICK = SyncedSpellData.define(ElectricChargeSpell.class, DataTypeInit.INT.get());
-    public static Builder<AnimatedSpell> createElectricChargeBuilder() {
-        return createSimpleSpellBuilder().duration(200).castType(CastType.CHARGING).castCondition((context, spell) -> {
-            ElectricChargeSpell electricCharge = (ElectricChargeSpell) spell;
+    public static Builder<ElectricChargeSpell> createElectricChargeBuilder() {
+        return createSimpleSpellBuilder(ElectricChargeSpell.class).duration(200).castType(CastType.CHARGING).castCondition((context, spell) -> {
             Entity entity = context.getTarget();
-            if (electricCharge.discharging) return false;
+            if (spell.discharging) return false;
             if (entity != null) {
-                return !electricCharge.entityIds.contains(entity.getId());
+                return !spell.entityIds.contains(entity.getId());
             } else {
-                if (electricCharge.entityIds.size() >= 3) electricCharge.discharged = true;
+                if (spell.entityIds.size() >= 3) spell.discharged = true;
                 return context.isRecast();
             }
         }).fullRecast().updateInterval(1);
@@ -141,8 +139,10 @@ public class ElectricChargeSpell extends AnimatedSpell {
                 }
             }
 
-            if (skills.hasSkill(SkillInit.ELECTRIFICATION.value()))
-                log("electrification");
+            if (skills.hasSkill(SkillInit.ELECTRIFICATION.value())) {
+                target.setData(DataInit.STORMSTRIKE_OWNER, player.getId());
+                target.addEffect(new MobEffectInstance(EffectInit.STORMSTRIKE, 120, 0, false, false));
+            }
 
             if (skills.hasSkill(SkillInit.HIGH_VOLTAGE.value()) && player.getOffhandItem().is(ItemInit.STORM_SHARD.get())) {
                 MobEffectInstance mobEffectInstance = new MobEffectInstance(EffectInit.STUNNED, 60, 0, false, false);
@@ -152,6 +152,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
                         paralysisTarget.addEffect(mobEffectInstance);
                 }
                 player.getOffhandItem().shrink(1);
+                addCooldown(SkillInit.HIGH_VOLTAGE.value(), 600);
             }
 
             if (skills.hasSkill(SkillInit.ALTERNATING_CURRENT.value())) {
@@ -159,7 +160,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
                     target.kill();
                     if (stormSurgeFlag) player.addItem(new ItemStack(ItemInit.STORM_SHARD.get()));
                 } else {
-                    player.hurt(BoxUtil.sentinelDamageSource(level, DamageTypeInit.RUIN_SHOCK, player), player.getMaxHealth() * 0.05F);
+                    player.hurt(BoxUtil.sentinelDamageSource(level, DamageTypeInit.RUIN_SHOCK, player), potency(player.getMaxHealth() * 0.05F));
                 }
             }
 

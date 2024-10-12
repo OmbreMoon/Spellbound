@@ -2,11 +2,11 @@ package com.ombremoon.spellbound.common.init;
 
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.content.effects.SBEffect;
+import com.ombremoon.spellbound.common.content.effects.StormstrikeEffect;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
-import net.minecraft.world.entity.Mob;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -29,9 +29,9 @@ public class EffectInit {
     public static final Holder<MobEffect> STUNNED = EFFECTS.register("stunned", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
     public static final Holder<MobEffect> SILENCED = EFFECTS.register("silenced", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
 
-    //Spell
     public static final Holder<MobEffect> HEALING_TOUCH = EFFECTS.register("healing_touch", () -> new SBEffect(MobEffectCategory.BENEFICIAL, 8889187));
     public static final Holder<MobEffect> AFTERGLOW = EFFECTS.register("afterglow", () -> new SBEffect(MobEffectCategory.BENEFICIAL, 8889187));
+    public static final Holder<MobEffect> STORMSTRIKE = EFFECTS.register("stormstrike", () -> new StormstrikeEffect(MobEffectCategory.HARMFUL, 8889187));
     public static final Holder<MobEffect> CATALEPSY = EFFECTS.register("catalepsy", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
     public static final Holder<MobEffect> BATTLE_CRY = EFFECTS.register("battle_cry", () -> new SBEffect(MobEffectCategory.BENEFICIAL, 8889187)); //Increase damage by 15%
 
