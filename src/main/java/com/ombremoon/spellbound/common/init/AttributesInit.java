@@ -13,13 +13,28 @@ public class AttributesInit {
     public static final DeferredRegister<Attribute> ATTRIBUTES = DeferredRegister
             .create(Registries.ATTRIBUTE, Constants.MOD_ID);
 
-    public static Holder<Attribute> MANA_REGEN = ATTRIBUTES.register("mana_regen", () ->
-            new RangedAttribute("attribute.name.spellbound.mana_regen",
-                    1d, 0d, 5d));
+    //Mana
+    public static Holder<Attribute> MANA_REGEN = register("mana_regen", 1d, 0d, 100d);
+    public static Holder<Attribute> MAX_MANA = register("max_mana", 100d, 100d, 5000d);
 
-    public static Holder<Attribute> MAX_MANA = ATTRIBUTES.register("max_mana", () ->
-            new RangedAttribute("attribute.name.spellbound.max_mana",
-                    100d, 0d, 5000d));
+    //Resistances
+    public static Holder<Attribute> MAGIC_RESIST = registerResistance("magic_resistance");
+    public static Holder<Attribute> FIRE_SPELL_RESIST = registerResistance("fire_spell_resistance");
+    public static Holder<Attribute> FROST_SPELL_RESIST = registerResistance("frost_spell_resistance");
+    public static Holder<Attribute> SHOCK_SPELL_RESIST = registerResistance("shock_spell_resistance");
+    public static Holder<Attribute> WIND_SPELL_RESIST = registerResistance("wind_spell_resistance");
+    public static Holder<Attribute> EARTH_SPELL_RESIST = registerResistance("earth_spell_resistance");
+    public static Holder<Attribute> POISON_SPELL_RESIST = registerResistance("poison_spell_resistance");
+    public static Holder<Attribute> DISEASE_SPELL_RESIST = registerResistance("disease_spell_resistance");
+
+    public static Holder<Attribute> registerResistance(String name) {
+        return register(name, 0d, -100d, 100d);
+    }
+
+    public static Holder<Attribute> register(String name, double defaultVal, double min, double max) {
+        return ATTRIBUTES.register(name, () -> new RangedAttribute("attribute.name.spellbound." + name,
+                defaultVal, min, max));
+    }
 
     public static void register(IEventBus eventBus) {
         ATTRIBUTES.register(eventBus);

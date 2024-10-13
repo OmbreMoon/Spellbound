@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.data;
 
+import com.ombremoon.spellbound.common.init.AttributesInit;
 import com.ombremoon.spellbound.common.init.EffectInit;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.Holder;
@@ -8,6 +9,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.tslat.smartbrainlib.APIOnly;
 import org.checkerframework.checker.units.qual.C;
@@ -18,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EffectHandler implements INBTSerializable<CompoundTag> {
-    private final Map<Effect, Integer> buildUp = new HashMap<>();
+    private final Map<Effect, Float> buildUp = new HashMap<>();
     private LivingEntity self;
 
     /**
@@ -72,9 +75,10 @@ public class EffectHandler implements INBTSerializable<CompoundTag> {
      * @param amount amount to increase the build up by
      */
     public void increment(Effect effect, int amount) {
-        Integer progress = buildUp.get(effect);
-        if (progress == null) progress = amount;
-        else progress = Math.clamp(progress + amount, 0, 100);
+        Float progress = buildUp.get(effect);
+        float postResistAmount = amount * (1f - effect.getEntityResistance(self)/100f);
+        if (progress == null) progress = postResistAmount;
+        else progress = Math.clamp(progress + postResistAmount, 0, 100);
 
         buildUp.put(effect, progress);
         if (progress >= 100) tryApplyEffect(effect);
@@ -85,7 +89,7 @@ public class EffectHandler implements INBTSerializable<CompoundTag> {
      * @param effect the effect to check the build up for
      * @return current buildup (0-100)
      */
-    public int getBuildUp(Effect effect) {
+    public float getBuildUp(Effect effect) {
         return buildUp.get(effect);
     }
 
@@ -94,7 +98,7 @@ public class EffectHandler implements INBTSerializable<CompoundTag> {
      * @param effect the effect to clear
      */
     public void clearEffect(Effect effect) {
-        buildUp.put(effect, 0);
+        buildUp.put(effect, 0f);
         self.removeEffect(effect.getEffect());
     }
 
@@ -128,7 +132,7 @@ public class EffectHandler implements INBTSerializable<CompoundTag> {
     public @UnknownNullability CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
         for (Effect effect : this.buildUp.keySet()) {
-            tag.putInt(effect.name(), this.buildUp.get(effect));
+            tag.putFloat(effect.name(), this.buildUp.get(effect));
         }
 
         return tag;
@@ -138,28 +142,51 @@ public class EffectHandler implements INBTSerializable<CompoundTag> {
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
         for (Effect effect : Effect.values()) {
             if (tag.contains(effect.name())) {
-                this.buildUp.put(effect, tag.getInt(effect.name()));
+                this.buildUp.put(effect, tag.getFloat(effect.name()));
             }
         }
     }
 
     public enum Effect {
-        FIRE(EffectInit.INFLAMED),
-        FROST(EffectInit.FROZEN),
-        SHOCK(EffectInit.SHOCKED),
-        WIND(EffectInit.WIND),
-        EARTH(EffectInit.EARTH),
-        POISON(EffectInit.POISON),
-        DISEASE(EffectInit.DISEASE);
+        FIRE(EffectInit.INFLAMED, AttributesInit.FIRE_SPELL_RESIST),
+        FROST(EffectInit.FROZEN, AttributesInit.FROST_SPELL_RESIST),
+        SHOCK(EffectInit.SHOCKED, AttributesInit.SHOCK_SPELL_RESIST),
+        WIND(EffectInit.WIND, AttributesInit.WIND_SPELL_RESIST),
+        EARTH(EffectInit.EARTH, AttributesInit.EARTH_SPELL_RESIST),
+        POISON(EffectInit.POISON, AttributesInit.POISON_SPELL_RESIST),
+        DISEASE(EffectInit.DISEASE, AttributesInit.DISEASE_SPELL_RESIST);
 
         private final Holder<MobEffect> mobEffect;
+        private final Holder<Attribute> resistance;
 
-        Effect(Holder<MobEffect> mobEffect) {
+        Effect(Holder<MobEffect> mobEffect, Holder<Attribute> resistance) {
             this.mobEffect = mobEffect;
+            this.resistance = resistance;
         }
 
+        /**
+         * Gets the mob effect which is applied when this status reaches 100
+         * @return The MobEffect applied when buildup is 100
+         */
         public Holder<MobEffect> getEffect() {
             return mobEffect;
+        }
+
+        /**
+         * The attribute which affects the amount of buildup applied
+         * @return the attribute used in buildup calculations
+         */
+        public Holder<Attribute> getResistance() {
+            return resistance;
+        }
+
+        /**
+         * Gets the value of the resistance attribute that an entity has for negating this effect build up
+         * @param entity The entity to check resistance for
+         * @return The resistance the entity has to the effect (-100 - 100)
+         */
+        public float getEntityResistance(LivingEntity entity) {
+            return (float) entity.getAttribute(resistance).getValue();
         }
     }
 }
