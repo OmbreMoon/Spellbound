@@ -38,6 +38,11 @@ public abstract class AnimatedSpell extends AbstractSpell {
             return this;
         }
 
+        public Builder<T> additionalCondition(BiPredicate<SpellContext, T> castCondition) {
+            this.castPredicate = this.castPredicate.and(castCondition);
+            return this;
+        }
+
         public Builder<T> duration(int duration) {
             this.duration = duration;
             return this;

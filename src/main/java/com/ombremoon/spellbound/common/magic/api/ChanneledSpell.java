@@ -77,6 +77,11 @@ public abstract class ChanneledSpell extends AnimatedSpell {
             return this;
         }
 
+        public Builder<T> additionalCondition(BiPredicate<SpellContext, T> castCondition) {
+            this.castPredicate = this.castPredicate.and(castCondition);
+            return this;
+        }
+
         public Builder<T> castSound(SoundEvent castSound) {
             this.castSound = castSound;
             return this;

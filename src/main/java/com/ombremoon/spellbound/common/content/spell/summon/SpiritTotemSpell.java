@@ -14,8 +14,8 @@ import java.util.Set;
 
 public class SpiritTotemSpell extends SummonSpell {
 
-    public static Builder<AnimatedSpell> createSpiritTotemBuilder() {
-        return createSummonBuilder().manaCost(50).duration(600);
+    public static Builder<SpiritTotemSpell> createSpiritTotemBuilder() {
+        return createSummonBuilder(SpiritTotemSpell.class).manaCost(50).duration(600);
     }
 
     public SpiritTotemSpell() {

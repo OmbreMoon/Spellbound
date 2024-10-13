@@ -6,6 +6,7 @@ import com.ombremoon.spellbound.common.init.DataTypeInit;
 import com.ombremoon.spellbound.common.init.SpellInit;
 import com.ombremoon.spellbound.common.init.StatInit;
 import com.ombremoon.spellbound.common.magic.api.ModifierType;
+import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import com.ombremoon.spellbound.common.magic.events.SpellEvent;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataHolder;
@@ -594,6 +595,11 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
         public Builder<T> castCondition(BiPredicate<SpellContext, T> castCondition) {
             this.castPredicate = castCondition;
+            return this;
+        }
+
+        public Builder<T> additionalCondition(BiPredicate<SpellContext, T> castCondition) {
+            this.castPredicate = this.castPredicate.and(castCondition);
             return this;
         }
 

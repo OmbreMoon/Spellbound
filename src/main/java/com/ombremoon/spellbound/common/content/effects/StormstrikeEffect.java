@@ -64,6 +64,7 @@ public class StormstrikeEffect extends SBEffect {
                 livingEntity.addEffect(new MobEffectInstance(EffectInit.STUNNED, 20, 0, false, false));
 
             if (livingEntity.hurt(BoxUtil.sentinelDamageSource(livingEntity.level(), DamageTypeInit.RUIN_SHOCK, entity), damage)) {
+                livingEntity.setData(DataInit.STORMSTRIKE_FLAG, false);
                 if (livingEntity.isDeadOrDying()) {
                     if (skills.hasSkill(SkillInit.STORM_SHARD.value()) && owner instanceof Player player)
                         player.addItem(new ItemStack(ItemInit.STORM_SHARD.get()));
@@ -86,8 +87,10 @@ public class StormstrikeEffect extends SBEffect {
             var skills = SpellUtil.getSkillHandler(owner);
             StormstrikeSpell spell = SpellInit.STORMSTRIKE.get().createSpell();
 
-            if (skills.hasSkill(SkillInit.REFRACTION.value()))
+            if (skills.hasSkill(SkillInit.REFRACTION.value()) && damageSource.is(DamageTypeInit.RUIN_SHOCK) && damageSource.getEntity() != null && damageSource.getEntity().is(owner) && livingEntity.getData(DataInit.STORMSTRIKE_FLAG)) {
                 handler.awardMana(20 + skills.getSpellLevel(spell.getSpellType()) * 2);
+                livingEntity.setData(DataInit.STORMSTRIKE_FLAG, true);
+            }
         }
     }
 

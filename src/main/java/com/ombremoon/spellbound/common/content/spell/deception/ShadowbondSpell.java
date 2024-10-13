@@ -36,7 +36,7 @@ public class ShadowbondSpell extends AnimatedSpell {
                     return true;
                 } else if (context.getSkills().hasSkill(SkillInit.SHADOW_CHAIN.value()) && context.getTarget() != null && context.getTarget().getId() != spell.firstTarget) {
                     return spell.secondTarget == 0;
-                } else {
+                } else if (!spell.earlyEnd) {
                     spell.earlyEnd = true;
                     return true;
                 }
@@ -192,7 +192,7 @@ public class ShadowbondSpell extends AnimatedSpell {
 
         if (skills.hasSkill(SkillInit.LIVING_SHADOW.value())) {
             LivingShadow livingShadow = EntityInit.LIVING_SHADOW.get().create(level);
-            livingShadow.setData(DataInit.OWNER_UUID, player.getStringUUID());
+            livingShadow.setData(DataInit.OWNER_ID, player.getId());
             livingShadow.setPos(player.position());
             level.addFreshEntity(livingShadow);
             player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 100, 0, false, false));

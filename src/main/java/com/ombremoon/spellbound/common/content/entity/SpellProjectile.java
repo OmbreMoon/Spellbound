@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.content.entity;
 
+import com.ombremoon.spellbound.common.init.BlockInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.EntityType;
@@ -7,6 +8,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -54,15 +56,14 @@ public abstract class SpellProjectile extends Projectile implements GeoEntity {
         double d2 = this.getZ() + vec3.z;
         this.updateRotation();
         float f = 0.99F;
-        if (this.level().getBlockStates(this.getBoundingBox()).noneMatch(BlockBehaviour.BlockStateBase::isAir)) {
+        if (this.level().getBlockStates(this.getBoundingBox()).noneMatch(state -> state.isAir() || state.is(Blocks.WATER))) {
             this.discard();
         } else if (this.isInWaterOrBubble()) {
-            this.discard();
-        } else {
-            this.setDeltaMovement(vec3.scale(0.99F));
-            this.applyGravity();
-            this.setPos(d0, d1, d2);
+            f = 0.89F;
         }
+        this.setDeltaMovement(vec3.scale(f));
+        this.applyGravity();
+        this.setPos(d0, d1, d2);
     }
 
     @Override

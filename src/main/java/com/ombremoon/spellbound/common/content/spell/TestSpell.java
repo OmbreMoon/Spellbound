@@ -34,7 +34,7 @@ public class TestSpell extends ChanneledSpell {
         Constants.LOG.info("Working");
         if (!context.getLevel().isClientSide) {
             LivingShadow livingShadow = EntityInit.LIVING_SHADOW.get().create(context.getLevel());
-            livingShadow.setData(DataInit.OWNER_UUID, context.getPlayer().getStringUUID());
+            livingShadow.setData(DataInit.OWNER_ID, context.getPlayer().getId());
             livingShadow.setPos(context.getPlayer().position());
             context.getLevel().addFreshEntity(livingShadow);
         }

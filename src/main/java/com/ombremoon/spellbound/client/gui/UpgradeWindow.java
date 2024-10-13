@@ -29,7 +29,7 @@ public class UpgradeWindow {
     private int maxX = Integer.MIN_VALUE;
     private int maxY = Integer.MIN_VALUE;
     private float fade;
-    private boolean centered;
+    protected boolean centered;
 
     public UpgradeWindow(Minecraft minecraft, WorkbenchScreen screen, SkillNode rootNode) {
         this.minecraft = minecraft;
@@ -45,7 +45,7 @@ public class UpgradeWindow {
 
     public void drawContents(GuiGraphics guiGraphics, int x, int y) {
         if (!this.centered) {
-            this.scrollX = (74 - (double) (this.maxX + this.minX) / 2);
+            this.scrollX = 60;
             this.scrollY = 80;
             this.centered = true;
         }

@@ -1,12 +1,9 @@
 package com.ombremoon.spellbound.util;
 
 import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
-import com.ombremoon.spellbound.common.content.entity.SmartSpellEntity;
-import com.ombremoon.spellbound.common.content.entity.SpellEntity;
 import com.ombremoon.spellbound.common.data.SpellHandler;
 import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
-import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -27,7 +24,7 @@ public class SummonUtil {
      * @param owner The owner of the summon
      */
     public static void setOwner(@NotNull Entity entity, @NotNull LivingEntity owner) {
-        entity.setData(DataInit.OWNER_UUID, owner.getUUID().toString());
+        entity.setData(DataInit.OWNER_ID, owner.getId());
         if (entity instanceof ISpellEntity spellEntity)
             spellEntity.setOwner(owner);
     }
@@ -38,9 +35,9 @@ public class SummonUtil {
      * @return The Player that owns the entity, null if unowned
      */
     @Nullable
-    public static Player getOwner(@NotNull Entity entity) {
-        if (!entity.hasData(DataInit.OWNER_UUID)) return null;
-        return entity.level().getPlayerByUUID(UUID.fromString(entity.getData(DataInit.OWNER_UUID)));
+    public static Entity getOwner(@NotNull Entity entity) {
+        if (!entity.hasData(DataInit.OWNER_ID)) return null;
+        return entity.level().getEntity(entity.getData(DataInit.OWNER_ID));
     }
 
     /**
@@ -88,8 +85,8 @@ public class SummonUtil {
      * @return true if owner, false if no owner/not the owner
      */
     public static boolean isSummonOf(@NotNull Entity summon, @NotNull LivingEntity owner) {
-        Player player = getOwner(summon);
-        if (player == null) return false;
-        return player.is(owner);
+        Entity entity = getOwner(summon);
+        if (entity == null) return false;
+        return entity.is(owner);
     }
 }

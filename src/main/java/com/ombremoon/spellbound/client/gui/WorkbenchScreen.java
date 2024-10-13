@@ -76,6 +76,7 @@ public class WorkbenchScreen extends Screen {
                 this.selectedIndex = i;
                 if (this.spellList.size() > i + scrollIndex) {
                     this.selectedSpell = this.spellList.get(i + scrollIndex);
+                    if (this.selectedTree != null) this.selectedTree.centered = false;
                     this.selectedTree = this.spellTrees.get(this.selectedSpell);
                     this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                     return true;

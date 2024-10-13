@@ -26,11 +26,23 @@ public class StormstrikeBolt extends SpellProjectile {
     }
 
     @Override
+    public void tick() {
+        super.tick();
+        if (this.isInWaterOrBubble()) {
+            hurtSurroundingEnemies(this, 5, true);
+            this.discard();
+        }
+    }
+
+    @Override
     protected void onHitEntity(EntityHitResult result) {
         super.onHitEntity(result);
         if (!this.level().isClientSide) {
             Entity owner = this.getOwner();
             Entity entity = result.getEntity();
+
+            if (entity.is(owner)) return;
+
             if (entity instanceof LivingEntity livingEntity) {
                 if (owner instanceof LivingEntity living) {
                     livingEntity.setData(DataInit.STORMSTRIKE_OWNER.get(), living.getId());
@@ -51,16 +63,34 @@ public class StormstrikeBolt extends SpellProjectile {
             if (owner instanceof LivingEntity livingEntity) {
                 var skills = SpellUtil.getSkillHandler(livingEntity);
                 if (skills.hasSkill(SkillInit.STATIC_SHOCK.value())) {
-                    var entities = this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(4), EntitySelector.NO_CREATIVE_OR_SPECTATOR);
-                    for (Entity entity : entities) {
-                        if (entity instanceof LivingEntity target && !target.is(owner) && !target.isAlliedTo(owner)) {
-                            AbstractSpell spell = SpellInit.STORMSTRIKE.get().createSpell();
-                            target.hurt(BoxUtil.sentinelDamageSource(level(), DamageTypeInit.RUIN_SHOCK, owner), spell.getModifier(ModifierType.POTENCY, livingEntity) * 5);
-                        }
-                    }
+                    hurtSurroundingEnemies(livingEntity, 3, false);
                 }
             }
         }
         super.onHitBlock(result);
+    }
+
+    private void hurtSurroundingEnemies(Entity owner, int range, boolean inWater) {
+        if (!owner.level().isClientSide) {
+            var entities = this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(range), EntitySelector.NO_CREATIVE_OR_SPECTATOR);
+            for (Entity entity : entities) {
+                if (entity instanceof LivingEntity target && !target.is(owner) && !target.isAlliedTo(owner)) {
+                    AbstractSpell spell = SpellInit.STORMSTRIKE.get().createSpell();
+                    float damage = 5F;
+                    if (owner instanceof LivingEntity livingEntity) {
+                        damage = spell.getModifier(ModifierType.POTENCY, livingEntity) * 5;
+
+                        if (inWater && target.isInWaterOrBubble()) {
+                            target.setData(DataInit.STORMSTRIKE_OWNER.get(), livingEntity.getId());
+                            target.addEffect(new MobEffectInstance(EffectInit.STORMSTRIKE, 120, 0, false, false));
+                        }
+                    }
+
+                    if (inWater && !target.isInWaterOrBubble()) return;
+
+                    target.hurt(BoxUtil.sentinelDamageSource(level(), DamageTypeInit.RUIN_SHOCK, owner), damage);
+                }
+            }
+        }
     }
 }

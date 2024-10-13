@@ -9,7 +9,7 @@ import net.minecraft.world.level.Level;
 
 public class StormstrikeSpell extends AnimatedSpell {
     public static Builder<StormstrikeSpell> createStormstrikeBuilder() {
-        return createSimpleSpellBuilder(StormstrikeSpell.class).updateInterval(2);
+        return createSimpleSpellBuilder(StormstrikeSpell.class).manaCost(20);
     }
 
     public StormstrikeSpell() {

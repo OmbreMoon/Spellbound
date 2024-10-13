@@ -15,8 +15,7 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 
 //TODO: General - Discuss Path Shards with team
-//TODO: SummonSpell - Remind Duck of persisting summon bug
-//TODO: WorkbenchScreen - Reset position when tab switched
+//TODO: General - Discuss with Duck about bobHurt in GameRenderer
 
 @Mod(Constants.MOD_ID)
 public class Spellbound {

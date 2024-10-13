@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.common.content.entity;
 
 import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.util.Loggable;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -21,8 +22,8 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-public abstract class SmartSpellEntity extends PathfinderMob implements GeoEntity, SmartBrainOwner<SmartSpellEntity> {
-    private final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(SmartSpellEntity.class, EntityDataSerializers.INT);
+public abstract class SmartSpellEntity extends PathfinderMob implements GeoEntity, SmartBrainOwner<SmartSpellEntity>, Loggable {
+    private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(SmartSpellEntity.class, EntityDataSerializers.INT);
     
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -67,6 +68,12 @@ public abstract class SmartSpellEntity extends PathfinderMob implements GeoEntit
     protected boolean isOwnersTarget(LivingEntity entity) {
         if (!this.hasData(DataInit.TARGET_ID)) return false;
         return entity.getId() == this.getData(DataInit.TARGET_ID);
+    }
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(OWNER_ID, 0);
     }
 
     @Override

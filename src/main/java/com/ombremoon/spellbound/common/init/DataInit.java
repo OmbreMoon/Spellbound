@@ -41,8 +41,8 @@ public class DataInit {
             "upgrade_tree", () -> AttachmentType.serializable(UpgradeTree::new).copyOnDeath().build());
 
     //Summons
-    public static final Supplier<AttachmentType<String>> OWNER_UUID = ATTACHMENT_TYPES.register(
-            "owner_uuid", () -> AttachmentType.builder(() -> "").build());
+    public static final Supplier<AttachmentType<Integer>> OWNER_ID = ATTACHMENT_TYPES.register(
+            "owner_id", () -> AttachmentType.builder(() -> 0).build());
     public static final Supplier<AttachmentType<Integer>> TARGET_ID = ATTACHMENT_TYPES.register(
             "target_id", () -> AttachmentType.builder(() -> 0).build());
 
@@ -51,6 +51,8 @@ public class DataInit {
             "heat_tick", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
     public static final Supplier<AttachmentType<Integer>> STORMSTRIKE_OWNER = ATTACHMENT_TYPES.register(
             "stormstrike_owner", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
+    public static final Supplier<AttachmentType<Boolean>> STORMSTRIKE_FLAG = ATTACHMENT_TYPES.register(
+            "stormstrike_flag", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).build());
 
     //Components
     public static final Supplier<DataComponentType<String>> SPELL = COMPONENT_TYPES.registerComponentType("spell",

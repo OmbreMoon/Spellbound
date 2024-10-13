@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.content.entity.living;
 
 import com.ombremoon.spellbound.common.content.entity.SmartSpellEntity;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;

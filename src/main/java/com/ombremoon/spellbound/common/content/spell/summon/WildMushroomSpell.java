@@ -9,7 +9,6 @@ import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.SpellModifier;
-import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import com.ombremoon.spellbound.common.magic.events.PlayerKillEvent;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -39,7 +38,7 @@ public class WildMushroomSpell extends SummonSpell {
     private int explosionInterval;
 
     public static Builder<WildMushroomSpell> createMushroomBuilder() {
-        return createSimpleSpellBuilder(WildMushroomSpell.class).duration(180).manaCost(20).partialRecast();
+        return createSummonBuilder(WildMushroomSpell.class).duration(180).manaCost(20).partialRecast();
     }
 
     public WildMushroomSpell() {
@@ -51,7 +50,7 @@ public class WildMushroomSpell extends SummonSpell {
         super.onSpellStart(context);
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.PLAYER_KILL, PLAYER_KILL, this::playerKill);
         if (!context.getLevel().isClientSide) {
-            var mobs = addMobs(context, EntityInit.MUSHROOM.get(), 1);
+            var mobs = summonMobs(context, EntityInit.MUSHROOM.get(), 1);
             if (mobs == null || !mobs.iterator().hasNext()) {
                 endSpell();
                 context.getSpellHandler().awardMana(this.getManaCost());

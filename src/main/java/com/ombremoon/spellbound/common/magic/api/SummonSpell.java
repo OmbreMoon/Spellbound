@@ -12,6 +12,7 @@ import com.ombremoon.spellbound.util.SpellUtil;
 import com.ombremoon.spellbound.util.SummonUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -25,7 +26,10 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.BiPredicate;
 
 public abstract class SummonSpell extends AnimatedSpell {
     private static final UUID DAMAGE_EVENT = UUID.fromString("79e708db-b942-4ca0-a6e8-2614f087881f");
@@ -33,9 +37,9 @@ public abstract class SummonSpell extends AnimatedSpell {
 
     private final Set<Integer> summons = new HashSet<>();
 
-    public static Builder<AnimatedSpell> createSummonBuilder() {
-        return createSimpleSpellBuilder()
-                .castCondition((context, spell) -> getSpawnPos(context.getPlayer(), context.getLevel()) != null);
+    @SuppressWarnings("unchecked")
+    public static <T extends SummonSpell> Builder<T> createSummonBuilder(Class<T> spellClass) {
+        return (Builder<T>) new Builder<>().castCondition((context, spell) -> getSpawnPos(context.getPlayer(), context.getLevel()) != null);
     }
 
     public SummonSpell(SpellType<?> spellType, Builder<?> builder) {
@@ -89,7 +93,7 @@ public abstract class SummonSpell extends AnimatedSpell {
      * @return Set containing the IDs of the summoned entities
      * @param <T> Chosen Entity
      */
-    protected <T extends Entity> Set<T> addMobs(SpellContext context, EntityType<T> entityType, int mobCount) {
+    protected <T extends Entity> Set<T> summonMobs(SpellContext context, EntityType<T> entityType, int mobCount) {
         Level level = context.getLevel();
         Player player = context.getPlayer();
 
@@ -152,10 +156,69 @@ public abstract class SummonSpell extends AnimatedSpell {
 
         if (event.getNewAboutToBeSetTarget() == null) return;
 
-        LivingEntity owner = SummonUtil.getOwner(event.getEntity());
+        Entity owner = SummonUtil.getOwner(event.getEntity());
         if (owner == null) return;
 
         LivingEntity target = SummonUtil.getTarget(event.getEntity());
         event.setNewAboutToBeSetTarget(target);
+    }
+
+    public static class Builder<T extends SummonSpell> extends AnimatedSpell.Builder<T> {
+        public Builder<T> manaCost(int fpCost) {
+            this.manaCost = fpCost;
+            return this;
+        }
+
+        public Builder<T> castTime(int castTime) {
+            this.castTime = castTime;
+            return this;
+        }
+
+        public Builder<T> castCondition(BiPredicate<SpellContext, T> castCondition) {
+            this.castPredicate = castCondition;
+            return this;
+        }
+
+        public Builder<T> additionalCondition(BiPredicate<SpellContext, T> castCondition) {
+            this.castPredicate = this.castPredicate.and(castCondition);
+            return this;
+        }
+
+        public Builder<T> duration(int duration) {
+            this.duration = duration;
+            return this;
+        }
+
+        public Builder<T> castType(CastType castType) {
+            this.castType = castType;
+            return this;
+        }
+
+        public Builder<T> castSound(SoundEvent castSound) {
+            this.castSound = castSound;
+            return this;
+        }
+
+        public Builder<T> partialRecast() {
+            this.partialRecast = true;
+            this.fullRecast = false;
+            return this;
+        }
+
+        public Builder<T> fullRecast() {
+            this.fullRecast = true;
+            this.partialRecast = false;
+            return this;
+        }
+
+        public Builder<T> skipEndOnRecast() {
+            this.shouldPersist = true;
+            return this;
+        }
+
+        public Builder<T> updateInterval(int updateInterval) {
+            this.updateInterval = updateInterval;
+            return this;
+        }
     }
 }
