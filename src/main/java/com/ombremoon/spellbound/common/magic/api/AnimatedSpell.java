@@ -23,8 +23,8 @@ public abstract class AnimatedSpell extends AbstractSpell {
     }
 
     public static class Builder<T extends AnimatedSpell> extends AbstractSpell.Builder<T> {
-        public Builder<T> manaCost(int fpCost) {
-            this.manaCost = fpCost;
+        public Builder<T> manaCost(int manaCost) {
+            this.manaCost = manaCost;
             return this;
         }
 
@@ -71,7 +71,7 @@ public abstract class AnimatedSpell extends AbstractSpell {
         }
 
         public Builder<T> skipEndOnRecast() {
-            this.shouldPersist = true;
+            this.skipEndOnRecast = true;
             return this;
         }
 

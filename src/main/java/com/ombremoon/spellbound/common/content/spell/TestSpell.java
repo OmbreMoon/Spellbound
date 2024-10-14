@@ -45,7 +45,7 @@ public class TestSpell extends ChanneledSpell {
         super.whenCasting(context, castTime);
         Constants.LOG.info("{}", castTime);
         if (!context.getLevel().isClientSide)
-            addScreenShake(context.getPlayer(), 10, 5);
+            shakeScreen(context.getPlayer(), 10, 5);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class TestSpell extends ChanneledSpell {
         }
 
         if (!context.getLevel().isClientSide)
-            addScreenShake(context.getPlayer(), 10, 5);
+            shakeScreen(context.getPlayer(), 10, 5);
     }
 
     @Override

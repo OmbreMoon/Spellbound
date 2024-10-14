@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.common.init;
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataType;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -31,6 +32,7 @@ public class DataTypeInit {
     public static final Supplier<SpellDataType<String>> STRING = registerDataType("string", ByteBufCodecs.STRING_UTF8);
     public static final Supplier<SpellDataType<Boolean>> BOOLEAN = registerDataType("boolean", ByteBufCodecs.BOOL);
     public static final Supplier<SpellDataType<Component>> COMPONENT = registerDataType("component", ComponentSerialization.TRUSTED_STREAM_CODEC);
+    public static final Supplier<SpellDataType<BlockPos>> BLOCK_POS = registerDataType("block_pos", BlockPos.STREAM_CODEC);
     public static final Supplier<SpellDataType<Vector3f>> VECTOR3 = registerDataType("vec3", ByteBufCodecs.VECTOR3F);
 
     private static <T> Supplier<SpellDataType<T>> registerDataType(String name, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec) {

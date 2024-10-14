@@ -1,14 +1,10 @@
 package com.ombremoon.spellbound.common.magic.api;
 
-import com.ombremoon.spellbound.common.content.entity.SpellEntity;
-import com.ombremoon.spellbound.common.data.SpellHandler;
-import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.events.ChangeTargetEvent;
 import com.ombremoon.spellbound.common.magic.events.PlayerDamageEvent;
-import com.ombremoon.spellbound.util.SpellUtil;
 import com.ombremoon.spellbound.util.SummonUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -24,7 +20,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -164,8 +159,8 @@ public abstract class SummonSpell extends AnimatedSpell {
     }
 
     public static class Builder<T extends SummonSpell> extends AnimatedSpell.Builder<T> {
-        public Builder<T> manaCost(int fpCost) {
-            this.manaCost = fpCost;
+        public Builder<T> manaCost(int manaCost) {
+            this.manaCost = manaCost;
             return this;
         }
 
@@ -212,7 +207,7 @@ public abstract class SummonSpell extends AnimatedSpell {
         }
 
         public Builder<T> skipEndOnRecast() {
-            this.shouldPersist = true;
+            this.skipEndOnRecast = true;
             return this;
         }
 

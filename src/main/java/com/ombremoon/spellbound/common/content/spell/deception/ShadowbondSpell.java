@@ -36,7 +36,7 @@ public class ShadowbondSpell extends AnimatedSpell {
                     return true;
                 } else if (context.getSkills().hasSkill(SkillInit.SHADOW_CHAIN.value()) && context.getTarget() != null && context.getTarget().getId() != spell.firstTarget) {
                     return spell.secondTarget == 0;
-                } else if (!spell.earlyEnd) {
+                } else if (!spell.earlyEnd && !spell.canReverse) {
                     spell.earlyEnd = true;
                     return true;
                 }
@@ -63,11 +63,12 @@ public class ShadowbondSpell extends AnimatedSpell {
         var skills = context.getSkills();
         if (livingEntity == null) return;
         int id = livingEntity.getId();
+        boolean flag = skills.hasSkill(SkillInit.SHADOW_CHAIN.value());
 
         if (id > 0) {
-            if (context.isRecast() && !this.canReverse) {
+            if (context.isRecast() && !this.canReverse && flag && this.secondTarget == 0) {
                 this.secondTarget = id;
-            } else if (!context.isRecast()){
+            } else if (!context.isRecast() && this.firstTarget == 0){
                 this.firstTarget = id;
             }
         }
@@ -100,6 +101,7 @@ public class ShadowbondSpell extends AnimatedSpell {
             if (this.earlyEnd) {
                 this.canReverse = skills.hasSkill(SkillInit.REVERSAL.value()) && !this.targetList.isEmpty();
                 handleSwapEffect(player, level, handler, skills);
+                if (!this.canReverse) endSpell();
             } else {
                 endSpell();
             }
