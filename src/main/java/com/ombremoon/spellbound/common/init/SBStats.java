@@ -9,7 +9,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Supplier;
 
-public class StatInit {
+public class SBStats {
     public static final DeferredRegister<ResourceLocation> STATS = DeferredRegister.create(Registries.CUSTOM_STAT, Constants.MOD_ID);
 
     public static final Supplier<ResourceLocation> SPELLS_LEARNED = registerStat("spells_learned");

@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.common.magic.skills;
 
 import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.common.init.SkillInit;
+import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import net.minecraft.Util;
@@ -64,7 +64,7 @@ public class Skill {
     }
 
     public ResourceLocation location() {
-        return SkillInit.REGISTRY.getKey(this);
+        return SBSkills.REGISTRY.getKey(this);
     }
 
     public String getNameId() {
@@ -104,7 +104,7 @@ public class Skill {
     }
 
     public static Skill byName(ResourceLocation resourceLocation) {
-        return SkillInit.REGISTRY.get(resourceLocation);
+        return SBSkills.REGISTRY.get(resourceLocation);
     }
 
     public SpellType<?> getSpell() {

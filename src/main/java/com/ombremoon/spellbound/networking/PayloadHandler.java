@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.networking;
 
 import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
@@ -74,7 +74,7 @@ public class PayloadHandler {
     public static void syncSkillsToClient(Player player) {
         PacketDistributor.sendToPlayer((ServerPlayer) player,
                 new SyncSkillPayload(
-                        SpellUtil.getSkillHandler(player)
+                        SpellUtil.getSkillHolder(player)
                                 .serializeNBT(player.level().registryAccess())
                 ));
     }
@@ -85,7 +85,7 @@ public class PayloadHandler {
 
     public static void syncMana(Player player) {
         PacketDistributor.sendToPlayer((ServerPlayer) player,
-                new ClientSyncManaPayload(player.getData(DataInit.MANA)));
+                new ClientSyncManaPayload(player.getData(SBData.MANA)));
     }
 
     public static void openWorkbenchScreen(Player player) {
@@ -94,10 +94,6 @@ public class PayloadHandler {
 
     public static void updateTree(Player player, boolean reset, List<Skill> added, Set<ResourceLocation> removed) {
         PacketDistributor.sendToPlayer((ServerPlayer) player, new UpdateTreePayload(reset, added, removed));
-    }
-
-    public static void shakeScreen(Player player, int duration, float intensity, float maxOffset, int freq) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player, new ShakeScreenPayload(duration, intensity, maxOffset, freq));
     }
 
     public static void setRotation(Player player, float xRot, float yRot) {
@@ -195,11 +191,6 @@ public class PayloadHandler {
                 UpdateTreePayload.TYPE,
                 UpdateTreePayload.STREAM_CODEC,
                 ClientPayloadHandler::handleClientUpdateTree
-        );
-        registrar.playToClient(
-                ShakeScreenPayload.TYPE,
-                ShakeScreenPayload.STREAM_CODEC,
-                ClientPayloadHandler::handleClientShakeScreen
         );
         registrar.playToClient(
                 SetRotationPayload.TYPE,

@@ -7,9 +7,8 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import org.w3c.dom.Attr;
 
-public class AttributesInit {
+public class SBAttributes {
     public static final DeferredRegister<Attribute> ATTRIBUTES = DeferredRegister
             .create(Registries.ATTRIBUTE, Constants.MOD_ID);
 

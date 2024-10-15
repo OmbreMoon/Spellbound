@@ -1,8 +1,8 @@
 package com.ombremoon.spellbound;
 
-import com.ombremoon.spellbound.common.init.DataTypeInit;
-import com.ombremoon.spellbound.common.init.SkillInit;
-import com.ombremoon.spellbound.common.init.SpellInit;
+import com.ombremoon.spellbound.common.init.SBDataTypes;
+import com.ombremoon.spellbound.common.init.SBSkills;
+import com.ombremoon.spellbound.common.init.SBSpells;
 import dev.kosmx.playerAnim.api.layered.IAnimation;
 import dev.kosmx.playerAnim.api.layered.ModifierLayer;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationFactory;
@@ -40,8 +40,8 @@ public class Spellbound {
     }
 
     private void registerRegistry(NewRegistryEvent event) {
-        event.register(SpellInit.REGISTRY);
-        event.register(SkillInit.REGISTRY);
-        event.register(DataTypeInit.REGISTRY);
+        event.register(SBSpells.REGISTRY);
+        event.register(SBSkills.REGISTRY);
+        event.register(SBDataTypes.REGISTRY);
     }
 }

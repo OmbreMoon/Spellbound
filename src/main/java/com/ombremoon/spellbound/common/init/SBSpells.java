@@ -24,7 +24,7 @@ import net.neoforged.neoforge.registries.RegistryBuilder;
 
 import java.util.function.Supplier;
 
-public class SpellInit {
+public class SBSpells {
     public static final ResourceKey<Registry<SpellType<?>>> SPELL_TYPE_REGISTRY_KEY = ResourceKey.createRegistryKey(CommonClass.customLocation("spell_type"));
     public static final Registry<SpellType<?>> REGISTRY = new RegistryBuilder<>(SPELL_TYPE_REGISTRY_KEY).sync(true).create();
     public static final DeferredRegister<SpellType<?>> SPELL_TYPES = DeferredRegister.create(REGISTRY, Constants.MOD_ID);
@@ -33,50 +33,50 @@ public class SpellInit {
 
     //Ruin
     public static final Supplier<SpellType<SolarRaySpell>> SOLAR_RAY = registerSpell("solar_ray", fireRuinBuilder("solar_ray", SolarRaySpell::new)
-            .skills(SkillInit.SOLAR_RAY, SkillInit.SUNSHINE, SkillInit.RADIANCE, SkillInit.HEALING_LIGHT,
-                    SkillInit.CONCENTRATED_HEAT, SkillInit.OVERHEAT, SkillInit.SOLAR_BURST,
-                    SkillInit.SOLAR_BORE, SkillInit.BLINDING_LIGHT, SkillInit.AFTERGLOW, SkillInit.POWER_OF_THE_SUN));
+            .skills(SBSkills.SOLAR_RAY, SBSkills.SUNSHINE, SBSkills.RADIANCE, SBSkills.HEALING_LIGHT,
+                    SBSkills.CONCENTRATED_HEAT, SBSkills.OVERHEAT, SBSkills.SOLAR_BURST,
+                    SBSkills.SOLAR_BORE, SBSkills.BLINDING_LIGHT, SBSkills.AFTERGLOW, SBSkills.POWER_OF_THE_SUN));
     public static final Supplier<SpellType<VolcanoSpell>> VOLCANO = registerSpell("volcano", fireRuinBuilder("volcano", VolcanoSpell::new)
-            .skills(SkillInit.VOLCANO, SkillInit.INFERNO_CORE, SkillInit.LAVA_FLOW, SkillInit.EXPLOSIVE_BARRAGE,
-                    SkillInit.SHRAPNEL, SkillInit.HEATWAVE, SkillInit.SCORCHED_EARTH, SkillInit.SEISMIC_SHOCK,
-                    SkillInit.MOLTEN_SHIELD, SkillInit.PYROCLASTIC_CLOUD, SkillInit.APOCALYPSE));
+            .skills(SBSkills.VOLCANO, SBSkills.INFERNO_CORE, SBSkills.LAVA_FLOW, SBSkills.EXPLOSIVE_BARRAGE,
+                    SBSkills.SHRAPNEL, SBSkills.HEATWAVE, SBSkills.SCORCHED_EARTH, SBSkills.SEISMIC_SHOCK,
+                    SBSkills.MOLTEN_SHIELD, SBSkills.PYROCLASTIC_CLOUD, SBSkills.APOCALYPSE));
     public static final Supplier<SpellType<StormstrikeSpell>> STORMSTRIKE = registerSpell("stormstrike", shockRuinBuilder("stormstrike", StormstrikeSpell::new)
-            .skills(SkillInit.STORMSTRIKE, SkillInit.STATIC_SHOCK, SkillInit.ELECTRIFY,
-                    SkillInit.SHOCK_FACTOR, SkillInit.PURGE, SkillInit.REFRACTION, SkillInit.CHARGED_ATMOSPHERE,
-                    SkillInit.PULSATION, SkillInit.DISCHARGE, SkillInit.STORM_SHARD, SkillInit.SUPERCHARGE));
+            .skills(SBSkills.STORMSTRIKE, SBSkills.STATIC_SHOCK, SBSkills.ELECTRIFY,
+                    SBSkills.SHOCK_FACTOR, SBSkills.PURGE, SBSkills.REFRACTION, SBSkills.CHARGED_ATMOSPHERE,
+                    SBSkills.PULSATION, SBSkills.DISCHARGE, SBSkills.STORM_SHARD, SBSkills.SUPERCHARGE));
     public static final Supplier<SpellType<ElectricChargeSpell>> ELECTRIC_CHARGE = registerSpell("electric_charge", shockRuinBuilder("electric_charge", ElectricChargeSpell::new)
-            .skills(SkillInit.ELECTRIC_CHARGE, SkillInit.ELECTRIFICATION, SkillInit.SUPERCONDUCTOR, SkillInit.CYCLONIC_FURY,
-                    SkillInit.OSCILLATION, SkillInit.HIGH_VOLTAGE, SkillInit.UNLEASHED_STORM, SkillInit.STORM_SURGE,
-                    SkillInit.CHAIN_REACTION, SkillInit.AMPLIFY, SkillInit.ALTERNATING_CURRENT));
+            .skills(SBSkills.ELECTRIC_CHARGE, SBSkills.ELECTRIFICATION, SBSkills.SUPERCONDUCTOR, SBSkills.CYCLONIC_FURY,
+                    SBSkills.OSCILLATION, SBSkills.HIGH_VOLTAGE, SBSkills.UNLEASHED_STORM, SBSkills.STORM_SURGE,
+                    SBSkills.CHAIN_REACTION, SBSkills.AMPLIFY, SBSkills.ALTERNATING_CURRENT));
 
     //Transfiguration
     public static final Supplier<SpellType<ShadowGateSpell>> SHADOW_GATE = registerSpell("shadow_gate", trasnfigurationBuilder("shadow_gate", ShadowGateSpell::new)
-            .skills(SkillInit.SHADOW_GATE, SkillInit.REACH, SkillInit.BLINK, SkillInit.SHADOW_ESCAPE,
-                    SkillInit.OPEN_INVITATION, SkillInit.QUICK_RECHARGE, SkillInit.UNWANTED_GUESTS, SkillInit.BAIT_AND_SWITCH,
-                    SkillInit.DARKNESS_PREVAILS, SkillInit.GRAVITY_SHIFT, SkillInit.DUAL_DESTINATION));
+            .skills(SBSkills.SHADOW_GATE, SBSkills.REACH, SBSkills.BLINK, SBSkills.SHADOW_ESCAPE,
+                    SBSkills.OPEN_INVITATION, SBSkills.QUICK_RECHARGE, SBSkills.UNWANTED_GUESTS, SBSkills.BAIT_AND_SWITCH,
+                    SBSkills.DARKNESS_PREVAILS, SBSkills.GRAVITY_SHIFT, SBSkills.DUAL_DESTINATION));
 
     //Summons
     public static final Supplier<SpellType<SummonUndeadSpell>> SUMMON_UNDEAD = registerSpell("summon_undead", summonBuilder("summon_undead", SummonUndeadSpell::new));
     public static final Supplier<SpellType<WildMushroomSpell>> WILD_MUSHROOM = registerSpell("wild_mushroom", summonBuilder("wild_mushroom", WildMushroomSpell::new)
-            .skills(SkillInit.WILD_MUSHROOM, SkillInit.VILE_INFLUENCE, SkillInit.HASTENED_GROWTH, SkillInit.ENVENOM,
-                    SkillInit.DECOMPOSE, SkillInit.NATURES_DOMINANCE, SkillInit.POISON_ESSENCE,
-                    SkillInit.CIRCLE_OF_LIFE, SkillInit.CATALEPSY, SkillInit.RECYCLED, SkillInit.SYNTHESIS));
+            .skills(SBSkills.WILD_MUSHROOM, SBSkills.VILE_INFLUENCE, SBSkills.HASTENED_GROWTH, SBSkills.ENVENOM,
+                    SBSkills.DECOMPOSE, SBSkills.NATURES_DOMINANCE, SBSkills.POISON_ESSENCE,
+                    SBSkills.CIRCLE_OF_LIFE, SBSkills.CATALEPSY, SBSkills.RECYCLED, SBSkills.SYNTHESIS));
     public static final Supplier<SpellType<SpiritTotemSpell>> SPIRIT_TOTEM = registerSpell("conjure_spirit_totem", summonBuilder("conjure_spirit_totem", SpiritTotemSpell::new)
-            .skills(SkillInit.CONJURE_SPIRIT_TOTEM, SkillInit.CATS_AGILITY, SkillInit.FERAL_FURY,
-                    SkillInit.PRIMAL_RESILIENCE, SkillInit.TOTEMIC_BOND, SkillInit.STEALTH_TACTIC, SkillInit.SAVAGE_LEAP,
-                    SkillInit.TOTEMIC_ARMOR, SkillInit.WARRIORS_ROAR, SkillInit.TWIN_SPIRITS, SkillInit.NINE_LIVES));
+            .skills(SBSkills.CONJURE_SPIRIT_TOTEM, SBSkills.CATS_AGILITY, SBSkills.FERAL_FURY,
+                    SBSkills.PRIMAL_RESILIENCE, SBSkills.TOTEMIC_BOND, SBSkills.STEALTH_TACTIC, SBSkills.SAVAGE_LEAP,
+                    SBSkills.TOTEMIC_ARMOR, SBSkills.WARRIORS_ROAR, SBSkills.TWIN_SPIRITS, SBSkills.NINE_LIVES));
 
     //Divine
     public static final Supplier<SpellType<HealingTouchSpell>> HEALING_TOUCH = registerSpell("healing_touch", divineBuilder("healing_touch", HealingTouchSpell::new)
-            .skills(SkillInit.HEALING_TOUCH, SkillInit.DIVINE_BALANCE, SkillInit.HEALING_STREAM, SkillInit.ACCELERATED_GROWTH,
-                    SkillInit.TRANQUILITY_OF_WATER, SkillInit.NATURES_TOUCH, SkillInit.CLEANSING_TOUCH,
-                    SkillInit.OVERGROWTH, SkillInit.BLASPHEMY, SkillInit.CONVALESCENCE));
+            .skills(SBSkills.HEALING_TOUCH, SBSkills.DIVINE_BALANCE, SBSkills.HEALING_STREAM, SBSkills.ACCELERATED_GROWTH,
+                    SBSkills.TRANQUILITY_OF_WATER, SBSkills.NATURES_TOUCH, SBSkills.CLEANSING_TOUCH,
+                    SBSkills.OVERGROWTH, SBSkills.BLASPHEMY, SBSkills.CONVALESCENCE));
 
     //Deception
     public static final Supplier<SpellType<ShadowbondSpell>> SHADOWBOND = registerSpell("shadowbond", deceptionBuilder("shadowbond", ShadowbondSpell::new)
-            .skills(SkillInit.SHADOWBOND, SkillInit.EVERLASTING_BOND, SkillInit.SHADOW_STEP, SkillInit.SNEAK_ATTACK,
-                    SkillInit.SILENT_EXCHANGE, SkillInit.SNARE, SkillInit.DISORIENTED,
-                    SkillInit.OBSERVANT, SkillInit.LIVING_SHADOW, SkillInit.REVERSAL, SkillInit.SHADOW_CHAIN));
+            .skills(SBSkills.SHADOWBOND, SBSkills.EVERLASTING_BOND, SBSkills.SHADOW_STEP, SBSkills.SNEAK_ATTACK,
+                    SBSkills.SILENT_EXCHANGE, SBSkills.SNARE, SBSkills.DISORIENTED,
+                    SBSkills.OBSERVANT, SBSkills.LIVING_SHADOW, SBSkills.REVERSAL, SBSkills.SHADOW_CHAIN));
 
     private static <T extends AbstractSpell> Supplier<SpellType<T>> registerSpell(String name, SpellType.Builder<T> builder) {
         return SPELL_TYPES.register(name, builder::build);

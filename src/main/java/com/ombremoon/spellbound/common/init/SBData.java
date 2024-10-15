@@ -2,9 +2,9 @@ package com.ombremoon.spellbound.common.init;
 
 import com.mojang.serialization.Codec;
 import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.common.data.SkillHandler;
-import com.ombremoon.spellbound.common.data.SpellHandler;
-import com.ombremoon.spellbound.common.data.EffectHandler;
+import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
+import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.EffectManager;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -16,7 +16,7 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import java.util.function.Supplier;
 
-public class DataInit {
+public class SBData {
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(
             NeoForgeRegistries.ATTACHMENT_TYPES, Constants.MOD_ID
     );
@@ -27,10 +27,10 @@ public class DataInit {
     //Handlers
     public static final Supplier<AttachmentType<SpellHandler>> SPELL_HANDLER = ATTACHMENT_TYPES.register(
             "spell_handler", () -> AttachmentType.serializable(SpellHandler::new).copyOnDeath().build());
-    public static final Supplier<AttachmentType<SkillHandler>> SKILL_HANDLER = ATTACHMENT_TYPES.register(
-            "skill_handler", () -> AttachmentType.serializable(SkillHandler::new).copyOnDeath().build());
-    public static final Supplier<AttachmentType<EffectHandler>> STATUS_EFFECTS = ATTACHMENT_TYPES.register(
-            "effect_handler", () -> AttachmentType.serializable(EffectHandler::new).build());
+    public static final Supplier<AttachmentType<SkillHolder>> SKILL_HOLDER = ATTACHMENT_TYPES.register(
+            "skill_handler", () -> AttachmentType.serializable(SkillHolder::new).copyOnDeath().build());
+    public static final Supplier<AttachmentType<EffectManager>> STATUS_EFFECTS = ATTACHMENT_TYPES.register(
+            "effect_handler", () -> AttachmentType.serializable(EffectManager::new).build());
 
     //Mana
     public static final Supplier<AttachmentType<Double>> MANA = ATTACHMENT_TYPES.register(
@@ -59,7 +59,7 @@ public class DataInit {
             builder -> builder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
 
     public static void register(IEventBus modEventBus) {
-        DataInit.ATTACHMENT_TYPES.register(modEventBus);
-        DataInit.COMPONENT_TYPES.register(modEventBus);
+        SBData.ATTACHMENT_TYPES.register(modEventBus);
+        SBData.COMPONENT_TYPES.register(modEventBus);
     }
 }

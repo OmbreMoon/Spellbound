@@ -1,11 +1,13 @@
 package com.ombremoon.spellbound.common.magic.sync;
 
 import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.common.init.DataTypeInit;
+import com.ombremoon.spellbound.common.init.SBDataTypes;
+import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.util.ClassTreeIdRegistry;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 
@@ -15,6 +17,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+/**
+ * Class used to define and manipulate spell data that can be synced from the server to the client. Custom data types can be registered the same as any other {@link DeferredRegister}
+ * @see SBDataTypes
+ */
 @SuppressWarnings("unchecked")
 public class SyncedSpellData {
     public static Logger LOGGER = Constants.LOG;
@@ -28,6 +34,13 @@ public class SyncedSpellData {
         this.dataItems = dataItems;
     }
 
+    /**
+     * Creates a data key for a spell class
+     * @param clazz The spell class
+     * @param dataType The data type
+     * @return The spell data key
+     * @param <T>
+     */
     public static <T> SpellDataKey<T> define(Class<? extends SpellDataHolder> clazz, SpellDataType<T> dataType) {
         if (true || LOGGER.isDebugEnabled()) { // Forge: This is very useful for mods that register keys on classes that are not their own
             try {
@@ -53,10 +66,22 @@ public class SyncedSpellData {
         return (DataItem<T>)this.dataItems[key.id()];
     }
 
+    /**
+     * Returns the data value for a specified data key
+     * @param key The data key
+     * @return The data value
+     * @param <T>
+     */
     public <T> T get(SpellDataKey<T> key) {
         return this.getItem(key).getValue();
     }
 
+    /**
+     * Sets the data value for a specified data key
+     * @param key The data key
+     * @param value The data value
+     * @param <T>
+     */
     public <T> void set(SpellDataKey<T> key, T value) {
         this.set(key, value, false);
     }
@@ -142,13 +167,20 @@ public class SyncedSpellData {
 
         }
 
+        /**
+         * Defines the default data value used for a specified data key. This <b><u>MUST</u></b> be called from {@link AbstractSpell#defineSpellData(Builder)} for the spell data to work properly.
+         * @param key The data key
+         * @param value The default data value
+         * @return The synced spell data builder
+         * @param <T>
+         */
         public <T> SyncedSpellData.Builder define(SpellDataKey<T> key, T value) {
             int i = key.id();
             if (i > this.dataItems.length) {
                 throw new IllegalArgumentException("Data value id is too big with " + i + "! (Max is " + this.dataItems.length + ")");
             } else if (this.dataItems[i] != null) {
                 throw new IllegalArgumentException("Duplicate id value for " + i + "!");
-            } else if (DataTypeInit.getDataTypeId(key.dataType()) < 0) {
+            } else if (SBDataTypes.getDataTypeId(key.dataType()) < 0) {
                 throw new IllegalArgumentException("Unregistered data type " + key.dataType() + " for " + i + "!");
             } else {
                 this.dataItems[key.id()] = new DataItem<>(key, value);
@@ -213,7 +245,7 @@ public class SyncedSpellData {
         }
 
         public void write(RegistryFriendlyByteBuf buffer) {
-            int i = DataTypeInit.getDataTypeId(this.dataType);
+            int i = SBDataTypes.getDataTypeId(this.dataType);
             if (i < 0) {
                 throw new EncoderException("Unknown data type type " + this.dataType);
             } else {
@@ -225,7 +257,7 @@ public class SyncedSpellData {
 
         public static DataValue<?> read(RegistryFriendlyByteBuf buffer, int id) {
             int i = buffer.readVarInt();
-            SpellDataType<?> spellDataType = DataTypeInit.getDataType(i);
+            SpellDataType<?> spellDataType = SBDataTypes.getDataType(i);
             if (spellDataType == null) {
                 throw new DecoderException("Unknown data type type " + i);
             } else {

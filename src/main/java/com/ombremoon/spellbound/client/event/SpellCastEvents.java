@@ -3,7 +3,7 @@ package com.ombremoon.spellbound.client.event;
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.client.KeyBinds;
-import com.ombremoon.spellbound.common.data.EffectHandler;
+import com.ombremoon.spellbound.common.EffectManager;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.networking.PayloadHandler;
@@ -32,7 +32,7 @@ public class SpellCastEvents {
 
         Player player = Minecraft.getInstance().player;
         if (player != null) {
-            if (EffectHandler.isStunned(player)) {
+            if (EffectManager.isStunned(player)) {
                 event.setSwingHand(false);
                 event.setCanceled(true);
                 return;
@@ -109,7 +109,7 @@ public class SpellCastEvents {
             PayloadHandler.stopChannel();
         }
 
-        handler.setCastKeyDown(flag);
+        handler.castKeyDown = flag;
         PayloadHandler.setCastKey(flag);
     }
 

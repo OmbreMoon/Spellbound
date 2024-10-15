@@ -1,9 +1,9 @@
 package com.ombremoon.spellbound.client.gui;
 
 import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.common.data.SpellHandler;
-import com.ombremoon.spellbound.common.init.AttributesInit;
-import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.init.SBAttributes;
+import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.DeltaTracker;
@@ -42,7 +42,7 @@ public class CastModeOverlay implements LayeredDraw.Layer {
                 8889187, false);
 
         guiGraphics.drawString(Minecraft.getInstance().font,
-                player.getData(DataInit.MANA) + "/" + player.getAttribute(AttributesInit.MAX_MANA).getValue(),
+                player.getData(SBData.MANA) + "/" + player.getAttribute(SBAttributes.MAX_MANA).getValue(),
                 40,
                 guiGraphics.guiHeight()-40,
                 8889187 ,

@@ -6,7 +6,7 @@ import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.damagesource.DamageType;
 
-public interface DamageTypeInit {
+public interface SBDamageTypes {
     ResourceKey<DamageType> DISEASE = register("disease");
     ResourceKey<DamageType> RUIN_FIRE = register("ruin_fire");
     ResourceKey<DamageType> RUIN_SHOCK = register("ruin_shock");

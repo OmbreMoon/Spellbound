@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.common.content.spell.ruin.shock;
 
 import com.ombremoon.spellbound.common.content.entity.spell.StormstrikeBolt;
-import com.ombremoon.spellbound.common.init.SpellInit;
+import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import net.minecraft.world.entity.player.Player;
@@ -13,7 +13,7 @@ public class StormstrikeSpell extends AnimatedSpell {
     }
 
     public StormstrikeSpell() {
-        super(SpellInit.STORMSTRIKE.get(), createStormstrikeBuilder());
+        super(SBSpells.STORMSTRIKE.get(), createStormstrikeBuilder());
     }
 
     @Override

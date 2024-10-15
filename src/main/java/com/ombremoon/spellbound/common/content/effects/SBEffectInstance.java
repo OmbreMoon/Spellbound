@@ -1,9 +1,6 @@
 package com.ombremoon.spellbound.common.content.effects;
 
-import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.common.init.EffectInit;
 import com.ombremoon.spellbound.networking.PayloadHandler;
-import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;

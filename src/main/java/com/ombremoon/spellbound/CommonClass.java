@@ -8,16 +8,16 @@ import net.neoforged.fml.loading.FMLLoader;
 public class CommonClass {
 
     public static void init(IEventBus modEventBus) {
-        ItemInit.register(modEventBus);
-        BlockInit.register(modEventBus);
-        EntityInit.register(modEventBus);
-        SpellInit.register(modEventBus);
-        EffectInit.register(modEventBus);
-        DataInit.register(modEventBus);
-        StatInit.register(modEventBus);
-        SkillInit.register(modEventBus);
-        AttributesInit.register(modEventBus);
-        DataTypeInit.register(modEventBus);
+        SBItems.register(modEventBus);
+        SBBlocks.register(modEventBus);
+        SBEntities.register(modEventBus);
+        SBSpells.register(modEventBus);
+        SBEffects.register(modEventBus);
+        SBData.register(modEventBus);
+        SBStats.register(modEventBus);
+        SBSkills.register(modEventBus);
+        SBAttributes.register(modEventBus);
+        SBDataTypes.register(modEventBus);
     }
 
     public static boolean isDevEnv() {

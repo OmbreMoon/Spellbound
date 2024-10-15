@@ -1,16 +1,12 @@
 package com.ombremoon.spellbound.common.content.spell.summon;
 
 import com.ombremoon.spellbound.common.content.entity.living.TotemSpiritEntity;
-import com.ombremoon.spellbound.common.data.SkillHandler;
-import com.ombremoon.spellbound.common.data.SpellHandler;
-import com.ombremoon.spellbound.common.init.EntityInit;
-import com.ombremoon.spellbound.common.init.SkillInit;
-import com.ombremoon.spellbound.common.init.SpellInit;
+import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
+import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.init.SBSkills;
+import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
-
-import java.util.Set;
 
 public class SpiritTotemSpell extends SummonSpell {
 
@@ -19,23 +15,23 @@ public class SpiritTotemSpell extends SummonSpell {
     }
 
     public SpiritTotemSpell() {
-        super(SpellInit.SPIRIT_TOTEM.get(), createSpiritTotemBuilder());
+        super(SBSpells.SPIRIT_TOTEM.get(), createSpiritTotemBuilder());
     }
 
     @Override
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
 
-        if (context.isRecast() && context.getSkills().hasSkill(SkillInit.TWIN_SPIRITS.value())) return;
+        if (context.isRecast() && context.getSkills().hasSkill(SBSkills.TWIN_SPIRITS.value())) return;
         addSpiritTotem(context);
     }
 
     @Override
     protected void onSpellRecast(SpellContext context) {
         SpellHandler handler = context.getSpellHandler();
-        SkillHandler skills = context.getSkills();
+        SkillHolder skills = context.getSkills();
 
-        if (!skills.hasSkill(SkillInit.TWIN_SPIRITS.value())) {
+        if (!skills.hasSkill(SBSkills.TWIN_SPIRITS.value())) {
             handler.getActiveSpells(getSpellType()).getFirst().endSpell();
         } else {
             SpiritTotemSpell twinSpell = (SpiritTotemSpell) handler.getActiveSpells(getSpellType()).get(1);

@@ -1,7 +1,7 @@
-package com.ombremoon.spellbound.common.data;
+package com.ombremoon.spellbound.common;
 
-import com.ombremoon.spellbound.common.init.AttributesInit;
-import com.ombremoon.spellbound.common.init.EffectInit;
+import com.ombremoon.spellbound.common.init.SBAttributes;
+import com.ombremoon.spellbound.common.init.SBEffects;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -10,17 +10,14 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.neoforge.common.util.INBTSerializable;
-import net.tslat.smartbrainlib.APIOnly;
-import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class EffectHandler implements INBTSerializable<CompoundTag> {
+public class EffectManager implements INBTSerializable<CompoundTag> {
     private final Map<Effect, Float> buildUp = new HashMap<>();
     private LivingEntity self;
 
@@ -30,7 +27,7 @@ public class EffectHandler implements INBTSerializable<CompoundTag> {
      * @return true if they are rooted (cant move), false otherwise
      */
     public static boolean isRooted(LivingEntity entity) {
-        return entity.hasEffect(EffectInit.ROOTED)
+        return entity.hasEffect(SBEffects.ROOTED)
                 || isStunned(entity)
                 || SpellUtil.getSpellHandler(entity).isStationary();
     }
@@ -41,7 +38,7 @@ public class EffectHandler implements INBTSerializable<CompoundTag> {
      * @return true if silenced (cant cast spells), false otherwise
      */
     public static boolean isSilenced(LivingEntity entity) {
-        return entity.hasEffect(EffectInit.SILENCED)
+        return entity.hasEffect(SBEffects.SILENCED)
                 || isStunned(entity);
     }
 
@@ -51,8 +48,8 @@ public class EffectHandler implements INBTSerializable<CompoundTag> {
      * @return true if stunned, false otherwise
      */
     public static boolean isStunned(LivingEntity entity) {
-        return entity.hasEffect(EffectInit.STUNNED)
-                || entity.hasEffect(EffectInit.CATALEPSY);
+        return entity.hasEffect(SBEffects.STUNNED)
+                || entity.hasEffect(SBEffects.CATALEPSY);
     }
 
     /**
@@ -148,13 +145,13 @@ public class EffectHandler implements INBTSerializable<CompoundTag> {
     }
 
     public enum Effect {
-        FIRE(EffectInit.INFLAMED, AttributesInit.FIRE_SPELL_RESIST),
-        FROST(EffectInit.FROZEN, AttributesInit.FROST_SPELL_RESIST),
-        SHOCK(EffectInit.SHOCKED, AttributesInit.SHOCK_SPELL_RESIST),
-        WIND(EffectInit.WIND, AttributesInit.WIND_SPELL_RESIST),
-        EARTH(EffectInit.EARTH, AttributesInit.EARTH_SPELL_RESIST),
-        POISON(EffectInit.POISON, AttributesInit.POISON_SPELL_RESIST),
-        DISEASE(EffectInit.DISEASE, AttributesInit.DISEASE_SPELL_RESIST);
+        FIRE(SBEffects.INFLAMED, SBAttributes.FIRE_SPELL_RESIST),
+        FROST(SBEffects.FROZEN, SBAttributes.FROST_SPELL_RESIST),
+        SHOCK(SBEffects.SHOCKED, SBAttributes.SHOCK_SPELL_RESIST),
+        WIND(SBEffects.WIND, SBAttributes.WIND_SPELL_RESIST),
+        EARTH(SBEffects.EARTH, SBAttributes.EARTH_SPELL_RESIST),
+        POISON(SBEffects.POISON, SBAttributes.POISON_SPELL_RESIST),
+        DISEASE(SBEffects.DISEASE, SBAttributes.DISEASE_SPELL_RESIST);
 
         private final Holder<MobEffect> mobEffect;
         private final Holder<Attribute> resistance;

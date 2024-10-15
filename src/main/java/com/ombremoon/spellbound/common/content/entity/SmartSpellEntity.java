@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.content.entity;
 
-import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.util.Loggable;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -8,7 +8,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
@@ -19,7 +18,6 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-import java.util.UUID;
 import java.util.function.Predicate;
 
 public abstract class SmartSpellEntity extends PathfinderMob implements GeoEntity, SmartBrainOwner<SmartSpellEntity>, Loggable {
@@ -66,8 +64,8 @@ public abstract class SmartSpellEntity extends PathfinderMob implements GeoEntit
     }
 
     protected boolean isOwnersTarget(LivingEntity entity) {
-        if (!this.hasData(DataInit.TARGET_ID)) return false;
-        return entity.getId() == this.getData(DataInit.TARGET_ID);
+        if (!this.hasData(SBData.TARGET_ID)) return false;
+        return entity.getId() == this.getData(SBData.TARGET_ID);
     }
 
     @Override

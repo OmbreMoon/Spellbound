@@ -7,6 +7,9 @@ import net.minecraft.sounds.SoundEvent;
 
 import java.util.function.BiPredicate;
 
+/**
+ * The main class most spell will extend from. Main utility is to handle spell casting animations.
+ */
 public abstract class AnimatedSpell extends AbstractSpell {
 
     public static <T extends AnimatedSpell> Builder<T> createSimpleSpellBuilder(Class<T> spellClass) {

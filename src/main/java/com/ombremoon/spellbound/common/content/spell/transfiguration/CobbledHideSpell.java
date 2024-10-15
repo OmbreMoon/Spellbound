@@ -1,8 +1,8 @@
 package com.ombremoon.spellbound.common.content.spell.transfiguration;
 
 import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.common.data.SkillHandler;
-import com.ombremoon.spellbound.common.init.SkillInit;
+import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
+import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
@@ -36,26 +36,26 @@ public class CobbledHideSpell extends AnimatedSpell {
     @Override
     protected void onSpellStart(SpellContext context) {
         if (context.isRecast()) return;
-        SkillHandler skills = context.getSkills();
+        SkillHolder skills = context.getSkills();
 
         float modAmount = 1.1f;
-        if (skills.hasSkill(SkillInit.DRAGON_HIDE.value())) modAmount = 1.5f;
-        else if (skills.hasSkill(SkillInit.DIAMOND_HIDE.value())) modAmount = 1.3f;
-        else if (skills.hasSkill(SkillInit.IRON_HIDE.value())) modAmount = 1.2f;
+        if (skills.hasSkill(SBSkills.DRAGON_HIDE.value())) modAmount = 1.5f;
+        else if (skills.hasSkill(SBSkills.DIAMOND_HIDE.value())) modAmount = 1.3f;
+        else if (skills.hasSkill(SBSkills.IRON_HIDE.value())) modAmount = 1.2f;
 
         context.getSpellHandler().addTransientModifier(Attributes.ARMOR,
                 new AttributeModifier(hideMod, modAmount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), getDuration());
 
-        if (skills.hasSkill(SkillInit.INFECTIOUS.value())) {
+        if (skills.hasSkill(SBSkills.INFECTIOUS.value())) {
             Predicate<LivingEntity> predicate;
-            if (skills.hasSkill(SkillInit.VIRAL.value()))
+            if (skills.hasSkill(SBSkills.VIRAL.value()))
                 predicate = entity -> entity instanceof Player || (entity instanceof OwnableEntity ownable && ownable.getOwner().is(context.getPlayer()));
             else predicate = entity -> entity instanceof OwnableEntity ownable && ownable.getOwner().is(context.getPlayer());
 
             this.buffedTargets = context.getLevel().getEntitiesOfClass(LivingEntity.class,
                     context.getPlayer().getBoundingBox().inflate(8d), predicate);
 
-            double allyBuff = skills.hasSkill(SkillInit.REINFORCED.value()) ? modAmount : modAmount/2d;
+            double allyBuff = skills.hasSkill(SBSkills.REINFORCED.value()) ? modAmount : modAmount/2d;
             buffedTargets.forEach(mob -> mob.getAttribute(Attributes.ARMOR).addTransientModifier(new AttributeModifier(
                     hideMod, allyBuff, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
             )));
@@ -78,7 +78,7 @@ public class CobbledHideSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellRecast(SpellContext context) {
-        if (context.getSkills().hasSkill(SkillInit.REPULSIVE_SKIN.value())) {
+        if (context.getSkills().hasSkill(SBSkills.REPULSIVE_SKIN.value())) {
             Player player = context.getPlayer();
             List<LivingEntity> entities = context.getLevel().getEntitiesOfClass(LivingEntity.class,
                     player.getBoundingBox().inflate(8d));

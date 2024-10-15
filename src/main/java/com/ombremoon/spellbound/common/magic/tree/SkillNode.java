@@ -3,7 +3,7 @@ package com.ombremoon.spellbound.common.magic.tree;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.common.init.SkillInit;
+import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.nbt.CompoundTag;
@@ -24,7 +24,7 @@ public class SkillNode {
     public static final Codec<SkillNode> CODEC = Codec.recursive(
             SkillNode.class.getSimpleName(),
             codec -> RecordCodecBuilder.create(instance -> instance.group(
-                    SkillInit.REGISTRY.byNameCodec().fieldOf("skill").forGetter(SkillNode::skill),
+                    SBSkills.REGISTRY.byNameCodec().fieldOf("skill").forGetter(SkillNode::skill),
                     codec.listOf().fieldOf("parents").forGetter(SkillNode::parents)
             ).apply(instance, SkillNode::new))
     );
@@ -67,7 +67,7 @@ public class SkillNode {
         this.children.add(child);
     }
 
-    public Tag save () {
+    public Tag save() {
         return CODEC.encodeStart(NbtOps.INSTANCE, this).getOrThrow();
     }
 

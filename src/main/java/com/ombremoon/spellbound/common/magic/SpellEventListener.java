@@ -12,6 +12,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+/**
+ * Utility class used for listening to events from the {@link AbstractSpell}'s class. This allows spells to easily interact with player events without the need to clutter a whole class filled with events for different spells.
+ */
 public class SpellEventListener {
     public final Map<IEvent<?>, List<EventInstance<? extends SpellEvent>>> events = new Object2ObjectOpenHashMap<>();
     public final Map<EventInstance<? extends SpellEvent>, Integer> timedEvents = new Object2IntOpenHashMap<>();
@@ -21,6 +24,12 @@ public class SpellEventListener {
         this.player = player;
     }
 
+    /**
+     * Checks if the player is currently listening to an event
+     * @param event The event
+     * @param uuid The event id
+     * @return Whether the event listener is present
+     */
     public boolean hasListener(IEvent<?> event, UUID uuid) {
         if (this.events.containsKey(event)) {
             for (var instance : this.events.get(event)) {
@@ -29,13 +38,28 @@ public class SpellEventListener {
         }
         return false;
     }
-    
+
+    /**
+     * Adds an event listener to the player. Should be called from {@link AbstractSpell#onSpellStart(SpellContext)}.
+     * @param event The event
+     * @param uuid The event id
+     * @param consumer The action to take place when the event is fired
+     * @param <T> The spell event class
+     */
     public <T extends SpellEvent> void addListener(IEvent<T> event, UUID uuid, Consumer<T> consumer) {
         if (checkSide(event)) return;
         var list = refreshInstances(event, uuid, consumer);
         this.events.put(event, list);
     }
 
+    /**
+     * Adds an event listener to the player for a specified amount of time. Can be called anywhere.
+     * @param event The event
+     * @param uuid The event id
+     * @param consumer The action to take place when the event is fired
+     * @param expiryTicks The amount of ticks the listener should persist
+     * @param <T> The spell event class
+     */
     public <T extends SpellEvent> void addListenerWithExpiry(IEvent<T> event, UUID uuid, Consumer<T> consumer, int expiryTicks) {
         if (checkSide(event)) return;
         var instance = new EventInstance<>(event, uuid, consumer);
@@ -44,6 +68,11 @@ public class SpellEventListener {
         this.timedEvents.put(instance, expiryTicks);
     }
 
+    /**
+     * Removes an event listener from the player. If there are multiple event listeners with the same id, will remove the first listener in the list. Should be called from {@link AbstractSpell#onSpellStop(SpellContext)}.
+     * @param event The event
+     * @param uuid The event id
+     */
     public void removeListener(IEvent<?> event, UUID uuid) {
         if (hasListener(event, uuid)) {
             var instances = this.events.get(event);
@@ -61,6 +90,11 @@ public class SpellEventListener {
         }
     }
 
+    /**
+     * Removes an event listener from the player. If there are multiple event listeners with the same id, will remove the first listener in the list.
+     * @param eventInstance The event instance
+     * @param <T> The spell event class
+     */
     private <T extends SpellEvent> void removeListener(EventInstance<T> eventInstance) {
         var event = eventInstance.event();
         var uuid = eventInstance.uuid();
@@ -75,6 +109,9 @@ public class SpellEventListener {
         }
     }
 
+    /**
+     * Ticks the duration of the timed event listeners
+     */
     public void tickInstances() {
         if (!this.timedEvents.isEmpty()) {
             for (var entry : this.timedEvents.entrySet()) {
@@ -86,10 +123,22 @@ public class SpellEventListener {
         }
     }
 
+    /**
+     * Checks if the event is being fired from the correct side.
+     * @param event The event
+     * @return Whether the event is being fired on the proper side
+     */
     private boolean checkSide(IEvent<?> event) {
         return this.player.level().isClientSide != event.isClientSide();
     }
 
+    /**
+     * Adds an event instance to the list of events.
+     * @param event The event
+     * @param instance The event instance
+     * @return The list of event instances for the specific event
+     * @param <T> The spell event class
+     */
     private <T extends SpellEvent> List<EventInstance<? extends SpellEvent>> refreshInstances(IEvent<T> event, EventInstance<T> instance) {
         var list = this.events.get(event);
         if (list == null) list = new ObjectArrayList<>();
@@ -101,6 +150,13 @@ public class SpellEventListener {
         return refreshInstances(event, new EventInstance<>(event, uuid, consumer));
     }
 
+    /**
+     * Accepts the event consumer given the event is on the proper side and isn't cancelled/
+     * @param event The event
+     * @param spellEvent The spell event instance
+     * @return If the event was actually fired
+     * @param <T> The spell event class
+     */
     @SuppressWarnings("unchecked")
     public <T extends SpellEvent> boolean fireEvent(IEvent<?> event, T spellEvent) {
         if (checkSide(event)) return false;

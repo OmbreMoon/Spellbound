@@ -1,7 +1,6 @@
 package com.ombremoon.spellbound.common.magic;
 
-import com.ombremoon.spellbound.common.data.SkillHandler;
-import com.ombremoon.spellbound.common.data.SpellHandler;
+import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,7 +17,7 @@ public class SpellContext {
     @Nullable
     private final LivingEntity target;
     private final SpellHandler spellHandler;
-    private final SkillHandler skillHandler;
+    private final SkillHolder skillHolder;
     private final boolean isRecast;
 
     public SpellContext(Player player, boolean isRecast) {
@@ -40,7 +39,7 @@ public class SpellContext {
         this.itemStack = itemStack;
         this.target = target;
         this.spellHandler = SpellUtil.getSpellHandler(player);
-        this.skillHandler = SpellUtil.getSkillHandler(player);
+        this.skillHolder = SpellUtil.getSkillHolder(player);
         this.isRecast = isRecast;
     }
 
@@ -48,8 +47,8 @@ public class SpellContext {
         return this.spellHandler;
     }
 
-    public SkillHandler getSkills() {
-        return skillHandler;
+    public SkillHolder getSkills() {
+        return skillHolder;
     }
 
     public boolean isRecast() {

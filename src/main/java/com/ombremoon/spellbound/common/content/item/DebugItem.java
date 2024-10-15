@@ -1,9 +1,9 @@
 package com.ombremoon.spellbound.common.content.item;
 
 import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.common.data.SkillHandler;
-import com.ombremoon.spellbound.common.data.SpellHandler;
-import com.ombremoon.spellbound.common.init.SpellInit;
+import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
+import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.util.Loggable;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.network.chat.Component;
@@ -22,7 +22,7 @@ public class DebugItem extends Item implements Loggable {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         var handler = SpellUtil.getSpellHandler(player);
-        var skillHandler = SpellUtil.getSkillHandler(player);
+        var skillHandler = SpellUtil.getSkillHolder(player);
         ombreDebug(level, player, usedHand, handler, skillHandler);
         if (!level.isClientSide && !player.isCrouching()) {
 //            skillHandler.unlockSkill(SpellInit.WILD_MUSHROOM_SPELL.get(), SkillInit.VILE_INFLUENCE.value());
@@ -30,8 +30,8 @@ public class DebugItem extends Item implements Loggable {
             skillHandler.sync(player);
 //            player.sendSystemMessage(Component.literal("Has vile influence: " + skillHandler.hasSkill(SpellInit.WILD_MUSHROOM_SPELL.get(), SkillInit.VILE_INFLUENCE.value())));
         } else if (!level.isClientSide && player.isCrouching()) {
-            skillHandler.resetSkills(SpellInit.WILD_MUSHROOM.get());
-            player.sendSystemMessage(Component.literal("Wild mushrooms has: " + skillHandler.getSpellXp(SpellInit.WILD_MUSHROOM.get()) + " XP"));
+            skillHandler.resetSkills(SBSpells.WILD_MUSHROOM.get());
+            player.sendSystemMessage(Component.literal("Wild mushrooms has: " + skillHandler.getSpellXp(SBSpells.WILD_MUSHROOM.get()) + " XP"));
 //            player.sendSystemMessage(Component.literal("Has vile influence: " + skillHandler.hasSkill(SpellInit.WILD_MUSHROOM_SPELL.get(), SkillInit.VILE_INFLUENCE.value())));
             handler.sync();
             skillHandler.sync(player);
@@ -39,9 +39,9 @@ public class DebugItem extends Item implements Loggable {
         return super.use(level, player, usedHand);
     }
 
-    private void ombreDebug(Level level, Player player, InteractionHand usedHand, SpellHandler spellHandler, SkillHandler skillHandler) {
+    private void ombreDebug(Level level, Player player, InteractionHand usedHand, SpellHandler spellHandler, SkillHolder skillHolder) {
 //        spellHandler.getActiveSpells(SpellInit.WILD_MUSHROOM_SPELL.get()).forEach(spell -> Constants.LOG.info("{}", spell.getId()));
-        Constants.LOG.info("{}", spellHandler.getActiveSpells(SpellInit.SHADOWBOND.get()));
+        Constants.LOG.info("{}", spellHandler.getActiveSpells(SBSpells.SHADOWBOND.get()));
         if (!level.isClientSide) {
 //            spellHandler.clearList();
 //            spellHandler.clearList();

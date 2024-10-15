@@ -2,9 +2,9 @@ package com.ombremoon.spellbound.common.content.spell.summon;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.common.content.entity.spell.WildMushroom;
-import com.ombremoon.spellbound.common.data.EffectHandler;
-import com.ombremoon.spellbound.common.data.SkillHandler;
-import com.ombremoon.spellbound.common.data.SpellHandler;
+import com.ombremoon.spellbound.common.EffectManager;
+import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
+import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
@@ -42,7 +42,7 @@ public class WildMushroomSpell extends SummonSpell {
     }
 
     public WildMushroomSpell() {
-        super(SpellInit.WILD_MUSHROOM.get(), createMushroomBuilder());
+        super(SBSpells.WILD_MUSHROOM.get(), createMushroomBuilder());
     }
 
     @Override
@@ -50,7 +50,7 @@ public class WildMushroomSpell extends SummonSpell {
         super.onSpellStart(context);
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.PLAYER_KILL, PLAYER_KILL, this::playerKill);
         if (!context.getLevel().isClientSide) {
-            var mobs = summonMobs(context, EntityInit.MUSHROOM.get(), 1);
+            var mobs = summonMobs(context, SBEntities.MUSHROOM.get(), 1);
             if (mobs == null || !mobs.iterator().hasNext()) {
                 endSpell();
                 context.getSpellHandler().awardMana(this.getManaCost());
@@ -58,17 +58,17 @@ public class WildMushroomSpell extends SummonSpell {
             }
 
             this.mushroom = mobs.iterator().next();
-            SkillHandler skillHandler = context.getSkills();
-            double radius = skillHandler.hasSkill(SkillInit.VILE_INFLUENCE.value()) ? 3D : 2D;
+            SkillHolder skillHolder = context.getSkills();
+            double radius = skillHolder.hasSkill(SBSkills.VILE_INFLUENCE.value()) ? 3D : 2D;
             this.damageZone = mushroom.getBoundingBox().inflate(radius, 0, radius);
-            this.explosionInterval = skillHandler.hasSkill(SkillInit.HASTENED_GROWTH.value()) ? 40 : 60;
+            this.explosionInterval = skillHolder.hasSkill(SBSkills.HASTENED_GROWTH.value()) ? 40 : 60;
 
 
             boolean recycledFlag = context.getSpellHandler().getActiveSpells(getSpellType()).size() >= 3;
             ;
-            boolean recycledFlag2 = skillHandler.hasSkill(SkillInit.RECYCLED.value());
+            boolean recycledFlag2 = skillHolder.hasSkill(SBSkills.RECYCLED.value());
             if (recycledFlag && recycledFlag2)
-                this.addAttributeModifier(context.getPlayer(), AttributesInit.MANA_REGEN, new AttributeModifier(RECYCLED_LOCATION,
+                this.addAttributeModifier(context.getPlayer(), SBAttributes.MANA_REGEN, new AttributeModifier(RECYCLED_LOCATION,
                         1.1d,
                         AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
         }
@@ -82,7 +82,7 @@ public class WildMushroomSpell extends SummonSpell {
         if (poisonEssenceExpiry > 0) poisonEssenceExpiry--;
         this.mushroom.explode(); //Visual stuff
         Player caster = context.getPlayer();
-        SkillHandler skills = context.getSkills();
+        SkillHolder skills = context.getSkills();
 
         List<LivingEntity> entities = caster.level().getEntitiesOfClass(
                 LivingEntity.class,
@@ -90,14 +90,14 @@ public class WildMushroomSpell extends SummonSpell {
                 entity -> !entity.is(caster) && !entity.isInvulnerable());
 
         for (LivingEntity entity : entities) {
-            if (skills.hasSkillReady(SkillInit.CATALEPSY.value())) {
-                entity.addEffect(new MobEffectInstance(EffectInit.CATALEPSY, 100), caster);
+            if (skills.hasSkillReady(SBSkills.CATALEPSY.value())) {
+                entity.addEffect(new MobEffectInstance(SBEffects.CATALEPSY, 100), caster);
             }
 
-            if (skills.hasSkill(SkillInit.ENVENOM.value())) {
-                entity.getData(DataInit.STATUS_EFFECTS).increment(EffectHandler.Effect.POISON, 100);
+            if (skills.hasSkill(SBSkills.ENVENOM.value())) {
+                entity.getData(SBData.STATUS_EFFECTS).increment(EffectManager.Effect.POISON, 100);
             } else {
-                entity.getData(DataInit.STATUS_EFFECTS).increment(EffectHandler.Effect.POISON, 33);
+                entity.getData(SBData.STATUS_EFFECTS).increment(EffectManager.Effect.POISON, 33);
             }
 
             entity.hurt(entity.damageSources().explosion(caster, null), calculateDamage(context, entity));
@@ -110,12 +110,12 @@ public class WildMushroomSpell extends SummonSpell {
             }
         }
 
-        if (!entities.isEmpty() && skills.hasSkillReady(SkillInit.CATALEPSY.value()))
-            this.addCooldown(SkillInit.CATALEPSY.value(), 200);
+        if (!entities.isEmpty() && skills.hasSkillReady(SBSkills.CATALEPSY.value()))
+            this.addCooldown(SBSkills.CATALEPSY.value(), 200);
 
         if (context.getSpellHandler().getActiveSpells(getSpellType()).size() <= 2
-                && this.hasAttributeModifier(context.getPlayer(), AttributesInit.MANA_REGEN, RECYCLED_LOCATION)) {
-            this.removeAttributeModifier(context.getPlayer(), AttributesInit.MANA_REGEN, RECYCLED_LOCATION);
+                && this.hasAttributeModifier(context.getPlayer(), SBAttributes.MANA_REGEN, RECYCLED_LOCATION)) {
+            this.removeAttributeModifier(context.getPlayer(), SBAttributes.MANA_REGEN, RECYCLED_LOCATION);
         }
     }
 
@@ -126,13 +126,13 @@ public class WildMushroomSpell extends SummonSpell {
 
     private float calculateDamage(SpellContext context, LivingEntity target) {
         float damage = 2f;
-        SkillHandler handler = context.getSkills();
+        SkillHolder handler = context.getSkills();
 
-        if (context.getSkills().hasSkill(SkillInit.DECOMPOSE.value())
-                && target.hasEffect(EffectInit.POISON)) damage += (float) (context.getPlayer().getData(DataInit.MANA)/100f);
+        if (context.getSkills().hasSkill(SBSkills.DECOMPOSE.value())
+                && target.hasEffect(SBEffects.POISON)) damage += (float) (context.getPlayer().getData(SBData.MANA)/100f);
 
-        if (handler.hasSkill(SkillInit.NATURES_DOMINANCE.value())) damage *= 1f + (0.1f * context.getSpellHandler().getActiveSpells(getSpellType()).size());
-        if (handler.hasSkill(SkillInit.POISON_ESSENCE.value()) && poisonEssenceExpiry > ticks) damage *= 1.25f;
+        if (handler.hasSkill(SBSkills.NATURES_DOMINANCE.value())) damage *= 1f + (0.1f * context.getSpellHandler().getActiveSpells(getSpellType()).size());
+        if (handler.hasSkill(SBSkills.POISON_ESSENCE.value()) && poisonEssenceExpiry > ticks) damage *= 1.25f;
 
         return damage;
     }
@@ -142,7 +142,7 @@ public class WildMushroomSpell extends SummonSpell {
         super.onSpellStop(context);
         context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.PLAYER_KILL, PLAYER_KILL);
         if (!context.getLevel().isClientSide) {
-            if (context.getSkills().hasSkill(SkillInit.CIRCLE_OF_LIFE.value())) {
+            if (context.getSkills().hasSkill(SBSkills.CIRCLE_OF_LIFE.value())) {
                 SpellHandler handler = context.getSpellHandler();
                 int level = context.getSkills().getSpellLevel(getSpellType());
                 handler.awardMana(52 + (2 * (level - 1)));
@@ -154,7 +154,7 @@ public class WildMushroomSpell extends SummonSpell {
         for (LivingEntity entity : targetsHit) {
             if (entity.is(event.getDeathEvent().getEntity())) {
                 this.poisonEssenceExpiry = ticks + 200;
-                if (SpellUtil.getSkillHandler(event.getPlayer()).hasSkill(SkillInit.SYNTHESIS.value())) {
+                if (SpellUtil.getSkillHolder(event.getPlayer()).hasSkill(SBSkills.SYNTHESIS.value())) {
                     this.addTimedModifier(event.getPlayer(), SpellModifier.SYNTHESIS, 120);
                 }
                 return;

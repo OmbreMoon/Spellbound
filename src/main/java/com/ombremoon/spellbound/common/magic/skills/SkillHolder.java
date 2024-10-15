@@ -1,13 +1,10 @@
-package com.ombremoon.spellbound.common.data;
+package com.ombremoon.spellbound.common.magic.skills;
 
-import com.ombremoon.spellbound.common.init.SpellInit;
+import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellModifier;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
-import com.ombremoon.spellbound.common.magic.skills.ModifierSkill;
-import com.ombremoon.spellbound.common.magic.skills.Skill;
-import com.ombremoon.spellbound.common.magic.skills.SkillCooldowns;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -25,7 +22,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class SkillHandler implements INBTSerializable<CompoundTag> {
+public class SkillHolder implements INBTSerializable<CompoundTag> {
     protected final Map<SpellPath, Float> pathXp = new Object2FloatOpenHashMap<>();
     protected final Map<SpellType<?>, Float> spellXp = new Object2FloatOpenHashMap<>();
     public final Map<SpellType<?>, Set<Skill>> unlockedSkills = new Object2ObjectOpenHashMap<>();
@@ -112,6 +109,10 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
         return this.permanentModifiers;
     }
 
+    public void clearModifiers() {
+        this.permanentModifiers.clear();
+    }
+
     public void tickModifiers(Player player) {
         if (!this.timedModifiers.isEmpty())
             this.timedModifiers.entrySet().removeIf(entry -> entry.getValue() <= player.tickCount);
@@ -185,7 +186,7 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
 
         for (int i = 0; i < spellTag.size(); i++) {
             CompoundTag tag = spellTag.getCompound(i);
-            this.spellXp.put(SpellInit.REGISTRY.get(ResourceLocation.tryParse(tag.getString("Spell"))), tag.getFloat("Xp"));
+            this.spellXp.put(SBSpells.REGISTRY.get(ResourceLocation.tryParse(tag.getString("Spell"))), tag.getFloat("Xp"));
         }
 
         for (int i = 0; i < skillTag.size(); i++) {
@@ -196,7 +197,7 @@ public class SkillHandler implements INBTSerializable<CompoundTag> {
                 CompoundTag nbt = skillList.getCompound(j);
                 skills.add(Skill.byName(ResourceLocation.tryParse(nbt.getString("Skill"))));
             }
-            this.unlockedSkills.put(SpellInit.REGISTRY.get(ResourceLocation.tryParse(tag.getString("Spell"))), skills);
+            this.unlockedSkills.put(SBSpells.REGISTRY.get(ResourceLocation.tryParse(tag.getString("Spell"))), skills);
         }
 
         if (compoundTag.contains("Modifiers", 9)) {

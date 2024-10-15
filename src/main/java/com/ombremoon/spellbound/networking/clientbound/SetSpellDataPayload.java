@@ -1,17 +1,12 @@
 package com.ombremoon.spellbound.networking.clientbound;
 
 import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.common.init.SpellInit;
+import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
@@ -28,7 +23,7 @@ public record SetSpellDataPayload(SpellType<?> spellType, int id, List<SyncedSpe
     }
 
     private static SpellType<?> getSpellType(String location) {
-        return SpellInit.SPELL_TYPES.getRegistry().get().get(ResourceLocation.tryParse(location));
+        return SBSpells.SPELL_TYPES.getRegistry().get().get(ResourceLocation.tryParse(location));
     }
 
     private static void pack(List<SyncedSpellData.DataValue<?>> dataValues, RegistryFriendlyByteBuf buffer) {

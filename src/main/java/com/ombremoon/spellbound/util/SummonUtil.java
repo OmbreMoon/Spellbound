@@ -1,20 +1,18 @@
 package com.ombremoon.spellbound.util;
 
 import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
-import com.ombremoon.spellbound.common.data.SpellHandler;
-import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 public class SummonUtil {
 
@@ -24,7 +22,7 @@ public class SummonUtil {
      * @param owner The owner of the summon
      */
     public static void setOwner(@NotNull Entity entity, @NotNull LivingEntity owner) {
-        entity.setData(DataInit.OWNER_ID, owner.getId());
+        entity.setData(SBData.OWNER_ID, owner.getId());
         if (entity instanceof ISpellEntity spellEntity)
             spellEntity.setOwner(owner);
     }
@@ -36,8 +34,8 @@ public class SummonUtil {
      */
     @Nullable
     public static Entity getOwner(@NotNull Entity entity) {
-        if (!entity.hasData(DataInit.OWNER_ID)) return null;
-        return entity.level().getEntity(entity.getData(DataInit.OWNER_ID));
+        if (!entity.hasData(SBData.OWNER_ID)) return null;
+        return entity.level().getEntity(entity.getData(SBData.OWNER_ID));
     }
 
     /**
@@ -48,8 +46,8 @@ public class SummonUtil {
      */
     @Nullable
     public static LivingEntity getTarget(@NotNull Entity entity) {
-        if (!entity.hasData(DataInit.TARGET_ID)) return null;
-        return (LivingEntity) entity.level().getEntity(entity.getData(DataInit.TARGET_ID));
+        if (!entity.hasData(SBData.TARGET_ID)) return null;
+        return (LivingEntity) entity.level().getEntity(entity.getData(SBData.TARGET_ID));
     }
 
     /**
@@ -58,7 +56,7 @@ public class SummonUtil {
      * @param target The new target for the summon
      */
     public static void setTarget(@NotNull Mob summon, @NotNull LivingEntity target) {
-        summon.setData(DataInit.TARGET_ID, target.getId());
+        summon.setData(SBData.TARGET_ID, target.getId());
         summon.setTarget(target);
     }
 

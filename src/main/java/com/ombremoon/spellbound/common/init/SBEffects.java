@@ -10,7 +10,7 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-public class EffectInit {
+public class SBEffects {
     public static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister
             .create(Registries.MOB_EFFECT, Constants.MOD_ID);
 

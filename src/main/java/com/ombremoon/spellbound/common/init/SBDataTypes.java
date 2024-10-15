@@ -10,7 +10,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -20,7 +19,7 @@ import org.joml.Vector3f;
 
 import java.util.function.Supplier;
 
-public class DataTypeInit {
+public class SBDataTypes {
     public static final ResourceKey<Registry<SpellDataType<?>>> DATA_TYPE_KEY = ResourceKey.createRegistryKey(CommonClass.customLocation("spell_data_type"));
     public static final Registry<SpellDataType<?>> REGISTRY = new RegistryBuilder<>(DATA_TYPE_KEY).sync(true).create();
     public static final DeferredRegister<SpellDataType<?>> DATA_TYPES = DeferredRegister.create(REGISTRY, Constants.MOD_ID);
@@ -41,11 +40,11 @@ public class DataTypeInit {
 
     @Nullable
     public static SpellDataType<?> getDataType(int id) {
-        return DataTypeInit.REGISTRY.byId(id);
+        return SBDataTypes.REGISTRY.byId(id);
     }
 
     public static int getDataTypeId(SpellDataType<?> dataType) {
-        return DataTypeInit.REGISTRY.getId(dataType);
+        return SBDataTypes.REGISTRY.getId(dataType);
     }
 
     public static void register(IEventBus modEventBus) {

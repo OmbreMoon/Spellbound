@@ -1,9 +1,8 @@
 package com.ombremoon.spellbound.networking.clientbound;
 
-import com.ombremoon.spellbound.client.CameraEngine;
 import com.ombremoon.spellbound.client.gui.WorkbenchScreen;
-import com.ombremoon.spellbound.common.data.SpellHandler;
-import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
@@ -24,14 +23,14 @@ public class ClientPayloadHandler {
 
     public static void handleClientManaSync(ClientSyncManaPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
-            context.player().setData(DataInit.MANA, payload.mana());
+            context.player().setData(SBData.MANA, payload.mana());
         });
     }
 
     public static void handleClientSkillSync(SyncSkillPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
-            var handler = SpellUtil.getSkillHandler(context.player());
-            handler.deserializeNBT(context.player().level().registryAccess(), payload.tag());
+            var holder = SpellUtil.getSkillHolder(context.player());
+            holder.deserializeNBT(context.player().level().registryAccess(), payload.tag());
         });
     }
 
@@ -52,7 +51,7 @@ public class ClientPayloadHandler {
 
     public static void handleClientUpdateTree(UpdateTreePayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
-            context.player().getData(DataInit.UPGRADE_TREE).update(payload);
+            context.player().getData(SBData.UPGRADE_TREE).update(payload);
         });
     }
 
@@ -60,13 +59,6 @@ public class ClientPayloadHandler {
         context.enqueueWork(() -> {
             context.player().setXRot(payload.xRot());
             context.player().setYRot(payload.yRot());
-        });
-    }
-
-    public static void handleClientShakeScreen(ShakeScreenPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            CameraEngine cameraEngine = CameraEngine.getOrAssignEngine(context.player());
-            cameraEngine.shakeScreen(context.player().getRandom().nextInt(), payload.duration(), payload.intensity(), payload.maxOffset(), payload.freq());
         });
     }
 

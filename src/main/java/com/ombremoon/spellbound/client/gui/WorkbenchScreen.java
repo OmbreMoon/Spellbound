@@ -3,9 +3,9 @@ package com.ombremoon.spellbound.client.gui;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.common.data.SkillHandler;
-import com.ombremoon.spellbound.common.data.SpellHandler;
-import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
+import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
@@ -35,7 +35,7 @@ public class WorkbenchScreen extends Screen {
     private int selectedIndex = -1;
     private Player player;
     private SpellHandler spellHandler;
-    private SkillHandler skillHandler;
+    private SkillHolder skillHolder;
     private List<SpellType<?>> spellList;
     private UpgradeTree upgradeTree;
     private final Map<SpellType<?>, UpgradeWindow> spellTrees = Maps.newLinkedHashMap();
@@ -58,9 +58,9 @@ public class WorkbenchScreen extends Screen {
         this.leftPos = (this.width - WIDTH) / 2;
         this.topPos = (this.height - HEIGHT) / 2;
         this.player = this.minecraft.player;
-        this.upgradeTree = this.player.getData(DataInit.UPGRADE_TREE);
+        this.upgradeTree = this.player.getData(SBData.UPGRADE_TREE);
         this.spellHandler = SpellUtil.getSpellHandler(this.player);
-        this.skillHandler = SpellUtil.getSkillHandler(this.player);
+        this.skillHolder = SpellUtil.getSkillHolder(this.player);
         this.spellList = this.spellHandler.getSpellList().stream().filter(spellType -> spellType.getPath().ordinal() == pageIndex).toList();
         this.initSpellTrees();
         if (!this.spellList.isEmpty()) {
@@ -92,6 +92,7 @@ public class WorkbenchScreen extends Screen {
                 this.spellList = this.spellHandler.getSpellList().stream().filter(spellType -> spellType.getPath().ordinal() == pageIndex).toList();
                 this.selectedSpell = this.spellList.isEmpty() ? null : this.spellList.get(0);
                 this.selectedTree = this.selectedSpell != null ? this.spellTrees.get(this.selectedSpell) : null;
+                if (this.selectedTree != null) this.selectedTree.centered = false;
                 this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                 return true;
             }
@@ -104,8 +105,8 @@ public class WorkbenchScreen extends Screen {
                 for (var widget : widgets) {
                     if (widget.isMouseOver(i, j, mouseX - this.leftPos - 98, mouseY - this.topPos - 18)) {
                         Skill skill = widget.getSkill();
-                        if (this.skillHandler.canUnlockSkill(skill)) {
-                            this.skillHandler.unlockSkill(skill);
+                        if (this.skillHolder.canUnlockSkill(skill)) {
+                            this.skillHolder.unlockSkill(skill);
                             PayloadHandler.unlockSkill(skill);
                         }
                     }
@@ -197,11 +198,11 @@ public class WorkbenchScreen extends Screen {
 
         int scrollTexture = isHovering(5, 29, 12, 104, mouseX, mouseY) ? 12 : 0;
         guiGraphics.drawCenteredString(this.font, this.selectedSpell != null ? this.selectedSpell.createSpell().getName() : Component.empty(), xPos + 75, yPos + 148, textColor);
-        guiGraphics.drawCenteredString(this.font, this.selectedSpell != null ? Component.literal(String.valueOf(skillHandler.getSpellLevel(selectedSpell))) : Component.empty(), xPos + 14, yPos + 149, textColor);
+        guiGraphics.drawCenteredString(this.font, this.selectedSpell != null ? Component.literal(String.valueOf(skillHolder.getSpellLevel(selectedSpell))) : Component.empty(), xPos + 14, yPos + 149, textColor);
         guiGraphics.blit(TEXTURE, xPos + 5, (int) (yPos + 29 + (89 * scrollOffs)), scrollTexture, 172, 12, 15);
         guiGraphics.blit(PATH, xPos + 4, yPos + 4, 0, 1 + (SpellPath.values()[pageIndex].ordinal() * 20), 84, 18, 84, 100);
 
-        renderScaledXPBars(guiGraphics, skillHandler, xPos, yPos, textColor);
+        renderScaledXPBars(guiGraphics, skillHolder, xPos, yPos, textColor);
         renderTabs(guiGraphics, this.leftPos, this.topPos, mouseX, mouseY);
     }
 
@@ -234,9 +235,9 @@ public class WorkbenchScreen extends Screen {
         }
     }
 
-    private void renderScaledXPBars(GuiGraphics guiGraphics, SkillHandler skillHandler, int xPos, int yPos, int textColor) {
-        float pathXP = skillHandler.getPathXp(SpellPath.values()[this.pageIndex]);
-        int pathLevel = skillHandler.getPathLevel(SpellPath.values()[this.pageIndex]);
+    private void renderScaledXPBars(GuiGraphics guiGraphics, SkillHolder skillHolder, int xPos, int yPos, int textColor) {
+        float pathXP = skillHolder.getPathXp(SpellPath.values()[this.pageIndex]);
+        int pathLevel = skillHolder.getPathLevel(SpellPath.values()[this.pageIndex]);
         if (pathXP > 0) {
             int xpGoal = 100 * (pathLevel + 1);
             int scale = RenderUtil.getScaledRender(pathXP - (100 * pathLevel), xpGoal - (100 * pathLevel), 141);
@@ -245,8 +246,8 @@ public class WorkbenchScreen extends Screen {
 
         if (this.selectedSpell == null) return;
 
-        float spellXP = skillHandler.getSpellXp(this.selectedSpell);
-        int spellLevel = skillHandler.getSpellLevel(this.selectedSpell);
+        float spellXP = skillHolder.getSpellXp(this.selectedSpell);
+        int spellLevel = skillHolder.getSpellLevel(this.selectedSpell);
         if (spellXP > 0) {
             int xpGoal = Math.min(100 * (spellLevel + 1), 500);
             int scale = RenderUtil.getScaledRender(spellXP - (100 * spellLevel), xpGoal - (100 * spellLevel), 122);

@@ -2,7 +2,6 @@ package com.ombremoon.spellbound.common.init;
 
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.content.entity.living.LivingShadow;
-import com.ombremoon.spellbound.common.content.entity.living.TotemSpiritEntity;
 import com.ombremoon.spellbound.common.content.entity.spell.StormstrikeBolt;
 import com.ombremoon.spellbound.common.content.entity.spell.WildMushroom;
 import com.ombremoon.spellbound.common.content.entity.spell.ShadowGate;
@@ -17,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class EntityInit {
+public class SBEntities {
     public static final List<AttributesRegister<?>> SUPPLIERS = new ArrayList<>();
     public static final List<Supplier<? extends EntityType<?>>> MOBS = new ArrayList<>();
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister
@@ -47,7 +46,7 @@ public class EntityInit {
             builder.fireImmune();
         }
 
-        var entitySupplier = EntityInit.ENTITIES.register(name, () -> {
+        var entitySupplier = SBEntities.ENTITIES.register(name, () -> {
             EntityType<T> entityType = builder.build(name);
             if (attributeSupplier != null) {
                 SUPPLIERS.add(new AttributesRegister<>(() -> entityType, attributeSupplier));
@@ -61,7 +60,7 @@ public class EntityInit {
     protected static <T extends Entity> Supplier<EntityType<T>> registerEntity(String name, EntityType.EntityFactory<T> factory, float width, float height) {
         EntityType.Builder<T> builder = EntityType.Builder.of(factory, MobCategory.MISC).sized(width, height).clientTrackingRange(4);
 
-        return EntityInit.ENTITIES.register(name, () -> {
+        return SBEntities.ENTITIES.register(name, () -> {
             return builder.build(name);
         });
     }

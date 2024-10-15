@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class ItemInit {
+public class SBItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Constants.MOD_ID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Constants.MOD_ID);
     public static final List<Supplier<? extends Item>> SIMPLE_ITEM_LIST = new ArrayList<>();
@@ -42,7 +42,7 @@ public class ItemInit {
                         ITEMS.getEntries().forEach((registryObject)-> {
                             if (registryObject != SPELL_TOME) output.accept(new ItemStack(registryObject.get()));
                         });
-                        SpellInit.SPELL_TYPES.getEntries().forEach((registryObject) -> {
+                        SBSpells.SPELL_TYPES.getEntries().forEach((registryObject) -> {
                             output.accept(SpellTomeItem.createWithSpell(registryObject.get()));
                         });
                     }).title(Component.translatable("itemGroup.spellbound"))

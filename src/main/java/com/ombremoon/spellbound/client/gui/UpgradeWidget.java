@@ -1,7 +1,6 @@
 package com.ombremoon.spellbound.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.ombremoon.spellbound.common.init.DataInit;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.tree.SkillNode;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -116,8 +115,8 @@ public class UpgradeWidget {
     }
 
     public void draw(GuiGraphics guiGraphics, int x, int y) {
-        var handler = SpellUtil.getSkillHandler(this.minecraft.player);
-        Type type = handler.hasSkill(this.skillNode.skill()) ? Type.UNLOCKED : Type.LOCKED;
+        var holder = SpellUtil.getSkillHolder(this.minecraft.player);
+        Type type = holder.hasSkill(this.skillNode.skill()) ? Type.UNLOCKED : Type.LOCKED;
         guiGraphics.blit(WorkbenchScreen.TEXTURE, x + this.x, y + this.y, 29 ,226, 30, 30);
         ResourceLocation sprite = this.skillNode.skill().getTexture();
         guiGraphics.blit(sprite, x + this.x + 3, y + this.y + 3, 0, 0, 24, 24, 24, 24);
@@ -142,8 +141,8 @@ public class UpgradeWidget {
     public void drawHover(GuiGraphics guiGraphics, int x, int y, float fade, int width, int height) {
         boolean flag = width + x + this.x + this.width + 30 >= this.window.getScreen().width;
         boolean flag1 = 115 - y - this.y - 30 <= 6 + this.description.size() * 9;
-        var handler = SpellUtil.getSkillHandler(this.minecraft.player);
-        ResourceLocation box = handler.hasSkill(getSkill()) ? UNLOCKED : LOCKED;
+        var holder = SpellUtil.getSkillHolder(this.minecraft.player);
+        ResourceLocation box = holder.hasSkill(getSkill()) ? UNLOCKED : LOCKED;
 
         int i = this.width;
         RenderSystem.enableBlend();

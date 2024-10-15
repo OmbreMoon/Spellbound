@@ -2,7 +2,7 @@ package com.ombremoon.spellbound.datagen;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.common.init.ItemInit;
+import com.ombremoon.spellbound.common.init.SBItems;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -22,8 +22,8 @@ public class ModItemModelProvider extends ItemModelProvider {
 
     @Override
     protected void registerModels() {
-        ItemInit.SIMPLE_ITEM_LIST.stream().map(Supplier::get).forEach(this::tempItem);
-        tempItem(ItemInit.DEBUG.get());
+        SBItems.SIMPLE_ITEM_LIST.stream().map(Supplier::get).forEach(this::tempItem);
+        tempItem(SBItems.DEBUG.get());
 
     }
 

@@ -1,12 +1,10 @@
 package com.ombremoon.spellbound.common.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.ArgumentType;
-import com.ombremoon.spellbound.common.data.SkillHandler;
-import com.ombremoon.spellbound.common.data.SpellHandler;
-import com.ombremoon.spellbound.common.init.DataInit;
-import com.ombremoon.spellbound.common.init.SkillInit;
-import com.ombremoon.spellbound.common.init.SpellInit;
+import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
+import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.init.SBSkills;
+import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -21,17 +19,17 @@ public class LearnSkillsCommand {
 
     public LearnSkillsCommand(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
         dispatcher.register(Commands.literal("learnskills")
-                .then(Commands.argument("spell", ResourceArgument.resource(context, SpellInit.SPELL_TYPE_REGISTRY_KEY))
+                .then(Commands.argument("spell", ResourceArgument.resource(context, SBSpells.SPELL_TYPE_REGISTRY_KEY))
                         .executes(cmdContext -> learnSpells(cmdContext.getSource(),
-                                ResourceArgument.getResource(cmdContext, "spell", SpellInit.SPELL_TYPE_REGISTRY_KEY))))
-                .then(Commands.argument("spell", ResourceArgument.resource(context, SpellInit.SPELL_TYPE_REGISTRY_KEY))
+                                ResourceArgument.getResource(cmdContext, "spell", SBSpells.SPELL_TYPE_REGISTRY_KEY))))
+                .then(Commands.argument("spell", ResourceArgument.resource(context, SBSpells.SPELL_TYPE_REGISTRY_KEY))
                         .then(Commands.literal("reset")
                                 .executes(cmdContext -> resetSpells(cmdContext.getSource(),
-                                        ResourceArgument.getResource(cmdContext, "spell", SpellInit.SPELL_TYPE_REGISTRY_KEY)))))
-                .then(Commands.argument("spell", ResourceArgument.resource(context, SpellInit.SPELL_TYPE_REGISTRY_KEY))
-                        .then(Commands.argument("skill", ResourceArgument.resource(context, SkillInit.SKILL_REGISTRY_KEY))
+                                        ResourceArgument.getResource(cmdContext, "spell", SBSpells.SPELL_TYPE_REGISTRY_KEY)))))
+                .then(Commands.argument("spell", ResourceArgument.resource(context, SBSpells.SPELL_TYPE_REGISTRY_KEY))
+                        .then(Commands.argument("skill", ResourceArgument.resource(context, SBSkills.SKILL_REGISTRY_KEY))
                                 .executes(cmdContext -> learnSingleSkill(cmdContext.getSource(),
-                                        ResourceArgument.getResource(cmdContext, "skill", SkillInit.SKILL_REGISTRY_KEY))))));
+                                        ResourceArgument.getResource(cmdContext, "skill", SBSkills.SKILL_REGISTRY_KEY))))));
     }
 
     private int learnSingleSkill(CommandSourceStack context, Holder.Reference<Skill> skill) {
@@ -43,7 +41,7 @@ public class LearnSkillsCommand {
             return 0;
         }
 
-        var skillHandler = SpellUtil.getSkillHandler(context.getPlayer());
+        var skillHandler = SpellUtil.getSkillHolder(context.getPlayer());
         skillHandler.unlockSkill(skill.value());
         skillHandler.sync(context.getPlayer());
         context.getPlayer().sendSystemMessage(Component.translatable("command.spellbound.singleskilllearnt",
@@ -55,9 +53,9 @@ public class LearnSkillsCommand {
     private int learnSpells(CommandSourceStack context, Holder.Reference<SpellType<?>> spell) {
         if (!context.isPlayer()) return 0;
         SpellHandler handler = SpellUtil.getSpellHandler(context.getPlayer());
-        SkillHandler skillHandler = SpellUtil.getSkillHandler(context.getPlayer());
+        SkillHolder skillHolder = SpellUtil.getSkillHolder(context.getPlayer());
 
-        SpellType<?> spellType = SpellInit.REGISTRY.get(spell.key());
+        SpellType<?> spellType = SBSpells.REGISTRY.get(spell.key());
         if (!handler.getSpellList().contains(spellType)) {
             context.getPlayer().sendSystemMessage(Component.translatable("command.spellbound.spellunknown",
                     spell.value().createSpell().getName()));
@@ -65,10 +63,10 @@ public class LearnSkillsCommand {
         };
 
         for (Skill skill : spellType.getSkills()) {
-            skillHandler.unlockSkill(skill);
+            skillHolder.unlockSkill(skill);
         }
 
-        skillHandler.sync(context.getPlayer());
+        skillHolder.sync(context.getPlayer());
         context.getPlayer().sendSystemMessage(Component.translatable("command.spellbound.learntskills",
                 spell.value().createSpell().getName()));
 
@@ -78,13 +76,13 @@ public class LearnSkillsCommand {
     private int resetSpells(CommandSourceStack context, Holder.Reference<SpellType<?>> spell) {
         if (!context.isPlayer()) return 0;
         SpellHandler handler = SpellUtil.getSpellHandler(context.getPlayer());
-        SkillHandler skillHandler = SpellUtil.getSkillHandler(context.getPlayer());
+        SkillHolder skillHolder = SpellUtil.getSkillHolder(context.getPlayer());
 
-        SpellType<?> spellType = SpellInit.REGISTRY.get(spell.key());
+        SpellType<?> spellType = SBSpells.REGISTRY.get(spell.key());
         if (!handler.getSpellList().contains(spellType)) return 0;
 
-        skillHandler.resetSkills(spellType);
-        skillHandler.sync(context.getPlayer());
+        skillHolder.resetSkills(spellType);
+        skillHolder.sync(context.getPlayer());
         return 1;
     }
 }

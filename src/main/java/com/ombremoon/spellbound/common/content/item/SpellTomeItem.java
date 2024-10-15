@@ -1,9 +1,9 @@
 package com.ombremoon.spellbound.common.content.item;
 
-import com.ombremoon.spellbound.common.init.DataInit;
-import com.ombremoon.spellbound.common.init.ItemInit;
-import com.ombremoon.spellbound.common.init.SpellInit;
-import com.ombremoon.spellbound.common.init.StatInit;
+import com.ombremoon.spellbound.common.init.SBData;
+import com.ombremoon.spellbound.common.init.SBItems;
+import com.ombremoon.spellbound.common.init.SBSpells;
+import com.ombremoon.spellbound.common.init.SBStats;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.ChatFormatting;
@@ -31,17 +31,17 @@ public class SpellTomeItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         ItemStack itemStack = player.getItemInHand(usedHand);
-        String resLocString = itemStack.get(DataInit.SPELL);
+        String resLocString = itemStack.get(SBData.SPELL);
         if (resLocString == null) return fail(player, itemStack);
         ResourceLocation resLoc = ResourceLocation.tryParse(resLocString);
         if (resLoc == null) return fail(player, itemStack);
 
-        SpellType<?> spell = SpellInit.REGISTRY.get(resLoc);
+        SpellType<?> spell = SBSpells.REGISTRY.get(resLoc);
         if (!level.isClientSide) {
             var handler = SpellUtil.getSpellHandler(player);
             if (handler.getSpellList().contains(spell)) {
                 player.displayClientMessage(Component.translatable("chat.spelltome.awardxp"), true);
-                SpellUtil.getSkillHandler(player).awardSpellXp(spell, 10);
+                SpellUtil.getSkillHolder(player).awardSpellXp(spell, 10);
                 itemStack.shrink(1);
                 return InteractionResultHolder.fail(itemStack);
             }
@@ -53,14 +53,14 @@ public class SpellTomeItem extends Item {
         }
 
         player.awardStat(Stats.ITEM_USED.get(this));
-        player.awardStat(StatInit.SPELLS_LEARNED.get());
+        player.awardStat(SBStats.SPELLS_LEARNED.get());
         player.gameEvent(GameEvent.ITEM_INTERACT_FINISH);
         return InteractionResultHolder.sidedSuccess(itemStack, level.isClientSide);
     }
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        String resLocString = stack.get(DataInit.SPELL);
+        String resLocString = stack.get(SBData.SPELL);
         if (resLocString == null) {
             tooltipComponents.add(Component.translatable("chat.spelltome.nospell").withStyle(ChatFormatting.GRAY));
             return;
@@ -70,7 +70,7 @@ public class SpellTomeItem extends Item {
             tooltipComponents.add(Component.translatable("chat.spelltome.nospell").withStyle(ChatFormatting.GRAY));
             return;
         }
-        SpellType<?> spell = SpellInit.REGISTRY.get(resLoc);
+        SpellType<?> spell = SBSpells.REGISTRY.get(resLoc);
         if (spell == null) {
             tooltipComponents.add(Component.translatable("chat.spelltome.nospell").withStyle(ChatFormatting.GRAY));
             return;
@@ -91,8 +91,8 @@ public class SpellTomeItem extends Item {
     }
 
     public static ItemStack createWithSpell(SpellType<?> spellType) {
-        ItemStack tome = new ItemStack(ItemInit.SPELL_TOME.get());
-        tome.set(DataInit.SPELL, spellType.location().toString());
+        ItemStack tome = new ItemStack(SBItems.SPELL_TOME.get());
+        tome.set(SBData.SPELL, spellType.location().toString());
 
         return tome;
     }

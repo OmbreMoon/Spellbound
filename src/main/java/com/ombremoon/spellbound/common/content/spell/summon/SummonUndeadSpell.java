@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.content.spell.summon;
 
-import com.ombremoon.spellbound.common.init.SpellInit;
+import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import net.minecraft.world.Difficulty;
@@ -15,7 +15,7 @@ public class SummonUndeadSpell extends SummonSpell {
     }
 
     public SummonUndeadSpell() {
-        super(SpellInit.SUMMON_UNDEAD.get(), createSummonBuilder());
+        super(SBSpells.SUMMON_UNDEAD.get(), createSummonBuilder());
     }
 
     @Override

@@ -6,11 +6,10 @@ import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.commands.LearnSkillsCommand;
 import com.ombremoon.spellbound.common.commands.LearnSpellCommand;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
-import com.ombremoon.spellbound.common.data.SpellHandler;
-import com.ombremoon.spellbound.common.data.EffectHandler;
-import com.ombremoon.spellbound.common.init.AttributesInit;
-import com.ombremoon.spellbound.common.init.DataInit;
-import com.ombremoon.spellbound.common.init.EffectInit;
+import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.init.SBAttributes;
+import com.ombremoon.spellbound.common.init.SBData;
+import com.ombremoon.spellbound.common.init.SBEffects;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.events.*;
 import com.ombremoon.spellbound.networking.PayloadHandler;
@@ -63,7 +62,7 @@ public class NeoForgeEvents {
     @SubscribeEvent
     public static void onEntityJoinWorld(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof LivingEntity livingEntity) {
-            livingEntity.getData(DataInit.STATUS_EFFECTS).init(livingEntity);
+            livingEntity.getData(SBData.STATUS_EFFECTS).init(livingEntity);
 
             if (livingEntity instanceof Player player) {
                 var handler = SpellUtil.getSpellHandler(player);
@@ -71,10 +70,10 @@ public class NeoForgeEvents {
                 if (!player.level().isClientSide) {
                     handler.sync();
 
-                    var skillHandler = SpellUtil.getSkillHandler(player);
-                    skillHandler.sync(player);
+                    var holder = SpellUtil.getSkillHolder(player);
+                    holder.sync(player);
 
-                    var tree = player.getData(DataInit.UPGRADE_TREE);
+                    var tree = player.getData(SBData.UPGRADE_TREE);
                     tree.update(player, tree.getUnlockedSkills());
                 }
             }
@@ -90,20 +89,20 @@ public class NeoForgeEvents {
     @SubscribeEvent
     public static void onPostEntityTick(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof LivingEntity entity) {
-            EffectHandler status = entity.getData(DataInit.STATUS_EFFECTS);
+            EffectManager status = entity.getData(SBData.STATUS_EFFECTS);
             if (status.isInitialised()) status.tick(entity.tickCount);
 
             if (entity instanceof Player player) {
                 if (player.tickCount % 20 == 0) {
-                    double mana = player.getData(DataInit.MANA);
-                    if (mana < player.getAttribute(AttributesInit.MAX_MANA).getValue()) {
-                        double regen = player.getAttribute(AttributesInit.MANA_REGEN).getValue();
-                        player.setData(DataInit.MANA, mana + regen);
+                    double mana = player.getData(SBData.MANA);
+                    if (mana < player.getAttribute(SBAttributes.MAX_MANA).getValue()) {
+                        double regen = player.getAttribute(SBAttributes.MANA_REGEN).getValue();
+                        player.setData(SBData.MANA, mana + regen);
                     }
                 }
             }
 
-            if (entity.hasEffect(EffectInit.STUNNED) || entity.hasEffect(EffectInit.ROOTED))
+            if (entity.hasEffect(SBEffects.STUNNED) || entity.hasEffect(SBEffects.ROOTED))
                 entity.setDeltaMovement(0, 0, 0);
         }
     }
@@ -111,7 +110,7 @@ public class NeoForgeEvents {
     @SubscribeEvent
     public static void onPlayerClone(PlayerEvent.PlayerRespawnEvent event) {
         Player player = event.getEntity();
-        player.setData(DataInit.MANA, player.getAttribute(AttributesInit.MAX_MANA).getValue());
+        player.setData(SBData.MANA, player.getAttribute(SBAttributes.MAX_MANA).getValue());
         PayloadHandler.syncMana(player);
     }
 

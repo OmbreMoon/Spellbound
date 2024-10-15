@@ -5,6 +5,7 @@ import com.ombremoon.spellbound.common.magic.skills.Skill;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -12,6 +13,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Wrapper class for {@link AbstractSpell}'s. Spell types should be registered like any other {@link DeferredRegister}
+ * @param <S> AbstractSpell
+ */
 public class SpellType<S extends AbstractSpell> {
     private final ResourceLocation resourceLocation;
     private final SpellFactory<S> factory;

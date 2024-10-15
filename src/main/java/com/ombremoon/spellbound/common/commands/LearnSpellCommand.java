@@ -1,8 +1,8 @@
 package com.ombremoon.spellbound.common.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.ombremoon.spellbound.common.data.SpellHandler;
-import com.ombremoon.spellbound.common.init.SpellInit;
+import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.commands.CommandBuildContext;
@@ -16,13 +16,13 @@ public class LearnSpellCommand {
 
     public LearnSpellCommand(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
         dispatcher.register(Commands.literal("learnspell")
-                .then(Commands.argument("spell", ResourceArgument.resource(context, SpellInit.SPELL_TYPE_REGISTRY_KEY))
+                .then(Commands.argument("spell", ResourceArgument.resource(context, SBSpells.SPELL_TYPE_REGISTRY_KEY))
                         .executes(cmdContext -> learnSpell(cmdContext.getSource(),
-                                ResourceArgument.getResource(cmdContext, "spell", SpellInit.SPELL_TYPE_REGISTRY_KEY))))
-                .then(Commands.argument("spell", ResourceArgument.resource(context, SpellInit.SPELL_TYPE_REGISTRY_KEY))
+                                ResourceArgument.getResource(cmdContext, "spell", SBSpells.SPELL_TYPE_REGISTRY_KEY))))
+                .then(Commands.argument("spell", ResourceArgument.resource(context, SBSpells.SPELL_TYPE_REGISTRY_KEY))
                         .then(Commands.literal("forget")
                                 .executes(cmdContext -> forgetSpell(cmdContext.getSource(),
-                                        ResourceArgument.getResource(cmdContext, "spell", SpellInit.SPELL_TYPE_REGISTRY_KEY))))));
+                                        ResourceArgument.getResource(cmdContext, "spell", SBSpells.SPELL_TYPE_REGISTRY_KEY))))));
     }
 
     private int learnSpell(CommandSourceStack context, Holder.Reference<SpellType<?>> spellType) {

@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.networking.clientbound;
 
 import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.common.init.SkillInit;
+import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -19,7 +19,7 @@ public record UpdateTreePayload(boolean reset, List<Skill> added, Set<ResourceLo
 
     public static final StreamCodec<RegistryFriendlyByteBuf, UpdateTreePayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.BOOL, UpdateTreePayload::reset,
-            ByteBufCodecs.registry(SkillInit.SKILL_REGISTRY_KEY).apply(ByteBufCodecs.list()), UpdateTreePayload::added,
+            ByteBufCodecs.registry(SBSkills.SKILL_REGISTRY_KEY).apply(ByteBufCodecs.list()), UpdateTreePayload::added,
             ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.collection(HashSet::new)), UpdateTreePayload::removed,
             UpdateTreePayload::new
     );

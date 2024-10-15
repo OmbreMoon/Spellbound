@@ -1,14 +1,12 @@
 package com.ombremoon.spellbound.common.content.block;
 
 import com.mojang.serialization.MapCodec;
-import com.ombremoon.spellbound.common.init.StatInit;
+import com.ombremoon.spellbound.common.init.SBStats;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.stats.Stat;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -51,7 +49,7 @@ public class UnnamedWorkbenchBlock extends HorizontalDirectionalBlock {
             }
 
             PayloadHandler.openWorkbenchScreen(player);
-            player.awardStat(StatInit.INTERACT_WITH_BENCH.get());
+            player.awardStat(SBStats.INTERACT_WITH_BENCH.get());
             return InteractionResult.CONSUME;
         }
     }

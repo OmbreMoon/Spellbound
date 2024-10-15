@@ -3,10 +3,10 @@ package com.ombremoon.spellbound.common.content.spell;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.content.effects.SBEffectInstance;
 import com.ombremoon.spellbound.common.content.entity.living.LivingShadow;
-import com.ombremoon.spellbound.common.init.DataInit;
-import com.ombremoon.spellbound.common.init.EffectInit;
-import com.ombremoon.spellbound.common.init.EntityInit;
-import com.ombremoon.spellbound.common.init.SpellInit;
+import com.ombremoon.spellbound.common.init.SBData;
+import com.ombremoon.spellbound.common.init.SBEffects;
+import com.ombremoon.spellbound.common.init.SBEntities;
+import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
@@ -22,7 +22,7 @@ public class TestSpell extends ChanneledSpell {
     }
 
     public TestSpell() {
-        super(SpellInit.TEST_SPELL.get(), createTestBuilder());
+        super(SBSpells.TEST_SPELL.get(), createTestBuilder());
     }
 
     @Override
@@ -33,8 +33,8 @@ public class TestSpell extends ChanneledSpell {
         });
         Constants.LOG.info("Working");
         if (!context.getLevel().isClientSide) {
-            LivingShadow livingShadow = EntityInit.LIVING_SHADOW.get().create(context.getLevel());
-            livingShadow.setData(DataInit.OWNER_ID, context.getPlayer().getId());
+            LivingShadow livingShadow = SBEntities.LIVING_SHADOW.get().create(context.getLevel());
+            livingShadow.setData(SBData.OWNER_ID, context.getPlayer().getId());
             livingShadow.setPos(context.getPlayer().position());
             context.getLevel().addFreshEntity(livingShadow);
         }
@@ -44,7 +44,7 @@ public class TestSpell extends ChanneledSpell {
     public void whenCasting(SpellContext context, int castTime) {
         super.whenCasting(context, castTime);
         Constants.LOG.info("{}", castTime);
-        if (!context.getLevel().isClientSide)
+        if (context.getLevel().isClientSide)
             shakeScreen(context.getPlayer(), 10, 5);
     }
 
@@ -54,13 +54,13 @@ public class TestSpell extends ChanneledSpell {
         LivingEntity livingEntity = this.getTargetEntity(10);
         if (livingEntity != null) {
             if (!context.getLevel().isClientSide) {
-                livingEntity.addEffect(new SBEffectInstance(context.getPlayer(), EffectInit.AFTERGLOW, 40, true, 0, false, false));
+                livingEntity.addEffect(new SBEffectInstance(context.getPlayer(), SBEffects.AFTERGLOW, 40, true, 0, false, false));
             } else {
 //                context.getSpellHandler().addGlowEffect(livingEntity);
             }
         }
 
-        if (!context.getLevel().isClientSide)
+        if (context.getLevel().isClientSide)
             shakeScreen(context.getPlayer(), 10, 5);
     }
 

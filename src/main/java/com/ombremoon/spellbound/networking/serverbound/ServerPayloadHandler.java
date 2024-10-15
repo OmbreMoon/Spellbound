@@ -54,7 +54,7 @@ public class ServerPayloadHandler {
 
     public static void handleNetworkSetCastKey(final SetCastKeyPayload payload, final IPayloadContext context) {
         var handler = SpellUtil.getSpellHandler(context.player());
-        handler.setCastKeyDown(payload.isDown());
+        handler.castKeyDown = payload.isDown();
     }
 
     public static void handleNetworkStopChannel(final StopChannelPayload payload, final IPayloadContext context) {
@@ -63,8 +63,8 @@ public class ServerPayloadHandler {
     }
 
     public static void handleNetworkUnlockSKill(final UnlockSkillPayload payload, final IPayloadContext context) {
-        var handler = SpellUtil.getSkillHandler(context.player());
-        handler.unlockSkill(payload.skill());
+        var holder = SpellUtil.getSkillHolder(context.player());
+        holder.unlockSkill(payload.skill());
         context.player().sendSystemMessage(Component.literal("You have unlocked the " + payload.skill().getName().getString() + " skill"));
     }
 }

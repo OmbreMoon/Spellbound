@@ -1,7 +1,6 @@
 package com.ombremoon.spellbound.mixin;
 
 import com.ombremoon.spellbound.common.content.effects.SBEffectInstance;
-import com.ombremoon.spellbound.common.init.EffectInit;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;

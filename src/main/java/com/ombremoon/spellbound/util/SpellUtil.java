@@ -1,9 +1,9 @@
 package com.ombremoon.spellbound.util;
 
-import com.ombremoon.spellbound.common.data.SkillHandler;
-import com.ombremoon.spellbound.common.data.SpellHandler;
-import com.ombremoon.spellbound.common.data.EffectHandler;
-import com.ombremoon.spellbound.common.init.DataInit;
+import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
+import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.EffectManager;
+import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import net.minecraft.nbt.CompoundTag;
@@ -17,11 +17,11 @@ import java.util.Iterator;
 public class SpellUtil {
 
     public static SpellHandler getSpellHandler(LivingEntity livingEntity) {
-        return livingEntity.getData(DataInit.SPELL_HANDLER);
+        return livingEntity.getData(SBData.SPELL_HANDLER);
     }
 
-    public static SkillHandler getSkillHandler(LivingEntity livingEntity) {
-        return livingEntity.getData(DataInit.SKILL_HANDLER);
+    public static SkillHolder getSkillHolder(LivingEntity livingEntity) {
+        return livingEntity.getData(SBData.SKILL_HOLDER);
     }
 
     public static CompoundTag storeSpell(SpellType<?> spellType) {
@@ -39,7 +39,7 @@ public class SpellUtil {
     }
 
     public static boolean canCastSpell(Player player, AbstractSpell spell) {
-        if (EffectHandler.isSilenced(player)) return false;
+        if (EffectManager.isSilenced(player)) return false;
 
         var handler = getSpellHandler(player);
         return handler.inCastMode() && handler.consumeMana(spell.getManaCost(player), false);

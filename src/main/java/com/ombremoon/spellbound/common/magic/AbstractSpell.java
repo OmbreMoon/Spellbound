@@ -3,9 +3,13 @@ package com.ombremoon.spellbound.common.magic;
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.client.CameraEngine;
-import com.ombremoon.spellbound.common.init.DataTypeInit;
-import com.ombremoon.spellbound.common.init.SpellInit;
-import com.ombremoon.spellbound.common.init.StatInit;
+import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
+import com.ombremoon.spellbound.client.renderer.layer.SpellLayerModel;
+import com.ombremoon.spellbound.client.renderer.layer.SpellLayerRenderer;
+import com.ombremoon.spellbound.common.init.SBDataTypes;
+import com.ombremoon.spellbound.common.init.SBSpells;
+import com.ombremoon.spellbound.common.init.SBStats;
+import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.api.ModifierType;
 import com.ombremoon.spellbound.common.magic.events.SpellEvent;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
@@ -36,9 +40,9 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
-import org.slf4j.Logger;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
@@ -50,15 +54,14 @@ import java.util.UUID;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
-@SuppressWarnings("unchecked")
 /**
- * The main class used to create spells. Spells exist on both the client and server and must be handled as such.
+ * The main class used to create spells. Spells exist on both the client and server and must be handled as such. In general, spells should extend {@link AnimatedSpell} unless you don't want the player to have an animation while casting the spell.
  */
+@SuppressWarnings("unchecked")
 public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, Loggable {
-    protected static final Logger LOGGER = Constants.LOG;
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public static final DataTicket<AbstractSpell> DATA_TICKET = new DataTicket<>("abstract_spell", AbstractSpell.class);
-    protected static final SpellDataKey<BlockPos> CAST_POS = SyncedSpellData.define(AbstractSpell.class, DataTypeInit.BLOCK_POS.get());
+    protected static final SpellDataKey<BlockPos> CAST_POS = SyncedSpellData.define(AbstractSpell.class, SBDataTypes.BLOCK_POS.get());
     private final SpellType<?> spellType;
     private final int manaCost;
     private final int duration;
@@ -85,7 +88,19 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     public boolean init = false;
     private int castId = 0;
 
-    public static Builder<AbstractSpell> createBuilder() {
+    /**
+     * <p>
+     * Creates a static instance of a spell builder.
+     * </p>
+     * See:
+     * <ul>
+     *     <li>{@code AnimatedSpell.Builder}</li>
+     *     <li>{@code ChanneledSpell.Builder}</li>
+     *     <li>{@code SummonSpell.Builder}</li>
+     * </ul>
+     * @return The spell builder
+     */
+    public static <T extends AbstractSpell> Builder<T> createBuilder() {
         return new Builder<>();
     }
 
@@ -138,7 +153,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns the sound played when the cast is complete.
+     * Returns the sound played when the spell cast is complete.
      * @return The cast sound
      */
     protected SoundEvent getCastSound() {
@@ -146,7 +161,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns the type of cast the spell takes. Instant spells will cast instantly after spell cast, charged spell have the ability to be charged after spell cast, and channeled spells must be channeled to keep the spell active.
+     * Returns the type of cast the spell takes. Instant spells will cast instantly after spell cast, charged spell have the capability to be charged after spell cast, and channeled spells must be channeled to keep the spell active.
      * @return The cast type
      */
     public CastType getCastType() {
@@ -162,11 +177,11 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns the resource location of the current spell's spell type
+     * Returns the resource location of the current spell's spell type.
      * @return The spell type's resource location
      */
     public ResourceLocation location() {
-        return SpellInit.REGISTRY.getKey(this.spellType);
+        return SBSpells.REGISTRY.getKey(this.spellType);
     }
 
     /**
@@ -238,7 +253,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @return The spell type
      */
     public static SpellType<?> getSpellByName(ResourceLocation resourceLocation) {
-        return SpellInit.REGISTRY.get(resourceLocation);
+        return SBSpells.REGISTRY.get(resourceLocation);
     }
 
     /**
@@ -274,7 +289,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * The specific cast id for this spell type within the caster's active spells
+     * The specific cast id for this spell type within the caster's active spells. Useful for getting a specific instance(s) of a spell.
      * @return The spell's cast id
      */
     public int getId() {
@@ -290,7 +305,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns the synced spell data. Is used to get/set spell data on server that is synced with the client every update interval tick. Data must be defined before it can be manipulated.
+     * Returns the synced spell data. Is used to get/set spell data on server that is synced with the client every update interval tick. Default data values must be defined before they can be manipulated.
      * @return The synced spell data
      */
     public SyncedSpellData getSpellData() {
@@ -298,7 +313,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Saves data on recasted spells.
+     * Saves data on recast spells.
      * @param compoundTag The save data tag
      * @return A compound tag with new save data
      */
@@ -315,8 +330,9 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Spell ticking logic. Should not be overridden for the most part.
+     * Spell ticking logic. Should not be overridden. Override {@link AbstractSpell#onSpellTick(SpellContext)} for ticking functionality.
      */
+    @ApiStatus.Internal
     public void tick() {
         ticks++;
         if (init) {
@@ -449,8 +465,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param expiryTick The amount of ticks the modifier should persist
      */
     public void addTimedModifier(LivingEntity livingEntity, SpellModifier spellModifier, int expiryTick) {
-        var handler = SpellUtil.getSkillHandler(livingEntity);
-        handler.addModifierWithExpiry(spellModifier, livingEntity.tickCount + expiryTick);
+        var skills = SpellUtil.getSkillHolder(livingEntity);
+        skills.addModifierWithExpiry(spellModifier, livingEntity.tickCount + expiryTick);
     }
 
     /**
@@ -478,7 +494,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns the modifier amount for the caster of the spell specifically
+     * Returns the modifier amount for the caster of the spell specifically.
      * @param modifierType The type of modifier
      * @return The modifier amount
      */
@@ -493,9 +509,9 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @return The modifier amount
      */
     public float getModifier(ModifierType modifierType, LivingEntity livingEntity) {
-        var handler = SpellUtil.getSkillHandler(livingEntity);
+        var skills = SpellUtil.getSkillHolder(livingEntity);
         float f = 1;
-        for (var modifier : handler.getModifiers()) {
+        for (var modifier : skills.getModifiers()) {
             if (modifierType.equals(modifier.modifierType()) && modifier.spellPredicate().test(getSpellType())) {
                 f *= modifier.modifier();
             }
@@ -594,7 +610,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Shakes a player entity's screen. Can be called on either the client or the server, but it more performative on the client.
+     * Shakes a player entity's screen. <b><u>MUST</u></b> be called from the client.
      * @param player The player that receives screen shake
      * @param duration The duration of the screen shake in ticks
      * @param intensity The intensity of the screen shake (max. 10.0F)
@@ -602,16 +618,13 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param freq The speed of which the screen will shake
      */
     protected void shakeScreen(Player player, int duration, float intensity, float maxOffset, int freq) {
-        if (this.level.isClientSide()) {
+        if (this.level.isClientSide())
             CameraEngine.getOrAssignEngine(player).shakeScreen(player.getRandom().nextInt(), duration, intensity, maxOffset, freq);
-        } else {
-            PayloadHandler.shakeScreen(player, duration, intensity, maxOffset, freq);
-        }
     }
 
     /**
      * Returns a {@link BlockHitResult} of where the caster is looking within a certain range.
-     * @param range The hitresult range
+     * @param range The hit result range
      * @return The block hit result
      */
     public BlockHitResult getTargetBlock(double range) {
@@ -660,7 +673,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Prepares a clip context for ray cast results.
+     * Prepares a {@link ClipContext} for ray cast results.
      * @param livingEntity The camera entity
      * @param distance The maximum distance of the ray cast
      * @param fluidContext The type of fluid context to determine if the ray cast should account for fluids
@@ -682,7 +695,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Sends manipulated synced spell data from the server to the client. Will only be called once every update interval tick.
+     * Sends manipulated {@link SyncedSpellData} from the server to the client. Will only be called once every update interval tick.
      */
     private void sendDirtySpellData() {
         List<SyncedSpellData.DataValue<?>> list = this.spellData.packDirty();
@@ -693,7 +706,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Will allow a spell to be recasted without calling the end methods of the previously cast spell.
+     * Will allow a spell to be recast without calling the end methods of the previously cast spell.
      * @return Whether the spell should skip the end methods on recast.
      */
     public boolean skipEndOnRecast() {
@@ -701,7 +714,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Checks if the {@link com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer} should render a layer when the spell is active.
+     * Checks if the {@link GenericSpellLayer} should render a vfx layer when the spell is active.
      * @return Whether the spell has a render layer
      */
     public boolean hasLayer() {
@@ -753,12 +766,16 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         }
 
         activateSpell();
-        player.awardStat(StatInit.SPELLS_CAST.get());
+        player.awardStat(SBStats.SPELLS_CAST.get());
         if (incrementId) this.castId++;
 
         this.init = true;
     }
 
+    /**
+     * Returns the spell cast prior to this one of the same spell type. Necessary for saving/loading data on recast spells.
+     * @return The previously cast spell
+     */
     private AbstractSpell getPreviouslyCastSpell() {
         var handler = this.context.getSpellHandler();
         var spells = handler.getActiveSpells(getSpellType());
@@ -790,6 +807,10 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         return this.cache;
     }
 
+    /**
+     * Registers the controllers for the spell vfx layer. Layers must be geckolib models that use the {@link SpellLayerModel} and {@link SpellLayerRenderer}.
+     * @param controllers The object to register your controller instances to
+     */
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
 

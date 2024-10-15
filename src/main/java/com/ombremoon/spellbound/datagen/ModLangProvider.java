@@ -2,9 +2,9 @@ package com.ombremoon.spellbound.datagen;
 
 import com.google.common.collect.ImmutableMap;
 import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.common.init.ItemInit;
-import com.ombremoon.spellbound.common.init.SkillInit;
-import com.ombremoon.spellbound.common.init.SpellInit;
+import com.ombremoon.spellbound.common.init.SBItems;
+import com.ombremoon.spellbound.common.init.SBSkills;
+import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import net.minecraft.core.Holder;
@@ -36,9 +36,9 @@ public class ModLangProvider extends LanguageProvider {
 
     @Override
     protected void addTranslations() {
-        ItemInit.ITEMS.getEntries().forEach(this::itemLang);
-        SpellInit.SPELL_TYPES.getEntries().forEach(this::spellLang);
-        SkillInit.SKILLS.getEntries().forEach(this::skillLang);
+        SBItems.ITEMS.getEntries().forEach(this::itemLang);
+        SBSpells.SPELL_TYPES.getEntries().forEach(this::spellLang);
+        SBSkills.SKILLS.getEntries().forEach(this::skillLang);
 //        BlockInit.BLOCKS.getEntries().forEach(this::blockLang);
 //        EntityInit.ENTITIES.getEntries().forEach(this::entityLang);
 //        StatusEffectInit.STATUS_EFFECTS.getEntries().forEach(this::effectLang);
@@ -88,10 +88,10 @@ public class ModLangProvider extends LanguageProvider {
     }
 
     protected void skillDescriptions() {
-        addSkillTooltip(SkillInit.VOLCANO, "Create a volcanic eruption that spits out 8 lava bombs per second for 10 seconds.");
-        addSkillTooltip(SkillInit.INFERNO_CORE, "After the eruption ends, the volcano drops a Smoldering Shard.");
-        addSkillTooltip(SkillInit.EXPLOSIVE_BARRAGE, "Each lava bomb explodes on impact.");
-        addSkillTooltip(SkillInit.LAVA_FLOW, "Lava bombs turn into lava pools on impact.");
+        addSkillTooltip(SBSkills.VOLCANO, "Create a volcanic eruption that spits out 8 lava bombs per second for 10 seconds.");
+        addSkillTooltip(SBSkills.INFERNO_CORE, "After the eruption ends, the volcano drops a Smoldering Shard.");
+        addSkillTooltip(SBSkills.EXPLOSIVE_BARRAGE, "Each lava bomb explodes on impact.");
+        addSkillTooltip(SBSkills.LAVA_FLOW, "Lava bombs turn into lava pools on impact.");
     }
 
     protected void addSkillTooltip(Holder<Skill> skill, String description) {

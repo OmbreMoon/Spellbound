@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.content.spell.ruin.fire;
 
-import com.ombremoon.spellbound.common.init.SpellInit;
+import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 
 public class VolcanoSpell extends AnimatedSpell {
@@ -10,6 +10,6 @@ public class VolcanoSpell extends AnimatedSpell {
     }
 
     public VolcanoSpell() {
-        super(SpellInit.VOLCANO.get(), createVolcanoBuilder());
+        super(SBSpells.VOLCANO.get(), createVolcanoBuilder());
     }
 }
