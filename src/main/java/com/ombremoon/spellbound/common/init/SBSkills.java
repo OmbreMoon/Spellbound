@@ -2,7 +2,7 @@ package com.ombremoon.spellbound.common.init;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.common.magic.SpellModifier;
+import com.ombremoon.spellbound.common.magic.api.SpellModifier;
 import com.ombremoon.spellbound.common.magic.skills.ModifierSkill;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import net.minecraft.core.Holder;
@@ -85,6 +85,19 @@ public class SBSkills {
     public static final Holder<Skill> DARKNESS_PREVAILS = registerSkill("darkness_prevails", 0, 100, preReqs(SHADOW_GATE));
     public static final Holder<Skill> GRAVITY_SHIFT = registerSkill("gravity_shift", -25, 150, preReqs(DARKNESS_PREVAILS));
     public static final Holder<Skill> DUAL_DESTINATION = registerSkill("dual_destination", 25, 150, preReqs(DARKNESS_PREVAILS));
+
+    //Thunderous Hooves
+    public static final Holder<Skill> THUNDEROUS_HOOVES = registerSkill("thunderous_hooves");
+    public static final Holder<Skill> QUICK_SPRINT = registerSkill("quick_sprint", 0, 50, preReqs(THUNDEROUS_HOOVES));
+    public static final Holder<Skill> GALLOPING_STRIDE = registerSkill("galloping_stride", 0, 100, preReqs(QUICK_SPRINT));
+    public static final Holder<Skill> FLEETFOOTED = registerSkill("fleetfooted", -50, 150, preReqs(GALLOPING_STRIDE));
+    public static final Holder<Skill> RIDERS_RESILIENCE = registerSkill("riders_resilience", -75, 200, preReqs(FLEETFOOTED));
+    public static final Holder<Skill> SUREFOOTED = registerSkill("surefooted", 50, 150, preReqs(GALLOPING_STRIDE));
+    public static final Holder<Skill> AQUA_TREAD = registerSkill("aqua_tread", 75, 200, preReqs(SUREFOOTED));
+    public static final Holder<Skill> ENDURANCE = registerModifierSkill("endurance", 0, 150, preReqs(GALLOPING_STRIDE), SpellModifier.ENDURANCE);
+    public static final Holder<Skill> MOMENTUM = registerSkill("momentum", -25, 200, preReqs(ENDURANCE));
+    public static final Holder<Skill> STAMPEDE = registerSkill("stampede", 25, 200, preReqs(ENDURANCE));
+    public static final Holder<Skill> MARATHON = registerSkill("marathon", 0, 250, preReqs(MOMENTUM, STAMPEDE));
 
     //Cobbled hide
     public static final Holder<Skill> COBBLED_HIDE = registerSkill("cobbled_hide");

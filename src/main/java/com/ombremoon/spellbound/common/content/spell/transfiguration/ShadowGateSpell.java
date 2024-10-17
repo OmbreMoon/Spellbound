@@ -6,8 +6,8 @@ import com.ombremoon.spellbound.common.init.SBEntities;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.SpellEventListener;
-import com.ombremoon.spellbound.common.magic.SpellModifier;
+import com.ombremoon.spellbound.common.magic.api.SpellEventListener;
+import com.ombremoon.spellbound.common.magic.api.SpellModifier;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -17,6 +17,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -63,7 +64,7 @@ public class ShadowGateSpell extends AnimatedSpell {
             return i <= 4;
         }).fullRecast().skipEndOnRecast();
     }
-    private static final UUID UNWANTED_GUESTS = UUID.fromString("ba20a80b-aa41-4598-9ab5-c583a80b6a09");
+    private static final ResourceLocation UNWANTED_GUESTS = CommonClass.customLocation("unwanted_guests");
 
     private final Map<Integer, PortalInfo> portalInfo = new Int2ObjectOpenHashMap<>();
 

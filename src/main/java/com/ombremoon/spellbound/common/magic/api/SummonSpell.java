@@ -1,13 +1,14 @@
 package com.ombremoon.spellbound.common.magic.api;
 
+import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.events.ChangeTargetEvent;
 import com.ombremoon.spellbound.common.magic.events.PlayerDamageEvent;
 import com.ombremoon.spellbound.util.SummonUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -27,8 +28,8 @@ import java.util.UUID;
 import java.util.function.BiPredicate;
 
 public abstract class SummonSpell extends AnimatedSpell {
-    private static final UUID DAMAGE_EVENT = UUID.fromString("79e708db-b942-4ca0-a6e8-2614f087881f");
-    private static final UUID TARGETING_EVENT = UUID.fromString("d1d10463-e003-4dca-a6a0-bc5300d369d6");
+    private static final ResourceLocation DAMAGE_EVENT = CommonClass.customLocation("summon_damage_event");
+    private static final ResourceLocation TARGETING_EVENT = CommonClass.customLocation("summon_targeting_event");
 
     private final Set<Integer> summons = new HashSet<>();
 
@@ -166,6 +167,11 @@ public abstract class SummonSpell extends AnimatedSpell {
 
         public Builder<T> castTime(int castTime) {
             this.castTime = castTime;
+            return this;
+        }
+
+        public Builder<T> castAnimation(String castAnimationName) {
+            this.castAnimation = castAnimationName;
             return this;
         }
 

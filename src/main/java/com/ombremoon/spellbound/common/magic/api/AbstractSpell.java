@@ -1,5 +1,6 @@
-package com.ombremoon.spellbound.common.magic;
+package com.ombremoon.spellbound.common.magic.api;
 
+import com.ombremoon.sentinellib.api.BoxUtil;
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.client.CameraEngine;
@@ -9,8 +10,9 @@ import com.ombremoon.spellbound.client.renderer.layer.SpellLayerRenderer;
 import com.ombremoon.spellbound.common.init.SBDataTypes;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.init.SBStats;
-import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
-import com.ombremoon.spellbound.common.magic.api.ModifierType;
+import com.ombremoon.spellbound.common.magic.SpellContext;
+import com.ombremoon.spellbound.common.magic.SpellPath;
+import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.events.SpellEvent;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataHolder;
@@ -19,15 +21,25 @@ import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.Loggable;
 import com.ombremoon.spellbound.util.SpellUtil;
+import dev.kosmx.playerAnim.api.layered.IAnimation;
+import dev.kosmx.playerAnim.api.layered.KeyframeAnimationPlayer;
+import dev.kosmx.playerAnim.api.layered.ModifierLayer;
+import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
+import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
+import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -473,15 +485,26 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * Adds a {@link SpellEventListener} to a living entity for a specified amount of ticks.
      * @param livingEntity The living entity
      * @param event The event
-     * @param uuid The specific id for the listener
+     * @param location The specific resource location for the listener
      * @param consumer Callback for when the event is fired
      * @param expiryTicks The amount of ticks the listener should persist
      * @param <T> The spell event class
      */
-    public <T extends SpellEvent> void addTimedListener(LivingEntity livingEntity, SpellEventListener.IEvent<T> event, UUID uuid, Consumer<T> consumer, int expiryTicks) {
+    public <T extends SpellEvent> void addTimedListener(LivingEntity livingEntity, SpellEventListener.IEvent<T> event, ResourceLocation location, Consumer<T> consumer, int expiryTicks) {
         var listener = SpellUtil.getSpellHandler(livingEntity).getListener();
-        if (!listener.hasListener(event, uuid))
-            listener.addListenerWithExpiry(event, uuid, consumer, livingEntity.tickCount + expiryTicks);
+        if (!listener.hasListener(event, location))
+            listener.addListenerWithExpiry(event, location, consumer, livingEntity.tickCount + expiryTicks);
+    }
+
+    /**
+     * Hurts the target entity, taking spell potency into account. Suitable for modded damage types.
+     * @param targetEntity The hurt entity
+     * @param damageType The damage type
+     * @param hurtAmount The amount of damage the entity takes
+     * @return Whether the entity takes damage or not
+     */
+    public boolean hurt(LivingEntity targetEntity, ResourceKey<DamageType> damageType, float hurtAmount) {
+        return targetEntity.hurt(BoxUtil.sentinelDamageSource(this.level, damageType, this.caster), potency(hurtAmount));
     }
 
     /**
@@ -620,6 +643,20 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     protected void shakeScreen(Player player, int duration, float intensity, float maxOffset, int freq) {
         if (this.level.isClientSide())
             CameraEngine.getOrAssignEngine(player).shakeScreen(player.getRandom().nextInt(), duration, intensity, maxOffset, freq);
+    }
+
+    protected void playAnimation(Player player, String animationName) {
+        var animation = (ModifierLayer<IAnimation>) PlayerAnimationAccess.getPlayerAssociatedData((AbstractClientPlayer) player).get(CommonClass.customLocation("animation"));
+        if (animation != null)
+            animation.setAnimation(new KeyframeAnimationPlayer((KeyframeAnimation) PlayerAnimationRegistry.getAnimation(CommonClass.customLocation(animationName))));
+    }
+
+    protected void stopAnimation(Player player) {
+        var animation = (ModifierLayer<IAnimation>) PlayerAnimationAccess.getPlayerAssociatedData((AbstractClientPlayer) player).get(CommonClass.customLocation("animation"));
+        if (animation == null) return;
+
+        ((KeyframeAnimationPlayer)animation.getAnimation()).stop();
+
     }
 
     /**

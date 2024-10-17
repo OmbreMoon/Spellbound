@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.content.entity;
 
-import com.ombremoon.spellbound.common.magic.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;

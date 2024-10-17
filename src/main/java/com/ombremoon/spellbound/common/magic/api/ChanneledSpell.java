@@ -30,6 +30,10 @@ public abstract class ChanneledSpell extends AnimatedSpell {
         Player player = context.getPlayer();
         var handler = SpellUtil.getSpellHandler(player);
         handler.setChannelling(true);
+
+        if (context.getLevel().isClientSide) {
+
+        }
     }
 
     @Override
@@ -52,6 +56,7 @@ public abstract class ChanneledSpell extends AnimatedSpell {
 
     public static class Builder<T extends ChanneledSpell> extends AnimatedSpell.Builder<T> {
         protected int manaTickCost;
+        protected String channelAnimation;
 
         public Builder() {
             this.castType = CastType.CHANNEL;
@@ -69,6 +74,16 @@ public abstract class ChanneledSpell extends AnimatedSpell {
 
         public Builder<T> castTime(int castTime) {
             this.castTime = castTime;
+            return this;
+        }
+
+        public Builder<T> castAnimation(String castAnimation) {
+            this.castAnimation = castAnimation;
+            return this;
+        }
+
+        public Builder<T> channelAnimation(String channelAnimation) {
+            this.channelAnimation = channelAnimation;
             return this;
         }
 

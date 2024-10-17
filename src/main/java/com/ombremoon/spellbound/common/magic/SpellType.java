@@ -1,6 +1,8 @@
 package com.ombremoon.spellbound.common.magic;
 
 import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.common.init.SBSpells;
+import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.Holder;
@@ -15,6 +17,7 @@ import java.util.stream.Collectors;
 
 /**
  * Wrapper class for {@link AbstractSpell}'s. Spell types should be registered like any other {@link DeferredRegister}
+ * @see SBSpells
  * @param <S> AbstractSpell
  */
 public class SpellType<S extends AbstractSpell> {

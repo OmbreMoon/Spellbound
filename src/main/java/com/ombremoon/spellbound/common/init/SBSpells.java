@@ -13,7 +13,8 @@ import com.ombremoon.spellbound.common.content.spell.summon.SpiritTotemSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.SummonUndeadSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.WildMushroomSpell;
 import com.ombremoon.spellbound.common.content.spell.transfiguration.ShadowGateSpell;
-import com.ombremoon.spellbound.common.magic.AbstractSpell;
+import com.ombremoon.spellbound.common.content.spell.transfiguration.ThunderousHoovesSpell;
+import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import net.minecraft.core.Registry;
@@ -54,6 +55,10 @@ public class SBSpells {
             .skills(SBSkills.SHADOW_GATE, SBSkills.REACH, SBSkills.BLINK, SBSkills.SHADOW_ESCAPE,
                     SBSkills.OPEN_INVITATION, SBSkills.QUICK_RECHARGE, SBSkills.UNWANTED_GUESTS, SBSkills.BAIT_AND_SWITCH,
                     SBSkills.DARKNESS_PREVAILS, SBSkills.GRAVITY_SHIFT, SBSkills.DUAL_DESTINATION));
+    public static final Supplier<SpellType<ThunderousHoovesSpell>> THUNDEROUS_HOOVES = registerSpell("thunderous_hooves", trasnfigurationBuilder("thunderous_hooves", ThunderousHoovesSpell::new)
+            .skills(SBSkills.THUNDEROUS_HOOVES, SBSkills.QUICK_SPRINT, SBSkills.GALLOPING_STRIDE,
+                    SBSkills.RIDERS_RESILIENCE, SBSkills.FLEETFOOTED, SBSkills.SUREFOOTED, SBSkills.AQUA_TREAD,
+                    SBSkills.ENDURANCE, SBSkills.MOMENTUM, SBSkills.STAMPEDE, SBSkills.MARATHON));
 
     //Summons
     public static final Supplier<SpellType<SummonUndeadSpell>> SUMMON_UNDEAD = registerSpell("summon_undead", summonBuilder("summon_undead", SummonUndeadSpell::new));

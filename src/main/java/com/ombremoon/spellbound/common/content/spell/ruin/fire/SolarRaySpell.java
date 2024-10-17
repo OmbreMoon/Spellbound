@@ -84,7 +84,7 @@ public class SolarRaySpell extends ChanneledSpell {
     private final Map<LivingEntity, Integer> heatTracker = new Object2IntOpenHashMap<>();
 
     public static Builder<SolarRaySpell> createSolarRayBuilder() {
-        return createChannelledSpellBuilder(SolarRaySpell.class).castTime(18);
+        return createChannelledSpellBuilder(SolarRaySpell.class).castTime(18).castAnimation("solar");
     }
 
     public SolarRaySpell() {
@@ -98,6 +98,7 @@ public class SolarRaySpell extends ChanneledSpell {
 
     @Override
     public void onCastStart(SpellContext context) {
+        super.onCastStart(context);
         Player player = context.getPlayer();
         Level level = context.getLevel();
         var handler = context.getSpellHandler();
@@ -128,6 +129,7 @@ public class SolarRaySpell extends ChanneledSpell {
 
     @Override
     public void onCastReset(SpellContext context) {
+        super.onCastReset(context);
         SolarRay solarRay = getSolarRay(context);
         if (solarRay != null) solarRay.discard();
         var handler = context.getSpellHandler();
@@ -149,7 +151,7 @@ public class SolarRaySpell extends ChanneledSpell {
                 BoxUtil.triggerPlayerBox(player, flag ? SOLAR_BURST_END_EXTENDED : SOLAR_BURST_END);
             }
         } else {
-            handler.setZoom(0.3F);
+//            handler.setZoom(0.3F);
         }
 
     }
@@ -178,7 +180,7 @@ public class SolarRaySpell extends ChanneledSpell {
         super.onSpellStop(context);
         var handler = context.getSpellHandler();
         handler.setStationary(false);
-        handler.setZoom(1.0F);
+//        handler.setZoom(1.0F);
         for (SentinelBox box : BOXES) {
             BoxUtil.removePlayerBox(context.getPlayer(), box);
         }
@@ -259,8 +261,8 @@ public class SolarRaySpell extends ChanneledSpell {
                     if (entity instanceof LivingEntity livingEntity) {
                         var handler = SpellUtil.getSpellHandler(livingEntity);
                         var skills = SpellUtil.getSkillHolder(livingEntity);
-                        damage = handler.getSpell(SBSpells.SOLAR_RAY.get()).potency(damage);
                         SolarRaySpell spell = handler.getSpell(SBSpells.SOLAR_RAY.get());
+                        damage = spell.potency(damage);
                         int startTick = spell.heatTracker.computeIfAbsent(living, target -> 0);
                         int bonus = startTick > 0 && living.tickCount >= startTick + 60 ? 2 : 1;
                         damage *= bonus;

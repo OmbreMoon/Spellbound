@@ -121,7 +121,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
 
             boolean stormSurgeFlag = skills.hasSkill(SBSkills.STORM_SURGE.value());
             var entities = level.getEntitiesOfClass(LivingEntity.class, target.getBoundingBox().inflate(4), EntitySelector.NO_CREATIVE_OR_SPECTATOR);
-            if (target.hurt(BoxUtil.sentinelDamageSource(level, SBDamageTypes.RUIN_SHOCK, player), potency(damage))) {
+            if (hurt(target, SBDamageTypes.RUIN_SHOCK, damage)) {
                 if (target.isDeadOrDying()) {
                     if (stormSurgeFlag)
                         handler.awardMana(20 + ((skills.getSpellLevel(getSpellType()) - 1) * 5));
@@ -129,7 +129,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
                     if (skills.hasSkill(SBSkills.UNLEASHED_STORM.value())) {
                         for (LivingEntity targetEntity : entities) {
                             if (!isCaster(targetEntity))
-                                targetEntity.hurt(BoxUtil.sentinelDamageSource(level, SBDamageTypes.RUIN_SHOCK, player), potency(damage / 2));
+                                hurt(targetEntity, SBDamageTypes.RUIN_SHOCK, damage / 2);
                         }
                     }
 
@@ -159,7 +159,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
                     target.kill();
                     if (stormSurgeFlag) player.addItem(new ItemStack(SBItems.STORM_SHARD.get()));
                 } else {
-                    player.hurt(BoxUtil.sentinelDamageSource(level, SBDamageTypes.RUIN_SHOCK, player), potency(player.getMaxHealth() * 0.05F));
+                    hurt(player, SBDamageTypes.RUIN_SHOCK, player.getMaxHealth() * 0.05F);
                 }
             }
 

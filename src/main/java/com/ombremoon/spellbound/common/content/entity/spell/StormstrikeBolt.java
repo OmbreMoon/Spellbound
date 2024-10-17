@@ -3,7 +3,7 @@ package com.ombremoon.spellbound.common.content.entity.spell;
 import com.ombremoon.sentinellib.api.BoxUtil;
 import com.ombremoon.spellbound.common.content.entity.SpellProjectile;
 import com.ombremoon.spellbound.common.init.*;
-import com.ombremoon.spellbound.common.magic.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.ModifierType;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.world.effect.MobEffectInstance;

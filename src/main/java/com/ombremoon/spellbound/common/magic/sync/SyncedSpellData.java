@@ -2,7 +2,7 @@ package com.ombremoon.spellbound.common.magic.sync;
 
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.SBDataTypes;
-import com.ombremoon.spellbound.common.magic.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
 import net.minecraft.network.RegistryFriendlyByteBuf;

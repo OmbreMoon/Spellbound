@@ -7,10 +7,11 @@ import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.SpellEventListener;
+import com.ombremoon.spellbound.common.magic.api.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -26,8 +27,8 @@ import java.util.List;
 import java.util.UUID;
 
 public class ShadowbondSpell extends AnimatedSpell {
-    private final UUID SNEAK_ATTACK = UUID.fromString("c53db9d5-11f4-46ee-b44c-28bc92a2f170");
-    private final UUID DISORIENTED = UUID.fromString("77d4c9dc-d806-4f15-a293-1160cf9fb874");
+    private final ResourceLocation SNEAK_ATTACK = CommonClass.customLocation("sneak_attack");
+    private final ResourceLocation DISORIENTED = CommonClass.customLocation("disoriented");
 
     public static Builder<ShadowbondSpell> createShadowbondBuilder() {
         return createSimpleSpellBuilder(ShadowbondSpell.class).castCondition((context, spell) -> {

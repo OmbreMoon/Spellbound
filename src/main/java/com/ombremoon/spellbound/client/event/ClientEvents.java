@@ -10,7 +10,7 @@ import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.SBEffects;
 import com.ombremoon.spellbound.common.init.SBEntities;
-import com.ombremoon.spellbound.common.magic.SpellEventListener;
+import com.ombremoon.spellbound.common.magic.api.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.events.MouseInputEvent;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;

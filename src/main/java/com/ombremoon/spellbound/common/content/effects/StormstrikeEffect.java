@@ -3,7 +3,7 @@ package com.ombremoon.spellbound.common.content.effects;
 import com.ombremoon.sentinellib.api.BoxUtil;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.StormstrikeSpell;
 import com.ombremoon.spellbound.common.init.*;
-import com.ombremoon.spellbound.common.magic.SpellModifier;
+import com.ombremoon.spellbound.common.magic.api.SpellModifier;
 import com.ombremoon.spellbound.common.magic.api.ModifierType;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.world.damagesource.DamageSource;
@@ -40,7 +40,6 @@ public class StormstrikeEffect extends SBEffect {
         Entity entity = livingEntity.level().getEntity(ownerId);
         float damage = 3F;
         if (entity instanceof LivingEntity owner) {
-            var handler = SpellUtil.getSpellHandler(owner);
             var skills = SpellUtil.getSkillHolder(owner);
             StormstrikeSpell spell = SBSpells.STORMSTRIKE.get().createSpell();
             float potency = spell.getModifier(ModifierType.POTENCY, owner);

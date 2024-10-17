@@ -7,8 +7,8 @@ import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.SpellEventListener;
-import com.ombremoon.spellbound.common.magic.SpellModifier;
+import com.ombremoon.spellbound.common.magic.api.SpellEventListener;
+import com.ombremoon.spellbound.common.magic.api.SpellModifier;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import com.ombremoon.spellbound.common.magic.events.PlayerKillEvent;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -22,10 +22,9 @@ import net.minecraft.world.phys.AABB;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 public class WildMushroomSpell extends SummonSpell {
-    private static final UUID PLAYER_KILL = UUID.fromString("a7f94078-08e9-487d-9fd2-07eadba8df28");
+    private static final ResourceLocation SYNTHESIS = CommonClass.customLocation("synthesis");
     private static final ResourceLocation RECYCLED_LOCATION = CommonClass.customLocation("recycled_regen");
     private static final int MAX_XP = 50;
     private static final int XP_PER_HIT = 5;
@@ -48,7 +47,7 @@ public class WildMushroomSpell extends SummonSpell {
     @Override
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
-        context.getSpellHandler().getListener().addListener(SpellEventListener.Events.PLAYER_KILL, PLAYER_KILL, this::playerKill);
+        context.getSpellHandler().getListener().addListener(SpellEventListener.Events.PLAYER_KILL, SYNTHESIS, this::playerKill);
         if (!context.getLevel().isClientSide) {
             var mobs = summonMobs(context, SBEntities.MUSHROOM.get(), 1);
             if (mobs == null || !mobs.iterator().hasNext()) {
@@ -140,7 +139,7 @@ public class WildMushroomSpell extends SummonSpell {
     @Override
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
-        context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.PLAYER_KILL, PLAYER_KILL);
+        context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.PLAYER_KILL, SYNTHESIS);
         if (!context.getLevel().isClientSide) {
             if (context.getSkills().hasSkill(SBSkills.CIRCLE_OF_LIFE.value())) {
                 SpellHandler handler = context.getSpellHandler();

@@ -5,7 +5,7 @@ import com.ombremoon.spellbound.common.EffectManager;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.SpellEventListener;
+import com.ombremoon.spellbound.common.magic.api.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.events.PlayerDamageEvent;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -28,7 +28,7 @@ import java.util.UUID;
 
 public class HealingTouchSpell extends AnimatedSpell {
     private static final ResourceLocation ARMOR_MOD = CommonClass.customLocation("oak_blessing_mod");
-    private static final UUID PLAYER_DAMAGE = UUID.fromString("9dae5689-3b32-49c8-9635-0d68d17a9907");
+    private static final ResourceLocation PLAYER_DAMAGE = CommonClass.customLocation("healing_touch_player_damage");
 
     private Player caster;
     private int overgrowthStacks = 0;

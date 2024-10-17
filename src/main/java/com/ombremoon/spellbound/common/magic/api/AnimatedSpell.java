@@ -1,6 +1,5 @@
 package com.ombremoon.spellbound.common.magic.api;
 
-import com.ombremoon.spellbound.common.magic.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import net.minecraft.sounds.SoundEvent;
@@ -11,6 +10,7 @@ import java.util.function.BiPredicate;
  * The main class most spell will extend from. Main utility is to handle spell casting animations.
  */
 public abstract class AnimatedSpell extends AbstractSpell {
+    private final String castAnimation;
 
     public static <T extends AnimatedSpell> Builder<T> createSimpleSpellBuilder(Class<T> spellClass) {
         return new Builder<>();
@@ -18,14 +18,27 @@ public abstract class AnimatedSpell extends AbstractSpell {
 
     public AnimatedSpell(SpellType<?> spellType, Builder<?> builder) {
         super(spellType, builder);
+        this.castAnimation = builder.castAnimation;
     }
 
     @Override
-    protected void onSpellStart(SpellContext context) {
+    public void onCastStart(SpellContext context) {
+        super.onCastStart(context);
+        if (context.getLevel().isClientSide && !this.castAnimation.isEmpty() && context.getSpellHandler().castTick == 1)
+            playAnimation(context.getPlayer(), this.castAnimation);
 
     }
 
+    @Override
+    public void onCastReset(SpellContext context) {
+        super.onCastReset(context);
+        if (context.getLevel().isClientSide && !this.castAnimation.isEmpty())
+            stopAnimation(context.getPlayer());
+    }
+
     public static class Builder<T extends AnimatedSpell> extends AbstractSpell.Builder<T> {
+        protected String castAnimation = "";
+
         public Builder<T> manaCost(int manaCost) {
             this.manaCost = manaCost;
             return this;
@@ -33,6 +46,11 @@ public abstract class AnimatedSpell extends AbstractSpell {
 
         public Builder<T> castTime(int castTime) {
             this.castTime = castTime;
+            return this;
+        }
+
+        public Builder<T> castAnimation(String castAnimationName) {
+            this.castAnimation = castAnimationName;
             return this;
         }
 
