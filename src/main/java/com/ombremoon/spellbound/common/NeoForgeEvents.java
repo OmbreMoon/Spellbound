@@ -63,10 +63,10 @@ public class NeoForgeEvents {
     public static void onEntityJoinWorld(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof LivingEntity livingEntity) {
             livingEntity.getData(SBData.STATUS_EFFECTS).init(livingEntity);
+            var handler = SpellUtil.getSpellHandler(livingEntity);
+            handler.initData(livingEntity);
 
             if (livingEntity instanceof Player player) {
-                var handler = SpellUtil.getSpellHandler(player);
-                handler.initData(player);
                 if (!player.level().isClientSide) {
                     handler.sync();
 
