@@ -67,7 +67,7 @@ public class WildMushroomSpell extends SummonSpell {
             ;
             boolean recycledFlag2 = skillHolder.hasSkill(SBSkills.RECYCLED.value());
             if (recycledFlag && recycledFlag2)
-                this.addAttributeModifier(context.getPlayer(), SBAttributes.MANA_REGEN, new AttributeModifier(RECYCLED_LOCATION,
+                this.addAttributeModifier(context.getCaster(), SBAttributes.MANA_REGEN, new AttributeModifier(RECYCLED_LOCATION,
                         1.1d,
                         AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
         }
@@ -80,7 +80,7 @@ public class WildMushroomSpell extends SummonSpell {
 
         if (poisonEssenceExpiry > 0) poisonEssenceExpiry--;
         this.mushroom.explode(); //Visual stuff
-        Player caster = context.getPlayer();
+        LivingEntity caster = context.getCaster();
         SkillHolder skills = context.getSkills();
 
         List<LivingEntity> entities = caster.level().getEntitiesOfClass(
@@ -105,7 +105,7 @@ public class WildMushroomSpell extends SummonSpell {
             if (awardedXp < MAX_XP) {
                 awardedXp++;
                 context.getSkills().awardSpellXp(getSpellType(), XP_PER_HIT);
-                context.getSkills().sync(caster);
+//                context.getSkills().sync(caster);
             }
         }
 
@@ -113,8 +113,8 @@ public class WildMushroomSpell extends SummonSpell {
             this.addCooldown(SBSkills.CATALEPSY.value(), 200);
 
         if (context.getSpellHandler().getActiveSpells(getSpellType()).size() <= 2
-                && this.hasAttributeModifier(context.getPlayer(), SBAttributes.MANA_REGEN, RECYCLED_LOCATION)) {
-            this.removeAttributeModifier(context.getPlayer(), SBAttributes.MANA_REGEN, RECYCLED_LOCATION);
+                && this.hasAttributeModifier(context.getCaster(), SBAttributes.MANA_REGEN, RECYCLED_LOCATION)) {
+            this.removeAttributeModifier(context.getCaster(), SBAttributes.MANA_REGEN, RECYCLED_LOCATION);
         }
     }
 
@@ -128,7 +128,7 @@ public class WildMushroomSpell extends SummonSpell {
         SkillHolder handler = context.getSkills();
 
         if (context.getSkills().hasSkill(SBSkills.DECOMPOSE.value())
-                && target.hasEffect(SBEffects.POISON)) damage += (float) (context.getPlayer().getData(SBData.MANA)/100f);
+                && target.hasEffect(SBEffects.POISON)) damage += (float) (context.getCaster().getData(SBData.MANA)/100f);
 
         if (handler.hasSkill(SBSkills.NATURES_DOMINANCE.value())) damage *= 1f + (0.1f * context.getSpellHandler().getActiveSpells(getSpellType()).size());
         if (handler.hasSkill(SBSkills.POISON_ESSENCE.value()) && poisonEssenceExpiry > ticks) damage *= 1.25f;

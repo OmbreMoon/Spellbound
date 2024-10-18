@@ -15,6 +15,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
@@ -113,9 +114,9 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
         this.permanentModifiers.clear();
     }
 
-    public void tickModifiers(Player player) {
+    public void tickModifiers(LivingEntity livingEntity) {
         if (!this.timedModifiers.isEmpty())
-            this.timedModifiers.entrySet().removeIf(entry -> entry.getValue() <= player.tickCount);
+            this.timedModifiers.entrySet().removeIf(entry -> entry.getValue() <= livingEntity.tickCount);
     }
 
     public SkillCooldowns getCooldowns() {

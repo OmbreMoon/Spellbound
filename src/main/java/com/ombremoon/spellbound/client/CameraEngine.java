@@ -5,6 +5,7 @@ import com.ombremoon.spellbound.util.math.NoiseGenerator;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Camera;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -112,19 +113,22 @@ public class CameraEngine {
     @SubscribeEvent
     public static void onComputeCameraAngles(ViewportEvent.ComputeCameraAngles event) {
         Camera camera = event.getCamera();
-        CameraEngine cameraEngine = getOrAssignEngine((Player) camera.getEntity());
-        int time = camera.getEntity().tickCount;
-        if (cameraEngine != null && cameraEngine.shouldShakeCamera()) {
-            int seed = cameraEngine.getSeed();
-            float intensity = cameraEngine.getShakeIntensity();
-            float offset = cameraEngine.getMaxOffset();
-            int freq = cameraEngine.getShakeFrequency();
-            double d0 = getNoise(seed, offset, intensity, time * freq);
-            double d1 = getNoise(seed + 1, offset, intensity, time * freq);
-            double d2 = getNoise(seed + 2, offset, intensity, time * freq);
-            event.setPitch((float) (event.getPitch() + d0));
-            event.setRoll((float) (event.getRoll() + d1));
-            event.setYaw((float) (event.getYaw() + d2));
+        Entity entity = camera.getEntity();
+        if (entity instanceof Player player) {
+            CameraEngine cameraEngine = getOrAssignEngine(player);
+            int time = camera.getEntity().tickCount;
+            if (cameraEngine != null && cameraEngine.shouldShakeCamera()) {
+                int seed = cameraEngine.getSeed();
+                float intensity = cameraEngine.getShakeIntensity();
+                float offset = cameraEngine.getMaxOffset();
+                int freq = cameraEngine.getShakeFrequency();
+                double d0 = getNoise(seed, offset, intensity, time * freq);
+                double d1 = getNoise(seed + 1, offset, intensity, time * freq);
+                double d2 = getNoise(seed + 2, offset, intensity, time * freq);
+                event.setPitch((float) (event.getPitch() + d0));
+                event.setRoll((float) (event.getRoll() + d1));
+                event.setYaw((float) (event.getYaw() + d2));
+            }
         }
     }
 

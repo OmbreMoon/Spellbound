@@ -4,6 +4,7 @@ import com.ombremoon.spellbound.common.content.entity.spell.StormstrikeBolt;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
@@ -19,11 +20,11 @@ public class StormstrikeSpell extends AnimatedSpell {
     @Override
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
-        Player player = context.getPlayer();
+        LivingEntity caster = context.getCaster();
         Level level = context.getLevel();
         if (!level.isClientSide) {
-            StormstrikeBolt bolt = new StormstrikeBolt(context.getLevel(), context.getPlayer(), this);
-            bolt.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 2.5F, 1.0F);
+            StormstrikeBolt bolt = new StormstrikeBolt(context.getLevel(), context.getCaster(), this);
+            bolt.shootFromRotation(caster, caster.getXRot(), caster.getYRot(), 0.0F, 2.5F, 1.0F);
             level.addFreshEntity(bolt);
         }
     }

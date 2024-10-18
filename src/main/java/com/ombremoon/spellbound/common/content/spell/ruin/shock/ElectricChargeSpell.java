@@ -1,6 +1,5 @@
 package com.ombremoon.spellbound.common.content.spell.ruin.shock;
 
-import com.ombremoon.sentinellib.api.BoxUtil;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.*;
@@ -63,7 +62,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
     protected void onSpellRecast(SpellContext context) {
         super.onSpellRecast(context);
         Level level = context.getLevel();
-        Player player = context.getPlayer();
+        LivingEntity caster = context.getCaster();
         var handler = context.getSpellHandler();
         var skills = context.getSkills();
         if (skills.hasSkill(SBSkills.AMPLIFY.value())) return;
@@ -71,7 +70,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
             for (Integer entityId : this.entityIds) {
                 Entity entity = level.getEntity(entityId);
                 if (entity instanceof LivingEntity livingEntity) {
-                    discharge(player, level, livingEntity, handler, skills);
+                    discharge(caster, level, livingEntity, handler, skills);
                 }
             }
             endSpell();
@@ -81,7 +80,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
     @Override
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
-        Player player = context.getPlayer();
+        LivingEntity caster = context.getCaster();
         Level level = context.getLevel();
         var handler = context.getSpellHandler();
         var skills = context.getSkills();
@@ -95,7 +94,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
                     for (Integer entityId : this.entityIds) {
                         Entity entity = level.getEntity(entityId);
                         if (entity instanceof LivingEntity livingEntity) {
-                            discharge(player, level, livingEntity, handler, skills);
+                            discharge(caster, level, livingEntity, handler, skills);
                         }
                     }
                     endSpell();
@@ -104,14 +103,16 @@ public class ElectricChargeSpell extends AnimatedSpell {
         }
     }
 
-    private void discharge(Player player, Level level, LivingEntity target, SpellHandler handler, SkillHolder skills) {
+    private void discharge(LivingEntity caster, Level level, LivingEntity target, SpellHandler handler, SkillHolder skills) {
         if (!level.isClientSide) {
             float damage = 10;
             if (skills.hasSkill(SBSkills.OSCILLATION.value())) {
-                for (ItemStack itemStack : player.getInventory().items) {
-                    if (itemStack.is(SBItems.STORM_SHARD.get())) {
-                        for (int i = 0; i < Math.min(itemStack.getCount(), 10); i++) {
-                            damage *= 1.05F;
+                if (caster instanceof Player player) {
+                    for (ItemStack itemStack : player.getInventory().items) {
+                        if (itemStack.is(SBItems.STORM_SHARD.get())) {
+                            for (int i = 0; i < Math.min(itemStack.getCount(), 10); i++) {
+                                damage *= 1.05F;
+                            }
                         }
                     }
                 }
@@ -133,33 +134,33 @@ public class ElectricChargeSpell extends AnimatedSpell {
                         }
                     }
 
-                    if (skills.hasSkill(SBSkills.CYCLONIC_FURY.value()))
+                    if (skills.hasSkill(SBSkills.CYCLONIC_FURY.value()) && caster instanceof Player player)
                         player.addItem(new ItemStack(SBItems.STORM_SHARD.get()));
                 }
             }
 
             if (skills.hasSkill(SBSkills.ELECTRIFICATION.value())) {
-                target.setData(SBData.STORMSTRIKE_OWNER, player.getId());
+                target.setData(SBData.STORMSTRIKE_OWNER, caster.getId());
                 target.addEffect(new MobEffectInstance(SBEffects.STORMSTRIKE, 120, 0, false, false));
             }
 
-            if (skills.hasSkill(SBSkills.HIGH_VOLTAGE.value()) && player.getOffhandItem().is(SBItems.STORM_SHARD.get())) {
+            if (skills.hasSkill(SBSkills.HIGH_VOLTAGE.value()) && caster.getOffhandItem().is(SBItems.STORM_SHARD.get())) {
                 MobEffectInstance mobEffectInstance = new MobEffectInstance(SBEffects.STUNNED, 60, 0, false, false);
                 target.addEffect(mobEffectInstance);
                 for (LivingEntity paralysisTarget : entities) {
                     if (!isCaster(paralysisTarget))
                         paralysisTarget.addEffect(mobEffectInstance);
                 }
-                player.getOffhandItem().shrink(1);
+                caster.getOffhandItem().shrink(1);
                 addCooldown(SBSkills.HIGH_VOLTAGE.value(), 600);
             }
 
             if (skills.hasSkill(SBSkills.ALTERNATING_CURRENT.value())) {
-                if (RandomUtil.percentChance(potency(0.03F)) && target.getHealth() < player.getHealth() * 2) {
+                if (RandomUtil.percentChance(potency(0.03F)) && target.getHealth() < caster.getHealth() * 2) {
                     target.kill();
-                    if (stormSurgeFlag) player.addItem(new ItemStack(SBItems.STORM_SHARD.get()));
+                    if (stormSurgeFlag && caster instanceof Player player) player.addItem(new ItemStack(SBItems.STORM_SHARD.get()));
                 } else {
-                    hurt(player, SBDamageTypes.RUIN_SHOCK, player.getMaxHealth() * 0.05F);
+                    hurt(caster, SBDamageTypes.RUIN_SHOCK, caster.getMaxHealth() * 0.05F);
                 }
             }
 
@@ -167,7 +168,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
                 for (LivingEntity livingEntity : entities) {
                     if (!isCaster(livingEntity) && !this.entityIds.contains(livingEntity.getId())) {
                         this.entityIds.add(livingEntity.getId());
-                        discharge(player, level, livingEntity, handler, skills);
+                        discharge(caster, level, livingEntity, handler, skills);
                     }
                 }
             }

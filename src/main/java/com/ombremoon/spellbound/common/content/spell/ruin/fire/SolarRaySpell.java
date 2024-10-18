@@ -4,6 +4,7 @@ import com.ombremoon.sentinellib.api.BoxUtil;
 import com.ombremoon.sentinellib.api.box.AABBSentinelBox;
 import com.ombremoon.sentinellib.api.box.OBBSentinelBox;
 import com.ombremoon.sentinellib.api.box.SentinelBox;
+import com.ombremoon.sentinellib.common.ISentinel;
 import com.ombremoon.spellbound.common.content.effects.SBEffectInstance;
 import com.ombremoon.spellbound.common.content.entity.spell.SolarRay;
 import com.ombremoon.spellbound.common.init.*;
@@ -99,7 +100,7 @@ public class SolarRaySpell extends ChanneledSpell {
     @Override
     public void onCastStart(SpellContext context) {
         super.onCastStart(context);
-        Player player = context.getPlayer();
+        LivingEntity caster = context.getCaster();
         Level level = context.getLevel();
         var handler = context.getSpellHandler();
         handler.setStationary(true);
@@ -107,9 +108,9 @@ public class SolarRaySpell extends ChanneledSpell {
             SolarRay solarRay = SBEntities.SOLAR_RAY.get().create(level);
             if (solarRay != null) {
                 this.setSolarRay(solarRay.getId());
-                solarRay.setOwner(player);
-                solarRay.setPos(player.position());
-                solarRay.setYRot(player.getYRot());
+                solarRay.setOwner(caster);
+                solarRay.setPos(caster.position());
+                solarRay.setYRot(caster.getYRot());
                 solarRay.setStartTick(18);
                 level.addFreshEntity(solarRay);
             }
@@ -119,11 +120,11 @@ public class SolarRaySpell extends ChanneledSpell {
     @Override
     public void whenCasting(SpellContext context, int castTime) {
         super.whenCasting(context, castTime);
-        Player player = context.getPlayer();
+        LivingEntity caster = context.getCaster();
         SolarRay solarRay = getSolarRay(context);
         if (solarRay != null) {
-            solarRay.setPos(player.position());
-            solarRay.setYRot(player.getYRot());
+            solarRay.setPos(caster.position());
+            solarRay.setYRot(caster.getYRot());
         }
     }
 
@@ -139,16 +140,16 @@ public class SolarRaySpell extends ChanneledSpell {
     @Override
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
-        Player player = context.getPlayer();
+        LivingEntity caster = context.getCaster();
         var handler = context.getSpellHandler();
         var skills = context.getSkills();
-        if (!context.getLevel().isClientSide){
+        if (!context.getLevel().isClientSide) {
             boolean flag = skills.hasSkill(SBSkills.SUNSHINE.value());
-            BoxUtil.triggerPlayerBox(context.getPlayer(), flag ? SOLAR_RAY_EXTENDED : SOLAR_RAY);
+            ((ISentinel)caster).triggerSentinelBox(flag ? SOLAR_RAY_EXTENDED : SOLAR_RAY);
 
             if (skills.hasSkill(SBSkills.SOLAR_BURST.value())) {
-                BoxUtil.triggerPlayerBox(player, SOLAR_BURST_FRONT);
-                BoxUtil.triggerPlayerBox(player, flag ? SOLAR_BURST_END_EXTENDED : SOLAR_BURST_END);
+                ((ISentinel)caster).triggerSentinelBox(SOLAR_BURST_FRONT);
+                ((ISentinel)caster).triggerSentinelBox(flag ? SOLAR_BURST_END_EXTENDED : SOLAR_BURST_END);
             }
         } else {
 //            handler.setZoom(0.3F);
@@ -159,19 +160,19 @@ public class SolarRaySpell extends ChanneledSpell {
     @Override
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
-        Player player = context.getPlayer();
+        LivingEntity caster = context.getCaster();
         var skills = context.getSkills();
         if (skills.hasSkill(SBSkills.OVERHEAT.value()) && this.ticks >= 100)
-            BoxUtil.triggerPlayerBox(player, OVERHEAT);
+            ((ISentinel)caster).triggerSentinelBox(OVERHEAT);
 
 
         SolarRay solarRay = getSolarRay(context);
         if (solarRay != null) {
-            solarRay.setYRot(player.getYRot());
-            solarRay.setPos(player.position());
+            solarRay.setYRot(caster.getYRot());
+            solarRay.setPos(caster.position());
         }
 
-        if (context.getLevel().isClientSide)
+        if (context.getLevel().isClientSide && caster instanceof Player player)
             shakeScreen(player, 10, 5);
     }
 
@@ -182,7 +183,7 @@ public class SolarRaySpell extends ChanneledSpell {
         handler.setStationary(false);
 //        handler.setZoom(1.0F);
         for (SentinelBox box : BOXES) {
-            BoxUtil.removePlayerBox(context.getPlayer(), box);
+            ((ISentinel) context.getCaster()).removeSentinelInstance(box);
         }
 
         SolarRay solarRay = getSolarRay(context);

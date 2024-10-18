@@ -4,6 +4,7 @@ import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.function.BiPredicate;
@@ -27,8 +28,8 @@ public abstract class ChanneledSpell extends AnimatedSpell {
     @Override
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
-        Player player = context.getPlayer();
-        var handler = SpellUtil.getSpellHandler(player);
+        LivingEntity caster = context.getCaster();
+        var handler = SpellUtil.getSpellHandler(caster);
         handler.setChannelling(true);
 
         if (context.getLevel().isClientSide) {
@@ -39,8 +40,8 @@ public abstract class ChanneledSpell extends AnimatedSpell {
     @Override
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
-        Player player = context.getPlayer();
-        var handler = SpellUtil.getSpellHandler(player);
+        LivingEntity caster = context.getCaster();
+        var handler = SpellUtil.getSpellHandler(caster);
         if ((this.ticks % 20 == 0 && !handler.consumeMana(this.manaTickCost, true)) || !handler.isChannelling()) {
             this.endSpell();
         }
@@ -49,8 +50,8 @@ public abstract class ChanneledSpell extends AnimatedSpell {
     @Override
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
-        Player player = context.getPlayer();
-        var handler = SpellUtil.getSpellHandler(player);
+        LivingEntity caster = context.getCaster();
+        var handler = SpellUtil.getSpellHandler(caster);
         handler.setChannelling(false);
     }
 

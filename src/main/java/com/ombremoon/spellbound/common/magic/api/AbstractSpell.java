@@ -28,7 +28,6 @@ import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
 import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -62,7 +61,6 @@ import software.bernie.geckolib.constant.dataticket.DataTicket;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
@@ -88,7 +86,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     private final int updateInterval;
     protected final SyncedSpellData spellData;
     private Level level;
-    private Player caster;
+    private LivingEntity caster;
     private BlockPos blockPos;
     private String nameId;
     private String descriptionId;
@@ -149,11 +147,11 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
     /**
      * Returns the total mana cost to cast the spell.
-     * @param player The player casting the spell
+     * @param caster The living entity casting the spell
      * @return The mana cost
      */
-    public float getManaCost(Player player) {
-        return this.manaCost * getModifier(ModifierType.MANA, player);
+    public float getManaCost(LivingEntity caster) {
+        return this.manaCost * getModifier(ModifierType.MANA, caster);
     }
 
     /**
@@ -737,8 +735,11 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     private void sendDirtySpellData() {
         List<SyncedSpellData.DataValue<?>> list = this.spellData.packDirty();
         if (list != null) {
-            Player player = !this.isInactive ? this.castContext.getPlayer() : this.caster;
-            PayloadHandler.setSpellData(player, getSpellType(), this.castId, list);
+            LivingEntity caster = !this.isInactive ? this.castContext.getCaster() : this.caster;
+
+            //WILL THIS BITE ME IN THE ASS EVENTUALLY??
+            if (caster instanceof Player player)
+                PayloadHandler.setSpellData(player, getSpellType(), this.castId, list);
         }
     }
 
@@ -758,23 +759,23 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         return this.hasLayer;
     }
 
-    public void initSpell(Player player, Level level, BlockPos blockPos) {
-        initSpell(player, level, blockPos, this.getTargetEntity(player, 10));
+    public void initSpell(LivingEntity caster, Level level, BlockPos blockPos) {
+        initSpell(caster, level, blockPos, this.getTargetEntity(caster, 10));
     }
 
     /**
      * Initializes spell data before activation. Will only activate the spell upon a successful cast condition.
-     * @param player The casting player
+     * @param caster The casting living entity
      * @param level The current level
-     * @param blockPos The block position the player is in when the cast timer ends
+     * @param blockPos The block position the caster is in when the cast timer ends
      * @param livingEntity The target entity of the caster
      */
-    public void initSpell(Player player, Level level, BlockPos blockPos, @Nullable LivingEntity livingEntity) {
+    public void initSpell(LivingEntity caster, Level level, BlockPos blockPos, @Nullable LivingEntity livingEntity) {
         this.level = level;
-        this.caster = player;
+        this.caster = caster;
         this.blockPos = blockPos;
 
-        var handler = SpellUtil.getSpellHandler(player);
+        var handler = SpellUtil.getSpellHandler(caster);
         var list = handler.getActiveSpells(getSpellType());
         if (!list.isEmpty()) this.isRecast = true;
         this.context = new SpellContext(this.caster, this.level, this.blockPos, livingEntity, this.isRecast);
@@ -803,7 +804,9 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         }
 
         activateSpell();
-        player.awardStat(SBStats.SPELLS_CAST.get());
+        if (caster instanceof Player player)
+            player.awardStat(SBStats.SPELLS_CAST.get());
+
         if (incrementId) this.castId++;
 
         this.init = true;

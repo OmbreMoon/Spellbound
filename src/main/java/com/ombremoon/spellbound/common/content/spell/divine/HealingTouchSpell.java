@@ -15,6 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -24,13 +25,12 @@ import org.jetbrains.annotations.UnknownNullability;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 public class HealingTouchSpell extends AnimatedSpell {
     private static final ResourceLocation ARMOR_MOD = CommonClass.customLocation("oak_blessing_mod");
     private static final ResourceLocation PLAYER_DAMAGE = CommonClass.customLocation("healing_touch_player_damage");
 
-    private Player caster;
+    private LivingEntity caster;
     private int overgrowthStacks = 0;
     private int blessingDuration = 0;
 
@@ -49,22 +49,22 @@ public class HealingTouchSpell extends AnimatedSpell {
         if (context.isRecast() || context.getLevel().isClientSide) return;
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.POST_DAMAGE, PLAYER_DAMAGE, this::onDamagePost);
 
-        context.getPlayer().addEffect(new MobEffectInstance(SBEffects.HEALING_TOUCH, getDuration()));
+        context.getCaster().addEffect(new MobEffectInstance(SBEffects.HEALING_TOUCH, getDuration()));
 
         SkillHolder skills = context.getSkills();
-        this.caster = context.getPlayer();
-        if (skills.hasSkill(SBSkills.NATURES_TOUCH.value())) context.getPlayer().heal(2f);
+        this.caster = context.getCaster();
+        if (skills.hasSkill(SBSkills.NATURES_TOUCH.value())) context.getCaster().heal(2f);
 
         if (skills.hasSkill(SBSkills.CLEANSING_TOUCH.value())) {
-            Collection<MobEffectInstance> effects = context.getPlayer().getActiveEffects();
+            Collection<MobEffectInstance> effects = context.getCaster().getActiveEffects();
             List<Holder<MobEffect>> harmfulEffects = new ArrayList<>();
             for (MobEffectInstance instance : effects) {
                 if (instance.getEffect().value().getCategory() == MobEffectCategory.HARMFUL) harmfulEffects.add(instance.getEffect());
             }
 
             if (harmfulEffects.isEmpty()) return;
-            Holder<MobEffect> removed = harmfulEffects.get(context.getPlayer().getRandom().nextInt(0, harmfulEffects.size()));
-            context.getPlayer().removeEffect(removed);
+            Holder<MobEffect> removed = harmfulEffects.get(context.getCaster().getRandom().nextInt(0, harmfulEffects.size()));
+            context.getCaster().removeEffect(removed);
         }
 
     }
@@ -74,10 +74,10 @@ public class HealingTouchSpell extends AnimatedSpell {
         super.onSpellTick(context);
         if (context.getLevel().isClientSide) return;
         SkillHolder skills = context.getSkills();
-        Player player = context.getPlayer();
-        double maxMana = player.getAttribute(SBAttributes.MAX_MANA).getValue();
+        LivingEntity caster = context.getCaster();
+        double maxMana = caster.getAttribute(SBAttributes.MAX_MANA).getValue();
 
-        if (!player.hasEffect(SBEffects.HEALING_TOUCH)) {
+        if (!caster.hasEffect(SBEffects.HEALING_TOUCH)) {
             endSpell();
             return;
         }
@@ -86,9 +86,9 @@ public class HealingTouchSpell extends AnimatedSpell {
         if (skills.hasSkill(SBSkills.HEALING_STREAM.value()))
             heal += (float) maxMana * 0.02f;
 
-        player.heal(heal);
+        caster.heal(heal);
 
-        if (skills.hasSkill(SBSkills.ACCELERATED_GROWTH.value())) {
+        if (skills.hasSkill(SBSkills.ACCELERATED_GROWTH.value()) && caster instanceof Player player) {
             player.getFoodData().eat((int) (maxMana * 0.02d), 1f);
         }
 
@@ -97,7 +97,7 @@ public class HealingTouchSpell extends AnimatedSpell {
 
         if (skills.hasSkill(SBSkills.OVERGROWTH.value()) && overgrowthStacks < 5) overgrowthStacks++;
 
-        AttributeInstance armor = player.getAttribute(Attributes.ARMOR);
+        AttributeInstance armor = caster.getAttribute(Attributes.ARMOR);
         if (blessingDuration > 0) blessingDuration--;
         if (blessingDuration <= 0 && armor.hasModifier(ARMOR_MOD)) {
             armor.removeModifier(ARMOR_MOD);
@@ -107,7 +107,7 @@ public class HealingTouchSpell extends AnimatedSpell {
     @Override
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
-        context.getPlayer().removeEffect(SBEffects.HEALING_TOUCH);
+        context.getCaster().removeEffect(SBEffects.HEALING_TOUCH);
     }
 
     @Override

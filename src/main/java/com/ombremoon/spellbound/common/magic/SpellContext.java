@@ -10,7 +10,7 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 public class SpellContext {
-    private final Player player;
+    private final LivingEntity caster;
     private final Level level;
     private final BlockPos blockPos;
     private final ItemStack itemStack;
@@ -20,26 +20,26 @@ public class SpellContext {
     private final SkillHolder skillHolder;
     private final boolean isRecast;
 
-    public SpellContext(Player player, boolean isRecast) {
-        this(player, player.level(), player.getOnPos(), player.getOffhandItem(), null, isRecast);
+    public SpellContext(LivingEntity caster, boolean isRecast) {
+        this(caster, caster.level(), caster.getOnPos(), caster.getOffhandItem(), null, isRecast);
     }
 
-    public SpellContext(Player player, LivingEntity target, boolean isRecast) {
-        this(player, player.level(), player.getOnPos(), player.getOffhandItem(), target, isRecast);
+    public SpellContext(LivingEntity caster, LivingEntity target, boolean isRecast) {
+        this(caster, caster.level(), caster.getOnPos(), caster.getOffhandItem(), target, isRecast);
     }
 
-    public SpellContext(Player player, Level level, BlockPos blockPos, LivingEntity target, boolean isRecast) {
-        this(player, level, blockPos, player.getOffhandItem(), target, isRecast);
+    public SpellContext(LivingEntity caster, Level level, BlockPos blockPos, LivingEntity target, boolean isRecast) {
+        this(caster, level, blockPos, caster.getOffhandItem(), target, isRecast);
     }
 
-    public SpellContext(Player player, Level level, BlockPos blockPos, ItemStack itemStack, LivingEntity target, boolean isRecast) {
-        this.player = player;
+    public SpellContext(LivingEntity caster, Level level, BlockPos blockPos, ItemStack itemStack, LivingEntity target, boolean isRecast) {
+        this.caster = caster;
         this.level = level;
         this.blockPos = blockPos;
         this.itemStack = itemStack;
         this.target = target;
-        this.spellHandler = SpellUtil.getSpellHandler(player);
-        this.skillHolder = SpellUtil.getSkillHolder(player);
+        this.spellHandler = SpellUtil.getSpellHandler(caster);
+        this.skillHolder = SpellUtil.getSkillHolder(caster);
         this.isRecast = isRecast;
     }
 
@@ -55,8 +55,8 @@ public class SpellContext {
         return this.isRecast;
     }
 
-    public Player getPlayer() {
-        return this.player;
+    public LivingEntity getCaster() {
+        return this.caster;
     }
 
     public Level getLevel() {
@@ -76,7 +76,7 @@ public class SpellContext {
     }
 
     public float getRotation() {
-        return this.player.getYRot();
+        return this.caster.getYRot();
     }
 
     public boolean hasActiveSpells(SpellType<?> spell, int amount) {

@@ -15,7 +15,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.checkerframework.checker.units.qual.A;
 
 public class ThunderousHoovesSpell extends AnimatedSpell {
     protected static final ResourceLocation THUNDEROUS_HOOVES = CommonClass.customLocation("thunderous_hooves");
@@ -39,37 +38,37 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
     @Override
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
-        Player player = context.getPlayer();
+        LivingEntity caster = context.getCaster();
         Level level = context.getLevel();
         var skills = context.getSkills();
         if (!level.isClientSide)
-            applyMovementBenefits(player, skills);
+            applyMovementBenefits(caster, skills);
     }
 
     @Override
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
-        Player player = context.getPlayer();
+        LivingEntity caster = context.getCaster();
         Level level = context.getLevel();
         var skills = context.getSkills();
         if (!level.isClientSide) {
             if (skills.hasSkill(SBSkills.QUICK_SPRINT.value()) && this.ticks >= 200) {
-                if (hasAttributeModifier(player, Attributes.MOVEMENT_SPEED, QUICK_SPRINT)) {
-                    removeAttributeModifier(player, Attributes.MOVEMENT_SPEED, QUICK_SPRINT);
-                } else if (player.getVehicle() instanceof LivingEntity vehicle && hasAttributeModifier(vehicle, Attributes.MOVEMENT_SPEED, QUICK_SPRINT)) {
+                if (hasAttributeModifier(caster, Attributes.MOVEMENT_SPEED, QUICK_SPRINT)) {
+                    removeAttributeModifier(caster, Attributes.MOVEMENT_SPEED, QUICK_SPRINT);
+                } else if (caster.getVehicle() instanceof LivingEntity vehicle && hasAttributeModifier(vehicle, Attributes.MOVEMENT_SPEED, QUICK_SPRINT)) {
                     removeAttributeModifier(vehicle, Attributes.MOVEMENT_SPEED, QUICK_SPRINT);
                 }
             }
 
             if (skills.hasSkill(SBSkills.FLEETFOOTED.value())) {
-                var allies = level.getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(3), livingEntity -> livingEntity.isAlliedTo(player));
+                var allies = level.getEntitiesOfClass(LivingEntity.class, caster.getBoundingBox().inflate(3), livingEntity -> livingEntity.isAlliedTo(caster));
                 for (LivingEntity ally : allies) {
                     addTimedAttributeModifier(ally, Attributes.MOVEMENT_SPEED, new AttributeModifier(FLEETFOOTED, 1.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), 20);
                 }
             }
 
             if (skills.hasSkill(SBSkills.RIDERS_RESILIENCE.value())) {
-                Entity entity = player.getVehicle();
+                Entity entity = caster.getVehicle();
                 if (entity instanceof LivingEntity livingEntity) {
                     this.mount = livingEntity;
                     applyMovementBenefits(livingEntity, skills);
@@ -79,34 +78,34 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
                 }
             }
 
-            Vec3 vec3 = player.getDeltaMovement();
-            if (player.isInWater()) {
-                player.setDeltaMovement(vec3.x, 0.002, vec3.z);
-                player.hurtMarked = true;
-                player.setSwimming(false);
-                player.setOnGround(true);
+            Vec3 vec3 = caster.getDeltaMovement();
+            if (caster.isInWater()) {
+                caster.setDeltaMovement(vec3.x, 0.002, vec3.z);
+                caster.hurtMarked = true;
+                caster.setSwimming(false);
+                caster.setOnGround(true);
             }
-            log(player.onGround());
+            log(caster.onGround());
 
             if (skills.hasSkill(SBSkills.MOMENTUM.value())) {
-                if (player.walkAnimation.isMoving()) {
+                if (caster.walkAnimation.isMoving()) {
                     this.movementTicks++;
                     if (this.movementTicks % 20 == 0)
-                        addTimedAttributeModifier(player, Attributes.ATTACK_SPEED, new AttributeModifier(MOMENTUM, 1 + (0.2 * this.movementTicks / 20), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), 100);
+                        addTimedAttributeModifier(caster, Attributes.ATTACK_SPEED, new AttributeModifier(MOMENTUM, 1 + (0.2 * this.movementTicks / 20), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), 100);
                 }
             }
 
             if (skills.hasSkill(SBSkills.STAMPEDE.value())) {
-                var entities = level.getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(2), EntitySelector.NO_CREATIVE_OR_SPECTATOR);
+                var entities = level.getEntitiesOfClass(LivingEntity.class, caster.getBoundingBox().inflate(2), EntitySelector.NO_CREATIVE_OR_SPECTATOR);
                 for (LivingEntity livingEntity : entities) {
-                    if (!livingEntity.isAlliedTo(player) && player.isSprinting()) {
-                        livingEntity.knockback(0.4, player.getX() - livingEntity.getX(), player.getZ() - livingEntity.getZ());
-                        livingEntity.hurt(level.damageSources().playerAttack(player), 2.5F);
+                    if (!livingEntity.isAlliedTo(caster) && caster.isSprinting()) {
+                        livingEntity.knockback(0.4, caster.getX() - livingEntity.getX(), caster.getZ() - livingEntity.getZ());
+                        livingEntity.hurt(level.damageSources().mobAttack(caster), 2.5F);
                     }
                 }
             }
 
-            if (skills.hasSkill(SBSkills.MARATHON.value()) && player.getFoodData().getFoodLevel() < this.initialFoodLevel)
+            if (skills.hasSkill(SBSkills.MARATHON.value()) && caster instanceof Player player && player.getFoodData().getFoodLevel() < this.initialFoodLevel)
                 player.getFoodData().eat(this.initialFoodLevel - player.getFoodData().getFoodLevel(), 0);
 
             log(ticks);
@@ -116,8 +115,8 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
     @Override
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
-        Player player = context.getPlayer();
-        removeMovementBenefits(player);
+        LivingEntity caster = context.getCaster();
+        removeMovementBenefits(caster);
         if (this.mount != null)
             removeMovementBenefits(this.mount);
     }

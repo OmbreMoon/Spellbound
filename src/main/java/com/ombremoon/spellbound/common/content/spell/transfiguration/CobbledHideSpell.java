@@ -49,11 +49,11 @@ public class CobbledHideSpell extends AnimatedSpell {
         if (skills.hasSkill(SBSkills.INFECTIOUS.value())) {
             Predicate<LivingEntity> predicate;
             if (skills.hasSkill(SBSkills.VIRAL.value()))
-                predicate = entity -> entity instanceof Player || (entity instanceof OwnableEntity ownable && ownable.getOwner().is(context.getPlayer()));
-            else predicate = entity -> entity instanceof OwnableEntity ownable && ownable.getOwner().is(context.getPlayer());
+                predicate = entity -> entity instanceof Player || (entity instanceof OwnableEntity ownable && ownable.getOwner().is(context.getCaster()));
+            else predicate = entity -> entity instanceof OwnableEntity ownable && ownable.getOwner().is(context.getCaster());
 
             this.buffedTargets = context.getLevel().getEntitiesOfClass(LivingEntity.class,
-                    context.getPlayer().getBoundingBox().inflate(8d), predicate);
+                    context.getCaster().getBoundingBox().inflate(8d), predicate);
 
             double allyBuff = skills.hasSkill(SBSkills.REINFORCED.value()) ? modAmount : modAmount/2d;
             buffedTargets.forEach(mob -> mob.getAttribute(Attributes.ARMOR).addTransientModifier(new AttributeModifier(
@@ -73,21 +73,21 @@ public class CobbledHideSpell extends AnimatedSpell {
             buffedTargets.forEach(mob -> mob.getAttribute(Attributes.ARMOR).removeModifier(hideMod));
         }
 
-        context.getPlayer().getAttribute(Attributes.ARMOR).removeModifier(hideMod);
+        context.getCaster().getAttribute(Attributes.ARMOR).removeModifier(hideMod);
     }
 
     @Override
     protected void onSpellRecast(SpellContext context) {
         if (context.getSkills().hasSkill(SBSkills.REPULSIVE_SKIN.value())) {
-            Player player = context.getPlayer();
+            LivingEntity caster = context.getCaster();
             List<LivingEntity> entities = context.getLevel().getEntitiesOfClass(LivingEntity.class,
-                    player.getBoundingBox().inflate(8d));
+                    caster.getBoundingBox().inflate(8d));
 
             for (LivingEntity entity : entities) {
-                entity.hurt(context.getPlayer().damageSources().magic(), 2f);
+                entity.hurt(context.getCaster().damageSources().magic(), 2f);
                 entity.knockback(1d,
-                        entity.getX() - player.getX(),
-                        entity.getZ() - player.getZ());
+                        entity.getX() - caster.getX(),
+                        entity.getZ() - caster.getZ());
             }
 
             endSpell();

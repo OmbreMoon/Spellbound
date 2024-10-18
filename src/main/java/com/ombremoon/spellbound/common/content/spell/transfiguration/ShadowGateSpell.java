@@ -34,7 +34,6 @@ import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 //TODO: ADD OPEN/CLOSE ANIMATIONS
 
@@ -85,7 +84,7 @@ public class ShadowGateSpell extends AnimatedSpell {
             if (shadowGate != null) {
                 PortalInfo info = new PortalInfo(activePortals, vec3);
                 this.portalInfo.put(shadowGate.getId(), info);
-                shadowGate.setOwner(context.getPlayer());
+                shadowGate.setOwner(context.getCaster());
                 shadowGate.setPos(vec3.x(), vec3.y(), vec3.z());
                 shadowGate.setYRot(context.getRotation());
                 shadowGate.setStartTick(20);
@@ -97,7 +96,7 @@ public class ShadowGateSpell extends AnimatedSpell {
     @Override
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
-        Player player = context.getPlayer();
+        LivingEntity caster = context.getCaster();
         Level level = context.getLevel();
         if (!level.isClientSide()) {
             var skills = context.getSkills();
@@ -133,17 +132,17 @@ public class ShadowGateSpell extends AnimatedSpell {
                                         addCooldown(SBSkills.QUICK_RECHARGE.value(), 200);
                                     }
 
-                                    if (skills.hasSkill(SBSkills.SHADOW_ESCAPE.value()) && isCaster(entity) && player.getHealth() < player.getMaxHealth() * 0.5F && !player.hasEffect(MobEffects.INVISIBILITY))
-                                        player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 100, 0, false, false, true));
+                                    if (skills.hasSkill(SBSkills.SHADOW_ESCAPE.value()) && isCaster(entity) && caster.getHealth() < caster.getMaxHealth() * 0.5F && !caster.hasEffect(MobEffects.INVISIBILITY))
+                                        caster.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 100, 0, false, false, true));
 
-                                    if (skills.hasSkill(SBSkills.UNWANTED_GUESTS.value()) && !entity.isAlliedTo(context.getPlayer())) {
+                                    if (skills.hasSkill(SBSkills.UNWANTED_GUESTS.value()) && !entity.isAlliedTo(context.getCaster())) {
                                         addTimedListener(entity, SpellEventListener.Events.PRE_DAMAGE, UNWANTED_GUESTS, event -> {
                                             event.setNewDamage(event.getOriginalDamage() * .9F);
                                         }, 200);
                                         addTimedModifier(entity, SpellModifier.UNWANTED_GUESTS, 200);
                                     }
 
-                                    if (skills.hasSkill(SBSkills.BAIT_AND_SWITCH.value()) && !entity.isAlliedTo(player)) {
+                                    if (skills.hasSkill(SBSkills.BAIT_AND_SWITCH.value()) && !entity.isAlliedTo(caster)) {
                                         entity.hurt(level.damageSources().magic(), 10);
                                         SpellUtil.getSpellHandler(entity).consumeMana(10);
                                     }

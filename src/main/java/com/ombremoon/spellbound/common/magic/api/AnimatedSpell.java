@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.common.magic.api;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.function.BiPredicate;
 
@@ -24,16 +25,17 @@ public abstract class AnimatedSpell extends AbstractSpell {
     @Override
     public void onCastStart(SpellContext context) {
         super.onCastStart(context);
-        if (context.getLevel().isClientSide && !this.castAnimation.isEmpty() && context.getSpellHandler().castTick == 1)
-            playAnimation(context.getPlayer(), this.castAnimation);
+        //WILL THIS BE AN ISSUE DOWN THE LINE??
+        if (context.getLevel().isClientSide && !this.castAnimation.isEmpty() && context.getSpellHandler().castTick == 1 && context.getCaster() instanceof Player player)
+            playAnimation(player, this.castAnimation);
 
     }
 
     @Override
     public void onCastReset(SpellContext context) {
         super.onCastReset(context);
-        if (context.getLevel().isClientSide && !this.castAnimation.isEmpty())
-            stopAnimation(context.getPlayer());
+        if (context.getLevel().isClientSide && !this.castAnimation.isEmpty() && context.getCaster() instanceof Player player)
+            stopAnimation(player);
     }
 
     public static class Builder<T extends AnimatedSpell> extends AbstractSpell.Builder<T> {

@@ -24,7 +24,6 @@ import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.BiPredicate;
 
 public abstract class SummonSpell extends AnimatedSpell {
@@ -35,7 +34,7 @@ public abstract class SummonSpell extends AnimatedSpell {
 
     @SuppressWarnings("unchecked")
     public static <T extends SummonSpell> Builder<T> createSummonBuilder(Class<T> spellClass) {
-        return (Builder<T>) new Builder<>().castCondition((context, spell) -> getSpawnPos(context.getPlayer(), context.getLevel()) != null);
+        return (Builder<T>) new Builder<>().castCondition((context, spell) -> getSpawnPos(context.getCaster(), context.getLevel()) != null);
     }
 
     public SummonSpell(SpellType<?> spellType, Builder<?> builder) {
@@ -91,17 +90,17 @@ public abstract class SummonSpell extends AnimatedSpell {
      */
     protected <T extends Entity> Set<T> summonMobs(SpellContext context, EntityType<T> entityType, int mobCount) {
         Level level = context.getLevel();
-        Player player = context.getPlayer();
+        LivingEntity caster = context.getCaster();
 
         Set<Integer> summonedMobs = new HashSet<>();
         Set<T> toReturn = new HashSet<>();
-        BlockPos blockPos = getSpawnPos(player, level);
+        BlockPos blockPos = getSpawnPos(caster, level);
         if (blockPos == null) return null;
 
         Vec3 spawnPos = blockPos.getCenter();
         for (int i = 0; i < mobCount; i++) {
             T summon = entityType.create(level);
-            SummonUtil.setOwner(summon, player);
+            SummonUtil.setOwner(summon, caster);
             summon.teleportTo(spawnPos.x, blockPos.getY(), spawnPos.z);
             level.addFreshEntity(summon);
             summonedMobs.add(summon.getId());
@@ -114,12 +113,12 @@ public abstract class SummonSpell extends AnimatedSpell {
 
     /**
      * Gets the position for the entity to spawn
-     * @param player Caster of the spell
+     * @param caster Caster of the spell
      * @param level the Level to check blockstates on
      * @return the BlockPos of a valid spawn position, null if none found
      */
-    private static BlockPos getSpawnPos(Player player, Level level) {
-        BlockHitResult blockHit = level.clip(setupRayTraceContext(player, 5d, ClipContext.Fluid.NONE));
+    private static BlockPos getSpawnPos(LivingEntity caster, Level level) {
+        BlockHitResult blockHit = level.clip(setupRayTraceContext(caster, 5d, ClipContext.Fluid.NONE));
         if (blockHit.getType() == HitResult.Type.MISS) return null;
         if (blockHit.getDirection() == Direction.DOWN) return null;
 

@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unchecked")
 public class SpellHandler implements INBTSerializable<CompoundTag> {
     private SpellEventListener listener;
-    public Player caster;
+    public LivingEntity caster;
     private SkillHolder skillHolder;
     private UpgradeTree upgradeTree;
     protected boolean castMode;
@@ -61,7 +61,8 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
      * Syncs spell handler data from the server to the client.
      */
     public void sync() {
-        PayloadHandler.syncSpellsToClient(this.caster);
+        if (this.caster instanceof Player player)
+            PayloadHandler.syncSpellsToClient(player);
     }
 
     public void debug() {
@@ -79,11 +80,11 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
      *     <li>{@code SkillHolder}</li>
      *     <li>{@code UpgradeTree}</li>
      * </ul>
-     * @param player
+     * @param caster
      */
-    public void initData(Player player) {
-        this.caster = player;
-        this.listener = new SpellEventListener(player);
+    public void initData(LivingEntity caster) {
+        this.caster = caster;
+        this.listener = new SpellEventListener(caster);
         this.skillHolder = SpellUtil.getSkillHolder(this.caster);
         this.upgradeTree = this.caster.getData(SBData.UPGRADE_TREE);
     }
@@ -149,7 +150,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
      */
     public boolean consumeMana(float amount, boolean forceConsume) {
         double currentFP = caster.getData(SBData.MANA);
-        if (this.caster.getAbilities().instabuild) {
+        if (this.caster instanceof Player player && player.getAbilities().instabuild) {
             return true;
         } else if (currentFP < amount) {
             return false;
@@ -167,8 +168,9 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
      * @param mana The amount of mana received
      */
     public void awardMana(float mana) {
-        caster.setData(SBData.MANA, Math.min(caster.getData(SBData.MANA) + mana, this.caster.getAttribute(SBAttributes.MAX_MANA).getValue()));
-        PayloadHandler.syncMana(caster);
+        this.caster.setData(SBData.MANA, Math.min(caster.getData(SBData.MANA) + mana, this.caster.getAttribute(SBAttributes.MAX_MANA).getValue()));
+        if (this.caster instanceof Player player)
+            PayloadHandler.syncMana(player);
     }
 
     /**
@@ -188,9 +190,11 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.spellSet.add(spellType);
         this.skillHolder.unlockSkill(spellType.getRootSkill());
         this.upgradeTree.addAll(spellType.getSkills());
-        this.upgradeTree.update(this.caster, spellType.getSkills());
-        sync();
-        this.skillHolder.sync(this.caster);
+        if (this.caster instanceof Player player) {
+            this.upgradeTree.update(player, spellType.getSkills());
+            sync();
+            this.skillHolder.sync(player);
+        }
     }
 
     /**
@@ -201,10 +205,12 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.skillHolder.resetSkills(spellType);
 
         var locations = spellType.getSkills().stream().map(Skill::location).collect(Collectors.toSet());
-        this.upgradeTree.remove(locations);
-        this.upgradeTree.update(this.caster, locations);
         this.spellSet.remove(spellType);
-        sync();
+        this.upgradeTree.remove(locations);
+        if (this.caster instanceof Player player) {
+            this.upgradeTree.update(player, locations);
+            sync();
+        }
     }
 
     /**
@@ -214,10 +220,12 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.spellSet.forEach(skillHolder::resetSkills);
         this.spellSet.forEach(skillHolder::resetSpellXP);
         this.skillHolder.clearModifiers();
-        this.upgradeTree.clear(this.caster);
         this.spellSet.clear();
         this.selectedSpell = null;
-        sync();
+        if (this.caster instanceof Player player) {
+            this.upgradeTree.clear(player);
+            sync();
+        }
     }
 
     /**
@@ -426,7 +434,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
      * @return The spell event listener
      */
     public SpellEventListener getListener() {
-        return this.listener;
+        return this.listener != null ? this.listener : new SpellEventListener(this.caster);
     }
 
     /**

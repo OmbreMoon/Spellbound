@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.List;
@@ -18,10 +19,10 @@ import java.util.function.Consumer;
 public class SpellEventListener {
     public final Map<IEvent<?>, List<EventInstance<? extends SpellEvent>>> events = new Object2ObjectOpenHashMap<>();
     public final Map<EventInstance<? extends SpellEvent>, Integer> timedEvents = new Object2IntOpenHashMap<>();
-    private final Player player;
+    private final LivingEntity listener;
 
-    public SpellEventListener(Player player) {
-        this.player = player;
+    public SpellEventListener(LivingEntity listener) {
+        this.listener = listener;
     }
 
     /**
@@ -115,7 +116,7 @@ public class SpellEventListener {
     public void tickInstances() {
         if (!this.timedEvents.isEmpty()) {
             for (var entry : this.timedEvents.entrySet()) {
-                if (entry.getValue() <= this.player.tickCount) {
+                if (entry.getValue() <= this.listener.tickCount) {
                     this.removeListener(entry.getKey());
                     this.timedEvents.remove(entry.getKey());
                 }
@@ -129,7 +130,7 @@ public class SpellEventListener {
      * @return Whether the event is being fired on the proper side
      */
     private boolean checkSide(IEvent<?> event) {
-        return this.player.level().isClientSide != event.isClientSide();
+        return this.listener.level().isClientSide != event.isClientSide();
     }
 
     /**
