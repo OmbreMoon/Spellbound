@@ -25,7 +25,6 @@ public abstract class AnimatedSpell extends AbstractSpell {
     @Override
     public void onCastStart(SpellContext context) {
         super.onCastStart(context);
-        //WILL THIS BE AN ISSUE DOWN THE LINE??
         if (context.getLevel().isClientSide && !this.castAnimation.isEmpty() && context.getSpellHandler().castTick == 1 && context.getCaster() instanceof Player player)
             playAnimation(player, this.castAnimation);
 

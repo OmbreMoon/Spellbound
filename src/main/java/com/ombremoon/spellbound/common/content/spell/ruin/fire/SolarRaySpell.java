@@ -38,7 +38,7 @@ import java.util.function.BiFunction;
 //TODO: FIX ATTACK CONDITION
 
 public class SolarRaySpell extends ChanneledSpell {
-    protected static final SpellDataKey<Integer> SOLAR_RAY_ID = SyncedSpellData.define(SolarRaySpell.class, SBDataTypes.INT.get());
+    protected static final SpellDataKey<Integer> SOLAR_RAY_ID = SyncedSpellData.registerDataKey(SolarRaySpell.class, SBDataTypes.INT.get());
     private static final List<SentinelBox> BOXES = new ObjectArrayList<>();
     private static final BiFunction<Entity, LivingEntity, Float> POTENCY = (entity, livingEntity) -> {
         float damage = 5F;
@@ -85,7 +85,7 @@ public class SolarRaySpell extends ChanneledSpell {
     private final Map<LivingEntity, Integer> heatTracker = new Object2IntOpenHashMap<>();
 
     public static Builder<SolarRaySpell> createSolarRayBuilder() {
-        return createChannelledSpellBuilder(SolarRaySpell.class).castTime(18).castAnimation("solar");
+        return createChannelledSpellBuilder(SolarRaySpell.class).castTime(18).castAnimation("solar_ray1");
     }
 
     public SolarRaySpell() {

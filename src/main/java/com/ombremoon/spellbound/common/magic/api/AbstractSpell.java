@@ -71,7 +71,7 @@ import java.util.function.Consumer;
 public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, Loggable {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public static final DataTicket<AbstractSpell> DATA_TICKET = new DataTicket<>("abstract_spell", AbstractSpell.class);
-    protected static final SpellDataKey<BlockPos> CAST_POS = SyncedSpellData.define(AbstractSpell.class, SBDataTypes.BLOCK_POS.get());
+    protected static final SpellDataKey<BlockPos> CAST_POS = SyncedSpellData.registerDataKey(AbstractSpell.class, SBDataTypes.BLOCK_POS.get());
     private final SpellType<?> spellType;
     private final int manaCost;
     private final int duration;

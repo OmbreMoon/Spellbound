@@ -41,7 +41,7 @@ public class SyncedSpellData {
      * @return The spell data key
      * @param <T>
      */
-    public static <T> SpellDataKey<T> define(Class<? extends SpellDataHolder> clazz, SpellDataType<T> dataType) {
+    public static <T> SpellDataKey<T> registerDataKey(Class<? extends SpellDataHolder> clazz, SpellDataType<T> dataType) {
         if (true || LOGGER.isDebugEnabled()) { // Forge: This is very useful for mods that register keys on classes that are not their own
             try {
                 Class<?> oclass = Class.forName(Thread.currentThread().getStackTrace()[2].getClassName());

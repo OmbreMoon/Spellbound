@@ -121,7 +121,6 @@ public class SpellCastEvents {
         return minecraft.isWindowActive();
     }
 
-    @SuppressWarnings("unchecked")
     public static void castSpell(Player player, AbstractSpell spell) {
         if (player.isSpectator()) return;
         if (!SpellUtil.canCastSpell(player, spell)) return;
@@ -130,8 +129,5 @@ public class SpellCastEvents {
         spell.initSpell(player, player.level(), player.getOnPos());
         var handler = SpellUtil.getSpellHandler(player);
         handler.setCurrentlyCastingSpell(null);
-//        var animation = (ModifierLayer<IAnimation>) PlayerAnimationAccess.getPlayerAssociatedData((AbstractClientPlayer) player).get(CommonClass.customLocation("animation"));
-//        if (animation != null)
-//            animation.setAnimation(new KeyframeAnimationPlayer((KeyframeAnimation) PlayerAnimationRegistry.getAnimation(CommonClass.customLocation("solar"))));
     }
 }
