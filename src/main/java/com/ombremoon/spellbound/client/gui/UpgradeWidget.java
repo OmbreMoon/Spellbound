@@ -117,7 +117,7 @@ public class UpgradeWidget {
     public void draw(GuiGraphics guiGraphics, int x, int y) {
         var holder = SpellUtil.getSkillHolder(this.minecraft.player);
         Type type = holder.hasSkill(this.skillNode.skill()) ? Type.UNLOCKED : Type.LOCKED;
-        guiGraphics.blit(WorkbenchScreen.TEXTURE, x + this.x, y + this.y, 29 ,226, 30, 30);
+        guiGraphics.blit(WorkbenchScreen.TEXTURE, x + this.x, y + this.y, 39 ,226, 30, 30);
         ResourceLocation sprite = this.skillNode.skill().getTexture();
         guiGraphics.blit(sprite, x + this.x + 3, y + this.y + 3, 0, 0, 24, 24, 24, 24);
 
@@ -164,7 +164,7 @@ public class UpgradeWidget {
         }
 
         guiGraphics.blitSprite(box, 200, 26, 200 - i, 0, k, j, i, 26);
-        guiGraphics.blit(WorkbenchScreen.TEXTURE, x + this.x, y + this.y, 29 ,226, 30, 30);
+        guiGraphics.blit(WorkbenchScreen.TEXTURE, x + this.x, y + this.y, 39 ,226, 30, 30);
         if (flag) {
             guiGraphics.drawString(this.minecraft.font, this.title, k + 5, y + this.y + 9, -1);
         } else {

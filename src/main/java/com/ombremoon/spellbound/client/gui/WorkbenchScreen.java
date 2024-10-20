@@ -84,7 +84,7 @@ public class WorkbenchScreen extends Screen {
             }
         }
         for (int i = 0; i < 5; i++) {
-            if (isHovering(92 + (i * 26), -30, 26, 30, mouseX, mouseY) && i != pageIndex) {
+            if (isHovering(92 + (i * 30), -30, 30, 30, mouseX, mouseY) && i != pageIndex) {
                 this.pageIndex = i;
                 this.selectedIndex = -1;
                 this.scrollOffs = 0;
@@ -228,9 +228,9 @@ public class WorkbenchScreen extends Screen {
 
     private void renderTabs(GuiGraphics guiGraphics, int xPos, int yPos, int mouseX, int mouseY) {
         for (int i = 0; i < 5; i++) {
-            guiGraphics.blit(TEXTURE, xPos + 92 + (i * 26), yPos - 26, 0, 198, 26, 26);
-            if (isHovering(92 + (i * 26), -30, 26, 26, mouseX, mouseY) || i == pageIndex) {
-                guiGraphics.blit(TEXTURE, xPos + 92 + (i * 26), yPos - 28, 0, 224, 26, 32);
+            guiGraphics.blit(TEXTURE, xPos + 92 + (i * 30), yPos - 26, 0, 198, 30, 26);
+            if (isHovering(92 + (i * 30), -30, 30, 26, mouseX, mouseY) || i == pageIndex) {
+                guiGraphics.blit(TEXTURE, xPos + 92 + (i * 30), yPos - 28, 0, 224, 30, 32);
             }
         }
     }
