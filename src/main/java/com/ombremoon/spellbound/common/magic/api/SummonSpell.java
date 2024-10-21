@@ -4,7 +4,7 @@ import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.events.ChangeTargetEvent;
-import com.ombremoon.spellbound.common.magic.events.PlayerDamageEvent;
+import com.ombremoon.spellbound.common.magic.events.DamageEvent;
 import com.ombremoon.spellbound.util.SummonUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -133,9 +133,9 @@ public abstract class SummonSpell extends AnimatedSpell {
         }
     }
 
-    protected final void damageEvent(PlayerDamageEvent.Post damageEvent) {
+    protected final void damageEvent(DamageEvent.Post damageEvent) {
         if (damageEvent.getSource().getEntity() == null) return;
-        Player player = damageEvent.getPlayer();
+        LivingEntity player = damageEvent.getCaster();
 
         if (damageEvent.getSource().getEntity().is(player)) {
             if (!damageEvent.getEntity().is(player) && !SummonUtil.isSummonOf(damageEvent.getEntity(), player))

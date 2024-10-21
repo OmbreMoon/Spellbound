@@ -111,7 +111,7 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
                 var entities = level.getEntitiesOfClass(LivingEntity.class, caster.getBoundingBox().inflate(1.5), EntitySelector.NO_CREATIVE_OR_SPECTATOR);
                 boolean flag = caster.getVehicle() != null && skills.hasSkill(SBSkills.RIDERS_RESILIENCE.value());
                 for (LivingEntity living : entities) {
-                    if (!living.isAlliedTo(caster) && (caster.isSprinting() || flag && !living.is(caster.getVehicle()))) {
+                    if (!isCaster(living) && !living.isAlliedTo(caster) && (caster.isSprinting() || flag && !living.is(caster.getVehicle()))) {
                         living.knockback(0.4, caster.getX() - living.getX(), caster.getZ() - living.getZ());
                         living.hurtMarked = true;
                         living.hurt(level.damageSources().mobAttack(caster), 2.5F);
@@ -123,7 +123,7 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
                 if (this.ticks % 4 == 0) {
                     log(this.movementTicks);
                     if (!this.currentPos.equals(caster.getOnPos())) {
-                        this.movementTicks++;
+                        this.movementTicks += 4;
                         this.currentPos = caster.getOnPos();
                         if (this.movementTicks % 20 == 0)
                             addTimedAttributeModifier(caster, Attributes.ATTACK_SPEED, new AttributeModifier(MOMENTUM, 1 + (0.2 * this.movementTicks / 20), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), 100);

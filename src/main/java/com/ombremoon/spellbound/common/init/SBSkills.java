@@ -99,6 +99,19 @@ public class SBSkills {
     public static final Holder<Skill> STAMPEDE = registerSkill("stampede", 25, 200, preReqs(ENDURANCE));
     public static final Holder<Skill> MARATHON = registerSkill("marathon", 0, 250, preReqs(MOMENTUM, STAMPEDE));
 
+    //Mystic Armor
+    public static final Holder<Skill> MYSTIC_ARMOR = registerSkill("mystic_armor");
+    public static final Holder<Skill> FORESIGHT = registerModifierSkill("foresight", -50, 50, preReqs(MYSTIC_ARMOR), SpellModifier.FORESIGHT);
+    public static final Holder<Skill> ARCANE_VENGEANCE = registerSkill("arcane_vengeance", 0 , 50, preReqs(MYSTIC_ARMOR));
+    public static final Holder<Skill> EQUILIBRIUM = registerSkill("equilibrium", 0, 100, preReqs(ARCANE_VENGEANCE));
+    public static final Holder<Skill> PLANAR_DEFLECTION = registerSkill("planar_deflection", 0, 150, preReqs(EQUILIBRIUM));
+    public static final Holder<Skill> PURSUIT = registerSkill("pursuit", 50, 50, preReqs(MYSTIC_ARMOR));
+    public static final Holder<Skill> COMBAT_PERCEPTION = registerSkill("combat-perception", 50, 100, preReqs(PURSUIT));
+    public static final Holder<Skill> CRYSTALLINE_ARMOR = registerSkill("crystalline_armor", 50, 150, preReqs(COMBAT_PERCEPTION));
+    public static final Holder<Skill> ELDRITCH_INTERVENTION = registerSkill("eldritch_intervention", 50, 200, preReqs(CRYSTALLINE_ARMOR));
+    public static final Holder<Skill> SUBLIME_BEACON = registerSkill("sublime_beacon", 100, 200, preReqs(CRYSTALLINE_ARMOR));
+    public static final Holder<Skill> SOUL_RECHARGE = registerSkill("soul_recharge", 75, 250, preReqs(ELDRITCH_INTERVENTION, SUBLIME_BEACON));
+
     //Cobbled hide
     public static final Holder<Skill> COBBLED_HIDE = registerSkill("cobbled_hide");
     public static final Holder<Skill> IRON_HIDE = registerSkill("iron_hide", 0, 50, preReqs(COBBLED_HIDE));

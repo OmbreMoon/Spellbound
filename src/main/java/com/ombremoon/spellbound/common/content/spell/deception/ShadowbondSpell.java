@@ -166,9 +166,10 @@ public class ShadowbondSpell extends AnimatedSpell {
             addTimedAttributeModifier(caster, Attributes.MOVEMENT_SPEED, new AttributeModifier(CommonClass.customLocation("shadow_step"), 1.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), 100);
 
         if (skills.hasSkill(SBSkills.SNEAK_ATTACK.value())) {
-            addTimedListener(caster, SpellEventListener.Events.PRE_DAMAGE, SNEAK_ATTACK, pre -> {
-                pre.setNewDamage(pre.getOriginalDamage() * 1.5F);
-                handler.getListener().removeListener(SpellEventListener.Events.PRE_DAMAGE, SNEAK_ATTACK);
+            addTimedAttributeModifier(caster, Attributes.ATTACK_DAMAGE, new AttributeModifier(SNEAK_ATTACK, 1.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), 100);
+            addTimedListener(caster, SpellEventListener.Events.ATTACK, SNEAK_ATTACK, pre -> {
+                removeAttributeModifier(caster, Attributes.ATTACK_DAMAGE, SNEAK_ATTACK);
+                handler.getListener().removeListener(SpellEventListener.Events.ATTACK, SNEAK_ATTACK);
             }, 100);
         }
 

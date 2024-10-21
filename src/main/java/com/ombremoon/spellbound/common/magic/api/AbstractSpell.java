@@ -10,6 +10,7 @@ import com.ombremoon.spellbound.client.renderer.layer.SpellLayerRenderer;
 import com.ombremoon.spellbound.common.init.SBDataTypes;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.init.SBStats;
+import com.ombremoon.spellbound.common.init.SBTags;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
@@ -38,6 +39,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
@@ -52,6 +54,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import software.bernie.geckolib.animatable.GeoAnimatable;
@@ -134,7 +137,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns the spell type of the spell
+     * Returns the spell type of the spell.
      * @return The spell type
      */
     public SpellType<?> getSpellType() {
@@ -233,7 +236,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns the texture location of the spell used in the casting overlay
+     * Returns the texture location of the spell used in the casting overlay.
      * @return The spell texture resource location
      */
     public ResourceLocation getTexture() {
@@ -242,7 +245,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns a component of the spell name
+     * Returns a component of the spell name.
      * @return The spell name
      */
     public MutableComponent getName() {
@@ -275,7 +278,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns the sub path of the spell if present
+     * Returns the sub path of the spell if present.
      * @return The spell sub path
      */
     public @Nullable SpellPath getSubPath() {
@@ -307,7 +310,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Defines the default data values of the synced data keys
+     * Defines the default data values of the synced data keys.
      * @param builder The synced spell data builder
      */
     protected void defineSpellData(SyncedSpellData.Builder builder) {
@@ -348,7 +351,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         if (init) {
             this.startSpell();
         } else if (!isInactive) {
-            if (this.shouldTickEffect(this.context)) {
+            if (this.shouldTickSpellEffect(this.context)) {
                 this.onSpellTick(this.context);
             }
             if (this.getCastType() != CastType.CHANNEL && ticks % getDuration() == 0) {
@@ -363,7 +366,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Triggers the spell to start ticking
+     * Triggers the spell to start ticking.
      */
     private void startSpell() {
         this.init = false;
@@ -383,28 +386,28 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Called every tick while a spell is active
+     * Called every tick while a spell is active.
      * @param context The spell context
      */
     protected void onSpellTick(SpellContext context) {
     }
 
     /**
-     * Called when a spell starts
+     * Called when a spell starts.
      * @param context The spell context
      */
     protected void onSpellStart(SpellContext context) {
     }
 
     /**
-     * Called when a spell is recast
+     * Called when a spell is recast.
      * @param context The spell context
      */
     protected void onSpellRecast(SpellContext context) {
     }
 
     /**
-     * Called when a spell ends
+     * Called when a spell ends.
      * @param context The spell context
      */
     protected void onSpellStop(SpellContext context) {
@@ -412,7 +415,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
     //TODO: CHECK
     /**
-     * Called at the start of casting
+     * Called at the start of casting.
      * @param context The casting specific spell context
      */
     public void onCastStart(SpellContext context) {
@@ -464,7 +467,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param context The spell context
      * @return Whether the spell should tick
      */
-    protected boolean shouldTickEffect(SpellContext context) {
+    protected boolean shouldTickSpellEffect(SpellContext context) {
         return true;
     }
 
@@ -563,36 +566,56 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param ticks The amount of ticks the attribute modifier lasts
      */
     public void addTimedAttributeModifier(LivingEntity livingEntity, Holder<Attribute> attribute, AttributeModifier modifier, int ticks) {
-        addAttributeModifier(livingEntity, attribute, modifier);
-        SpellUtil.getSpellHandler(livingEntity).addTransientModifier(attribute, modifier, ticks);
+        if (!hasAttributeModifier(livingEntity, attribute, modifier.id())) {
+            addAttributeModifier(livingEntity, attribute, modifier);
+            SpellUtil.getSpellHandler(livingEntity).addTransientModifier(attribute, modifier, ticks);
+        }
     }
 
     /**
-     * Adds a given attribute modifier to a chosen attribute on the caster
+     * Adds a given attribute modifier to a chosen attribute on the caster.
      * @param attribute The attribute to apply a modifier to
      * @param modifier the AttributeModifier to apply
      */
     public void addAttributeModifier(LivingEntity livingEntity, Holder<Attribute> attribute, AttributeModifier modifier) {
-        if (!hasAttributeModifier(livingEntity, attribute, modifier.id()))
-            livingEntity.getAttribute(attribute).addTransientModifier(modifier);
+        livingEntity.getAttribute(attribute).addTransientModifier(modifier);
     }
 
     /**
-     * Removes an attribute modifier from the caster
+     * Removes an attribute modifier from the caster.
      * @param attribute The attribute the modifier affects
      * @param modifier The ResourceLocation of the modifier to remove
      */
     public void removeAttributeModifier(LivingEntity livingEntity, Holder<Attribute> attribute, ResourceLocation modifier) {
-        livingEntity.getAttribute(attribute).removeModifier(modifier);
+        if (hasAttributeModifier(livingEntity, attribute, modifier))
+            livingEntity.getAttribute(attribute).removeModifier(modifier);
     }
 
     /**
-     * Checks whether the entity is the caster of this spell
+     * Checks whether the entity is the caster of this spell.
      * @param livingEntity The living entity
      * @return If the living entity is the caster
      */
-    protected boolean isCaster(LivingEntity livingEntity) {
+    protected boolean isCaster(@NotNull LivingEntity livingEntity) {
         return livingEntity.is(this.caster);
+    }
+
+    /**
+     * Checks if the damage dealt was spell damage.
+     * @param damageSource The source of damage
+     * @return Whether the damage source has the {@link SBTags.DamageTypes Spell Damage} tag
+     */
+    protected boolean isSpellDamage(@NotNull DamageSource damageSource) {
+        return damageSource.is(SBTags.DamageTypes.SPELL_DAMAGE);
+    }
+
+    /**
+     * Checks if the damage dealt was physical damage.
+     * @param damageSource The source of damage
+     * @return Whether the damage source has the {@link SBTags.DamageTypes Physical Damage} tag
+     */
+    protected boolean isPhysicalDamage(@NotNull DamageSource damageSource) {
+        return damageSource.is(SBTags.DamageTypes.PHYSICAL_DAMAGE);
     }
 
     /**
@@ -611,7 +634,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Adds a cooldown to skills
+     * Adds a cooldown to skills.
      * @param skill The skill to go on cooldown
      * @param ticks The amount of ticks the cooldown will last
      */
@@ -644,7 +667,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param freq The speed of which the screen will shake
      */
     protected void shakeScreen(Player player, int duration, float intensity, float maxOffset, int freq) {
-        if (this.level.isClientSide())
+        if (player.level().isClientSide())
             CameraEngine.getOrAssignEngine(player).shakeScreen(player.getRandom().nextInt(), duration, intensity, maxOffset, freq);
     }
 

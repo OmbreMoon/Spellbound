@@ -1,22 +1,22 @@
 package com.ombremoon.spellbound.common.magic.events;
 
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
-import net.neoforged.neoforge.event.entity.living.LivingEvent;
 
 public class SpellEvent {
-    private final Player player;
+    private final LivingEntity caster;
     private final Event event;
     protected boolean cancelled;
 
-    public SpellEvent(Player player, Event event) {
-        this.player = player;
+    public SpellEvent(LivingEntity caster, Event event) {
+        this.caster = caster;
         this.event = event;
     }
 
-    public Player getPlayer() {
-        return this.player;
+    public LivingEntity getCaster() {
+        return this.caster;
     }
 
     protected Event getEvent() {

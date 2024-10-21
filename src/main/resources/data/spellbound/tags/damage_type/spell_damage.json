@@ -1,0 +1,11 @@
+{
+  "values": [
+    "spellbound:sb_generic",
+    "spellbound:ruin_fire",
+    "spellbound:ruin_shock",
+    "spellbound:disease",
+    "minecraft:magic",
+    "minecraft:indirect_magic",
+    "minecraft:dragon_breath"
+  ]
+}

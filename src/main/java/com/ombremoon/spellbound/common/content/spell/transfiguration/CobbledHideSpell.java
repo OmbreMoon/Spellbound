@@ -63,7 +63,7 @@ public class CobbledHideSpell extends AnimatedSpell {
     }
 
     @Override
-    protected boolean shouldTickEffect(SpellContext context) {
+    protected boolean shouldTickSpellEffect(SpellContext context) {
         return false;
     }
 

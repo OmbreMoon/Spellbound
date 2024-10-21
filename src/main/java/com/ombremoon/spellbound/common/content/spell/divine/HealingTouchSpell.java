@@ -7,7 +7,7 @@ import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
-import com.ombremoon.spellbound.common.magic.events.PlayerDamageEvent;
+import com.ombremoon.spellbound.common.magic.events.DamageEvent;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
@@ -111,11 +111,11 @@ public class HealingTouchSpell extends AnimatedSpell {
     }
 
     @Override
-    protected boolean shouldTickEffect(SpellContext context) {
+    protected boolean shouldTickSpellEffect(SpellContext context) {
         return ticks % 20 == 0;
     }
 
-    private void onDamagePost(PlayerDamageEvent.Post event) {
+    private void onDamagePost(DamageEvent.Post event) {
         SkillHolder skills = SpellUtil.getSkillHolder(caster);
 
         if (event.getEntity().hasEffect(SBEffects.POISON) && skills.hasSkill(SBSkills.CONVALESCENCE.value()))

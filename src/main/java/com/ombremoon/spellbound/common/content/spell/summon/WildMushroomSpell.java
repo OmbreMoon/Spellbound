@@ -10,13 +10,12 @@ import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.SpellModifier;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
-import com.ombremoon.spellbound.common.magic.events.PlayerKillEvent;
+import com.ombremoon.spellbound.common.magic.events.DeathEvent;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 
 import java.util.HashSet;
@@ -119,7 +118,7 @@ public class WildMushroomSpell extends SummonSpell {
     }
 
     @Override
-    protected boolean shouldTickEffect(SpellContext context) {
+    protected boolean shouldTickSpellEffect(SpellContext context) {
         return explosionInterval <= 0 || ticks % explosionInterval == 0;
     }
 
@@ -149,12 +148,12 @@ public class WildMushroomSpell extends SummonSpell {
         }
     }
 
-    private void playerKill(PlayerKillEvent event) {
+    private void playerKill(DeathEvent event) {
         for (LivingEntity entity : targetsHit) {
             if (entity.is(event.getDeathEvent().getEntity())) {
                 this.poisonEssenceExpiry = ticks + 200;
-                if (SpellUtil.getSkillHolder(event.getPlayer()).hasSkill(SBSkills.SYNTHESIS.value())) {
-                    this.addTimedModifier(event.getPlayer(), SpellModifier.SYNTHESIS, 120);
+                if (SpellUtil.getSkillHolder(event.getCaster()).hasSkill(SBSkills.SYNTHESIS.value())) {
+                    this.addTimedModifier(event.getCaster(), SpellModifier.SYNTHESIS, 120);
                 }
                 return;
             }

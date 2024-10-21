@@ -29,11 +29,10 @@ public class ModDataGen {
         generator.addProvider(includeServer, new ModRecipeProvider(packOutput, lookupProvider));
         generator.addProvider(includeServer, new ModLootTableProvider(packOutput, lookupProvider));
         generator.addProvider(includeServer, new ModSoundProvider(packOutput, existingFileHelper));
+        generator.addProvider(includeServer, new DatapackRegistriesProvider(packOutput, lookupProvider));
         generator.addProvider(includeServer, new ModTagProvider.Blocks(packOutput, event.getLookupProvider(), existingFileHelper));
         generator.addProvider(includeServer, new ModTagProvider.Items(packOutput, event.getLookupProvider(), existingFileHelper));
         generator.addProvider(includeServer, new ModGlobalLootModifiersProvider(packOutput, lookupProvider));
-        generator.addProvider(includeServer, new DatapackRegistriesProvider(packOutput, lookupProvider));
-        generator.addProvider(includeServer, new ModDamageTypeTagsProvider(packOutput, lookupProvider, existingFileHelper));
         generator.addProvider(includeClient, new ModItemModelProvider(packOutput, existingFileHelper));
         generator.addProvider(includeClient, new ModBlockStateProvider(packOutput, existingFileHelper));
         generator.addProvider(includeClient, new ModLangProvider(packOutput));

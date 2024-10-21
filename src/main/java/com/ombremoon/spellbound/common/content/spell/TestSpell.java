@@ -4,19 +4,18 @@ import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.content.effects.SBEffectInstance;
 import com.ombremoon.spellbound.common.content.entity.living.LivingShadow;
-import com.ombremoon.spellbound.common.init.SBData;
-import com.ombremoon.spellbound.common.init.SBEffects;
-import com.ombremoon.spellbound.common.init.SBEntities;
-import com.ombremoon.spellbound.common.init.SBSpells;
+import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
 public class TestSpell extends ChanneledSpell {
     private static final ResourceLocation JUMP_EVENT = CommonClass.customLocation("jumpies");
+    private static final ResourceLocation DAMAGE_EVENT = CommonClass.customLocation("hurtsies");
 
     public static Builder<TestSpell> createTestBuilder() {
         return createChannelledSpellBuilder(TestSpell.class).castTime(20);
@@ -32,12 +31,12 @@ public class TestSpell extends ChanneledSpell {
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.JUMP, JUMP_EVENT, playerJumpEvent -> {
             Constants.LOG.info("Jumped");
         });
-        Constants.LOG.info("Working");
         if (!context.getLevel().isClientSide) {
             LivingShadow livingShadow = SBEntities.LIVING_SHADOW.get().create(context.getLevel());
             livingShadow.setData(SBData.OWNER_ID, context.getCaster().getId());
             livingShadow.setPos(context.getCaster().position());
             context.getLevel().addFreshEntity(livingShadow);
+            hurt(context.getCaster(), SBDamageTypes.SB_GENERIC, 2.0F);
         }
     }
 
@@ -69,5 +68,6 @@ public class TestSpell extends ChanneledSpell {
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
         context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.JUMP, JUMP_EVENT);
+        context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.POST_DAMAGE, DAMAGE_EVENT);
     }
 }

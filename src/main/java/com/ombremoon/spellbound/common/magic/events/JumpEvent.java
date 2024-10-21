@@ -1,11 +1,11 @@
 package com.ombremoon.spellbound.common.magic.events;
 
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
 
-public class PlayerJumpEvent extends SpellEvent {
-    public PlayerJumpEvent(Player player, LivingEvent.LivingJumpEvent event) {
-        super(player, event);
+public class JumpEvent extends SpellEvent {
+    public JumpEvent(LivingEntity caster, LivingEvent.LivingJumpEvent event) {
+        super(caster, event);
     }
 
     public LivingEvent.LivingJumpEvent getJumpEvent() {

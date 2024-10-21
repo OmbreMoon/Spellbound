@@ -139,8 +139,8 @@ public class NeoForgeEvents {
     public static void onLivingDeath(LivingDeathEvent event) {
         if (event.getEntity().level().isClientSide) return;
 
-        if (event.getSource().getEntity() instanceof Player player) {
-            SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.PLAYER_KILL, new PlayerKillEvent(player, event));
+        if (event.getSource().getEntity() instanceof LivingEntity livingEntity) {
+            SpellUtil.getSpellHandler(livingEntity).getListener().fireEvent(SpellEventListener.Events.PLAYER_KILL, new DeathEvent(livingEntity, event));
         }
     }
 
@@ -148,43 +148,42 @@ public class NeoForgeEvents {
     public static void onChangeTarget(LivingChangeTargetEvent event) {
         if (event.getEntity().level().isClientSide) return;
 
-        if (event.getEntity() instanceof Player player)
-            SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.CHANGE_TARGET, new ChangeTargetEvent(player, event));
+        SpellUtil.getSpellHandler(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.CHANGE_TARGET, new ChangeTargetEvent(event.getEntity(), event));
     }
 
     @SubscribeEvent
     public static void onLivingAttack(AttackEntityEvent event) {
         if (event.getEntity().level().isClientSide) return;
 
-        SpellUtil.getSpellHandler(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.POST_DAMAGE, new PlayerAttackEvent(event.getEntity(), event));
+        SpellUtil.getSpellHandler(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.ATTACK, new PlayerAttackEvent(event.getEntity(), event));
+    }
+
+    @SubscribeEvent
+    public static void onLivingBlock(LivingShieldBlockEvent event) {
+        if (event.getEntity().level().isClientSide) return;
+
+        SpellUtil.getSpellHandler(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.BLOCK, new BlockEvent(event.getEntity(), event));
     }
 
     @SubscribeEvent
     public static void onLivingDamage(LivingDamageEvent.Post event) {
         if (event.getEntity().level().isClientSide) return;
 
-        if (event.getEntity() instanceof Player player)
-            SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.POST_DAMAGE, new PlayerDamageEvent.Post(player, event));
-        else if (event.getSource().getEntity() instanceof Player player)
-            SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.POST_DAMAGE, new PlayerDamageEvent.Post(player, event));
+        SpellUtil.getSpellHandler(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.POST_DAMAGE, new DamageEvent.Post(event.getEntity(), event));
     }
 
     @SubscribeEvent
     public static void onLivingDamage(LivingDamageEvent.Pre event) {
         if (event.getEntity().level().isClientSide) return;
 
-        if (event.getEntity() instanceof Player player)
-            SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.PRE_DAMAGE, new PlayerDamageEvent.Pre(player, event));
-        else if (event.getSource().getEntity() instanceof Player player)
-            SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.PRE_DAMAGE, new PlayerDamageEvent.Pre(player, event));
+        SpellUtil.getSpellHandler(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.PRE_DAMAGE, new DamageEvent.Pre(event.getEntity(), event));
     }
 
     @SubscribeEvent
-    public static void onPlayerJump(LivingEvent.LivingJumpEvent event) {
+    public static void onLivingJump(LivingEvent.LivingJumpEvent event) {
         if (event.getEntity().level().isClientSide) return;
 
-        if (event.getEntity() instanceof Player player)
-            SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.JUMP, new PlayerJumpEvent(player, event));
+        SpellUtil.getSpellHandler(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.JUMP, new JumpEvent(event.getEntity(), event));
 
     }
 }

@@ -7,7 +7,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.List;
 import java.util.Map;
@@ -175,12 +174,13 @@ public class SpellEventListener {
     }
 
     public static class Events<T extends SpellEvent> implements IEvent<T> {
-        public static Events<PlayerJumpEvent> JUMP = new Events<>(false);
+        public static Events<JumpEvent> JUMP = new Events<>(false);
         public static Events<PlayerAttackEvent> ATTACK = new Events<>(false);
-        public static Events<PlayerDamageEvent.Post> POST_DAMAGE = new Events<>(false);
-        public static Events<PlayerDamageEvent.Pre> PRE_DAMAGE = new Events<>(false);
+        public static Events<DamageEvent.Post> POST_DAMAGE = new Events<>(false);
+        public static Events<DamageEvent.Pre> PRE_DAMAGE = new Events<>(false);
+        public static Events<BlockEvent> BLOCK = new Events<>(false);
         public static Events<ChangeTargetEvent> CHANGE_TARGET = new Events<>(false);
-        public static Events<PlayerKillEvent> PLAYER_KILL = new Events<>(false);
+        public static Events<DeathEvent> PLAYER_KILL = new Events<>(false);
         public static Events<MouseInputEvent.Pre> PRE_MOUSE_INPUT = new Events<>(true);
         public static Events<MouseInputEvent.Post> POST_MOUSE_INPUT = new Events<>(true);
 

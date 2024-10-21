@@ -2,29 +2,24 @@ package com.ombremoon.spellbound.common.magic.events;
 
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.damagesource.DamageContainer;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
 
-public class PlayerDamageEvent extends SpellEvent {
+public class DamageEvent extends SpellEvent {
 
-    public PlayerDamageEvent(Player player, LivingEvent event) {
-        super(player, event);
+    public DamageEvent(LivingEntity caster, LivingEvent event) {
+        super(caster, event);
     }
 
-    public static class Pre extends PlayerDamageEvent {
+    public static class Pre extends DamageEvent {
         private final LivingDamageEvent.Pre event;
         private final DamageContainer container;
 
-        public Pre(Player player, LivingDamageEvent.Pre event) {
-            super(player, event);
+        public Pre(LivingEntity caster, LivingDamageEvent.Pre event) {
+            super(caster, event);
             this.event = event;
             this.container = this.event.getContainer();
-        }
-
-        public LivingEntity getEntity() {
-            return this.event.getEntity();
         }
 
         public DamageContainer getContainer() {
@@ -48,11 +43,11 @@ public class PlayerDamageEvent extends SpellEvent {
         }
     }
 
-    public static class Post extends PlayerDamageEvent {
+    public static class Post extends DamageEvent {
         private final LivingDamageEvent.Post event;
 
-        public Post(Player player, LivingDamageEvent.Post event) {
-            super(player, event);
+        public Post(LivingEntity caster, LivingDamageEvent.Post event) {
+            super(caster, event);
             this.event = event;
         }
 

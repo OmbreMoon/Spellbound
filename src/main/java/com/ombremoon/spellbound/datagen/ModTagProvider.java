@@ -1,12 +1,17 @@
 package com.ombremoon.spellbound.datagen;
 
 import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.common.init.SBDamageTypes;
+import com.ombremoon.spellbound.common.init.SBTags;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
@@ -35,7 +40,7 @@ public class ModTagProvider {
         }
     }
 
-    public static class Blocks extends TagsProvider<Block>{
+    public static class Blocks extends TagsProvider<Block> {
 
         public Blocks(PackOutput pGenerator, CompletableFuture<HolderLookup.Provider> provider, @Nullable ExistingFileHelper existingFileHelper) {
             super(pGenerator, Registries.BLOCK, provider, Constants.MOD_ID, existingFileHelper);
