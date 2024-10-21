@@ -42,8 +42,6 @@ public class StormstrikeEffect extends SBEffect {
         if (entity instanceof LivingEntity owner) {
             var skills = SpellUtil.getSkillHolder(owner);
             StormstrikeSpell spell = SBSpells.STORMSTRIKE.get().createSpell();
-            float potency = spell.getModifier(ModifierType.POTENCY, owner);
-            damage *= potency;
 
             if (skills.hasSkill(SBSkills.SHOCK_FACTOR.value()))
                 damage += (float) (livingEntity.getData(SBData.MANA) * 0.05F);
@@ -62,7 +60,7 @@ public class StormstrikeEffect extends SBEffect {
             if (skills.hasSkill(SBSkills.PULSATION.value()) && RandomUtil.percentChance(0.1))
                 livingEntity.addEffect(new MobEffectInstance(SBEffects.STUNNED, 20, 0, false, false));
 
-            if (livingEntity.hurt(BoxUtil.sentinelDamageSource(livingEntity.level(), SBDamageTypes.RUIN_SHOCK, entity), damage)) {
+            if (spell.hurt(owner, livingEntity, SBDamageTypes.RUIN_SHOCK, damage)) {
                 livingEntity.setData(SBData.STORMSTRIKE_FLAG, false);
                 if (livingEntity.isDeadOrDying()) {
                     if (skills.hasSkill(SBSkills.STORM_SHARD.value()) && owner instanceof Player player)
@@ -86,7 +84,7 @@ public class StormstrikeEffect extends SBEffect {
             var skills = SpellUtil.getSkillHolder(owner);
             StormstrikeSpell spell = SBSpells.STORMSTRIKE.get().createSpell();
 
-            if (skills.hasSkill(SBSkills.REFRACTION.value()) && damageSource.is(SBDamageTypes.RUIN_SHOCK) && damageSource.getEntity() != null && damageSource.getEntity().is(owner) && livingEntity.getData(SBData.STORMSTRIKE_FLAG)) {
+            if (skills.hasSkill(SBSkills.REFRACTION.value()) && damageSource.is(SBDamageTypes.RUIN_SHOCK) && damageSource.getEntity() != null && damageSource.getEntity().is(owner) && !livingEntity.getData(SBData.STORMSTRIKE_FLAG)) {
                 handler.awardMana(20 + skills.getSpellLevel(spell.getSpellType()) * 2);
                 livingEntity.setData(SBData.STORMSTRIKE_FLAG, true);
             }

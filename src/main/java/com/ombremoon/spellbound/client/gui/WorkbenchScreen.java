@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.client.gui;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.SBData;
@@ -25,6 +26,7 @@ import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class WorkbenchScreen extends Screen {
@@ -229,8 +231,10 @@ public class WorkbenchScreen extends Screen {
     private void renderTabs(GuiGraphics guiGraphics, int xPos, int yPos, int mouseX, int mouseY) {
         for (int i = 0; i < 5; i++) {
             guiGraphics.blit(TEXTURE, xPos + 92 + (i * 30), yPos - 26, 0, 198, 30, 26);
+            guiGraphics.blit(CommonClass.customLocation("textures/gui/paths/" + SpellPath.values()[i].name().toLowerCase(Locale.ROOT) + ".png"), xPos + 95 + (i * 30), yPos - 23, 0, 0, 24, 24, 24, 24);
             if (isHovering(92 + (i * 30), -30, 30, 26, mouseX, mouseY) || i == pageIndex) {
                 guiGraphics.blit(TEXTURE, xPos + 92 + (i * 30), yPos - 28, 0, 224, 30, 32);
+                guiGraphics.blit(CommonClass.customLocation("textures/gui/paths/" + SpellPath.values()[i].name().toLowerCase(Locale.ROOT) + ".png"), xPos + 95 + (i * 30), yPos - 25, 0, 0, 24, 24, 24, 24);
             }
         }
     }

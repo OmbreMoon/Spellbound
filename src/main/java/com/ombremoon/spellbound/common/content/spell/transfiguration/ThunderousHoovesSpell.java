@@ -6,7 +6,9 @@ import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
@@ -14,7 +16,10 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.Objects;
 
 public class ThunderousHoovesSpell extends AnimatedSpell {
     protected static final ResourceLocation THUNDEROUS_HOOVES = CommonClass.customLocation("thunderous_hooves");
@@ -28,6 +33,7 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
     }
 
     private int initialFoodLevel;
+    private BlockPos currentPos;
     private int movementTicks;
     private LivingEntity mount;
 
@@ -41,8 +47,17 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
         LivingEntity caster = context.getCaster();
         Level level = context.getLevel();
         var skills = context.getSkills();
-        if (!level.isClientSide)
-            applyMovementBenefits(caster, skills);
+        if (!level.isClientSide) {
+            applyMovementBenefits(caster, level, skills);
+
+            if (caster instanceof Player player) {
+                if (skills.hasSkill(SBSkills.MARATHON.value()))
+                    this.initialFoodLevel = player.getFoodData().getFoodLevel();
+
+                if (skills.hasSkill(SBSkills.MOMENTUM.value()))
+                    this.currentPos = context.getBlockPos();
+            }
+        }
     }
 
     @Override
@@ -51,6 +66,20 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
         LivingEntity caster = context.getCaster();
         Level level = context.getLevel();
         var skills = context.getSkills();
+
+        if (skills.hasSkill(SBSkills.AQUA_TREAD.value())) {
+            Entity entity = caster.getVehicle() != null && skills.hasSkill(SBSkills.RIDERS_RESILIENCE.value()) ? caster.getVehicle() : caster;
+            entity.wasTouchingWater = false;
+            Vec3 vec3 = entity.getDeltaMovement().scale(1.15F);
+            if (entity.getBlockStateOn().is(Blocks.WATER)) {
+                entity.setDeltaMovement(vec3.x, 0.025, vec3.z);
+                entity.setSwimming(false);
+                entity.setOnGround(true);
+                float f1 = Math.min(1.0F, (float)Math.sqrt(vec3.x * vec3.x * 0.2F + vec3.y * vec3.y + vec3.z * vec3.z * 0.2F) * 0.35F);
+                caster.playSound(SoundEvents.PLAYER_SWIM, f1, 1.0F + (entity.getRandom().nextFloat() - entity.getRandom().nextFloat()) * 0.4F);
+            }
+        }
+
         if (!level.isClientSide) {
             if (skills.hasSkill(SBSkills.QUICK_SPRINT.value()) && this.ticks >= 200) {
                 if (hasAttributeModifier(caster, Attributes.MOVEMENT_SPEED, QUICK_SPRINT)) {
@@ -61,7 +90,7 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
             }
 
             if (skills.hasSkill(SBSkills.FLEETFOOTED.value())) {
-                var allies = level.getEntitiesOfClass(LivingEntity.class, caster.getBoundingBox().inflate(3), livingEntity -> livingEntity.isAlliedTo(caster));
+                var allies = level.getEntitiesOfClass(LivingEntity.class, caster.getBoundingBox().inflate(5), livingEntity -> livingEntity.isAlliedTo(caster));
                 for (LivingEntity ally : allies) {
                     addTimedAttributeModifier(ally, Attributes.MOVEMENT_SPEED, new AttributeModifier(FLEETFOOTED, 1.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), 20);
                 }
@@ -71,44 +100,41 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
                 Entity entity = caster.getVehicle();
                 if (entity instanceof LivingEntity livingEntity) {
                     this.mount = livingEntity;
-                    applyMovementBenefits(livingEntity, skills);
+                    applyMovementBenefits(livingEntity, level, skills);
                 } else if (this.mount != null) {
                     removeMovementBenefits(this.mount);
                     this.mount = null;
                 }
             }
 
-            Vec3 vec3 = caster.getDeltaMovement();
-            if (caster.isInWater()) {
-                caster.setDeltaMovement(vec3.x, 0.002, vec3.z);
-                caster.hurtMarked = true;
-                caster.setSwimming(false);
-                caster.setOnGround(true);
-            }
-            log(caster.onGround());
-
-            if (skills.hasSkill(SBSkills.MOMENTUM.value())) {
-                if (caster.walkAnimation.isMoving()) {
-                    this.movementTicks++;
-                    if (this.movementTicks % 20 == 0)
-                        addTimedAttributeModifier(caster, Attributes.ATTACK_SPEED, new AttributeModifier(MOMENTUM, 1 + (0.2 * this.movementTicks / 20), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), 100);
+            if (skills.hasSkill(SBSkills.STAMPEDE.value())) {
+                var entities = level.getEntitiesOfClass(LivingEntity.class, caster.getBoundingBox().inflate(1.5), EntitySelector.NO_CREATIVE_OR_SPECTATOR);
+                boolean flag = caster.getVehicle() != null && skills.hasSkill(SBSkills.RIDERS_RESILIENCE.value());
+                for (LivingEntity living : entities) {
+                    if (!living.isAlliedTo(caster) && (caster.isSprinting() || flag && !living.is(caster.getVehicle()))) {
+                        living.knockback(0.4, caster.getX() - living.getX(), caster.getZ() - living.getZ());
+                        living.hurtMarked = true;
+                        living.hurt(level.damageSources().mobAttack(caster), 2.5F);
+                    }
                 }
             }
 
-            if (skills.hasSkill(SBSkills.STAMPEDE.value())) {
-                var entities = level.getEntitiesOfClass(LivingEntity.class, caster.getBoundingBox().inflate(2), EntitySelector.NO_CREATIVE_OR_SPECTATOR);
-                for (LivingEntity livingEntity : entities) {
-                    if (!livingEntity.isAlliedTo(caster) && caster.isSprinting()) {
-                        livingEntity.knockback(0.4, caster.getX() - livingEntity.getX(), caster.getZ() - livingEntity.getZ());
-                        livingEntity.hurt(level.damageSources().mobAttack(caster), 2.5F);
+            if (skills.hasSkill(SBSkills.MOMENTUM.value())) {
+                if (this.ticks % 4 == 0) {
+                    log(this.movementTicks);
+                    if (!this.currentPos.equals(caster.getOnPos())) {
+                        this.movementTicks++;
+                        this.currentPos = caster.getOnPos();
+                        if (this.movementTicks % 20 == 0)
+                            addTimedAttributeModifier(caster, Attributes.ATTACK_SPEED, new AttributeModifier(MOMENTUM, 1 + (0.2 * this.movementTicks / 20), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), 100);
+                    } else {
+                        this.movementTicks = 0;
                     }
                 }
             }
 
             if (skills.hasSkill(SBSkills.MARATHON.value()) && caster instanceof Player player && player.getFoodData().getFoodLevel() < this.initialFoodLevel)
                 player.getFoodData().eat(this.initialFoodLevel - player.getFoodData().getFoodLevel(), 0);
-
-            log(ticks);
         }
     }
 
@@ -129,15 +155,12 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
             removeAttributeModifier(livingEntity, Attributes.STEP_HEIGHT, SUREFOOTED);
     }
 
-    private void applyMovementBenefits(LivingEntity livingEntity, SkillHolder skills) {
+    private void applyMovementBenefits(LivingEntity livingEntity, Level level, SkillHolder skills) {
         addAttributeModifier(livingEntity, Attributes.MOVEMENT_SPEED, new AttributeModifier(THUNDEROUS_HOOVES, skills.hasSkill(SBSkills.GALLOPING_STRIDE.value()) ? 1.5 : 1.25, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
         if (skills.hasSkill(SBSkills.QUICK_SPRINT.value()))
             addAttributeModifier(livingEntity, Attributes.MOVEMENT_SPEED, new AttributeModifier(QUICK_SPRINT, 1.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 
         if (skills.hasSkill(SBSkills.SUREFOOTED.value()))
             addAttributeModifier(livingEntity, Attributes.STEP_HEIGHT, new AttributeModifier(SUREFOOTED, 0.4, AttributeModifier.Operation.ADD_VALUE));
-
-        if (skills.hasSkill(SBSkills.MARATHON.value()) && livingEntity instanceof Player player)
-            this.initialFoodLevel = player.getFoodData().getFoodLevel();
     }
 }

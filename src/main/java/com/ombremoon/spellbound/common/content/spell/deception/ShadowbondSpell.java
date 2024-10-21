@@ -100,7 +100,7 @@ public class ShadowbondSpell extends AnimatedSpell {
 
             if (this.earlyEnd) {
                 this.canReverse = skills.hasSkill(SBSkills.REVERSAL.value()) && !this.targetList.isEmpty();
-                handleSwapEffect(caster, level, handler, skills);
+                if (!level.isClientSide) handleSwapEffect(caster, level, handler, skills);
                 if (!this.canReverse) endSpell();
             } else {
                 endSpell();
@@ -194,7 +194,7 @@ public class ShadowbondSpell extends AnimatedSpell {
 
         if (skills.hasSkill(SBSkills.LIVING_SHADOW.value())) {
             LivingShadow livingShadow = SBEntities.LIVING_SHADOW.get().create(level);
-            livingShadow.setData(SBData.OWNER_ID, caster.getId());
+            livingShadow.setOwner(caster);
             livingShadow.setPos(caster.position());
             level.addFreshEntity(livingShadow);
             caster.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 100, 0, false, false));

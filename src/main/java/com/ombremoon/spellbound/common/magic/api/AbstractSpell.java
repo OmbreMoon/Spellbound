@@ -496,13 +496,18 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
     /**
      * Hurts the target entity, taking spell potency into account. Suitable for modded damage types.
+     * @param ownerEntity The damage causing entity
      * @param targetEntity The hurt entity
      * @param damageType The damage type
      * @param hurtAmount The amount of damage the entity takes
      * @return Whether the entity takes damage or not
      */
+    public boolean hurt(LivingEntity ownerEntity, LivingEntity targetEntity, ResourceKey<DamageType> damageType, float hurtAmount) {
+        return targetEntity.hurt(BoxUtil.sentinelDamageSource(ownerEntity.level(), damageType, ownerEntity), getModifier(ModifierType.POTENCY, ownerEntity) * hurtAmount);
+    }
+
     public boolean hurt(LivingEntity targetEntity, ResourceKey<DamageType> damageType, float hurtAmount) {
-        return targetEntity.hurt(BoxUtil.sentinelDamageSource(this.level, damageType, this.caster), potency(hurtAmount));
+        return hurt(this.caster, targetEntity, damageType, hurtAmount);
     }
 
     /**
