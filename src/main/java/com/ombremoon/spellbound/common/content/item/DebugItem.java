@@ -1,11 +1,13 @@
 package com.ombremoon.spellbound.common.content.item;
 
 import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.client.gui.SpellSelectScreen;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.util.Loggable;
 import com.ombremoon.spellbound.util.SpellUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -51,7 +53,10 @@ public class DebugItem extends Item implements Loggable {
 //            Constants.LOG.info("{}", tree.nodes());
 //            Constants.LOG.info("{}", tree.children());
 //            Constants.LOG.info("{}", tree.roots());
+            spellHandler.equippedSpellSet.add(SBSpells.VOLCANO.get());
+            spellHandler.equippedSpellSet.add(SBSpells.WILD_MUSHROOM.get());
         } else {
+//            Minecraft.getInstance().setScreen(new SpellSelectScreen());
 //            Constants.LOG.info("{}", spellHandler.getActiveSpells());
         }
     }

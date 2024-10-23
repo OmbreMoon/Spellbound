@@ -1,21 +1,14 @@
 package com.ombremoon.spellbound.client.event;
 
-import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.client.KeyBinds;
+import com.ombremoon.spellbound.client.gui.SpellSelectScreen;
 import com.ombremoon.spellbound.common.EffectManager;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
-import dev.kosmx.playerAnim.api.layered.IAnimation;
-import dev.kosmx.playerAnim.api.layered.KeyframeAnimationPlayer;
-import dev.kosmx.playerAnim.api.layered.ModifierLayer;
-import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
-import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
-import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -45,11 +38,6 @@ public class SpellCastEvents {
 
             if (handler.inCastMode()) {
                 if (KeyBinds.getSpellCastMapping().isDown()) {
-                    if (player.isCrouching()) {
-                        SpellUtil.cycle(handler, spellType);
-                        PayloadHandler.cycleSpell(handler.getSelectedSpell());
-                        KeyBinds.getSpellCastMapping().setDown(false);
-                    }
                     event.setSwingHand(false);
                     event.setCanceled(true);
                 }

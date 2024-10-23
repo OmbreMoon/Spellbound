@@ -1,7 +1,11 @@
 package com.ombremoon.spellbound;
 
 import com.ombremoon.spellbound.common.init.*;
+import com.ombremoon.spellbound.mixin.DuckRangedAttribute;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.loading.FMLLoader;
 
@@ -18,10 +22,14 @@ public class CommonClass {
         SBSkills.register(modEventBus);
         SBAttributes.register(modEventBus);
         SBDataTypes.register(modEventBus);
+//        fixAttributes();
     }
 
     public static boolean isDevEnv() {
         return !FMLLoader.isProduction();
+    }
+
+    private static void fixAttributes() {
     }
 
     public static ResourceLocation customLocation(String name) {

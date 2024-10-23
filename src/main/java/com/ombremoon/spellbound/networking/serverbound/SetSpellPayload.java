@@ -8,11 +8,11 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-public record CycleSpellPayload(SpellType<?> spellType) implements CustomPacketPayload {
-    public static final Type<CycleSpellPayload> TYPE = new Type<>(CommonClass.customLocation("cycle_spell"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, CycleSpellPayload> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.registry(SBSpells.SPELL_TYPE_REGISTRY_KEY), CycleSpellPayload::spellType,
-            CycleSpellPayload::new
+public record SetSpellPayload(SpellType<?> spellType) implements CustomPacketPayload {
+    public static final Type<SetSpellPayload> TYPE = new Type<>(CommonClass.customLocation("cycle_spell"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, SetSpellPayload> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.registry(SBSpells.SPELL_TYPE_REGISTRY_KEY), SetSpellPayload::spellType,
+            SetSpellPayload::new
     );
 
     @Override

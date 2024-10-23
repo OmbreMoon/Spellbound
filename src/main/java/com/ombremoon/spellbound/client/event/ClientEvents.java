@@ -4,6 +4,7 @@ import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.gui.CastModeOverlay;
+import com.ombremoon.spellbound.client.gui.SpellSelectScreen;
 import com.ombremoon.spellbound.client.renderer.spell.*;
 import com.ombremoon.spellbound.client.renderer.entity.LivingShadowRenderer;
 import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
@@ -15,6 +16,7 @@ import com.ombremoon.spellbound.common.magic.events.MouseInputEvent;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.network.chat.Component;
@@ -32,6 +34,7 @@ public class ClientEvents {
         @SubscribeEvent
         public static void onKeyRegister(RegisterKeyMappingsEvent event) {
             event.register(KeyBinds.SWITCH_MODE_BINDING);
+            event.register(KeyBinds.SELECT_SPELL_BINDING);
         }
 
         @SubscribeEvent
@@ -67,12 +70,21 @@ public class ClientEvents {
 
         @SubscribeEvent
         public static void onKeyInput(InputEvent.Key event) {
-            Player player = Minecraft.getInstance().player;
+            Minecraft minecraft = Minecraft.getInstance();
+            Player player = minecraft.player;
+            SpellHandler handler = SpellUtil.getSpellHandler(player);
             if (KeyBinds.SWITCH_MODE_BINDING.consumeClick()) {
-                SpellHandler handler = SpellUtil.getSpellHandler(player);
                 handler.switchMode();
                 player.displayClientMessage(Component.literal("Switched to " + (handler.inCastMode() ? "Cast mode" : "Normal mode")), true);
                 PayloadHandler.switchMode();
+            }
+            if (KeyBinds.SELECT_SPELL_BINDING.consumeClick()) {
+                Screen screen = minecraft.screen;
+                if (handler.inCastMode() && !handler.equippedSpellSet.isEmpty()) {
+                    minecraft.setScreen(new SpellSelectScreen());
+                } else {
+                    minecraft.setScreen(screen);
+                }
             }
         }
 

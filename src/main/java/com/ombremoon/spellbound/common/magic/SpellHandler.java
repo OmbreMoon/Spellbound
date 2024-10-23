@@ -46,6 +46,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     private UpgradeTree upgradeTree;
     protected boolean castMode;
     protected Set<SpellType<?>> spellSet = new ObjectOpenHashSet<>();
+    public Set<SpellType<?>> equippedSpellSet = new ObjectOpenHashSet<>();
     protected Multimap<SpellType<?>, AbstractSpell> activeSpells = ArrayListMultimap.create();
     protected SpellType<?> selectedSpell;
     protected AbstractSpell currentlyCastingSpell;
@@ -451,6 +452,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         compoundTag.putBoolean("CastMode", this.castMode);
         compoundTag.putBoolean("Channeling", this.channelling);
         ListTag spellList = new ListTag();
+        ListTag equippedSpellList = new ListTag();
 
         if (this.selectedSpell != null)
             compoundTag.putString("SelectedSpell", this.selectedSpell.location().toString());
@@ -462,6 +464,14 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
             }
         }
         compoundTag.put("Spells", spellList);
+
+        if (!equippedSpellSet.isEmpty()) {
+            for (SpellType<?> spellType : equippedSpellSet) {
+                if (spellType != null)
+                    equippedSpellList.add(SpellUtil.storeSpell(spellType));
+            }
+        }
+        compoundTag.put("EquippedSpells", equippedSpellList);
 
         return compoundTag;
     }
@@ -488,6 +498,15 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
                 set.add(AbstractSpell.getSpellByName(SpellUtil.getSpellId(compoundTag, "Spell")));
             }
             this.spellSet = set;
+        }
+        if (nbt.contains("EquippedSpells", 9)) {
+            ListTag spellList = nbt.getList("EquippedSpells", 10);
+            Set<SpellType<?>> set = new ObjectOpenHashSet<>();
+            for (int i = 0; i < spellList.size(); i++) {
+                CompoundTag compoundTag = spellList.getCompound(i);
+                set.add(AbstractSpell.getSpellByName(SpellUtil.getSpellId(compoundTag, "Spell")));
+            }
+            this.equippedSpellSet = set;
         }
     }
 

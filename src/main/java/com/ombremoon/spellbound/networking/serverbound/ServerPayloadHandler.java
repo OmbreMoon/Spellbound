@@ -20,7 +20,7 @@ public class ServerPayloadHandler {
         handler.setCurrentlyCastingSpell(null);
     }
 
-    public static void handleNetworkCycleSpell(final CycleSpellPayload payload, final IPayloadContext context) {
+    public static void handleNetworkSetSpell(final SetSpellPayload payload, final IPayloadContext context) {
         var handler = SpellUtil.getSpellHandler(context.player());
         handler.setSelectedSpell(payload.spellType());
     }

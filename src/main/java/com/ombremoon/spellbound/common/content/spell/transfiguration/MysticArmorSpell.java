@@ -84,7 +84,7 @@ public class MysticArmorSpell extends AnimatedSpell {
                 addAttributeModifier(caster, Attributes.MOVEMENT_SPEED, new AttributeModifier(PURSUIT, 1.15F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 
             if (skills.hasSkill(SBSkills.CRYSTALLINE_ARMOR.value()))
-                addAttributeModifier(caster, Attributes.ARMOR, new AttributeModifier(CRYSTALLINE_ARMOR, 1.25F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+                addAttributeModifier(caster, Attributes.ARMOR, new AttributeModifier(CRYSTALLINE_ARMOR, caster.getArmorValue() * 1.25F, AttributeModifier.Operation.ADD_VALUE));
         }
     }
 
@@ -98,6 +98,8 @@ public class MysticArmorSpell extends AnimatedSpell {
         if (!level.isClientSide) {
             if (skills.hasSkill(SBSkills.SUBLIME_BEACON.value()))
                 caster.heal(caster.getArmorValue() * 0.25F);
+
+            log(caster.getArmorValue());
         }
     }
 
