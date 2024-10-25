@@ -9,6 +9,7 @@ import com.ombremoon.spellbound.common.init.SBAttributes;
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
+import com.ombremoon.spellbound.util.RenderUtil;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.DeltaTracker;
@@ -24,7 +25,8 @@ import java.util.Set;
 
 
 public class CastModeOverlay implements LayeredDraw.Layer {
-    private static final ResourceLocation BACKGROUND = CommonClass.customLocation("textures/gui/spells/spell_background.png");
+    private static final ResourceLocation BACKGROUND = CommonClass.customLocation("textures/gui/spell_background.png");
+    private static final ResourceLocation MANA_BAR = CommonClass.customLocation("textures/gui/mana_bar.png");
 
     public CastModeOverlay(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         render(guiGraphics, deltaTracker);
@@ -37,14 +39,41 @@ public class CastModeOverlay implements LayeredDraw.Layer {
         if (handler.inCastMode())
             renderCastMode(guiGraphics, player, handler);
 
+        renderActiveSpells(guiGraphics, handler);
+    }
+
+    private void renderCastMode(GuiGraphics guiGraphics, Player player, SpellHandler handler) {
+        int x = guiGraphics.guiWidth() - 27;
+        int y = 30;
+        SpellType<?> spell = handler.getSelectedSpell();
+        if (spell == null) return;
+
+        ResourceLocation texture = spell.createSpell().getTexture();
+
+        guiGraphics.blit(texture, x, y, 0, 0, 24, 24, 24, 24);
+        guiGraphics.blit(BACKGROUND, x - 1, y - 1, 0, 0, 26, 26, 26, 26);
+        guiGraphics.blit(MANA_BAR, guiGraphics.guiWidth() / 2 - 200, guiGraphics.guiHeight() - 20, 0, 0, 106, 16, 106, 28);
+        guiGraphics.blit(MANA_BAR, guiGraphics.guiWidth() / 2 - 198, guiGraphics.guiHeight() - 15, 2, 18, RenderUtil.getScaledRender((int)Math.floor(player.getData(SBData.MANA)), (int)Math.floor(player.getAttributeValue(SBAttributes.MAX_MANA)), 103), 8, 106, 28);
+        guiGraphics.drawString(Minecraft.getInstance().font,
+                spell.createSpell().getName(),
+                40, guiGraphics.guiHeight() - 60,
+                8889187, false);
+
+        guiGraphics.drawString(Minecraft.getInstance().font,
+                player.getData(SBData.MANA) + "/" + player.getAttribute(SBAttributes.MAX_MANA).getValue(),
+                40,
+                guiGraphics.guiHeight() - 40,
+                8889187 ,
+                false);
+    }
+
+    private void renderActiveSpells(GuiGraphics guiGraphics, SpellHandler handler) {
         Set<AbstractSpell> spells = new ObjectOpenHashSet<>(handler.getActiveSpells());
         RenderSystem.enableBlend();
         int j1 = 0;
-        int k1 = 0;
         List<Runnable> list = Lists.newArrayListWithExpectedSize(spells.size());
 
         for (AbstractSpell spell : spells) {
-            //Add per spell config to disable rendering
             int i = 1;
             int j = 1;
 
@@ -71,29 +100,5 @@ public class CastModeOverlay implements LayeredDraw.Layer {
 
         list.forEach(Runnable::run);
         RenderSystem.disableBlend();
-    }
-
-    private void renderCastMode(GuiGraphics guiGraphics, Player player, SpellHandler handler) {
-
-        int x = guiGraphics.guiWidth() - 27;
-        int y = 30;
-        SpellType<?> spell = handler.getSelectedSpell();
-        if (spell == null) return;
-
-        ResourceLocation texture = spell.createSpell().getTexture();
-
-        guiGraphics.blit(texture, x, y, 0, 0, 24, 24, 24, 24);
-        guiGraphics.blit(BACKGROUND, x - 1, y - 1, 0, 0, 26, 26, 26, 26);
-        guiGraphics.drawString(Minecraft.getInstance().font,
-                spell.createSpell().getName(),
-                40, guiGraphics.guiHeight() - 60,
-                8889187, false);
-
-        guiGraphics.drawString(Minecraft.getInstance().font,
-                player.getData(SBData.MANA) + "/" + player.getAttribute(SBAttributes.MAX_MANA).getValue(),
-                40,
-                guiGraphics.guiHeight() - 40,
-                8889187 ,
-                false);
     }
 }
