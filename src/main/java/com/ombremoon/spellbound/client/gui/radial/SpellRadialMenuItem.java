@@ -1,7 +1,11 @@
 package com.ombremoon.spellbound.client.gui.radial;
 
 import com.ombremoon.spellbound.common.magic.SpellType;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Adapted from https://github.com/gigaherz/ToolBelt under the following license:
@@ -49,11 +53,14 @@ public class SpellRadialMenuItem extends RadialMenuItem {
         ResourceLocation sprite = this.getSpellType().createSpell().getTexture();
         float x = context.x - 12;
         float y = context.y - 12;
+        context.guiGraphics.setColor(1.0F, 1.0F, 1.0F, 0.5F);
         context.guiGraphics.blit(sprite, (int) x, (int) y, 0, 0, 24, 24, 24, 24);
+        context.guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     @Override
     public void drawTooltips(DrawingContext context) {
-
+        List<Component> list = List.of(this.getSpellType().createSpell().getName());
+        context.guiGraphics.renderTooltip(context.fontRenderer, list, Optional.empty(), (int) context.x, (int) context.y);
     }
 }

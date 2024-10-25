@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.magic.api;
 
+import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.util.SpellUtil;

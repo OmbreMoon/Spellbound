@@ -27,8 +27,9 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
     protected final Map<SpellPath, Float> pathXp = new Object2FloatOpenHashMap<>();
     protected final Map<SpellType<?>, Float> spellXp = new Object2FloatOpenHashMap<>();
     public final Map<SpellType<?>, Set<Skill>> unlockedSkills = new Object2ObjectOpenHashMap<>();
-    protected final Set<SpellModifier> permanentModifiers = new ObjectOpenHashSet<>();
-    private final Map<SpellModifier, Integer> timedModifiers = new Object2IntOpenHashMap<>();
+    //CHANGE ACCESSORS
+    public final Set<SpellModifier> permanentModifiers = new ObjectOpenHashSet<>();
+    public final Map<SpellModifier, Integer> timedModifiers = new Object2IntOpenHashMap<>();
     private final SkillCooldowns cooldowns = new SkillCooldowns();
 
     public void sync(Player player) {
@@ -107,7 +108,9 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
     }
 
     public Set<SpellModifier> getModifiers() {
-        return this.permanentModifiers;
+        var modifiers = new ObjectOpenHashSet<>(this.permanentModifiers);
+        modifiers.addAll(this.timedModifiers.keySet());
+        return modifiers;
     }
 
     public void clearModifiers() {
@@ -166,7 +169,6 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
                 modifierList.add(modifierTag);
             }
         }
-
         tag.put("PathXp", pathxpTag);
         tag.put("SpellXp", spellXpTag);
         tag.put("Skills", skillsTag);
@@ -205,7 +207,9 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
             ListTag modifierList = compoundTag.getList("Modifiers", 10);
             for (int i = 0; i < modifierList.size(); i++) {
                 CompoundTag nbt = modifierList.getCompound(i);
-                this.permanentModifiers.add(SpellModifier.getTypeFromLocation(ResourceLocation.tryParse(nbt.getString("Modifier"))));
+                SpellModifier modifier = SpellModifier.getTypeFromLocation(ResourceLocation.tryParse(nbt.getString("Modifier")));
+                if (modifier != null)
+                    this.permanentModifiers.add(modifier);
             }
         }
     }

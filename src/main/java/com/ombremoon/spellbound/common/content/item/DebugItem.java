@@ -43,21 +43,22 @@ public class DebugItem extends Item implements Loggable {
 
     private void ombreDebug(Level level, Player player, InteractionHand usedHand, SpellHandler spellHandler, SkillHolder skillHolder) {
 //        spellHandler.getActiveSpells(SpellInit.WILD_MUSHROOM_SPELL.get()).forEach(spell -> Constants.LOG.info("{}", spell.getId()));
-        Constants.LOG.info("{}", spellHandler.getActiveSpells(SBSpells.SHADOWBOND.get()));
         if (!level.isClientSide) {
 //            spellHandler.clearList();
 //            spellHandler.clearList();
 //            spellHandler.setSelectedSpell(SpellInit.WILD_MUSHROOM_SPELL.get());
-            log(spellHandler.getListener().events);
 //            spellHandler.setSelectedSpell(SpellInit.TEST_SPELL.get());
 //            Constants.LOG.info("{}", tree.nodes());
 //            Constants.LOG.info("{}", tree.children());
 //            Constants.LOG.info("{}", tree.roots());
-            spellHandler.equippedSpellSet.add(SBSpells.VOLCANO.get());
-            spellHandler.equippedSpellSet.add(SBSpells.WILD_MUSHROOM.get());
+//            spellHandler.clearList();
         } else {
+//            log(spellHandler.getActiveSpells());
 //            Minecraft.getInstance().setScreen(new SpellSelectScreen());
 //            Constants.LOG.info("{}", spellHandler.getActiveSpells());
         }
+//        skillHolder.clearModifiers();
+        log(skillHolder.timedModifiers);
+        log("Permanent: " + skillHolder.permanentModifiers);
     }
 }

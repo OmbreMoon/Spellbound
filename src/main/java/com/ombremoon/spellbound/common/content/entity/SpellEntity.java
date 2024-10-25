@@ -21,7 +21,7 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public abstract class SpellEntity extends Entity implements GeoEntity, TraceableEntity, Loggable {
+public abstract class SpellEntity extends Entity implements GeoEntity, ISpellEntity, Loggable {
     protected static final EntityDataAccessor<Byte> ID_FLAGS = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> END_TICK = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.INT);

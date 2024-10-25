@@ -46,7 +46,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     private UpgradeTree upgradeTree;
     protected boolean castMode;
     protected Set<SpellType<?>> spellSet = new ObjectOpenHashSet<>();
-    public Set<SpellType<?>> equippedSpellSet = new ObjectOpenHashSet<>();
+    public Set<SpellType<?>> equippedSpellSet = new ObjectOpenHashSet<>(/*10*/);
     protected Multimap<SpellType<?>, AbstractSpell> activeSpells = ArrayListMultimap.create();
     protected SpellType<?> selectedSpell;
     protected AbstractSpell currentlyCastingSpell;
@@ -54,9 +54,10 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     private final Set<Integer> glowEntities = new IntOpenHashSet();
     public int castTick;
     private boolean channelling;
-    private boolean isStationary;
+    private int stationaryTicks;
     public boolean castKeyDown;
     private float zoomModifier = 1.0F;
+    private boolean initialized;
 
     /**
      * Syncs spell handler data from the server to the client.
@@ -88,6 +89,11 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.listener = new SpellEventListener(caster);
         this.skillHolder = SpellUtil.getSkillHolder(this.caster);
         this.upgradeTree = this.caster.getData(SBData.UPGRADE_TREE);
+        this.initialized = true;
+    }
+
+    public boolean isInitialized() {
+        return this.initialized;
     }
 
     /**
@@ -112,6 +118,14 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         activeSpells.forEach((spellType, spell) -> spell.tick());
         activeSpells.entries().removeIf(entry -> entry.getValue().isInactive);
 
+        if (this.stationaryTicks > 0)
+            this.stationaryTicks--;
+
+
+        this.skillHolder.tickModifiers(this.caster);
+        this.skillHolder.getCooldowns().tick();
+        this.listener.tickInstances();
+
         if (!this.caster.level().isClientSide)
             serverTick();
     }
@@ -126,10 +140,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
                 this.transientModifiers.remove(entry.getKey());
             }
         }
-
-        this.skillHolder.tickModifiers(this.caster);
-        this.skillHolder.getCooldowns().tick();
-        this.listener.tickInstances();
 
         debug();
     }
@@ -189,6 +199,9 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     public void learnSpell(SpellType<?> spellType) {
         if (this.spellSet.isEmpty()) this.selectedSpell = spellType;
         this.spellSet.add(spellType);
+        if (this.equippedSpellSet.size() < 10)
+            this.equippedSpellSet.add(spellType);
+
         this.skillHolder.unlockSkill(spellType.getRootSkill());
         this.upgradeTree.addAll(spellType.getSkills());
         if (this.caster instanceof Player player) {
@@ -222,6 +235,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.spellSet.forEach(skillHolder::resetSpellXP);
         this.skillHolder.clearModifiers();
         this.spellSet.clear();
+        this.equippedSpellSet.clear();
         this.selectedSpell = null;
         if (this.caster instanceof Player player) {
             this.upgradeTree.clear(player);
@@ -308,7 +322,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
      * @param spellType The spell type
      * @return If the spell type is active
      */
-    public boolean isSpellActive(SpellType<?> spellType) {
+    public boolean hasActiveSpell(SpellType<?> spellType) {
         return !getActiveSpells(spellType).isEmpty();
     }
 
@@ -351,15 +365,15 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
      * @return If the player is supposed to be stationary
      */
     public boolean isStationary() {
-        return this.isStationary;
+        return this.stationaryTicks > 0;
     }
 
     /**
-     * Sets whether the player's movement inputs should be disregarded or not.
-     * @param stationary Whether the player should be able to move
+     * Sets the amount of ticks the player's movement inputs should be disregarded.
+     * @param ticks The duration
      */
-    public void setStationary(boolean stationary) {
-        this.isStationary = stationary;
+    public void setStationaryTicks(int ticks) {
+        this.stationaryTicks = ticks + 1;
     }
 
     /**

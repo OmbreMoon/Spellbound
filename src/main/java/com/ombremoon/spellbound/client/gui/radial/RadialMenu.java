@@ -123,21 +123,6 @@ public class RadialMenu {
         return state == State.DEFAULT;
     }
 
-    public void drawBackground(PoseStack poseStack, float x, float y, float z, float radiusIn, float radiusOut) {
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-
-        var builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        iterateVisible((item, s, e) -> {
-            int color = item.isHovered() ? backgroundColorHover : backgroundColor;
-            drawPieArc(builder, x, y, z, radiusIn, radiusOut, s, e, color);
-        });
-        BufferUploader.drawWithShader(builder.buildOrThrow());
-        RenderSystem.disableBlend();
-    }
-
     public void clear() {
         items.clear();
     }
@@ -169,7 +154,7 @@ public class RadialMenu {
         Font font = screen.getMinecraft().font;
 
         boolean animated = state == State.OPENING || state == State.CLOSING;
-        radiusIn = animated ? Math.max(0.1f, 30 * animProgress) : 30;
+        radiusIn = animated ? Math.max(0.1f, 40 * animProgress) : 40;
         radiusOut = radiusIn * 2;
         itemRadius = (radiusIn + radiusOut) * 0.5f;
         animTop = animated ? (1 - animProgress) * screen.height / 2.0f : 0;
@@ -182,7 +167,7 @@ public class RadialMenu {
         poseStack.pushPose();
         poseStack.translate(0, animTop, 0);
 
-        drawBackground(poseStack, x, y, z, radiusIn, radiusOut);
+        drawBackground(x, y, z, radiusIn, radiusOut);
 
         poseStack.popPose();
 
@@ -218,22 +203,36 @@ public class RadialMenu {
         switch (state) {
             case OPENING:
                 openAnimation = (float) ((screen.getMinecraft().level.getGameTime() + partialTicks - startAnimation) / OPEN_ANIM_LENGTH);
-                if (openAnimation >= 1.0 || this.items.isEmpty())
-                {
+                if (openAnimation >= 1.0 || this.items.isEmpty()) {
                     openAnimation = 1;
                     state = State.DEFAULT;
                 }
                 break;
             case CLOSING:
                 openAnimation = 1 - (float) ((screen.getMinecraft().level.getGameTime() + partialTicks - startAnimation) / OPEN_ANIM_LENGTH);
-                if (openAnimation <= 0 || this.items.isEmpty())
-                {
+                if (openAnimation <= 0 || this.items.isEmpty()) {
                     openAnimation = 0;
                     state = State.CLOSED;
                 }
                 break;
         }
         animProgress = openAnimation;
+    }
+
+    public void drawBackground(float x, float y, float z, float radiusIn, float radiusOut) {
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+
+        var builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        iterateVisible((item, s, e) -> {
+            int color = item.isHovered() ? backgroundColorHover : backgroundColor;
+            drawPieArc(builder, x, y, z, radiusIn, radiusOut, s, e, color);
+        });
+        drawArrow(builder, x, y, z, backgroundColor);
+        BufferUploader.drawWithShader(builder.buildOrThrow());
+        RenderSystem.disableBlend();
     }
 
     private void drawTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
@@ -298,6 +297,18 @@ public class RadialMenu {
             buffer.addVertex(pos2InX, pos2InY, z).setColor(r, g, b, a);
             buffer.addVertex(pos2OutX, pos2OutY, z).setColor(r, g, b, a);
         }
+    }
+
+    private void drawArrow(BufferBuilder buffer, float x, float y, float z, int color) {
+        int r = (color >> 16) & 0xFF;
+        int g = (color >> 8) & 0xFF;
+        int b = (color >> 0) & 0xFF;
+        int a = (color >> 24) & 0xFF;
+
+        buffer.addVertex(x, y + 10, z).setColor(r, b, g, a);
+        buffer.addVertex(x, y - 10, z).setColor(r, b, g, a);
+        buffer.addVertex(x + 100 + 20, y - 10, z).setColor(r, b, g, a);
+        buffer.addVertex(x + 100 + 20, y + 10, z).setColor(r, b, g, a);
     }
 
     private void processMouse(int mouseX, int mouseY) {

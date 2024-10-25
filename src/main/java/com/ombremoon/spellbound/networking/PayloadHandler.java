@@ -63,6 +63,10 @@ public class PayloadHandler {
         PacketDistributor.sendToServer(new UnlockSkillPayload(skill));
     }
 
+    public static void updateSpells(Player player, boolean forceReset) {
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new UpdateSpellsPayload(forceReset));
+    }
+
     public static void syncSpellsToClient(Player player) {
         PacketDistributor.sendToPlayer((ServerPlayer) player,
                 new SyncSpellPayload(
@@ -162,6 +166,11 @@ public class PayloadHandler {
                 ServerPayloadHandler::handleNetworkUnlockSKill
         );
 
+        registrar.playToClient(
+                UpdateSpellsPayload.TYPE,
+                UpdateSpellsPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleClientUpdateSpells
+        );
         registrar.playToClient(
                 SyncSpellPayload.TYPE,
                 SyncSpellPayload.STREAM_CODEC,

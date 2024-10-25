@@ -21,9 +21,4 @@ public class KeyBinds {
         Minecraft minecraft = Minecraft.getInstance();
         return minecraft.options.keyUse;
     }
-
-    public static KeyMapping getCycleSpellMapping() {
-        Minecraft minecraft = Minecraft.getInstance();
-        return minecraft.options.keyShift;
-    }
 }

@@ -17,7 +17,11 @@ import java.util.Iterator;
 public class SpellUtil {
 
     public static SpellHandler getSpellHandler(LivingEntity livingEntity) {
-        return livingEntity.getData(SBData.SPELL_HANDLER);
+        var handler = livingEntity.getData(SBData.SPELL_HANDLER);
+        if (!handler.isInitialized())
+            handler.initData(livingEntity);
+        
+        return handler;
     }
 
     public static SkillHolder getSkillHolder(LivingEntity livingEntity) {

@@ -9,6 +9,8 @@ import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
+import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
+import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -26,9 +28,9 @@ import org.jetbrains.annotations.UnknownNullability;
 import java.util.List;
 
 public class ShadowbondSpell extends AnimatedSpell {
-    private final ResourceLocation SNEAK_ATTACK = CommonClass.customLocation("sneak_attack");
-    private final ResourceLocation DISORIENTED = CommonClass.customLocation("disoriented");
-
+    private static final ResourceLocation SNEAK_ATTACK = CommonClass.customLocation("sneak_attack");
+    private static final ResourceLocation DISORIENTED = CommonClass.customLocation("disoriented");
+    private static final SpellDataKey<Boolean> EARLY_END = SyncedSpellData.registerDataKey(ShadowbondSpell.class, SBDataTypes.BOOLEAN.get());
     public static Builder<ShadowbondSpell> createShadowbondBuilder() {
         return createSimpleSpellBuilder(ShadowbondSpell.class).castCondition((context, spell) -> {
             if (context.isRecast()) {
@@ -36,8 +38,9 @@ public class ShadowbondSpell extends AnimatedSpell {
                     return true;
                 } else if (context.getSkills().hasSkill(SBSkills.SHADOW_CHAIN.value()) && context.getTarget() != null && context.getTarget().getId() != spell.firstTarget) {
                     return spell.secondTarget == 0;
-                } else if (!spell.earlyEnd && !spell.canReverse) {
-                    spell.earlyEnd = true;
+                } else if (!spell.isEarlyEnd() && !spell.canReverse) {
+                    spell.spellData.set(EARLY_END, true);
+//                    spell.earlyEnd = true;
                     return true;
                 }
             }
@@ -53,6 +56,12 @@ public class ShadowbondSpell extends AnimatedSpell {
 
     public ShadowbondSpell() {
         super(SBSpells.SHADOWBOND.get(), createShadowbondBuilder());
+    }
+
+    @Override
+    protected void defineSpellData(SyncedSpellData.Builder builder) {
+        super.defineSpellData(builder);
+        builder.define(EARLY_END, false);
     }
 
     @Override
@@ -95,10 +104,10 @@ public class ShadowbondSpell extends AnimatedSpell {
         Level level = context.getLevel();
         var handler = context.getSpellHandler();
         var skills = context.getSkills();
-        if (this.canReverse || this.earlyEnd) {
+        if (this.canReverse || this.isEarlyEnd()) {
             swapTargets(caster, level);
 
-            if (this.earlyEnd) {
+            if (this.isEarlyEnd()) {
                 this.canReverse = skills.hasSkill(SBSkills.REVERSAL.value()) && !this.targetList.isEmpty();
                 if (!level.isClientSide) handleSwapEffect(caster, level, handler, skills);
                 if (!this.canReverse) endSpell();
@@ -130,7 +139,7 @@ public class ShadowbondSpell extends AnimatedSpell {
                 this.canReverse = skills.hasSkill(SBSkills.REVERSAL.value()) && !this.targetList.isEmpty();
             }
         }
-        if (this.earlyEnd && this.ticks >= 100) {
+        if (this.isEarlyEnd() && this.ticks >= 100) {
             endSpell();
         }
     }
@@ -200,6 +209,10 @@ public class ShadowbondSpell extends AnimatedSpell {
             level.addFreshEntity(livingShadow);
             caster.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 100, 0, false, false));
         }
+    }
+
+    private boolean isEarlyEnd() {
+        return this.spellData.get(EARLY_END);
     }
 
     @Override

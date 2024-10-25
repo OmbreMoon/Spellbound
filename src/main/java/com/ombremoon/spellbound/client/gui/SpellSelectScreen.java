@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.gui.radial.RadialMenu;
 import com.ombremoon.spellbound.client.gui.radial.RadialMenuItem;
 import com.ombremoon.spellbound.client.gui.radial.SpellRadialMenuItem;
@@ -14,6 +15,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 
@@ -80,15 +82,21 @@ public class SpellSelectScreen extends Screen {
 
         if (radialMenu.isClosed())
             Minecraft.getInstance().setScreen(null);
-
-        if (!radialMenu.isReady())
-            return;
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         radialMenu.clickItem();
         return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == KeyBinds.SELECT_SPELL_BINDING.getKey().getValue()) {
+            radialMenu.close();
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override

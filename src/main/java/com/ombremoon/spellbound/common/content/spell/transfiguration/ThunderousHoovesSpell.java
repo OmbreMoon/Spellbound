@@ -5,6 +5,8 @@ import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
+import com.ombremoon.spellbound.common.magic.api.ModifierType;
+import com.ombremoon.spellbound.common.magic.api.SpellModifier;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -48,7 +50,7 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
         Level level = context.getLevel();
         var skills = context.getSkills();
         if (!level.isClientSide) {
-            applyMovementBenefits(caster, level, skills);
+            applyMovementBenefits(caster, skills);
 
             if (caster instanceof Player player) {
                 if (skills.hasSkill(SBSkills.MARATHON.value()))
@@ -81,6 +83,7 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
         }
 
         if (!level.isClientSide) {
+//            log(getCastChance());
             if (skills.hasSkill(SBSkills.QUICK_SPRINT.value()) && this.ticks >= 200) {
                 if (hasAttributeModifier(caster, Attributes.MOVEMENT_SPEED, QUICK_SPRINT)) {
                     removeAttributeModifier(caster, Attributes.MOVEMENT_SPEED, QUICK_SPRINT);
@@ -100,7 +103,7 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
                 Entity entity = caster.getVehicle();
                 if (entity instanceof LivingEntity livingEntity) {
                     this.mount = livingEntity;
-                    applyMovementBenefits(livingEntity, level, skills);
+                    applyMovementBenefits(livingEntity, skills);
                 } else if (this.mount != null) {
                     removeMovementBenefits(this.mount);
                     this.mount = null;
@@ -155,7 +158,7 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
             removeAttributeModifier(livingEntity, Attributes.STEP_HEIGHT, SUREFOOTED);
     }
 
-    private void applyMovementBenefits(LivingEntity livingEntity, Level level, SkillHolder skills) {
+    private void applyMovementBenefits(LivingEntity livingEntity, SkillHolder skills) {
         addAttributeModifier(livingEntity, Attributes.MOVEMENT_SPEED, new AttributeModifier(THUNDEROUS_HOOVES, skills.hasSkill(SBSkills.GALLOPING_STRIDE.value()) ? 1.5 : 1.25, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
         if (skills.hasSkill(SBSkills.QUICK_SPRINT.value()))
             addAttributeModifier(livingEntity, Attributes.MOVEMENT_SPEED, new AttributeModifier(QUICK_SPRINT, 1.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));

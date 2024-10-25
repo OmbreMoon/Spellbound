@@ -183,7 +183,7 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
          * @return The resistance the entity has to the effect (-100 - 100)
          */
         public float getEntityResistance(LivingEntity entity) {
-            return (float) entity.getAttribute(resistance).getValue();
+            return entity.getAttribute(resistance) != null ? (float) entity.getAttribute(resistance).getValue() : 0.0F;
         }
     }
 }

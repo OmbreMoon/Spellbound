@@ -4,6 +4,7 @@ import com.ombremoon.sentinellib.api.BoxUtil;
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.client.CameraEngine;
+import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
 import com.ombremoon.spellbound.client.renderer.layer.SpellLayerModel;
 import com.ombremoon.spellbound.client.renderer.layer.SpellLayerRenderer;
@@ -53,6 +54,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.tslat.smartbrainlib.util.RandomUtil;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -97,6 +99,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     private SpellContext castContext;
     private boolean isRecast;
     public int ticks = 0;
+    private float castChance = 1.0F;
     public boolean isInactive = false;
     public boolean init = false;
     private int castId = 0;
@@ -163,6 +166,10 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      */
     public int getDuration() {
         return (int) Math.floor(this.duration * getModifier(ModifierType.DURATION));
+    }
+
+    public float getCastChance() {
+        return this.castChance * getModifier(ModifierType.CAST_CHANCE);
     }
 
     /**
@@ -444,6 +451,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      */
     public void onCastReset(SpellContext context) {
         context.getSpellHandler().setCurrentlyCastingSpell(null);
+        if (context.getLevel().isClientSide)
+            KeyBinds.getSpellCastMapping().setDown(false);
     }
 
     /**
@@ -506,6 +515,9 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @return Whether the entity takes damage or not
      */
     public boolean hurt(LivingEntity ownerEntity, LivingEntity targetEntity, ResourceKey<DamageType> damageType, float hurtAmount) {
+        if (checkForCounterMagic(targetEntity))
+            return false;
+
         return targetEntity.hurt(BoxUtil.sentinelDamageSource(ownerEntity.level(), damageType, ownerEntity), getModifier(ModifierType.POTENCY, ownerEntity) * hurtAmount);
     }
 
@@ -518,8 +530,12 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param initialAmount The initial amount of the spell damage/effect
      * @return The modified damage/effect amount
      */
+    protected float potency(LivingEntity livingEntity, float initialAmount) {
+        return initialAmount * getModifier(ModifierType.POTENCY, livingEntity);
+    }
+
     protected float potency(float initialAmount) {
-        return initialAmount * getModifier(ModifierType.POTENCY);
+        return potency(this.caster, initialAmount);
     }
 
     /**
@@ -578,7 +594,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param modifier the AttributeModifier to apply
      */
     public void addAttributeModifier(LivingEntity livingEntity, Holder<Attribute> attribute, AttributeModifier modifier) {
-        livingEntity.getAttribute(attribute).addTransientModifier(modifier);
+        if (!hasAttributeModifier(livingEntity, attribute, modifier.id()))
+            livingEntity.getAttribute(attribute).addTransientModifier(modifier);
     }
 
     /**
@@ -616,6 +633,10 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      */
     protected boolean isPhysicalDamage(@NotNull DamageSource damageSource) {
         return damageSource.is(SBTags.DamageTypes.PHYSICAL_DAMAGE);
+    }
+
+    protected boolean checkForCounterMagic(LivingEntity targetEntity) {
+        return false;/*SpellUtil.getSpellHandler(targetEntity).hasActiveSpell() && SpellUtil.getSkillHolder(targetEntity).hasSkill() && targetEntity.getData();*/
     }
 
     /**
@@ -788,7 +809,11 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     public void initSpell(LivingEntity caster, Level level, BlockPos blockPos) {
-        initSpell(caster, level, blockPos, this.getTargetEntity(caster, 10));
+        initSpell(caster, level, blockPos, this.getTargetEntity(caster, 10), false);
+    }
+
+    public void initSpell(LivingEntity caster, Level level, BlockPos blockPos, boolean forceReset) {
+        initSpell(caster, level, blockPos, this.getTargetEntity(caster, 10), forceReset);
     }
 
     /**
@@ -798,7 +823,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param blockPos The block position the caster is in when the cast timer ends
      * @param livingEntity The target entity of the caster
      */
-    public void initSpell(LivingEntity caster, Level level, BlockPos blockPos, @Nullable LivingEntity livingEntity) {
+    public void initSpell(LivingEntity caster, Level level, BlockPos blockPos, @Nullable LivingEntity livingEntity, boolean forceReset) {
         this.level = level;
         this.caster = caster;
         this.blockPos = blockPos;
@@ -807,6 +832,11 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         var list = handler.getActiveSpells(getSpellType());
         if (!list.isEmpty()) this.isRecast = true;
         this.context = new SpellContext(this.caster, this.level, this.blockPos, livingEntity, this.isRecast);
+
+        if (forceReset) {
+            onCastReset(this.context);
+            return;
+        }
 
         boolean incrementId = true;
         if (this.isRecast) {
@@ -825,15 +855,22 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
             }
         }
 
-        //Play Fail Animation
-        if (!this.castPredicate.test(this.context, this)) {
-            onCastReset(this.context);
-            return;
-        }
+        if (!level.isClientSide) {
+            if (!(this.castPredicate.test(this.context, this) && RandomUtil.percentChance(getCastChance()))) {
+                //Play Fail Animation
+                onCastReset(this.context);
+                if (caster instanceof Player player)
+                    PayloadHandler.updateSpells(player, true);
 
+                return;
+            }
+
+            if (caster instanceof Player player) {
+                PayloadHandler.updateSpells(player, false);
+                player.awardStat(SBStats.SPELLS_CAST.get());
+            }
+        }
         activateSpell();
-        if (caster instanceof Player player)
-            player.awardStat(SBStats.SPELLS_CAST.get());
 
         if (incrementId) this.castId++;
 

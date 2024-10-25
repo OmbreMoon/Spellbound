@@ -9,7 +9,8 @@
     "DuckRangedAttribute"
   ],
   "client": [
-    "MinecraftMixin"
+    "MinecraftMixin",
+    "EffectRenderingInventoryScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
