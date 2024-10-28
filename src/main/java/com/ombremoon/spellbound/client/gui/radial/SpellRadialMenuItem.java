@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.client.gui.radial;
 
 import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -46,6 +47,12 @@ public class SpellRadialMenuItem extends RadialMenuItem {
 
     public SpellType<?> getSpellType() {
         return this.spellType;
+    }
+
+    @Override
+    public boolean isSelected() {
+        var handler = SpellUtil.getSpellHandler(this.owner.getScreen().getMinecraft().player);
+        return handler.getSelectedSpell() == this.spellType;
     }
 
     @Override

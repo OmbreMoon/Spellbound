@@ -42,8 +42,8 @@ public class ShadowGateSpell extends AnimatedSpell {
         return createSimpleSpellBuilder(ShadowGateSpell.class).manaCost(30).castTime(20).duration(1200).castCondition((context, spell) -> {
             var skills = context.getSkills();
             int activePortals = spell.portalInfo.size();
-            if ((!skills.hasSkill(SBSkills.DUAL_DESTINATION.value()) && activePortals == 2) || activePortals == 3)
-                return false;
+//            if ((!skills.hasSkill(SBSkills.DUAL_DESTINATION.value()) && activePortals == 2) || activePortals == 3)
+//                return false;
 
             boolean hasReach = skills.hasSkill(SBSkills.REACH.value());
             BlockHitResult hitResult = spell.getTargetBlock(hasReach ? 100 : 50);
@@ -54,6 +54,7 @@ public class ShadowGateSpell extends AnimatedSpell {
             if (activePortals > 1) {
                 int portalRange = hasReach ? 10000 : 2500;
                 PortalInfo info = spell.portalInfo.get(spell.getPreviousGate());
+                spell.log(info.id);
                 double distance = info.position().distanceToSqr(blockPos.getCenter());
                 if (distance > portalRange) return false;
             }
@@ -75,6 +76,7 @@ public class ShadowGateSpell extends AnimatedSpell {
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
         Level level = context.getLevel();
+        var skills = context.getSkills();
         if (!level.isClientSide) {
             int activePortals = this.portalInfo.size();
             boolean hasReach = context.getSkills().hasSkill(SBSkills.REACH.value());
@@ -82,8 +84,13 @@ public class ShadowGateSpell extends AnimatedSpell {
             Vec3 vec3 = Vec3.atBottomCenterOf(hitResult.getBlockPos().above());
             ShadowGate shadowGate = SBEntities.SHADOW_GATE.get().create(context.getLevel());
             if (shadowGate != null) {
-                PortalInfo info = new PortalInfo(activePortals, vec3);
-                this.portalInfo.put(shadowGate.getId(), info);
+                int maxPortals = skills.hasSkill(SBSkills.DUAL_DESTINATION.value()) ? 3 : 2;
+                if (activePortals >= maxPortals) {
+                    shiftGates(level, shadowGate.getId(), vec3);
+                } else {
+                    PortalInfo info = new PortalInfo(activePortals, vec3);
+                    this.portalInfo.put(shadowGate.getId(), info);
+                }
                 shadowGate.setOwner(context.getCaster());
                 shadowGate.setPos(vec3.x(), vec3.y(), vec3.z());
                 shadowGate.setYRot(context.getRotation());
@@ -98,6 +105,7 @@ public class ShadowGateSpell extends AnimatedSpell {
         super.onSpellTick(context);
         LivingEntity caster = context.getCaster();
         Level level = context.getLevel();
+//        endSpell();
         if (!level.isClientSide()) {
             var skills = context.getSkills();
             if (!this.portalInfo.isEmpty()) {
@@ -176,6 +184,58 @@ public class ShadowGateSpell extends AnimatedSpell {
         }
     }
 
+    private void shiftGates(Level level, int shadowGateID, Vec3 position) {
+        for (var entry : this.portalInfo.entrySet()) {
+            var info = entry.getValue();
+            if (info.id == 0) {
+                ShadowGate shadowGate = (ShadowGate) level.getEntity(entry.getKey());
+                if (shadowGate != null)
+                    shadowGate.discard();
+
+                this.portalInfo.remove(entry.getKey());
+            } else {
+                PortalInfo newInfo = new PortalInfo(info.id - 1, info.position);
+                this.portalInfo.replace(entry.getKey(), newInfo);
+            }
+        }
+        PortalInfo info = new PortalInfo(this.portalInfo.size(), position);
+        this.portalInfo.put(shadowGateID, info);
+    }
+
+    private ShadowGate getAdjacentGate(ShadowGate shadowGate, Level level) {
+        int activePortals = this.portalInfo.size();
+        if (activePortals < 2) return null;
+
+        int id = shadowGate.getId();
+        PortalInfo info = this.portalInfo.get(id);
+        if (info != null) {
+            int portalId = info.id + 1;
+            if (portalId >= activePortals) portalId = 0;
+            for (var entry : this.portalInfo.entrySet()) {
+                if (portalId == entry.getValue().id())
+                    return (ShadowGate) level.getEntity(entry.getKey());
+            }
+        }
+        return null;
+    }
+
+    private int getPreviousGate() {
+        int i = 0;
+        for (var entry : this.portalInfo.entrySet()) {
+            if (entry.getValue().id() > i)
+                i = entry.getValue().id;
+        }
+        return getGateFromID(i);
+    }
+
+    private int getGateFromID(int id) {
+        for (var entry : this.portalInfo.entrySet()) {
+            if (entry.getValue().id == id)
+                return entry.getKey();
+        }
+        return 0;
+    }
+
     @Override
     public @UnknownNullability CompoundTag saveData(CompoundTag compoundTag) {
         ListTag listTag = new ListTag();
@@ -204,32 +264,6 @@ public class ShadowGateSpell extends AnimatedSpell {
                 this.portalInfo.put(entityId, new PortalInfo(portalId, new Vec3(posArray[0], posArray[1], posArray[2])));
             }
         }
-    }
-
-    public ShadowGate getAdjacentGate(ShadowGate shadowGate, Level level) {
-        int activePortals = this.portalInfo.size();
-        if (activePortals < 2) return null;
-
-        int id = shadowGate.getId();
-        PortalInfo info = this.portalInfo.get(id);
-        if (info != null) {
-            int portalId = info.id + 1;
-            if (portalId >= activePortals) portalId = 0;
-            for (var entry : this.portalInfo.entrySet()) {
-                if (portalId == entry.getValue().id())
-                    return (ShadowGate) level.getEntity(entry.getKey());
-            }
-        }
-        return null;
-    }
-
-    private int getPreviousGate() {
-        int i = 0;
-        for (var entry : this.portalInfo.entrySet()) {
-            if (entry.getValue().id() > i)
-                return entry.getKey();
-        }
-        return i;
     }
 
     private record PortalInfo(int id, Vec3 position) {}

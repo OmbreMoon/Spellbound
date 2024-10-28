@@ -21,6 +21,7 @@ public class ShadowGate extends SpellEntity {
     @Override
     public void tick() {
         super.tick();
+//        discard();
         this.portalCooldown.entrySet().removeIf(entry -> entry.getValue() <= this.tickCount);
     }
 

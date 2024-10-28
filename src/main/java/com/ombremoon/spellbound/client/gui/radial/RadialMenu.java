@@ -72,6 +72,10 @@ public class RadialMenu {
         this.backgroundColorHover = backgroundColorHover;
     }
 
+    public Screen getScreen() {
+        return this.screen;
+    }
+
     public void setCentralText(@Nullable Component centralText) {
         this.centralText = centralText;
     }
@@ -167,7 +171,7 @@ public class RadialMenu {
         poseStack.pushPose();
         poseStack.translate(0, animTop, 0);
 
-        drawBackground(x, y, z, radiusIn, radiusOut);
+        drawBackground(graphics, x, y, z, radiusIn, radiusOut);
 
         poseStack.popPose();
 
@@ -175,6 +179,12 @@ public class RadialMenu {
             poseStack.pushPose();
             drawItems(graphics, x, y, z, screen.width, screen.height, font);
             poseStack.popPose();
+
+//            if (items.size() > 5) {
+                poseStack.pushPose();
+                drawArrow(graphics, x, y, z);
+                poseStack.popPose();
+//            }
 
             Component currentCentralText = centralText;
             for (RadialMenuItem item : this.items) {
@@ -219,7 +229,7 @@ public class RadialMenu {
         animProgress = openAnimation;
     }
 
-    public void drawBackground(float x, float y, float z, float radiusIn, float radiusOut) {
+    public void drawBackground(GuiGraphics guiGraphics, float x, float y, float z, float radiusIn, float radiusOut) {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
@@ -227,43 +237,11 @@ public class RadialMenu {
 
         var builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         iterateVisible((item, s, e) -> {
-            int color = item.isHovered() ? backgroundColorHover : backgroundColor;
+            int color = item.isHovered() || item.isSelected() ? backgroundColorHover : backgroundColor;
             drawPieArc(builder, x, y, z, radiusIn, radiusOut, s, e, color);
         });
-        drawArrow(builder, x, y, z, backgroundColor);
         BufferUploader.drawWithShader(builder.buildOrThrow());
         RenderSystem.disableBlend();
-    }
-
-    private void drawTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
-        for (RadialMenuItem item : this.items) {
-            if (item.isHovered()) {
-                DrawingContext context = new DrawingContext(graphics, screen.width, screen.height, mouseX, mouseY, 0, screen.getMinecraft().font, drawingHelper);
-                item.drawTooltips(context);
-            }
-        }
-    }
-
-    private void drawItems(GuiGraphics graphics, int x, int y, float z, int width, int height, Font font) {
-        iterateVisible((item, s, e) -> {
-            float middle = (s + e) * 0.5f;
-            float posX = x + itemRadius * (float) Math.cos(middle);
-            float posY = y + itemRadius * (float) Math.sin(middle);
-
-            DrawingContext context = new DrawingContext(graphics, width, height, posX, posY, z, font, drawingHelper);
-            item.draw(context);
-        });
-    }
-
-    private void iterateVisible(TriConsumer<RadialMenuItem, Float, Float> consumer) {
-        int numItems = items.size();
-        for (int i = 0; i < numItems; i++) {
-            float s = (float) getAngleFor(i - 0.5, numItems);
-            float e = (float) getAngleFor(i + 0.5, numItems);
-
-            RadialMenuItem item = items.get(i);
-            consumer.accept(item, s, e);
-        }
     }
 
     private void drawPieArc(BufferBuilder buffer, float x, float y, float z, float radiusIn, float radiusOut, float startAngle, float endAngle, int color) {
@@ -299,16 +277,58 @@ public class RadialMenu {
         }
     }
 
-    private void drawArrow(BufferBuilder buffer, float x, float y, float z, int color) {
+    private void drawArrow(GuiGraphics guiGraphics, float x, float y, float z) {
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        int i = guiGraphics.guiWidth() / 2;
+        int j = guiGraphics.guiHeight() / 2;
+
+        var builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        int color = this.backgroundColorHover;
         int r = (color >> 16) & 0xFF;
         int g = (color >> 8) & 0xFF;
         int b = (color >> 0) & 0xFF;
         int a = (color >> 24) & 0xFF;
 
-        buffer.addVertex(x, y + 10, z).setColor(r, b, g, a);
-        buffer.addVertex(x, y - 10, z).setColor(r, b, g, a);
-        buffer.addVertex(x + 100 + 20, y - 10, z).setColor(r, b, g, a);
-        buffer.addVertex(x + 100 + 20, y + 10, z).setColor(r, b, g, a);
+        builder.addVertex(i, j + 10, z).setColor(r, b, g, a);
+        builder.addVertex(i, j - 10, z).setColor(r, b, g, a);
+        builder.addVertex(i + 20, j - 10, z).setColor(r, b, g, a);
+        builder.addVertex(i + 20, j + 10, z).setColor(r, b, g, a);
+        BufferUploader.drawWithShader(builder.buildOrThrow());
+        RenderSystem.disableBlend();
+    }
+
+    private void drawTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
+        for (RadialMenuItem item : this.items) {
+            if (item.isHovered()) {
+                DrawingContext context = new DrawingContext(graphics, screen.width, screen.height, mouseX, mouseY, 0, screen.getMinecraft().font, drawingHelper);
+                item.drawTooltips(context);
+            }
+        }
+    }
+
+    private void drawItems(GuiGraphics graphics, int x, int y, float z, int width, int height, Font font) {
+        iterateVisible((item, s, e) -> {
+            float middle = (s + e) * 0.5f;
+            float posX = x + itemRadius * (float) Math.cos(middle);
+            float posY = y + itemRadius * (float) Math.sin(middle);
+
+            DrawingContext context = new DrawingContext(graphics, width, height, posX, posY, z, font, drawingHelper);
+            item.draw(context);
+        });
+    }
+
+    private void iterateVisible(TriConsumer<RadialMenuItem, Float, Float> consumer) {
+        int numItems = items.size();
+        for (int i = 0; i < numItems; i++) {
+            float s = (float) getAngleFor(i - 0.5, numItems);
+            float e = (float) getAngleFor(i + 0.5, numItems);
+
+            RadialMenuItem item = items.get(i);
+            consumer.accept(item, s, e);
+        }
     }
 
     private void processMouse(int mouseX, int mouseY) {

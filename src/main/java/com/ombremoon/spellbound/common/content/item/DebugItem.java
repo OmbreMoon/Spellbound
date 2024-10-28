@@ -51,14 +51,12 @@ public class DebugItem extends Item implements Loggable {
 //            Constants.LOG.info("{}", tree.nodes());
 //            Constants.LOG.info("{}", tree.children());
 //            Constants.LOG.info("{}", tree.roots());
-//            spellHandler.clearList();
+            spellHandler.clearList();
         } else {
 //            log(spellHandler.getActiveSpells());
 //            Minecraft.getInstance().setScreen(new SpellSelectScreen());
 //            Constants.LOG.info("{}", spellHandler.getActiveSpells());
         }
 //        skillHolder.clearModifiers();
-        log(skillHolder.timedModifiers);
-        log("Permanent: " + skillHolder.permanentModifiers);
     }
 }

@@ -27,9 +27,8 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
     protected final Map<SpellPath, Float> pathXp = new Object2FloatOpenHashMap<>();
     protected final Map<SpellType<?>, Float> spellXp = new Object2FloatOpenHashMap<>();
     public final Map<SpellType<?>, Set<Skill>> unlockedSkills = new Object2ObjectOpenHashMap<>();
-    //CHANGE ACCESSORS
-    public final Set<SpellModifier> permanentModifiers = new ObjectOpenHashSet<>();
-    public final Map<SpellModifier, Integer> timedModifiers = new Object2IntOpenHashMap<>();
+    private final Set<SpellModifier> permanentModifiers = new ObjectOpenHashSet<>();
+    private final Map<SpellModifier, Integer> timedModifiers = new Object2IntOpenHashMap<>();
     private final SkillCooldowns cooldowns = new SkillCooldowns();
 
     public void sync(Player player) {
@@ -135,6 +134,10 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
         ListTag modifierList = new ListTag();
 
         for (SpellType<?> spellType : this.spellXp.keySet()) {
+            if (spellType == null) {
+                this.spellXp.remove(null);
+                continue;
+            }
             CompoundTag newTag = new CompoundTag();
             newTag.putString("Spell", spellType.location().toString());
             newTag.putFloat("Xp", this.spellXp.get(spellType));
@@ -142,6 +145,10 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
         }
 
         for (SpellType<?> spellType : unlockedSkills.keySet()) {
+            if (spellType == null) {
+                this.unlockedSkills.remove(null);
+                continue;
+            }
             CompoundTag newTag = new CompoundTag();
             newTag.putString("Spell", spellType.location().toString());
             ListTag savedSkills = new ListTag();

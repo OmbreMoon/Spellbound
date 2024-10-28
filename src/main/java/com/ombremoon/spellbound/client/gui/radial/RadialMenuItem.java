@@ -34,23 +34,13 @@ import org.jetbrains.annotations.Nullable;
  */
 
 public abstract class RadialMenuItem {
-    private final RadialMenu owner;
+    protected final RadialMenu owner;
     private Component centralText;
-//    private boolean visible;
     private boolean hovered;
 
     protected RadialMenuItem(RadialMenu owner) {
         this.owner = owner;
     }
-
-/*    public boolean isVisible() {
-        return this.visible;
-    }
-
-    public void setVisible(boolean visible) {
-        this.visible = visible;
-        owner.setVisibilityChanged(this);
-    }*/
 
     @Nullable
     public Component getCentralText() {
@@ -68,6 +58,8 @@ public abstract class RadialMenuItem {
     public void setHovered(boolean hovered) {
         this.hovered = hovered;
     }
+
+    public abstract boolean isSelected();
 
     public abstract void draw(DrawingContext context);
 
