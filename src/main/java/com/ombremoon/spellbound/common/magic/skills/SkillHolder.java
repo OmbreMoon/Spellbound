@@ -24,15 +24,22 @@ import java.util.Map;
 import java.util.Set;
 
 public class SkillHolder implements INBTSerializable<CompoundTag> {
+    private LivingEntity caster;
     protected final Map<SpellPath, Float> pathXp = new Object2FloatOpenHashMap<>();
     protected final Map<SpellType<?>, Float> spellXp = new Object2FloatOpenHashMap<>();
     public final Map<SpellType<?>, Set<Skill>> unlockedSkills = new Object2ObjectOpenHashMap<>();
     private final Set<SpellModifier> permanentModifiers = new ObjectOpenHashSet<>();
     private final Map<SpellModifier, Integer> timedModifiers = new Object2IntOpenHashMap<>();
+    private final Set<SpellModifier> timedModifiers1 = new ObjectOpenHashSet<>();
     private final SkillCooldowns cooldowns = new SkillCooldowns();
 
-    public void sync(Player player) {
-        PayloadHandler.syncSkillsToClient(player);
+    public void sync() {
+        if (this.caster instanceof Player player)
+            PayloadHandler.syncSkillsToClient(player);
+    }
+
+    public void init(LivingEntity caster) {
+        this.caster = caster;
     }
 
     public void resetSpellXP(SpellType<?> spellType) {
@@ -85,6 +92,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
 
         Set<Skill> unlocked = unlockedSkills.get(spellType);
         if (unlocked == null) return false;
+        if (!skill.canUnlockSkill((Player) this.caster, this)) return false;
         for (Holder<Skill> prereq : skill.getPrereqs()) {
             if (unlocked.contains(prereq.value())) return true;
         }
@@ -106,9 +114,19 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
         this.timedModifiers.put(spellModifier, expiryTicks);
     }
 
+    public void addModifierWithExpiry1(SpellModifier spellModifier) {
+        this.timedModifiers1.add(spellModifier);
+    }
+
+    public void removeModifier(SpellModifier spellModifier) {
+        this.timedModifiers1.remove(spellModifier);
+        this.permanentModifiers.remove(spellModifier);
+    }
+
     public Set<SpellModifier> getModifiers() {
         var modifiers = new ObjectOpenHashSet<>(this.permanentModifiers);
-        modifiers.addAll(this.timedModifiers.keySet());
+        modifiers.addAll(this.timedModifiers1);
+//        modifiers.addAll(this.timedModifiers.keySet());
         return modifiers;
     }
 

@@ -67,6 +67,10 @@ public class PayloadHandler {
         PacketDistributor.sendToPlayer((ServerPlayer) player, new UpdateSpellsPayload(forceReset));
     }
 
+    public static void endSpell(Player player, SpellType<?> spellType, int castId) {
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new EndSpellPayload(spellType, castId));
+    }
+
     public static void syncSpellsToClient(Player player) {
         PacketDistributor.sendToPlayer((ServerPlayer) player,
                 new SyncSpellPayload(
@@ -166,6 +170,11 @@ public class PayloadHandler {
                 ServerPayloadHandler::handleNetworkUnlockSKill
         );
 
+        registrar.playToClient(
+                EndSpellPayload.TYPE,
+                EndSpellPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleEndSpell
+        );
         registrar.playToClient(
                 UpdateSpellsPayload.TYPE,
                 UpdateSpellsPayload.STREAM_CODEC,

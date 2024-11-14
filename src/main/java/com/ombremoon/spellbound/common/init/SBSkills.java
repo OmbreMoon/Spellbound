@@ -5,13 +5,17 @@ import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.magic.api.SpellModifier;
 import com.ombremoon.spellbound.common.magic.skills.ModifierSkill;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
+import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.RegistryBuilder;
+
+import java.util.function.BiPredicate;
 
 @SuppressWarnings("unchecked")
 public class SBSkills {
@@ -72,6 +76,19 @@ public class SBSkills {
     public static final Holder<Skill> CHAIN_REACTION = registerSkill("chain_reaction", -25, 150, preReqs(UNLEASHED_STORM, STORM_SURGE));
     public static final Holder<Skill> AMPLIFY = registerSkill("amplify", -50, 200, preReqs(CHAIN_REACTION));
     public static final Holder<Skill> ALTERNATING_CURRENT = registerSkill("alternating_current", 0, 200, preReqs(CHAIN_REACTION));
+
+    //Cyclone
+    public static final Holder<Skill> CYCLONE = registerSkill("cyclone");
+    public static final Holder<Skill> EYE_OF_THE_STORM = registerSkill("eye_of_the_storm", -50, 50, preReqs(CYCLONE));
+    public static final Holder<Skill> FALLING_DEBRIS = registerSkill("falling_debris", -50, 100, preReqs(EYE_OF_THE_STORM));
+    public static final Holder<Skill> VORTEX = registerSkill("vortex", 50, 50, preReqs(CYCLONE));
+    public static final Holder<Skill> MAELSTROM = registerSkill("maelstrom", 50, 100, preReqs(VORTEX));
+    public static final Holder<Skill> HURRICANE = registerSkill("hurricane", 0, 50, preReqs(CYCLONE));
+    public static final Holder<Skill> WHIRLING_TEMPEST = registerSkill("whirling_tempest", 0, 100, preReqs(HURRICANE));
+    public static final Holder<Skill> GALE_FORCE = registerModifierSkill("gale_force", -50, 150, preReqs(EYE_OF_THE_STORM), SpellModifier.GALE_FORCE);
+    public static final Holder<Skill> FROSTFRONT = registerSkill("frostfront", 0, 150, preReqs(EYE_OF_THE_STORM));
+    public static final Holder<Skill> STATIC_CHARGE = registerSkill("static_charge", 50, 150, preReqs(EYE_OF_THE_STORM));
+    public static final Holder<Skill> HAILSTORM = registerConditionalSkill("hailstorm", 0, 200, preReqs(GALE_FORCE, FROSTFRONT, STATIC_CHARGE), (player, holder) -> holder.hasSkill(FROSTFRONT.value()) && holder.hasSkill(STATIC_CHARGE.value()));
 
     //Shadow Gate
     public static final Holder<Skill> SHADOW_GATE = registerSkill("shadow_gate");
@@ -185,6 +202,14 @@ public class SBSkills {
     }
     private static Holder<Skill> registerSkill(String name, int xPos, int yPos, HolderSet<Skill> prereqs) {
         return SKILLS.register(name, () -> new Skill(CommonClass.customLocation(name), xPos, yPos, prereqs));
+    }
+    private static Holder<Skill> registerConditionalSkill(String name, int xPos, int yPos, HolderSet<Skill> prereqs, BiPredicate<Player, SkillHolder> skillCondition) {
+        return SKILLS.register(name, () -> new Skill(CommonClass.customLocation(name), xPos, yPos, prereqs) {
+            @Override
+            public boolean canUnlockSkill(Player player, SkillHolder holder) {
+                return skillCondition.test(player, holder);
+            }
+        });
     }
     private static Holder<Skill> registerModifierSkill(String name, int xPos, int yPos, HolderSet<Skill> prereqs, SpellModifier... spellModifiers) {
         return SKILLS.register(name, () -> new ModifierSkill(CommonClass.customLocation(name), xPos, yPos, prereqs, spellModifiers));

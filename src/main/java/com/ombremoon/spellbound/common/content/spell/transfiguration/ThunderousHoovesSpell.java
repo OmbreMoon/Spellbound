@@ -37,7 +37,7 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
     private int initialFoodLevel;
     private BlockPos currentPos;
     private int movementTicks;
-    private LivingEntity mount;
+    private Entity mount;
 
     public ThunderousHoovesSpell() {
         super(SBSpells.THUNDEROUS_HOOVES.get(), createThunderousHoovesBuilder());
@@ -70,11 +70,12 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
         var skills = context.getSkills();
 
         if (skills.hasSkill(SBSkills.AQUA_TREAD.value())) {
-            Entity entity = caster.getVehicle() != null && skills.hasSkill(SBSkills.RIDERS_RESILIENCE.value()) ? caster.getVehicle() : caster;
+            boolean flag = caster.getVehicle() != null && skills.hasSkill(SBSkills.RIDERS_RESILIENCE.value());
+            Entity entity = flag ? caster.getVehicle() : caster;
             entity.wasTouchingWater = false;
             Vec3 vec3 = entity.getDeltaMovement().scale(1.15F);
             if (entity.getBlockStateOn().is(Blocks.WATER)) {
-                entity.setDeltaMovement(vec3.x, 0.025, vec3.z);
+                entity.setDeltaMovement(vec3.x, flag ? 0.035F : 0.025F, vec3.z);
                 entity.setSwimming(false);
                 entity.setOnGround(true);
                 float f1 = Math.min(1.0F, (float)Math.sqrt(vec3.x * vec3.x * 0.2F + vec3.y * vec3.y + vec3.z * vec3.z * 0.2F) * 0.35F);
@@ -83,7 +84,6 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
         }
 
         if (!level.isClientSide) {
-//            log(getCastChance());
             if (skills.hasSkill(SBSkills.QUICK_SPRINT.value()) && this.ticks >= 200) {
                 if (hasAttributeModifier(caster, Attributes.MOVEMENT_SPEED, QUICK_SPRINT)) {
                     removeAttributeModifier(caster, Attributes.MOVEMENT_SPEED, QUICK_SPRINT);
@@ -101,9 +101,9 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
 
             if (skills.hasSkill(SBSkills.RIDERS_RESILIENCE.value())) {
                 Entity entity = caster.getVehicle();
-                if (entity instanceof LivingEntity livingEntity) {
-                    this.mount = livingEntity;
-                    applyMovementBenefits(livingEntity, skills);
+                if (entity != null) {
+                    this.mount = entity;
+                    applyMovementBenefits(entity, skills);
                 } else if (this.mount != null) {
                     removeMovementBenefits(this.mount);
                     this.mount = null;
@@ -150,20 +150,24 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
             removeMovementBenefits(this.mount);
     }
 
-    private void removeMovementBenefits(LivingEntity livingEntity) {
-        if (hasAttributeModifier(livingEntity, Attributes.MOVEMENT_SPEED, THUNDEROUS_HOOVES))
-            removeAttributeModifier(livingEntity, Attributes.MOVEMENT_SPEED, THUNDEROUS_HOOVES);
+    private void removeMovementBenefits(Entity entity) {
+        if (entity instanceof LivingEntity livingEntity) {
+            if (hasAttributeModifier(livingEntity, Attributes.MOVEMENT_SPEED, THUNDEROUS_HOOVES))
+                removeAttributeModifier(livingEntity, Attributes.MOVEMENT_SPEED, THUNDEROUS_HOOVES);
 
-        if (hasAttributeModifier(livingEntity, Attributes.STEP_HEIGHT, SUREFOOTED))
-            removeAttributeModifier(livingEntity, Attributes.STEP_HEIGHT, SUREFOOTED);
+            if (hasAttributeModifier(livingEntity, Attributes.STEP_HEIGHT, SUREFOOTED))
+                removeAttributeModifier(livingEntity, Attributes.STEP_HEIGHT, SUREFOOTED);
+        }
     }
 
-    private void applyMovementBenefits(LivingEntity livingEntity, SkillHolder skills) {
-        addAttributeModifier(livingEntity, Attributes.MOVEMENT_SPEED, new AttributeModifier(THUNDEROUS_HOOVES, skills.hasSkill(SBSkills.GALLOPING_STRIDE.value()) ? 1.5 : 1.25, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
-        if (skills.hasSkill(SBSkills.QUICK_SPRINT.value()))
-            addAttributeModifier(livingEntity, Attributes.MOVEMENT_SPEED, new AttributeModifier(QUICK_SPRINT, 1.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+    private void applyMovementBenefits(Entity entity, SkillHolder skills) {
+        if (entity instanceof LivingEntity livingEntity) {
+            addAttributeModifier(livingEntity, Attributes.MOVEMENT_SPEED, new AttributeModifier(THUNDEROUS_HOOVES, skills.hasSkill(SBSkills.GALLOPING_STRIDE.value()) ? 1.5 : 1.25, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+            if (skills.hasSkill(SBSkills.QUICK_SPRINT.value()))
+                addAttributeModifier(livingEntity, Attributes.MOVEMENT_SPEED, new AttributeModifier(QUICK_SPRINT, 1.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 
-        if (skills.hasSkill(SBSkills.SUREFOOTED.value()))
-            addAttributeModifier(livingEntity, Attributes.STEP_HEIGHT, new AttributeModifier(SUREFOOTED, 0.4, AttributeModifier.Operation.ADD_VALUE));
+            if (skills.hasSkill(SBSkills.SUREFOOTED.value()))
+                addAttributeModifier(livingEntity, Attributes.STEP_HEIGHT, new AttributeModifier(SUREFOOTED, 0.4, AttributeModifier.Operation.ADD_VALUE));
+        }
     }
 }

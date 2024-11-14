@@ -2,10 +2,7 @@ package com.ombremoon.spellbound.common.init;
 
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.content.entity.living.LivingShadow;
-import com.ombremoon.spellbound.common.content.entity.spell.StormstrikeBolt;
-import com.ombremoon.spellbound.common.content.entity.spell.WildMushroom;
-import com.ombremoon.spellbound.common.content.entity.spell.ShadowGate;
-import com.ombremoon.spellbound.common.content.entity.spell.SolarRay;
+import com.ombremoon.spellbound.common.content.entity.spell.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -27,6 +24,7 @@ public class SBEntities {
     public static final Supplier<EntityType<ShadowGate>> SHADOW_GATE = registerEntity("shadow_gate", ShadowGate::new, 1.2F, 2.5F);
     public static final Supplier<EntityType<SolarRay>> SOLAR_RAY = registerEntity("solar_ray", SolarRay::new, 1.8F, 3.6F);
     public static final Supplier<EntityType<StormstrikeBolt>> STORMSTRIKE_BOLT = registerEntity("stormstrike_bolt", StormstrikeBolt::new, 0.5F, 0.5F);
+    public static final Supplier<EntityType<Cyclone>> CYCLONE = registerEntity("cyclone", Cyclone::new, 3.0F, 3.0F);
     public static final Supplier<EntityType<LivingShadow>> LIVING_SHADOW = registerMob("living_shadow", LivingShadow::new, MobCategory.CREATURE,0.6F, 1.95F, 8, LivingShadow::createLivingShadowAttributes, false);
     //public static final Supplier<EntityType<TotemSpiritEntity>> TOTEM_SPIRIT = registerMob("totem_spirit", TotemSpiritEntity::new, MobCategory.CREATURE, 1f, 1f, 8, LivingShadow::createLivingShadowAttributes, false);
 

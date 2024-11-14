@@ -10,8 +10,14 @@ import com.ombremoon.spellbound.common.magic.api.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 public class TestSpell extends ChanneledSpell {
     private static final ResourceLocation JUMP_EVENT = CommonClass.customLocation("jumpies");
@@ -37,6 +43,20 @@ public class TestSpell extends ChanneledSpell {
             livingShadow.setPos(context.getCaster().position());
             context.getLevel().addFreshEntity(livingShadow);
             hurt(context.getCaster(), SBDamageTypes.SB_GENERIC, 2.0F);
+//            var result = this.getTargetBlock(10);
+//            if (result.getType() != HitResult.Type.MISS) {
+//                Vec3 pos = result.getLocation();
+//                BlockState blockState = Blocks.DIRT.defaultBlockState();
+//                FallingBlockEntity fallingBlockEntity = new FallingBlockEntity(EntityType.FALLING_BLOCK, context.getLevel());
+//                fallingBlockEntity.blocks
+//                fallingBlockEntity.setPos(pos.x + 0.5F, pos.y, pos.z + 0.5F);
+//                fallingBlockEntity.setDeltaMovement(Vec3.ZERO);
+//                fallingBlockEntity.xo = pos.x;
+//                fallingBlockEntity.yo = pos.y;
+//                fallingBlockEntity.zo = pos.z;
+//                fallingBlockEntity.setStartPos(fallingBlockEntity.blockPosition());
+//                context.getLevel().setBlock(pos, )
+//            }
         }
     }
 

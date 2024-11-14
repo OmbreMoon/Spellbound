@@ -12,6 +12,7 @@ import java.util.Set;
 public interface SBDamageTypes {
     ResourceKey<DamageType> SB_GENERIC = register("sb_generic");
     ResourceKey<DamageType> RUIN_FIRE = register("ruin_fire");
+    ResourceKey<DamageType> RUIN_FROST = register("ruin_frost");
     ResourceKey<DamageType> RUIN_SHOCK = register("ruin_shock");
     ResourceKey<DamageType> DISEASE = register("disease");
 
@@ -22,6 +23,7 @@ public interface SBDamageTypes {
     static void bootstrap(BootstrapContext<DamageType> context) {
         context.register(SB_GENERIC, new DamageType("sb_generic", 0.1F));
         context.register(RUIN_FIRE, new DamageType("ruin_fire", 0.1F));
+        context.register(RUIN_FROST, new DamageType("ruin_frost", 0.1F));
         context.register(RUIN_SHOCK, new DamageType("ruin_shock", 0.1F));
         context.register(DISEASE, new DamageType("disease", 0.1F));
     }

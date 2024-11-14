@@ -43,7 +43,7 @@ public class LearnSkillsCommand {
 
         var skillHandler = SpellUtil.getSkillHolder(context.getPlayer());
         skillHandler.unlockSkill(skill.value());
-        skillHandler.sync(context.getPlayer());
+        skillHandler.sync();
         context.getPlayer().sendSystemMessage(Component.translatable("command.spellbound.singleskilllearnt",
                 skill.value().getName()));
 
@@ -66,7 +66,7 @@ public class LearnSkillsCommand {
             skillHolder.unlockSkill(skill);
         }
 
-        skillHolder.sync(context.getPlayer());
+        skillHolder.sync();
         context.getPlayer().sendSystemMessage(Component.translatable("command.spellbound.learntskills",
                 spell.value().createSpell().getName()));
 
@@ -82,7 +82,7 @@ public class LearnSkillsCommand {
         if (!handler.getSpellList().contains(spellType)) return 0;
 
         skillHolder.resetSkills(spellType);
-        skillHolder.sync(context.getPlayer());
+        skillHolder.sync();
         return 1;
     }
 }

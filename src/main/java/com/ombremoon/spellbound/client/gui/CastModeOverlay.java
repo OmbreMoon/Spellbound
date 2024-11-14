@@ -77,8 +77,8 @@ public class CastModeOverlay implements LayeredDraw.Layer {
             int i = 1;
             int j = 1;
 
+            i += 2 + (27 * j1);
             j1++;
-            i += 27 * j1;
             float f = 1.0F;
             guiGraphics.blit(BACKGROUND, i, j, 0, 0, 26, 26, 26, 26);
             if (spell.getDuration() - spell.ticks < 200 && spell.getCastType() != AbstractSpell.CastType.CHANNEL) {

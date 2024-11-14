@@ -10,6 +10,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 public class Skill {
@@ -86,6 +87,10 @@ public class Skill {
     public ResourceLocation getTexture() {
         String root = getSpell().location().getPath();
         return CommonClass.customLocation("textures/gui/skills/" + root + "/" + location().getPath() + ".png");
+    }
+
+    public boolean canUnlockSkill(Player player, SkillHolder holder) {
+        return true;
     }
 
     public boolean isRoot() {

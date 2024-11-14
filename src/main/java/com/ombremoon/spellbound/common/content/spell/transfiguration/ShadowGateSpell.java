@@ -82,7 +82,7 @@ public class ShadowGateSpell extends AnimatedSpell {
             boolean hasReach = context.getSkills().hasSkill(SBSkills.REACH.value());
             BlockHitResult hitResult = this.getTargetBlock(hasReach ? 100 : 50);
             Vec3 vec3 = Vec3.atBottomCenterOf(hitResult.getBlockPos().above());
-            ShadowGate shadowGate = SBEntities.SHADOW_GATE.get().create(context.getLevel());
+            ShadowGate shadowGate = SBEntities.SHADOW_GATE.get().create(level);
             if (shadowGate != null) {
                 int maxPortals = skills.hasSkill(SBSkills.DUAL_DESTINATION.value()) ? 3 : 2;
                 if (activePortals >= maxPortals) {
@@ -92,7 +92,7 @@ public class ShadowGateSpell extends AnimatedSpell {
                     this.portalInfo.put(shadowGate.getId(), info);
                 }
                 shadowGate.setOwner(context.getCaster());
-                shadowGate.setPos(vec3.x(), vec3.y(), vec3.z());
+                shadowGate.setPos(vec3);
                 shadowGate.setYRot(context.getRotation());
                 shadowGate.setStartTick(20);
                 level.addFreshEntity(shadowGate);

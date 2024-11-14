@@ -6,6 +6,7 @@ import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
+import com.ombremoon.spellbound.common.magic.api.SkillBuff;
 import com.ombremoon.spellbound.common.magic.api.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.init.SBAttributes;
@@ -51,6 +52,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     protected SpellType<?> selectedSpell;
     protected AbstractSpell currentlyCastingSpell;
     private final Map<ModifierData, Integer> transientModifiers = new Object2IntOpenHashMap<>();
+    private final Map<SkillBuff, Integer> skillBuffs = new Object2IntOpenHashMap<>();
     private final Set<Integer> glowEntities = new IntOpenHashSet();
     public int castTick;
     private boolean channelling;
@@ -88,6 +90,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.caster = caster;
         this.listener = new SpellEventListener(caster);
         this.skillHolder = SpellUtil.getSkillHolder(this.caster);
+        this.skillHolder.init(caster);
         this.upgradeTree = this.caster.getData(SBData.UPGRADE_TREE);
         this.initialized = true;
     }
@@ -207,7 +210,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         if (this.caster instanceof Player player) {
             this.upgradeTree.update(player, spellType.getSkills());
             sync();
-            this.skillHolder.sync(player);
+            this.skillHolder.sync();
         }
     }
 
@@ -220,6 +223,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
         var locations = spellType.getSkills().stream().map(Skill::location).collect(Collectors.toSet());
         this.spellSet.remove(spellType);
+        this.equippedSpellSet.remove(spellType);
         this.upgradeTree.remove(locations);
         if (this.caster instanceof Player player) {
             this.upgradeTree.update(player, locations);
@@ -524,5 +528,5 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         }
     }
 
-    private record ModifierData(Holder<Attribute> attribute, AttributeModifier attributeModifier) {}
+    public record ModifierData(Holder<Attribute> attribute, AttributeModifier attributeModifier) {}
 }

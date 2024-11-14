@@ -7,6 +7,7 @@ import com.ombremoon.spellbound.common.content.spell.deception.ShadowbondSpell;
 import com.ombremoon.spellbound.common.content.spell.divine.HealingTouchSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.VolcanoSpell;
+import com.ombremoon.spellbound.common.content.spell.ruin.hybrid.CycloneSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.ElectricChargeSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.StormstrikeSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.SpiritTotemSpell;
@@ -49,6 +50,10 @@ public class SBSpells {
             .skills(SBSkills.ELECTRIC_CHARGE, SBSkills.ELECTRIFICATION, SBSkills.SUPERCONDUCTOR, SBSkills.CYCLONIC_FURY,
                     SBSkills.OSCILLATION, SBSkills.HIGH_VOLTAGE, SBSkills.UNLEASHED_STORM, SBSkills.STORM_SURGE,
                     SBSkills.CHAIN_REACTION, SBSkills.AMPLIFY, SBSkills.ALTERNATING_CURRENT));
+    public static final Supplier<SpellType<CycloneSpell>> CYCLONE = registerSpell("cyclone", ruinBuilder("cyclone", CycloneSpell::new)
+            .skills(SBSkills.CYCLONE, SBSkills.WHIRLING_TEMPEST, SBSkills.VORTEX,
+                    SBSkills.FALLING_DEBRIS, SBSkills.MAELSTROM, SBSkills.HURRICANE, SBSkills.EYE_OF_THE_STORM,
+                    SBSkills.GALE_FORCE, SBSkills.FROSTFRONT, SBSkills.STATIC_CHARGE, SBSkills.HAILSTORM));
 
     //Transfiguration
     public static final Supplier<SpellType<ShadowGateSpell>> SHADOW_GATE = registerSpell("shadow_gate", trasnfigurationBuilder("shadow_gate", ShadowGateSpell::new)
@@ -89,6 +94,10 @@ public class SBSpells {
 
     private static <T extends AbstractSpell> Supplier<SpellType<T>> registerSpell(String name, SpellType.Builder<T> builder) {
         return SPELL_TYPES.register(name, builder::build);
+    }
+
+    private static <T extends AbstractSpell> SpellType.Builder<T> ruinBuilder(String name, SpellType.SpellFactory<T> factory) {
+        return new SpellType.Builder<>(name, factory).setPath(SpellPath.RUIN);
     }
 
     private static <T extends AbstractSpell> SpellType.Builder<T> fireRuinBuilder(String name, SpellType.SpellFactory<T> factory) {

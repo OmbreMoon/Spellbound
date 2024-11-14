@@ -4,6 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.ombremoon.spellbound.client.model.GenericSpellModel;
 import com.ombremoon.spellbound.common.content.entity.SpellEntity;
+import com.ombremoon.spellbound.common.content.entity.spell.SolarRay;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
@@ -16,5 +18,10 @@ public class GenericSpellRenderer<T extends SpellEntity> extends GeoEntityRender
     protected void applyRotations(T animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float nativeScale) {
         super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick, nativeScale);
         poseStack.mulPose(Axis.YP.rotationDegrees(-animatable.yRotO));
+    }
+
+    @Override
+    public boolean shouldRender(T spellEntity, Frustum camera, double camX, double camY, double camZ) {
+        return true;
     }
 }

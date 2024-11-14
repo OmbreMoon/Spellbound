@@ -10,7 +10,6 @@ import com.ombremoon.spellbound.common.content.entity.spell.SolarRay;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
-import com.ombremoon.spellbound.common.magic.api.ModifierType;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -131,8 +130,6 @@ public class SolarRaySpell extends ChanneledSpell {
             solarRay.setPos(caster.position());
             solarRay.setYRot(caster.getYRot());
         }
-//        if (!context.getLevel().isClientSide)
-//            log(getModifier(ModifierType.CAST_CHANCE, caster));
     }
 
     @Override
@@ -140,7 +137,6 @@ public class SolarRaySpell extends ChanneledSpell {
         super.onCastReset(context);
         SolarRay solarRay = getSolarRay(context);
         if (solarRay != null) solarRay.discard();
-        var handler = context.getSpellHandler();
     }
 
     @Override
@@ -274,7 +270,7 @@ public class SolarRaySpell extends ChanneledSpell {
                         if (skills.hasSkill(SBSkills.POWER_OF_THE_SUN.value()) && livingEntity.level().isDay())
                             damage *= 1.5F;
 
-                        if (spell.checkForCounterMagic(livingEntity))
+                        if (spell.checkForCounterMagic(living))
                             damage = 0;
                     }
                     return damage;

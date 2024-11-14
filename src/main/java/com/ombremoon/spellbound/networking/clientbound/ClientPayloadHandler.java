@@ -13,6 +13,15 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class ClientPayloadHandler {
 
+    public static void handleEndSpell(EndSpellPayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            var handler = SpellUtil.getSpellHandler(context.player());
+            AbstractSpell spell = handler.getSpell(payload.spellType(), payload.castId());
+            if (spell != null)
+                spell.endSpell();
+        });
+    }
+
     public static void handleClientUpdateSpells(UpdateSpellsPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             var handler = SpellUtil.getSpellHandler(context.player());

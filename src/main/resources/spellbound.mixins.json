@@ -10,7 +10,9 @@
   ],
   "client": [
     "MinecraftMixin",
-    "EffectRenderingInventoryScreenMixin"
+    "EffectRenderingInventoryScreenMixin",
+    "GameRendererMixin",
+    "LevelRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

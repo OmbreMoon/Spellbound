@@ -352,8 +352,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     /**
      * Spell ticking logic. Should not be overridden. Override {@link AbstractSpell#onSpellTick(SpellContext)} for ticking functionality.
      */
-    @ApiStatus.Internal
-    public void tick() {
+    public final void tick() {
         ticks++;
         if (init) {
             this.startSpell();
@@ -390,6 +389,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         this.init = false;
         this.isInactive = true;
         this.ticks = 0;
+        if (!level.isClientSide && this.caster instanceof Player player)
+            PayloadHandler.endSpell(player, getSpellType(), this.castId);
     }
 
     /**
@@ -525,6 +526,14 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         return hurt(this.caster, targetEntity, damageType, hurtAmount);
     }
 
+    public <T> void addSkillBuff(LivingEntity livingEntity, Skill skill, BuffCategory buffCategory, SkillBuff.BuffObject<T> buffObject, T skillObject, int duration) {
+
+    }
+
+    public void removeSkillBuff(LivingEntity livingEntity) {
+
+    }
+
     /**
      * Returns the modified potency of the spell
      * @param initialAmount The initial amount of the spell damage/effect
@@ -635,7 +644,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         return damageSource.is(SBTags.DamageTypes.PHYSICAL_DAMAGE);
     }
 
-    protected boolean checkForCounterMagic(LivingEntity targetEntity) {
+    public boolean checkForCounterMagic(LivingEntity targetEntity) {
         return false;/*SpellUtil.getSpellHandler(targetEntity).hasActiveSpell() && SpellUtil.getSkillHolder(targetEntity).hasSkill() && targetEntity.getData();*/
     }
 

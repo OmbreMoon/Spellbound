@@ -1,6 +1,9 @@
 package com.ombremoon.spellbound.common.content.entity;
 
+import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.util.Loggable;
+import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -27,6 +30,8 @@ public abstract class SpellEntity extends Entity implements GeoEntity, ISpellEnt
     private static final EntityDataAccessor<Integer> END_TICK = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> START_TICK = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.INT);
     protected static final String CONTROLLER = "controller";
+    protected SpellHandler handler;
+    protected SkillHolder skills;
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public SpellEntity(EntityType<?> entityType, Level level) {
@@ -63,6 +68,11 @@ public abstract class SpellEntity extends Entity implements GeoEntity, ISpellEnt
     @Override
     public void tick() {
         super.tick();
+        if (this.getOwner() instanceof LivingEntity livingEntity && this.tickCount < 5) {
+            this.handler = SpellUtil.getSpellHandler(livingEntity);
+            this.skills = SpellUtil.getSkillHolder(livingEntity);
+        }
+
         if (!this.hasOwner() || (this.isEnding() && this.tickCount >= this.getEndTick()))
             discard();
     }
