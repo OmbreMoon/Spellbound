@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.content.entity;
 
+import com.ombremoon.spellbound.common.content.entity.spell.Cyclone;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.util.Loggable;
@@ -25,6 +26,7 @@ import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public abstract class SpellEntity extends Entity implements GeoEntity, ISpellEntity, Loggable {
+    private static final EntityDataAccessor<Integer> SPELL_ID = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<Byte> ID_FLAGS = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> END_TICK = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.INT);
@@ -49,6 +51,7 @@ public abstract class SpellEntity extends Entity implements GeoEntity, ISpellEnt
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(SPELL_ID, -1);
         builder.define(ID_FLAGS, (byte)0);
         builder.define(OWNER_ID, 0);
         builder.define(START_TICK, 0);
@@ -100,6 +103,14 @@ public abstract class SpellEntity extends Entity implements GeoEntity, ISpellEnt
         } else {
             this.entityData.set(ID_FLAGS, (byte)(b0 & ~id));
         }
+    }
+
+    public int getSpellId(){
+        return this.entityData.get(SPELL_ID);
+    }
+
+    public void setSpellId(int id) {
+        this.entityData.set(SPELL_ID, id);
     }
 
     public boolean isStarting() {

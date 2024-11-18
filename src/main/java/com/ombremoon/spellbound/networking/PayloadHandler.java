@@ -8,9 +8,12 @@ import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import com.ombremoon.spellbound.networking.clientbound.*;
 import com.ombremoon.spellbound.networking.serverbound.*;
 import com.ombremoon.spellbound.util.SpellUtil;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -114,6 +117,10 @@ public class PayloadHandler {
 
     public static void removeGlowEffect(Player player, int entityId) {
         PacketDistributor.sendToPlayer((ServerPlayer) player, new RemoveGlowEffectPayload(entityId));
+    }
+
+    public static void changeHailLevel(ServerLevel level, float hailLevel) {
+        PacketDistributor.sendToPlayersInDimension(level, new ChangeHailLevelPayload(hailLevel));
     }
 
     @SubscribeEvent
@@ -224,6 +231,11 @@ public class PayloadHandler {
                 AddGlowEffectPayload.TYPE,
                 AddGlowEffectPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleAddGlowEffect
+        );
+        registrar.playToClient(
+                ChangeHailLevelPayload.TYPE,
+                ChangeHailLevelPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleChangeHailLevel
         );
     }
 }

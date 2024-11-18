@@ -1,10 +1,10 @@
 package com.ombremoon.spellbound.common.content.effects;
 
-import com.ombremoon.sentinellib.api.BoxUtil;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.StormstrikeSpell;
 import com.ombremoon.spellbound.common.init.*;
-import com.ombremoon.spellbound.common.magic.api.SpellModifier;
-import com.ombremoon.spellbound.common.magic.api.ModifierType;
+import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
+import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
+import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -30,7 +30,13 @@ public class StormstrikeEffect extends SBEffect {
             StormstrikeSpell spell = SBSpells.STORMSTRIKE.get().createSpell();
 
             if (skills.hasSkill(SBSkills.CHARGED_ATMOSPHERE.value()))
-                spell.addTimedModifier(owner, SpellModifier.CHARGED_ATMOSPHERE, 160);
+                spell.addSkillBuff(
+                        owner,
+                        SBSkills.CHARGED_ATMOSPHERE.value(),
+                        BuffCategory.BENEFICIAL,
+                        SkillBuff.SPELL_MODIFIER,
+                        SpellModifier.CHARGED_ATMOSPHERE,
+                        160);
         }
     }
 
@@ -67,7 +73,13 @@ public class StormstrikeEffect extends SBEffect {
                         player.addItem(new ItemStack(SBItems.STORM_SHARD.get()));
 
                     if (skills.hasSkill(SBSkills.SUPERCHARGE.value()))
-                        spell.addTimedModifier(owner, SpellModifier.SUPERCHARGE, 200);
+                        spell.addSkillBuff(
+                                owner,
+                                SBSkills.SUPERCHARGE.value(),
+                                BuffCategory.BENEFICIAL,
+                                SkillBuff.SPELL_MODIFIER,
+                                SpellModifier.SUPERCHARGE,
+                                200);
                 }
             }
         }

@@ -15,7 +15,8 @@ import com.ombremoon.spellbound.common.init.SBTags;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
-import com.ombremoon.spellbound.common.magic.events.SpellEvent;
+import com.ombremoon.spellbound.common.magic.api.buff.*;
+import com.ombremoon.spellbound.common.magic.api.buff.events.SpellEvent;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataHolder;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
@@ -55,7 +56,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.util.RandomUtil;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -482,32 +482,6 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Adds a {@link SpellModifier} to a living entity for a specified amount of ticks.
-     * @param livingEntity The living entity
-     * @param spellModifier The spell modifier
-     * @param expiryTick The amount of ticks the modifier should persist
-     */
-    public void addTimedModifier(LivingEntity livingEntity, SpellModifier spellModifier, int expiryTick) {
-        var skills = SpellUtil.getSkillHolder(livingEntity);
-        skills.addModifierWithExpiry(spellModifier, livingEntity.tickCount + expiryTick);
-    }
-
-    /**
-     * Adds a {@link SpellEventListener} to a living entity for a specified amount of ticks.
-     * @param livingEntity The living entity
-     * @param event The event
-     * @param location The specific resource location for the listener
-     * @param consumer Callback for when the event is fired
-     * @param expiryTicks The amount of ticks the listener should persist
-     * @param <T> The spell event class
-     */
-    public <T extends SpellEvent> void addTimedListener(LivingEntity livingEntity, SpellEventListener.IEvent<T> event, ResourceLocation location, Consumer<T> consumer, int expiryTicks) {
-        var listener = SpellUtil.getSpellHandler(livingEntity).getListener();
-        if (!listener.hasListener(event, location))
-            listener.addListenerWithExpiry(event, location, consumer, livingEntity.tickCount + expiryTicks);
-    }
-
-    /**
      * Hurts the target entity, taking spell potency into account. Suitable for modded damage types.
      * @param ownerEntity The damage causing entity
      * @param targetEntity The hurt entity
@@ -526,12 +500,61 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         return hurt(this.caster, targetEntity, damageType, hurtAmount);
     }
 
+    /**
+     * Adds a {@link SkillBuff} to a living entity for a specified amount of ticks.
+     * @param livingEntity The living entity
+     * @param skill The skill that activates the buff
+     * @param buffCategory Whether it's a good, bad, or neutral buff
+     * @param buffObject The type of buff: Mob Effect, Attribute Modifier, Spell Modifier, or Event Listener
+     * @param skillObject The actual buff being applied to the entity
+     * @param duration The length in ticks the buff persists
+     * @param <T> The buff
+     */
     public <T> void addSkillBuff(LivingEntity livingEntity, Skill skill, BuffCategory buffCategory, SkillBuff.BuffObject<T> buffObject, T skillObject, int duration) {
-
+        SkillBuff<T> skillBuff = new SkillBuff<>(skill, buffCategory, buffObject, skillObject);
+        var handler = SpellUtil.getSpellHandler(livingEntity);
+        handler.addSkillBuff(skillBuff, duration);
+    }
+    public <T> void addSkillBuff(LivingEntity livingEntity, Skill skill, BuffCategory buffCategory, SkillBuff.BuffObject<T> buffObject, T skillObject) {
+        this.addSkillBuff(livingEntity, skill, buffCategory, buffObject, skillObject, -1);
     }
 
-    public void removeSkillBuff(LivingEntity livingEntity) {
 
+    /**
+     * Adds an {@link SkillBuff#EVENT Event Skill Buff} to a living entity for a specified amount of ticks.
+     * @param livingEntity The living entity
+     * @param skill The skill that activates the buff
+     * @param category Whether it's a good, bad, or neutral buff
+     * @param event The type of event to listen to
+     * @param location The id of the listener
+     * @param consumer The action that takes places when the event is fired
+     * @param duration The length in ticks the buff persists
+     * @param <T> The buff
+     */
+    public <T extends SpellEvent> void addEventBuff(LivingEntity livingEntity, Skill skill, BuffCategory category, SpellEventListener.IEvent<T> event, ResourceLocation location, Consumer<T> consumer, int duration) {
+        this.addSkillBuff(livingEntity, skill, category, SkillBuff.EVENT, location, duration);
+        var listener = SpellUtil.getSpellHandler(livingEntity).getListener();
+        if (!listener.hasListener(event, location))
+            listener.addListener(event, location, consumer);
+    }
+
+    public <T extends SpellEvent> void addEventBuff(LivingEntity livingEntity, Skill skill, BuffCategory category, SpellEventListener.IEvent<T> event, ResourceLocation location, Consumer<T> consumer) {
+        this.addEventBuff(livingEntity, skill, category, event, location, consumer, -1);
+    }
+
+    public void removeSkillBuff(LivingEntity livingEntity, Skill skill) {
+        removeSkillBuff(livingEntity, skill, 1);
+    }
+
+    public void removeSkillBuff(LivingEntity livingEntity, Skill skill, int iterations) {
+        for (int i = 0; i < iterations; i++) {
+            var handler = SpellUtil.getSpellHandler(livingEntity);
+            var optional = handler.getSkillBuff(skill);
+            if (optional.isPresent()) {
+                SkillBuff<?> skillBuff = optional.get();
+                handler.removeSkillBuff(skillBuff);
+            }
+        }
     }
 
     /**
@@ -583,39 +606,19 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         return livingEntity.getAttribute(attribute).hasModifier(modifier);
     }
 
-    /**
+    /*
      * Adds an attribute modifier to a living entity for a specified amount of time.
      * @param livingEntity The entity to receive the attribute modifier
      * @param attribute The modified attribute
      * @param modifier The attribute modifier
      * @param ticks The amount of ticks the attribute modifier lasts
      */
-    public void addTimedAttributeModifier(LivingEntity livingEntity, Holder<Attribute> attribute, AttributeModifier modifier, int ticks) {
-        if (!hasAttributeModifier(livingEntity, attribute, modifier.id())) {
-            addAttributeModifier(livingEntity, attribute, modifier);
-            SpellUtil.getSpellHandler(livingEntity).addTransientModifier(attribute, modifier, ticks);
-        }
-    }
 
-    /**
+    /*
      * Adds a given attribute modifier to a chosen attribute on the caster.
      * @param attribute The attribute to apply a modifier to
      * @param modifier the AttributeModifier to apply
      */
-    public void addAttributeModifier(LivingEntity livingEntity, Holder<Attribute> attribute, AttributeModifier modifier) {
-        if (!hasAttributeModifier(livingEntity, attribute, modifier.id()))
-            livingEntity.getAttribute(attribute).addTransientModifier(modifier);
-    }
-
-    /**
-     * Removes an attribute modifier from the caster.
-     * @param attribute The attribute the modifier affects
-     * @param modifier The ResourceLocation of the modifier to remove
-     */
-    public void removeAttributeModifier(LivingEntity livingEntity, Holder<Attribute> attribute, ResourceLocation modifier) {
-        if (hasAttributeModifier(livingEntity, attribute, modifier))
-            livingEntity.getAttribute(attribute).removeModifier(modifier);
-    }
 
     /**
      * Checks whether the entity is the caster of this spell.

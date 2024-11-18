@@ -4,7 +4,7 @@ import com.ombremoon.sentinellib.api.BoxUtil;
 import com.ombremoon.spellbound.common.content.entity.SpellProjectile;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
-import com.ombremoon.spellbound.common.magic.api.ModifierType;
+import com.ombremoon.spellbound.common.magic.api.buff.ModifierType;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;

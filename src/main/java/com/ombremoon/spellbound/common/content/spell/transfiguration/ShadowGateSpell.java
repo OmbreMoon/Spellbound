@@ -6,9 +6,9 @@ import com.ombremoon.spellbound.common.init.SBEntities;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.api.SpellEventListener;
-import com.ombremoon.spellbound.common.magic.api.SpellModifier;
-import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
+import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.magic.api.*;
+import com.ombremoon.spellbound.common.magic.api.buff.*;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -42,9 +42,6 @@ public class ShadowGateSpell extends AnimatedSpell {
         return createSimpleSpellBuilder(ShadowGateSpell.class).manaCost(30).castTime(20).duration(1200).castCondition((context, spell) -> {
             var skills = context.getSkills();
             int activePortals = spell.portalInfo.size();
-//            if ((!skills.hasSkill(SBSkills.DUAL_DESTINATION.value()) && activePortals == 2) || activePortals == 3)
-//                return false;
-
             boolean hasReach = skills.hasSkill(SBSkills.REACH.value());
             BlockHitResult hitResult = spell.getTargetBlock(hasReach ? 100 : 50);
             if (hitResult.getType() == HitResult.Type.MISS || hitResult.getDirection() == Direction.DOWN) return false;
@@ -105,7 +102,6 @@ public class ShadowGateSpell extends AnimatedSpell {
         super.onSpellTick(context);
         LivingEntity caster = context.getCaster();
         Level level = context.getLevel();
-//        endSpell();
         if (!level.isClientSide()) {
             var skills = context.getSkills();
             if (!this.portalInfo.isEmpty()) {
@@ -133,7 +129,13 @@ public class ShadowGateSpell extends AnimatedSpell {
                                         PayloadHandler.setRotation(teleportedPlayer, teleportedPlayer.getXRot(), adjacentGate.getYRot());
 
                                     if (skills.hasSkill(SBSkills.BLINK.value()) && isCaster(entity))
-                                        addTimedAttributeModifier(entity, Attributes.MOVEMENT_SPEED, new AttributeModifier(CommonClass.customLocation("blink"), 1.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), 100);
+                                        addSkillBuff(
+                                                caster,
+                                                SBSkills.BLINK.value(),
+                                                BuffCategory.BENEFICIAL,
+                                                SkillBuff.ATTRIBUTE_MODIFIER,
+                                                new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(CommonClass.customLocation("blink"), 1.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                                                100);
 
                                     if (skills.hasSkillReady(SBSkills.QUICK_RECHARGE.value())) {
                                         context.getSpellHandler().awardMana(20);
@@ -144,10 +146,21 @@ public class ShadowGateSpell extends AnimatedSpell {
                                         caster.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 100, 0, false, false, true));
 
                                     if (skills.hasSkill(SBSkills.UNWANTED_GUESTS.value()) && !entity.isAlliedTo(context.getCaster())) {
-                                        addTimedListener(entity, SpellEventListener.Events.PRE_DAMAGE, UNWANTED_GUESTS, event -> {
-                                            event.setNewDamage(event.getOriginalDamage() * .9F);
-                                        }, 200);
-                                        addTimedModifier(entity, SpellModifier.UNWANTED_GUESTS, 200);
+                                        addEventBuff(
+                                                entity,
+                                                SBSkills.UNWANTED_GUESTS.value(),
+                                                BuffCategory.HARMFUL,
+                                                SpellEventListener.Events.PRE_DAMAGE,
+                                                UNWANTED_GUESTS,
+                                                pre -> pre.setNewDamage(pre.getOriginalDamage() * 0.9F),
+                                                200);
+                                        addSkillBuff(
+                                                entity,
+                                                SBSkills.UNWANTED_GUESTS.value(),
+                                                BuffCategory.HARMFUL,
+                                                SkillBuff.SPELL_MODIFIER,
+                                                SpellModifier.UNWANTED_GUESTS,
+                                                200);
                                     }
 
                                     if (skills.hasSkill(SBSkills.BAIT_AND_SWITCH.value()) && !entity.isAlliedTo(caster)) {

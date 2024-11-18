@@ -89,6 +89,8 @@ public class Skill {
         return CommonClass.customLocation("textures/gui/skills/" + root + "/" + location().getPath() + ".png");
     }
 
+    public void onSkillUnlock(Player player) {}
+
     public boolean canUnlockSkill(Player player, SkillHolder holder) {
         return true;
     }

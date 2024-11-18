@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.magic.skills;
 
-import com.ombremoon.spellbound.common.magic.api.SpellModifier;
+import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.HolderSet;
 import net.minecraft.resources.ResourceLocation;

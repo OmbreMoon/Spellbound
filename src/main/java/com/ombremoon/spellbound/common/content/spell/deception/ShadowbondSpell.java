@@ -3,11 +3,14 @@ package com.ombremoon.spellbound.common.content.spell.deception;
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.common.content.effects.SBEffectInstance;
 import com.ombremoon.spellbound.common.content.entity.living.LivingShadow;
+import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
+import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;
+import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.api.SpellEventListener;
+import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
@@ -20,7 +23,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.UnknownNullability;
@@ -102,14 +104,13 @@ public class ShadowbondSpell extends AnimatedSpell {
         super.onSpellRecast(context);
         LivingEntity caster = context.getCaster();
         Level level = context.getLevel();
-        var handler = context.getSpellHandler();
         var skills = context.getSkills();
         if (this.canReverse || this.isEarlyEnd()) {
             swapTargets(caster, level);
 
             if (this.isEarlyEnd()) {
                 this.canReverse = skills.hasSkill(SBSkills.REVERSAL.value()) && !this.targetList.isEmpty();
-                if (!level.isClientSide) handleSwapEffect(caster, level, handler, skills);
+                if (!level.isClientSide) handleSwapEffect(caster, level, skills);
                 if (!this.canReverse) endSpell();
             } else {
                 endSpell();
@@ -123,7 +124,6 @@ public class ShadowbondSpell extends AnimatedSpell {
         LivingEntity caster = context.getCaster();
         Level level = context.getLevel();
         var skills = context.getSkills();
-        var handler = context.getSpellHandler();
         if (!level.isClientSide) {
             for (Integer entityId : this.targetList) {
                 Entity entity = level.getEntity(entityId);
@@ -134,7 +134,7 @@ public class ShadowbondSpell extends AnimatedSpell {
             int extension = skills.hasSkill(SBSkills.EVERLASTING_BOND.value()) ? 200 : 100;
             if (this.ticks == this.getDuration() - extension) {
                 swapTargets(caster, level);
-                handleSwapEffect(caster, level, handler, skills);
+                handleSwapEffect(caster, level, skills);
             } else if (this.ticks > this.getDuration() - extension) {
                 this.canReverse = skills.hasSkill(SBSkills.REVERSAL.value()) && !this.targetList.isEmpty();
             }
@@ -170,16 +170,34 @@ public class ShadowbondSpell extends AnimatedSpell {
         }
     }
 
-    private void handleSwapEffect(LivingEntity caster, Level level, SpellHandler handler, SkillHolder skills) {
+    private void handleSwapEffect(LivingEntity caster, Level level, SkillHolder skills) {
         if (skills.hasSkill(SBSkills.SHADOW_STEP.value()))
-            addTimedAttributeModifier(caster, Attributes.MOVEMENT_SPEED, new AttributeModifier(CommonClass.customLocation("shadow_step"), 1.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), 100);
+            addSkillBuff(
+                    caster,
+                    SBSkills.BLINK.value(),
+                    BuffCategory.BENEFICIAL,
+                    SkillBuff.ATTRIBUTE_MODIFIER,
+                    new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(CommonClass.customLocation("shadow_step"), 1.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                    100);
 
         if (skills.hasSkill(SBSkills.SNEAK_ATTACK.value())) {
-            addTimedAttributeModifier(caster, Attributes.ATTACK_DAMAGE, new AttributeModifier(SNEAK_ATTACK, 1.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), 100);
-            addTimedListener(caster, SpellEventListener.Events.ATTACK, SNEAK_ATTACK, pre -> {
-                removeAttributeModifier(caster, Attributes.ATTACK_DAMAGE, SNEAK_ATTACK);
-                handler.getListener().removeListener(SpellEventListener.Events.ATTACK, SNEAK_ATTACK);
-            }, 100);
+            addSkillBuff(
+                    caster,
+                    SBSkills.SNEAK_ATTACK.value(),
+                    BuffCategory.BENEFICIAL,
+                    SkillBuff.ATTRIBUTE_MODIFIER,
+                    new ModifierData(Attributes.ATTACK_DAMAGE, new AttributeModifier(SNEAK_ATTACK, 1.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                    100);
+            addEventBuff(
+                    caster,
+                    SBSkills.SNEAK_ATTACK.value(),
+                    BuffCategory.BENEFICIAL,
+                    SpellEventListener.Events.ATTACK,
+                    SNEAK_ATTACK,
+                    pre -> {
+                        removeSkillBuff(caster, SBSkills.SNEAK_ATTACK.value(), 2);
+                        },
+                    100);
         }
 
         caster.removeEffect(MobEffects.INVISIBILITY);
@@ -195,9 +213,14 @@ public class ShadowbondSpell extends AnimatedSpell {
 
                 if (skills.hasSkill(SBSkills.DISORIENTED.value())) {
                     living.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 100, 0, false, false));
-                    addTimedListener(living, SpellEventListener.Events.PRE_DAMAGE, DISORIENTED, pre -> {
-                        pre.setNewDamage(pre.getOriginalDamage() * 0.8F);
-                    }, 100);
+                    addEventBuff(
+                            caster,
+                            SBSkills.DISORIENTED.value(),
+                            BuffCategory.HARMFUL,
+                            SpellEventListener.Events.PRE_DAMAGE,
+                            DISORIENTED,
+                            pre -> pre.setNewDamage(pre.getOriginalDamage() * 0.8F),
+                            100);
                 }
             }
         }

@@ -29,7 +29,7 @@ public class SpellSelectScreen extends Screen {
     private final Player player;
     private final SpellHandler handler;
     private final RadialMenu radialMenu;
-    private SpellRadialMenuItem[] spellItems = new SpellRadialMenuItem[5];
+    private SpellRadialMenuItem[] spellItems = new SpellRadialMenuItem[10];
     private final List<RadialMenuItem> items;
     private float x;
     private float y;

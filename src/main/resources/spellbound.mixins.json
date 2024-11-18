@@ -12,7 +12,8 @@
     "MinecraftMixin",
     "EffectRenderingInventoryScreenMixin",
     "GameRendererMixin",
-    "LevelRendererMixin"
+    "LevelRendererMixin",
+    "ClientLevelMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -7,10 +7,10 @@ import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.api.SpellEventListener;
-import com.ombremoon.spellbound.common.magic.api.SpellModifier;
+import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
+import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
-import com.ombremoon.spellbound.common.magic.events.DeathEvent;
+import com.ombremoon.spellbound.common.magic.api.buff.events.DeathEvent;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -42,6 +42,7 @@ public class WildMushroomSpell extends SummonSpell {
     public WildMushroomSpell() {
         super(SBSpells.WILD_MUSHROOM.get(), createMushroomBuilder());
     }
+/*
 
     @Override
     protected void onSpellStart(SpellContext context) {
@@ -159,4 +160,5 @@ public class WildMushroomSpell extends SummonSpell {
             }
         }
     }
+*/
 }

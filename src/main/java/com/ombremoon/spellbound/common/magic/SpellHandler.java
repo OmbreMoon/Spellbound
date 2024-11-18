@@ -6,8 +6,9 @@ import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
-import com.ombremoon.spellbound.common.magic.api.SkillBuff;
-import com.ombremoon.spellbound.common.magic.api.SpellEventListener;
+import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;
+import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
+import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.init.SBAttributes;
 import com.ombremoon.spellbound.common.init.SBData;
@@ -30,10 +31,7 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.UnknownNullability;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -51,8 +49,8 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     protected Multimap<SpellType<?>, AbstractSpell> activeSpells = ArrayListMultimap.create();
     protected SpellType<?> selectedSpell;
     protected AbstractSpell currentlyCastingSpell;
-    private final Map<ModifierData, Integer> transientModifiers = new Object2IntOpenHashMap<>();
-    private final Map<SkillBuff, Integer> skillBuffs = new Object2IntOpenHashMap<>();
+    private final Map<SpellType<?>, Integer> spellFlag = new Object2IntOpenHashMap<>();
+    private final Map<SkillBuff<?>, Integer> skillBuffs = new Object2IntOpenHashMap<>();
     private final Set<Integer> glowEntities = new IntOpenHashSet();
     public int castTick;
     private boolean channelling;
@@ -67,11 +65,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     public void sync() {
         if (this.caster instanceof Player player)
             PayloadHandler.syncSpellsToClient(player);
-    }
-
-    public void debug() {
-        if (CommonClass.isDevEnv() && this.caster == null)
-            Constants.LOG.warn("Something fishy is happening");
     }
 
     /**
@@ -125,26 +118,8 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
             this.stationaryTicks--;
 
 
-        this.skillHolder.tickModifiers(this.caster);
+        this.tickSkillBuffs();
         this.skillHolder.getCooldowns().tick();
-        this.listener.tickInstances();
-
-        if (!this.caster.level().isClientSide)
-            serverTick();
-    }
-
-    /**
-     * Called every tick on the server
-     */
-    public void serverTick() {
-        for (var entry : this.transientModifiers.entrySet()) {
-            if (entry.getValue() <= this.caster.tickCount) {
-                this.caster.getAttribute(entry.getKey().attribute()).removeModifier(entry.getKey().attributeModifier());
-                this.transientModifiers.remove(entry.getKey());
-            }
-        }
-
-        debug();
     }
 
     /**
@@ -364,6 +339,33 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.currentlyCastingSpell = abstractSpell;
     }
 
+    public void addSkillBuff(SkillBuff<?> skillBuff, int ticks) {
+        int duration = this.caster.tickCount + ticks;
+        if (ticks == -1)
+            duration = -1;
+
+        skillBuff.addBuff(this.caster, duration);
+        this.skillBuffs.put(skillBuff, duration);
+    }
+
+    public void removeSkillBuff(SkillBuff<?> skillBuff) {
+        skillBuff.removeBuff(this.caster);
+        this.skillBuffs.remove(skillBuff);
+    }
+
+    public Optional<SkillBuff<?>> getSkillBuff(Skill skill) {
+        return this.skillBuffs.keySet().stream().filter(skillBuff -> skillBuff.is(skill)).findAny();
+    }
+
+    private void tickSkillBuffs() {
+        if (!this.skillBuffs.isEmpty()) {
+            for (var entry : this.skillBuffs.entrySet()) {
+                if (entry.getValue() > 0 && entry.getValue() <= this.caster.tickCount)
+                    this.removeSkillBuff(entry.getKey());
+            }
+        }
+    }
+
     /**
      * Checks whether the player should remain stationary. That is to say all player movement inputs will be disregarded.
      * @return If the player is supposed to be stationary
@@ -411,16 +413,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
      */
     public void setChannelling(boolean channelling) {
         this.channelling = channelling;
-    }
-
-    /**
-     * Adds a temporary attribute modifier to the player for a specified amount of ticks.
-     * @param attribute The attribute
-     * @param attributeModifier The attribute modifier
-     * @param ticks The amount of ticks the modifier persists
-     */
-    public void addTransientModifier(Holder<Attribute> attribute, AttributeModifier attributeModifier, int ticks) {
-        this.transientModifiers.put(new ModifierData(attribute, attributeModifier), this.caster.tickCount + ticks);
     }
 
     /**
@@ -527,6 +519,4 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
             this.equippedSpellSet = set;
         }
     }
-
-    public record ModifierData(Holder<Attribute> attribute, AttributeModifier attributeModifier) {}
 }

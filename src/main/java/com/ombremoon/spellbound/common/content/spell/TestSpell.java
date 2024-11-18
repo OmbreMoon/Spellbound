@@ -6,18 +6,15 @@ import com.ombremoon.spellbound.common.content.effects.SBEffectInstance;
 import com.ombremoon.spellbound.common.content.entity.living.LivingShadow;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.api.SpellEventListener;
+import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
+import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
+import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
 
 public class TestSpell extends ChanneledSpell {
     private static final ResourceLocation JUMP_EVENT = CommonClass.customLocation("jumpies");
@@ -34,9 +31,13 @@ public class TestSpell extends ChanneledSpell {
     @Override
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
-        context.getSpellHandler().getListener().addListener(SpellEventListener.Events.JUMP, JUMP_EVENT, playerJumpEvent -> {
+        addEventBuff(context.getCaster(), SBSkills.TEST_SKILL.value(), BuffCategory.NEUTRAL, SpellEventListener.Events.JUMP, JUMP_EVENT, jumpEvent -> {
             Constants.LOG.info("Jumped");
-        });
+        }, 40);
+        addSkillBuff(context.getCaster(), SBSkills.TEST_SKILL.value(), BuffCategory.BENEFICIAL, SkillBuff.MOB_EFFECT, new MobEffectInstance(MobEffects.INVISIBILITY, -1, 0, false, false), -1);
+//        context.getSpellHandler().getListener().addListener(SpellEventListener.Events.JUMP, JUMP_EVENT, playerJumpEvent -> {
+//            Constants.LOG.info("Jumped");
+//        });
         if (!context.getLevel().isClientSide) {
             LivingShadow livingShadow = SBEntities.LIVING_SHADOW.get().create(context.getLevel());
             livingShadow.setData(SBData.OWNER_ID, context.getCaster().getId());
@@ -87,7 +88,7 @@ public class TestSpell extends ChanneledSpell {
     @Override
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
-        context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.JUMP, JUMP_EVENT);
+        removeSkillBuff(context.getCaster(), SBSkills.TEST_SKILL.value());
         context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.POST_DAMAGE, DAMAGE_EVENT);
     }
 }

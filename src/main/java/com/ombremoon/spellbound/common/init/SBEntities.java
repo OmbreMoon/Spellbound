@@ -56,7 +56,7 @@ public class SBEntities {
     }
 
     protected static <T extends Entity> Supplier<EntityType<T>> registerEntity(String name, EntityType.EntityFactory<T> factory, float width, float height) {
-        EntityType.Builder<T> builder = EntityType.Builder.of(factory, MobCategory.MISC).sized(width, height).clientTrackingRange(4);
+        EntityType.Builder<T> builder = EntityType.Builder.of(factory, MobCategory.MISC).sized(width, height).fireImmune().clientTrackingRange(4);
 
         return SBEntities.ENTITIES.register(name, () -> {
             return builder.build(name);

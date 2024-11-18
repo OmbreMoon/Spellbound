@@ -1,15 +1,18 @@
-package com.ombremoon.spellbound.common.magic.api;
+package com.ombremoon.spellbound.common.magic.api.buff;
 
 import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.events.*;
+import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.api.buff.events.*;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -17,7 +20,6 @@ import java.util.function.Consumer;
  */
 public class SpellEventListener {
     public final Map<IEvent<?>, List<EventInstance<? extends SpellEvent>>> events = new Object2ObjectOpenHashMap<>();
-    public final Map<EventInstance<? extends SpellEvent>, Integer> timedEvents = new Object2IntOpenHashMap<>();
     private final LivingEntity listener;
 
     public SpellEventListener(LivingEntity listener) {
@@ -53,22 +55,6 @@ public class SpellEventListener {
     }
 
     /**
-     * Adds an event listener to the player for a specified amount of time. Can be called anywhere.
-     * @param event The event
-     * @param location The event resource location
-     * @param consumer The action to take place when the event is fired
-     * @param expiryTicks The amount of ticks the listener should persist
-     * @param <T> The spell event class
-     */
-    public <T extends SpellEvent> void addListenerWithExpiry(IEvent<T> event, ResourceLocation location, Consumer<T> consumer, int expiryTicks) {
-        if (checkSide(event)) return;
-        var instance = new EventInstance<>(event, location, consumer);
-        var list = refreshListeners(event, instance);
-        this.events.put(event, list);
-        this.timedEvents.put(instance, expiryTicks);
-    }
-
-    /**
      * Removes an event listener from the player. If there are multiple event listeners with the same id, will remove the first listener in the list. Should be called from {@link AbstractSpell#onSpellStop(SpellContext)}.
      * @param event The event
      * @param location The event resource location
@@ -90,35 +76,11 @@ public class SpellEventListener {
         }
     }
 
-    /**
-     * Removes an event listener from the player. If there are multiple event listeners with the same id, will remove the first listener in the list.
-     * @param eventInstance The event instance
-     * @param <T> The spell event class
-     */
-    private <T extends SpellEvent> void removeListener(EventInstance<T> eventInstance) {
-        var event = eventInstance.event();
-        var location = eventInstance.location();
-        if (hasListener(event, location)) {
-            var instances = this.events.get(event);
-            instances.remove(eventInstance);
-            if (!instances.isEmpty()) {
-                this.events.replace(event, instances);
-            } else {
-                this.events.remove(event);
-            }
-        }
-    }
-
-    /**
-     * Ticks the duration of the timed event listeners
-     */
-    public void tickInstances() {
-        if (!this.timedEvents.isEmpty()) {
-            for (var entry : this.timedEvents.entrySet()) {
-                if (entry.getValue() <= this.listener.tickCount) {
-                    this.removeListener(entry.getKey());
-                    this.timedEvents.remove(entry.getKey());
-                }
+    public void removeListener(ResourceLocation location) {
+        for (var entry : this.events.entrySet()) {
+            if (this.hasListener(entry.getKey(), location)) {
+                this.removeListener(entry.getKey(), location);
+                break;
             }
         }
     }

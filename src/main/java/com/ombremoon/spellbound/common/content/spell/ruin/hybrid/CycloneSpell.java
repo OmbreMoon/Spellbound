@@ -1,13 +1,16 @@
 package com.ombremoon.spellbound.common.content.spell.ruin.hybrid;
 
+import com.ombremoon.spellbound.common.content.HailstormSavedData;
 import com.ombremoon.spellbound.common.content.entity.spell.Cyclone;
 import com.ombremoon.spellbound.common.init.SBDataTypes;
+import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -22,7 +25,7 @@ public class CycloneSpell extends AnimatedSpell {
 
     private static Builder<CycloneSpell> createCycloneBuilder() {
         return createSimpleSpellBuilder(CycloneSpell.class).duration(600).castCondition((context, cycloneSpell) -> {
-            BlockHitResult hitResult = cycloneSpell.getTargetBlock(20);
+            BlockHitResult hitResult = cycloneSpell.getTargetBlock(100);
             return hitResult.getType() != HitResult.Type.MISS && hitResult.getDirection() != Direction.DOWN;
         }).partialRecast().updateInterval(1);
     }
@@ -41,7 +44,7 @@ public class CycloneSpell extends AnimatedSpell {
         super.onSpellStart(context);
         Level level = context.getLevel();
         if (!level.isClientSide) {
-            BlockHitResult hitResult = this.getTargetBlock(20);
+            BlockHitResult hitResult = this.getTargetBlock(100);
             Vec3 vec3 = Vec3.atBottomCenterOf(hitResult.getBlockPos().above());
             Cyclone cyclone = new Cyclone(level, vec3.x, vec3.y, vec3.z);
             this.setCyclone(cyclone.getId());
@@ -49,6 +52,9 @@ public class CycloneSpell extends AnimatedSpell {
             cyclone.setSpellId(getId());
             cyclone.setPos(vec3);
             level.addFreshEntity(cyclone);
+
+            if (context.getSkills().hasSkill(SBSkills.HAILSTORM.value()))
+                ((HailstormSavedData)HailstormSavedData.get(level)).toggleHailing((ServerLevel) level, this.getDuration());
         }
     }
 

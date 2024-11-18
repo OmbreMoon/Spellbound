@@ -1,6 +1,9 @@
 package com.ombremoon.spellbound.common.content.spell.transfiguration;
 
 import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
+import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;
+import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.magic.SpellContext;
@@ -43,8 +46,13 @@ public class CobbledHideSpell extends AnimatedSpell {
         else if (skills.hasSkill(SBSkills.DIAMOND_HIDE.value())) modAmount = 1.3f;
         else if (skills.hasSkill(SBSkills.IRON_HIDE.value())) modAmount = 1.2f;
 
-        context.getSpellHandler().addTransientModifier(Attributes.ARMOR,
-                new AttributeModifier(hideMod, modAmount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), getDuration());
+        addSkillBuff(
+                context.getCaster(),
+                SBSkills.COBBLED_HIDE.value(),
+                BuffCategory.BENEFICIAL,
+                SkillBuff.ATTRIBUTE_MODIFIER,
+                new ModifierData(Attributes.ARMOR, new AttributeModifier(hideMod, modAmount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                getDuration());
 
         if (skills.hasSkill(SBSkills.INFECTIOUS.value())) {
             Predicate<LivingEntity> predicate;

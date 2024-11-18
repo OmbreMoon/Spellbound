@@ -1,6 +1,8 @@
 package com.ombremoon.spellbound.client.gui.radial;
 
 import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.api.RadialSpell;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -69,5 +71,16 @@ public class SpellRadialMenuItem extends RadialMenuItem {
     public void drawTooltips(DrawingContext context) {
         List<Component> list = List.of(this.getSpellType().createSpell().getName());
         context.guiGraphics.renderTooltip(context.fontRenderer, list, Optional.empty(), (int) context.x, (int) context.y);
+    }
+
+    @Override
+    public boolean onClick() {
+        AbstractSpell spell = this.spellType.createSpell();
+        if (spell instanceof RadialSpell radialSpell) {
+            //CHANGE TO JUST OPEN SKILL RADIAL MENU
+            radialSpell.onClick();
+            return true;
+        }
+        return super.onClick();
     }
 }

@@ -1,6 +1,8 @@
 package com.ombremoon.spellbound.networking.clientbound;
 
 import com.ombremoon.spellbound.client.gui.WorkbenchScreen;
+import com.ombremoon.spellbound.common.content.HailstormData;
+import com.ombremoon.spellbound.common.content.HailstormSavedData;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
@@ -95,6 +97,13 @@ public class ClientPayloadHandler {
             Entity entity = context.player().level().getEntity(payload.entityId());
             if (entity instanceof LivingEntity livingEntity)
                 handler.removeGlowEffect(livingEntity);
+        });
+    }
+
+    public static void handleChangeHailLevel(ChangeHailLevelPayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            HailstormData data = HailstormSavedData.get(context.player().level());
+            data.setHailLevel(payload.hailLevel());
         });
     }
 }

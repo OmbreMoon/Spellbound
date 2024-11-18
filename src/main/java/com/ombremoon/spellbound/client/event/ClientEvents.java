@@ -11,11 +11,13 @@ import com.ombremoon.spellbound.client.renderer.spell.*;
 import com.ombremoon.spellbound.client.renderer.entity.LivingShadowRenderer;
 import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
 import com.ombremoon.spellbound.client.shader.SBShaders;
+import com.ombremoon.spellbound.common.content.ClientHailstormData;
+import com.ombremoon.spellbound.common.content.HailstormSavedData;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.SBEffects;
 import com.ombremoon.spellbound.common.init.SBEntities;
-import com.ombremoon.spellbound.common.magic.api.SpellEventListener;
-import com.ombremoon.spellbound.common.magic.events.MouseInputEvent;
+import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
+import com.ombremoon.spellbound.common.magic.api.buff.events.MouseInputEvent;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
@@ -116,6 +118,20 @@ public class ClientEvents {
                 event.getInput().forwardImpulse = 0;
                 event.getInput().jumping = false;
             }
+        }
+
+        @SubscribeEvent
+        public static void onWeatherRender(RenderLevelStageEvent event) {
+            if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_WEATHER) {
+                ClientHailstormData data = (ClientHailstormData) HailstormSavedData.get(Minecraft.getInstance().level);
+                data.renderHailstorm(event);
+            }
+        }
+
+        @SubscribeEvent
+        public static void onComputeFogColor(ViewportEvent.ComputeFogColor event) {
+            ClientHailstormData data = (ClientHailstormData) HailstormSavedData.get(Minecraft.getInstance().level);
+            data.renderHailstormFog(event);
         }
 
         @SubscribeEvent

@@ -1,7 +1,6 @@
-package com.ombremoon.spellbound.common.magic.events;
+package com.ombremoon.spellbound.common.magic.api.buff.events;
 
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
 

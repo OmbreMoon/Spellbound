@@ -1,9 +1,10 @@
-package com.ombremoon.spellbound.common.magic.api;
+package com.ombremoon.spellbound.common.magic.api.buff;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.skills.ModifierSkill;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -14,7 +15,7 @@ import java.util.function.Predicate;
 
 /**
  * Used to modify certain attributes (specifically mana, duration, or potency) of a spell or category of spells. Spell modifiers must be registered in the *insert event here* and used as parameters for {@link ModifierSkill}s.
- * @see AbstractSpell#addTimedModifier(LivingEntity, SpellModifier, int)
+ * @see SkillBuff#SPELL_MODIFIER
  * @param id The resource location of the spell modifier
  * @param modifierType The type of attribute that modifier affects
  * @param spellPredicate The condition necessary for the modifier to take effect

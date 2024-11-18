@@ -1,9 +1,14 @@
 package com.ombremoon.spellbound.common.content.entity.spell;
 
 import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.common.content.HailstormData;
+import com.ombremoon.spellbound.common.content.HailstormSavedData;
 import com.ombremoon.spellbound.common.content.entity.SpellEntity;
 import com.ombremoon.spellbound.common.content.spell.ruin.hybrid.CycloneSpell;
 import com.ombremoon.spellbound.common.init.*;
+import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
+import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;
+import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
 import com.ombremoon.spellbound.util.SpellUtil;
 import com.ombremoon.spellbound.util.math.NoiseGenerator;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -15,6 +20,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -23,9 +29,12 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.util.RandomUtil;
 import org.jetbrains.annotations.Nullable;
@@ -37,13 +46,14 @@ import java.util.Map;
 
 public class Cyclone extends SpellEntity {
     private static final EntityDataAccessor<Integer> CYCLONE_STACK = SynchedEntityData.defineId(Cyclone.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> SPELL_ID = SynchedEntityData.defineId(Cyclone.class, EntityDataSerializers.INT);
     protected static final ResourceLocation FROSTFRONT = CommonClass.customLocation("frostfront");
     private final Map<Entity, Integer> catchDuration = new Object2IntOpenHashMap<>();
     private final Map<Entity, Integer> throwCooldown = new Object2IntOpenHashMap<>();
     private final List<Entity> caughtEntities = new ObjectArrayList<>();
     private final List<Entity>thrownEntities = new ObjectArrayList<>();
     private int growthTick;
+    private int debrisCounter;
+    private int debrisCooldown;
     private int lerpSteps;
     private double lerpX;
     private double lerpY;
@@ -70,7 +80,6 @@ public class Cyclone extends SpellEntity {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(CYCLONE_STACK, 1);
-        builder.define(SPELL_ID, -1);
     }
 
     @Override
@@ -131,14 +140,14 @@ public class Cyclone extends SpellEntity {
                 this.move(MoverType.SELF, this.getDeltaMovement());
             }
         } else {
-//            int seed = this.random.nextInt();
-//            int time = this.tickCount;
-//            int intensity = skills != null && skills.hasSkill(SBSkills.GALE_FORCE.value()) ? 2 : 1;
-//            double d0 = getNoise(seed, intensity, time);
-//            double d2 = getNoise(seed + 2, intensity, time);
-//            Vec3 vec3 = this.getDeltaMovement();
-//            this.setDeltaMovement(vec3.x + d0, vec3.y, vec3.z + d2);
-//            this.move(MoverType.SELF, this.getDeltaMovement());
+            int seed = this.random.nextInt();
+            int time = this.tickCount;
+            int intensity = skills != null && skills.hasSkill(SBSkills.GALE_FORCE.value()) ? 2 : 1;
+            double d0 = getNoise(seed, intensity, time);
+            double d2 = getNoise(seed + 2, intensity, time);
+            Vec3 vec3 = this.getDeltaMovement();
+            this.setDeltaMovement(vec3.x + d0, vec3.y, vec3.z + d2);
+            this.move(MoverType.SELF, this.getDeltaMovement());
         }
 
         this.checkInsideBlocks();
@@ -151,8 +160,8 @@ public class Cyclone extends SpellEntity {
                     this.checkCycloneCollision(spell);
 
                 if (skills.hasSkill(SBSkills.FALLING_DEBRIS.value())) {
-                    if (this.tickCount % 40 == 0 && !this.level().isClientSide)
-                        this.getFallingDebris((int) Math.floor(range));
+                    if (!this.level().isClientSide)
+                        this.createDebris((int) Math.floor(range));
                 }
 
                 List<Entity> caughtList = this.level().getEntities(this, this.getBoundingBox(), entity -> {
@@ -167,7 +176,7 @@ public class Cyclone extends SpellEntity {
                 });
                 if (!pullList.isEmpty()) {
                     for (Entity entity : pullList) {
-//                        if (!entity.is(owner)) {
+                        if (!entity.is(owner)) {
                             if (thrownEntities.contains(entity) && this.tickCount >= entity.getData(SBData.THROWN_TICK)) {
                                 caughtEntities.remove(entity);
                                 catchDuration.remove(entity);
@@ -189,11 +198,10 @@ public class Cyclone extends SpellEntity {
                                 if (entity instanceof LivingEntity livingEntity)
                                     livingEntity.knockback(strength, this.getX() - entity.getX(), this.getZ() - entity.getZ());
                             }
-//                        }
+                        }
                     }
                 }
 
-//                discard();
                 if (!caughtList.isEmpty() && skills.hasSkill(SBSkills.WHIRLING_TEMPEST.value())) {
                     for (Entity entity : caughtList) {
                         if (!this.caughtEntities.contains(entity) && Math.abs(entity.getY() - (this.getY() + this.getBbHeight())) < this.getBbHeight() / 2) {
@@ -216,8 +224,7 @@ public class Cyclone extends SpellEntity {
                             }
                         }
 
-//                        if (!entity.is(owner)) {
-
+                        if (!entity.is(owner)) {
                             float radius = this.getBbWidth() / 3;
                             float height = this.getStacks() > 1 ? this.getBbHeight() / 4 : this.getBbHeight() / 5;
                             if (!thrownEntities.contains(entity) && caughtEntities.contains(entity))
@@ -226,18 +233,31 @@ public class Cyclone extends SpellEntity {
                             if (entity.tickCount % 20 == 0 && entity instanceof LivingEntity livingEntity) {
                                 if (skills.hasSkill(SBSkills.FROSTFRONT.value())) {
                                     spell.hurt(livingEntity, SBDamageTypes.RUIN_FROST, 4.0F);
-                                    spell.addTimedAttributeModifier(livingEntity, Attributes.MOVEMENT_SPEED, new AttributeModifier(FROSTFRONT, 0.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), 200);
+                                    spell.addSkillBuff(
+                                            livingEntity,
+                                            SBSkills.PURSUIT.value(),
+                                            BuffCategory.HARMFUL,
+                                            SkillBuff.ATTRIBUTE_MODIFIER,
+                                            new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(FROSTFRONT, 0.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                                            200);
                                 }
 
                                 if (skills.hasSkill(SBSkills.STATIC_CHARGE.value()))
                                     spell.hurt(livingEntity, SBDamageTypes.RUIN_SHOCK, 4.0F);
                             }
-//                        }
+                        }
                     }
                 }
             } else {
                 if (!this.level().isClientSide)
                     discard();
+            }
+        }
+
+        if (this.debrisCooldown >= 0) {
+            if (this.debrisCooldown-- == 0) {
+                this.debrisCounter = 0;
+                this.debrisCooldown = -1;
             }
         }
     }
@@ -261,25 +281,53 @@ public class Cyclone extends SpellEntity {
         this.growthTick--;
     }
 
-    private void getFallingDebris(int range) {
-        for (int n = 0; n < this.level().random.nextInt(2, 4); n++) {
-            int i = Mth.floor(this.getX());
-            int j = Mth.floor(this.getY() - 1);
-            int k = Mth.floor(this.getZ());
+    private void createDebris(int range) {
+        if (this.tickCount % 40 == 0) {
+            for (int n = 0; n < this.level().random.nextInt(2, 4); n++) {
+                int i = Mth.floor(this.getX());
+                int j = Mth.floor(this.getY() - 1);
+                int k = Mth.floor(this.getZ());
 
-            for (int l = 0; l < 50; ++l) {
-                int i1 = i + Mth.nextInt(this.random, 0, range) * Mth.nextInt(this.random, -1, 1);
-                int j1 = j + Mth.nextInt(this.random, 0, range);
-                int k1 = k + Mth.nextInt(this.random, 0, range) * Mth.nextInt(this.random, -1, 1);
-                BlockPos blockpos = new BlockPos(i1, j1, k1);
-                BlockState state = this.level().getBlockState(blockpos);
-                if (!state.isEmpty() && state.getFluidState().isEmpty() && !state.is(Blocks.OBSIDIAN) && !state.is(Blocks.BEDROCK) && !this.level().isClientSide) {
-                    FallingBlockEntity entity = FallingBlockEntity.fall(this.level(), blockpos, state);
-                    entity.setHurtsEntities(1.0F, 20);
-                    break;
+                for (int l = 0; l < 50; ++l) {
+                    int i1 = i + Mth.nextInt(this.random, 0, range) * Mth.nextInt(this.random, -1, 1);
+                    int j1 = j + Mth.nextInt(this.random, 0, range);
+                    int k1 = k + Mth.nextInt(this.random, 0, range) * Mth.nextInt(this.random, -1, 1);
+                    BlockPos blockpos = new BlockPos(i1, j1, k1);
+                    BlockState state = this.level().getBlockState(blockpos);
+                    if (createDebris(state, blockpos))
+                        break;
                 }
             }
         }
+
+        int minX = (int) Math.floor(this.getBoundingBox().minX);
+        int maxX = (int) Math.floor(this.getBoundingBox().maxX);
+        int minY = (int) Math.floor(this.getBoundingBox().minY);
+        int maxY = (int) Math.floor(this.getBoundingBox().maxY);
+        int minZ = (int) Math.floor(this.getBoundingBox().minZ);
+        int maxZ = (int) Math.floor(this.getBoundingBox().maxZ);
+        for (int i = minX; i <= maxX; i++) {
+            for (int j = minY; j <= maxY; j++) {
+                for (int k = minZ; k <= maxZ; k++) {
+                    BlockPos blockPos = new BlockPos(i, j, k);
+                    BlockState state = this.level().getBlockState(blockPos);
+                    createDebris(state, blockPos);
+                }
+            }
+        }
+    }
+
+    private boolean createDebris(BlockState state, BlockPos blockpos) {
+        if (this.debrisCounter < 100 && !state.isEmpty() && state.getFluidState().isEmpty() && !state.is(Blocks.OBSIDIAN) && !state.is(Blocks.BEDROCK) && !this.level().isClientSide) {
+            FallingBlockEntity entity = FallingBlockEntity.fall(this.level(), blockpos, state);
+            entity.setHurtsEntities(1.0F, 20);
+            this.debrisCounter++;
+            if (this.debrisCounter >= 100)
+                this.debrisCooldown = 40;
+
+            return true;
+        }
+        return false;
     }
 
     public boolean hasGrown(){
@@ -369,14 +417,6 @@ public class Cyclone extends SpellEntity {
 
     public void incrementStacks(Cyclone cyclone) {
         this.entityData.set(CYCLONE_STACK, Math.min(getStacks() + cyclone.getStacks(), 6));
-    }
-
-    public int getSpellId(){
-        return this.entityData.get(SPELL_ID);
-    }
-
-    public void setSpellId(int id) {
-        this.entityData.set(SPELL_ID, id);
     }
 
     @Override

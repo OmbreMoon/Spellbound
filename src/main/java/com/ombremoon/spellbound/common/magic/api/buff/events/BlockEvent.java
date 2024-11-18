@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common.magic.events;
+package com.ombremoon.spellbound.common.magic.api.buff.events;
 
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
