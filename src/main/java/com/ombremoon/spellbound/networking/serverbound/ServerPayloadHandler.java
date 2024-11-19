@@ -26,7 +26,7 @@ public class ServerPayloadHandler {
     }
 
     public static void handleNetworkSetCastSpell(final SetCastingSpellPayload payload, final IPayloadContext context) {
-        var spellContext = new SpellContext(context.player(), payload.isRecast());
+        var spellContext = new SpellContext(payload.spellType(), context.player(), payload.isRecast());
         AbstractSpell spell = payload.spellType().createSpell();
         var handler = SpellUtil.getSpellHandler(context.player());
         spell.setCastContext(spellContext);
@@ -50,6 +50,11 @@ public class ServerPayloadHandler {
         var handler = SpellUtil.getSpellHandler(context.player());
         AbstractSpell spell = handler.getCurrentlyCastSpell();
         spell.onCastReset(spell.getCastContext());
+    }
+
+    public static void handleNetworkUpdateFlag(final UpdateFlagPayload payload, final IPayloadContext context) {
+        var handler = SpellUtil.getSpellHandler(context.player());
+        handler.setFlag(payload.spellType(), payload.flag());
     }
 
     public static void handleNetworkSetCastKey(final SetCastKeyPayload payload, final IPayloadContext context) {

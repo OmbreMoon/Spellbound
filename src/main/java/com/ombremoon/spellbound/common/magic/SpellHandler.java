@@ -2,31 +2,27 @@ package com.ombremoon.spellbound.common.magic;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
-import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
-import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;
-import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
-import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
-import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.init.SBAttributes;
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.init.SBSpells;
+import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
+import com.ombremoon.spellbound.common.magic.api.RadialSpell;
+import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
+import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
+import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -49,7 +45,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     protected Multimap<SpellType<?>, AbstractSpell> activeSpells = ArrayListMultimap.create();
     protected SpellType<?> selectedSpell;
     protected AbstractSpell currentlyCastingSpell;
-    private final Map<SpellType<?>, Integer> spellFlag = new Object2IntOpenHashMap<>();
+    private final Map<SpellType<?>, Integer> spellFlags = new Object2IntOpenHashMap<>();
     private final Map<SkillBuff<?>, Integer> skillBuffs = new Object2IntOpenHashMap<>();
     private final Set<Integer> glowEntities = new IntOpenHashSet();
     public int castTick;
@@ -141,12 +137,12 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         double currentFP = caster.getData(SBData.MANA);
         if (this.caster instanceof Player player && player.getAbilities().instabuild) {
             return true;
-        } else if (currentFP < amount) {
+        } else if (currentFP < amount && !forceConsume) {
             return false;
         } else {
             if (forceConsume) {
                 double fpCost = currentFP - amount;
-                caster.setData(SBData.MANA, fpCost);
+                caster.setData(SBData.MANA, Math.max(fpCost, 0));
             }
             return true;
         }
@@ -199,6 +195,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         var locations = spellType.getSkills().stream().map(Skill::location).collect(Collectors.toSet());
         this.spellSet.remove(spellType);
         this.equippedSpellSet.remove(spellType);
+        this.spellFlags.remove(spellType);
         this.upgradeTree.remove(locations);
         if (this.caster instanceof Player player) {
             this.upgradeTree.update(player, locations);
@@ -215,6 +212,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.skillHolder.clearModifiers();
         this.spellSet.clear();
         this.equippedSpellSet.clear();
+        this.spellFlags.clear();
         this.selectedSpell = null;
         if (this.caster instanceof Player player) {
             this.upgradeTree.clear(player);
@@ -353,6 +351,10 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.skillBuffs.remove(skillBuff);
     }
 
+    public Set<SkillBuff<?>> getBuffs() {
+        return this.skillBuffs.keySet();
+    }
+
     public Optional<SkillBuff<?>> getSkillBuff(Skill skill) {
         return this.skillBuffs.keySet().stream().filter(skillBuff -> skillBuff.is(skill)).findAny();
     }
@@ -364,6 +366,16 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
                     this.removeSkillBuff(entry.getKey());
             }
         }
+    }
+
+    public int getFlag(SpellType<?> spellType) {
+        return this.spellFlags.getOrDefault(spellType, 0);
+    }
+
+    public void setFlag(SpellType<?> spellType, int flag) {
+        this.spellFlags.put(spellType, flag);
+        if (this.caster.level().isClientSide)
+            PayloadHandler.updateFlag(spellType, flag);
     }
 
     /**

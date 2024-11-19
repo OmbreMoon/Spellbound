@@ -65,12 +65,13 @@ public class ElectricChargeSpell extends AnimatedSpell {
         LivingEntity caster = context.getCaster();
         var handler = context.getSpellHandler();
         var skills = context.getSkills();
+        boolean hasShard = context.hasCatalyst(SBItems.STORM_SHARD.get());
         if (skills.hasSkill(SBSkills.AMPLIFY.value())) return;
         if (context.getTarget() == null || this.discharged) {
             for (Integer entityId : this.entityIds) {
                 Entity entity = level.getEntity(entityId);
                 if (entity instanceof LivingEntity livingEntity) {
-                    discharge(caster, level, livingEntity, handler, skills);
+                    discharge(caster, level, livingEntity, handler, skills, hasShard);
                 }
             }
             endSpell();
@@ -84,6 +85,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
         Level level = context.getLevel();
         var handler = context.getSpellHandler();
         var skills = context.getSkills();
+        boolean hasShard = context.hasCatalyst(SBItems.STORM_SHARD.get());
         log(this.ticks);
         if (skills.hasSkill(SBSkills.AMPLIFY.value())) {
             if ((context.isRecast() && context.getTarget() == null) || this.discharged) {
@@ -94,7 +96,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
                     for (Integer entityId : this.entityIds) {
                         Entity entity = level.getEntity(entityId);
                         if (entity instanceof LivingEntity livingEntity) {
-                            discharge(caster, level, livingEntity, handler, skills);
+                            discharge(caster, level, livingEntity, handler, skills, hasShard);
                         }
                     }
                     endSpell();
@@ -103,7 +105,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
         }
     }
 
-    private void discharge(LivingEntity caster, Level level, LivingEntity target, SpellHandler handler, SkillHolder skills) {
+    private void discharge(LivingEntity caster, Level level, LivingEntity target, SpellHandler handler, SkillHolder skills, boolean hasShard) {
         if (!level.isClientSide) {
             float damage = 10;
             if (skills.hasSkill(SBSkills.OSCILLATION.value())) {
@@ -139,36 +141,39 @@ public class ElectricChargeSpell extends AnimatedSpell {
                 }
             }
 
-            if (skills.hasSkill(SBSkills.ELECTRIFICATION.value())) {
-                target.setData(SBData.STORMSTRIKE_OWNER, caster.getId());
-                target.addEffect(new MobEffectInstance(SBEffects.STORMSTRIKE, 120, 0, false, false));
-            }
-
-            if (skills.hasSkill(SBSkills.HIGH_VOLTAGE.value()) && caster.getOffhandItem().is(SBItems.STORM_SHARD.get())) {
-                MobEffectInstance mobEffectInstance = new MobEffectInstance(SBEffects.STUNNED, 60, 0, false, false);
-                target.addEffect(mobEffectInstance);
-                for (LivingEntity paralysisTarget : entities) {
-                    if (!isCaster(paralysisTarget))
-                        paralysisTarget.addEffect(mobEffectInstance);
+            if (!checkForCounterMagic(target)) {
+                if (skills.hasSkill(SBSkills.ELECTRIFICATION.value())) {
+                    target.setData(SBData.STORMSTRIKE_OWNER, caster.getId());
+                    target.addEffect(new MobEffectInstance(SBEffects.STORMSTRIKE, 120, 0, false, false));
                 }
-                caster.getOffhandItem().shrink(1);
-                addCooldown(SBSkills.HIGH_VOLTAGE.value(), 600);
-            }
 
-            if (skills.hasSkill(SBSkills.ALTERNATING_CURRENT.value())) {
-                if (RandomUtil.percentChance(potency(0.03F)) && target.getHealth() < caster.getHealth() * 2) {
-                    target.kill();
-                    if (stormSurgeFlag && caster instanceof Player player) player.addItem(new ItemStack(SBItems.STORM_SHARD.get()));
-                } else {
-                    hurt(caster, SBDamageTypes.RUIN_SHOCK, caster.getMaxHealth() * 0.05F);
+                if (skills.hasSkill(SBSkills.HIGH_VOLTAGE.value()) && hasShard) {
+                    MobEffectInstance mobEffectInstance = new MobEffectInstance(SBEffects.STUNNED, 60, 0, false, false);
+                    target.addEffect(mobEffectInstance);
+                    for (LivingEntity paralysisTarget : entities) {
+                        if (!isCaster(paralysisTarget))
+                            paralysisTarget.addEffect(mobEffectInstance);
+                    }
+                    caster.getOffhandItem().shrink(1);
+                    addCooldown(SBSkills.HIGH_VOLTAGE.value(), 600);
                 }
-            }
 
-            if (skills.hasSkill(SBSkills.CHAIN_REACTION.value())) {
-                for (LivingEntity livingEntity : entities) {
-                    if (!isCaster(livingEntity) && !this.entityIds.contains(livingEntity.getId())) {
-                        this.entityIds.add(livingEntity.getId());
-                        discharge(caster, level, livingEntity, handler, skills);
+                if (skills.hasSkill(SBSkills.ALTERNATING_CURRENT.value())) {
+                    if (RandomUtil.percentChance(potency(0.03F)) && target.getHealth() < caster.getHealth() * 2) {
+                        target.kill();
+                        if (stormSurgeFlag && caster instanceof Player player)
+                            player.addItem(new ItemStack(SBItems.STORM_SHARD.get()));
+                    } else {
+                        hurt(caster, SBDamageTypes.RUIN_SHOCK, caster.getMaxHealth() * 0.05F);
+                    }
+                }
+
+                if (skills.hasSkill(SBSkills.CHAIN_REACTION.value())) {
+                    for (LivingEntity livingEntity : entities) {
+                        if (!isCaster(livingEntity) && !this.entityIds.contains(livingEntity.getId())) {
+                            this.entityIds.add(livingEntity.getId());
+                            discharge(caster, level, livingEntity, handler, skills, hasShard);
+                        }
                     }
                 }
             }

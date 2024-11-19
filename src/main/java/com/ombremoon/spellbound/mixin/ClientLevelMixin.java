@@ -1,18 +1,14 @@
 package com.ombremoon.spellbound.mixin;
 
-import com.ombremoon.spellbound.common.content.ClientHailstormData;
-import com.ombremoon.spellbound.common.content.HailstormSavedData;
+import com.ombremoon.spellbound.common.content.world.ClientHailstormData;
+import com.ombremoon.spellbound.common.content.world.HailstormSavedData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.BlockPos;
 import net.minecraft.util.CubicSampler;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;

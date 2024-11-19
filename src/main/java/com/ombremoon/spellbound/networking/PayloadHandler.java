@@ -54,6 +54,10 @@ public class PayloadHandler {
         PacketDistributor.sendToServer(new CastResetPayload(spellType, recast));
     }
 
+    public static void updateFlag(SpellType<?> spellType, int flag) {
+        PacketDistributor.sendToServer(new UpdateFlagPayload(spellType, flag));
+    }
+
     public static void setCastKey(boolean isDown) {
         PacketDistributor.sendToServer(new SetCastKeyPayload(isDown));
     }
@@ -160,6 +164,11 @@ public class PayloadHandler {
                 CastResetPayload.TYPE,
                 CastResetPayload.STREAM_CODEC,
                 ServerPayloadHandler::handleNetworkCastReset
+        );
+        registrar.playToServer(
+                UpdateFlagPayload.TYPE,
+                UpdateFlagPayload.STREAM_CODEC,
+                ServerPayloadHandler::handleNetworkUpdateFlag
         );
         registrar.playToServer(
                 SetCastKeyPayload.TYPE,

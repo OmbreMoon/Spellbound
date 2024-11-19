@@ -1,7 +1,10 @@
 package com.ombremoon.spellbound.common.content.entity;
 
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -11,6 +14,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -18,6 +22,8 @@ import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public abstract class SpellProjectile extends Projectile implements GeoEntity {
+    private static final EntityDataAccessor<Integer> SPELL_ID = SynchedEntityData.defineId(SpellProjectile.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(SpellProjectile.class, EntityDataSerializers.INT);
     protected static final String CONTROLLER = "controller";
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private AbstractSpell spell;
@@ -74,7 +80,33 @@ public abstract class SpellProjectile extends Projectile implements GeoEntity {
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(SPELL_ID, -1);
+        builder.define(OWNER_ID, 0);
+    }
 
+    public int getSpellId(){
+        return this.entityData.get(SPELL_ID);
+    }
+
+    public void setSpellId(int id) {
+        this.entityData.set(SPELL_ID, id);
+    }
+
+    protected boolean isOwner(LivingEntity entity) {
+        return getOwner() != null && getOwner().is(entity);
+    }
+
+    public void setOwner(LivingEntity livingEntity) {
+        this.entityData.set(OWNER_ID, livingEntity.getId());
+    }
+
+    @Override
+    public @Nullable Entity getOwner() {
+        return this.level().getEntity(this.entityData.get(OWNER_ID));
+    }
+
+    public boolean hasOwner() {
+        return getOwner() != null;
     }
 
     @Override

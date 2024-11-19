@@ -5,11 +5,13 @@ import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 public class SpellContext {
+    private final SpellType<?> spellType;
     private final LivingEntity caster;
     private final Level level;
     private final BlockPos blockPos;
@@ -20,19 +22,20 @@ public class SpellContext {
     private final SkillHolder skillHolder;
     private final boolean isRecast;
 
-    public SpellContext(LivingEntity caster, boolean isRecast) {
-        this(caster, caster.level(), caster.getOnPos(), caster.getOffhandItem(), null, isRecast);
+    public SpellContext(SpellType<?> spellType, LivingEntity caster, boolean isRecast) {
+        this(spellType, caster, caster.level(), caster.getOnPos(), caster.getOffhandItem(), null, isRecast);
     }
 
-    public SpellContext(LivingEntity caster, LivingEntity target, boolean isRecast) {
-        this(caster, caster.level(), caster.getOnPos(), caster.getOffhandItem(), target, isRecast);
+    public SpellContext(SpellType<?> spellType, LivingEntity caster, LivingEntity target, boolean isRecast) {
+        this(spellType, caster, caster.level(), caster.getOnPos(), caster.getOffhandItem(), target, isRecast);
     }
 
-    public SpellContext(LivingEntity caster, Level level, BlockPos blockPos, LivingEntity target, boolean isRecast) {
-        this(caster, level, blockPos, caster.getOffhandItem(), target, isRecast);
+    public SpellContext(SpellType<?> spellType, LivingEntity caster, Level level, BlockPos blockPos, LivingEntity target, boolean isRecast) {
+        this(spellType, caster, level, blockPos, caster.getOffhandItem(), target, isRecast);
     }
 
-    public SpellContext(LivingEntity caster, Level level, BlockPos blockPos, ItemStack itemStack, LivingEntity target, boolean isRecast) {
+    public SpellContext(SpellType<?> spellType, LivingEntity caster, Level level, BlockPos blockPos, ItemStack itemStack, LivingEntity target, boolean isRecast) {
+        this.spellType = spellType;
         this.caster = caster;
         this.level = level;
         this.blockPos = blockPos;
@@ -79,7 +82,15 @@ public class SpellContext {
         return this.caster.getYRot();
     }
 
-    public boolean hasActiveSpells(SpellType<?> spell, int amount) {
-        return this.spellHandler.getActiveSpells(spell).size() >= amount;
+    public boolean hasCatalyst(Item catalyst) {
+        return this.caster.isHolding(catalyst);
+    }
+
+    public boolean hasActiveSpells(int amount) {
+        return this.spellHandler.getActiveSpells(this.spellType).size() >= amount;
+    }
+
+    public int getFlag() {
+        return this.spellHandler.getFlag(this.spellType);
     }
 }

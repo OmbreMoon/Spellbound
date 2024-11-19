@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.common.init;
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.content.spell.TestSpell;
+import com.ombremoon.spellbound.common.content.spell.deception.PurgeMagicSpell;
 import com.ombremoon.spellbound.common.content.spell.deception.ShadowbondSpell;
 import com.ombremoon.spellbound.common.content.spell.divine.HealingTouchSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
@@ -91,6 +92,10 @@ public class SBSpells {
             .skills(SBSkills.SHADOWBOND, SBSkills.EVERLASTING_BOND, SBSkills.SHADOW_STEP, SBSkills.SNEAK_ATTACK,
                     SBSkills.SILENT_EXCHANGE, SBSkills.SNARE, SBSkills.DISORIENTED,
                     SBSkills.OBSERVANT, SBSkills.LIVING_SHADOW, SBSkills.REVERSAL, SBSkills.SHADOW_CHAIN));
+    public static final Supplier<SpellType<PurgeMagicSpell>> PURGE_MAGIC = registerSpell("purge_magic", deceptionBuilder("purge_magic", PurgeMagicSpell::new)
+            .skills(SBSkills.PURGE_MAGIC, SBSkills.COUNTER_MAGIC, SBSkills.RADIO_WAVES, SBSkills.DOMINANT_MAGIC,
+                    SBSkills.CLEANSE, SBSkills.AVERSION, SBSkills.RESIDUAL_DISRUPTION, SBSkills.UNFOCUSED,
+                    SBSkills.MAGIC_POISONING, SBSkills.NULLIFICATION, SBSkills.EXPUNGE));
 
     private static <T extends AbstractSpell> Supplier<SpellType<T>> registerSpell(String name, SpellType.Builder<T> builder) {
         return SPELL_TYPES.register(name, builder::build);

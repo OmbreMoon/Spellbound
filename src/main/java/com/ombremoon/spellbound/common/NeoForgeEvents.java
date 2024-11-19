@@ -6,9 +6,11 @@ import com.ombremoon.sentinellib.common.event.RegisterPlayerSentinelBoxEvent;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.commands.LearnSkillsCommand;
 import com.ombremoon.spellbound.common.commands.LearnSpellCommand;
-import com.ombremoon.spellbound.common.content.HailstormData;
-import com.ombremoon.spellbound.common.content.HailstormSavedData;
+import com.ombremoon.spellbound.common.content.entity.spell.Hail;
+import com.ombremoon.spellbound.common.content.world.HailstormData;
+import com.ombremoon.spellbound.common.content.world.HailstormSavedData;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
+import com.ombremoon.spellbound.common.init.SBEntities;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.SBAttributes;
 import com.ombremoon.spellbound.common.init.SBData;
@@ -190,13 +192,23 @@ public class NeoForgeEvents {
                         boolean flag = data.isHailing();
                         int i = chunkpos.getMinBlockX();
                         int j = chunkpos.getMinBlockZ();
-                        if (flag && level.random.nextInt(100) == 0) {
-                            BlockPos blockpos = savedData.findLightningTargetAround(serverLevel, level.getBlockRandomPos(i, 0, j, 15));
-                            if (savedData.isHailingAt(level, blockpos) && savedData.chunkHasCyclone(serverLevel, blockpos)) {
-                                LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(level);
-                                if (lightningbolt != null) {
-                                    lightningbolt.moveTo(Vec3.atBottomCenterOf(blockpos));
-                                    level.addFreshEntity(lightningbolt);
+                        BlockPos blockpos = savedData.findLightningTargetAround(serverLevel, level.getBlockRandomPos(i, 0, j, 15));
+                        if (flag) {
+                            if (level.random.nextInt(100) == 0) {
+                                if (savedData.isHailingAt(level, blockpos) && savedData.chunkHasCyclone(serverLevel, blockpos)) {
+                                    LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(level);
+                                    if (lightningbolt != null) {
+                                        lightningbolt.moveTo(Vec3.atBottomCenterOf(blockpos));
+                                        level.addFreshEntity(lightningbolt);
+                                    }
+                                }
+                            } else if (level.random.nextInt(1000) == 0) {
+                                if (savedData.isHailingAt(level, blockpos)) {
+                                    Hail hail = SBEntities.HAIL.get().create(level);
+                                    if (hail != null) {
+                                        hail.moveTo(Vec3.atBottomCenterOf(blockpos.atY(level.getMaxBuildHeight())/*offset(0, 10, 0)*/));
+                                        level.addFreshEntity(hail);
+                                    }
                                 }
                             }
                         }

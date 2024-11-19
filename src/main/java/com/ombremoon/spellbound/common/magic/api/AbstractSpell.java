@@ -8,10 +8,7 @@ import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
 import com.ombremoon.spellbound.client.renderer.layer.SpellLayerModel;
 import com.ombremoon.spellbound.client.renderer.layer.SpellLayerRenderer;
-import com.ombremoon.spellbound.common.init.SBDataTypes;
-import com.ombremoon.spellbound.common.init.SBSpells;
-import com.ombremoon.spellbound.common.init.SBStats;
-import com.ombremoon.spellbound.common.init.SBTags;
+import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
@@ -68,6 +65,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * The main class used to create spells. Spells exist on both the client and server and must be handled as such. In general, spells should extend {@link AnimatedSpell} unless you don't want the player to have an animation while casting the spell.
@@ -99,7 +97,6 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     private SpellContext castContext;
     private boolean isRecast;
     public int ticks = 0;
-    private float castChance = 1.0F;
     public boolean isInactive = false;
     public boolean init = false;
     private int castId = 0;
@@ -169,7 +166,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     public float getCastChance() {
-        return this.castChance * getModifier(ModifierType.CAST_CHANCE);
+        return getModifier(ModifierType.CAST_CHANCE);
     }
 
     /**
@@ -384,7 +381,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     /**
      * Ends the spell. Can be called to end the spell early.
      */
-    public void endSpell() {
+    public final void endSpell() {
         this.onSpellStop(this.context);
         this.init = false;
         this.isInactive = true;
@@ -511,9 +508,11 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param <T> The buff
      */
     public <T> void addSkillBuff(LivingEntity livingEntity, Skill skill, BuffCategory buffCategory, SkillBuff.BuffObject<T> buffObject, T skillObject, int duration) {
-        SkillBuff<T> skillBuff = new SkillBuff<>(skill, buffCategory, buffObject, skillObject);
-        var handler = SpellUtil.getSpellHandler(livingEntity);
-        handler.addSkillBuff(skillBuff, duration);
+        if (!checkForCounterMagic(livingEntity) && buffCategory == BuffCategory.HARMFUL) {
+            SkillBuff<T> skillBuff = new SkillBuff<>(skill, buffCategory, buffObject, skillObject);
+            var handler = SpellUtil.getSpellHandler(livingEntity);
+            handler.addSkillBuff(skillBuff, duration);
+        }
     }
     public <T> void addSkillBuff(LivingEntity livingEntity, Skill skill, BuffCategory buffCategory, SkillBuff.BuffObject<T> buffObject, T skillObject) {
         this.addSkillBuff(livingEntity, skill, buffCategory, buffObject, skillObject, -1);
@@ -544,6 +543,12 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
     public void removeSkillBuff(LivingEntity livingEntity, Skill skill) {
         removeSkillBuff(livingEntity, skill, 1);
+    }
+
+    public void removeSkillBuffs(LivingEntity livingEntity, Skill skill) {
+        var handler = SpellUtil.getSpellHandler(livingEntity);
+        var buffs = handler.getBuffs().stream().filter(skillBuff -> skillBuff.is(skill)).collect(Collectors.toSet());
+        this.removeSkillBuff(livingEntity, skill, buffs.size());
     }
 
     public void removeSkillBuff(LivingEntity livingEntity, Skill skill, int iterations) {
@@ -606,20 +611,6 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         return livingEntity.getAttribute(attribute).hasModifier(modifier);
     }
 
-    /*
-     * Adds an attribute modifier to a living entity for a specified amount of time.
-     * @param livingEntity The entity to receive the attribute modifier
-     * @param attribute The modified attribute
-     * @param modifier The attribute modifier
-     * @param ticks The amount of ticks the attribute modifier lasts
-     */
-
-    /*
-     * Adds a given attribute modifier to a chosen attribute on the caster.
-     * @param attribute The attribute to apply a modifier to
-     * @param modifier the AttributeModifier to apply
-     */
-
     /**
      * Checks whether the entity is the caster of this spell.
      * @param livingEntity The living entity
@@ -648,7 +639,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     public boolean checkForCounterMagic(LivingEntity targetEntity) {
-        return false;/*SpellUtil.getSpellHandler(targetEntity).hasActiveSpell() && SpellUtil.getSkillHolder(targetEntity).hasSkill() && targetEntity.getData();*/
+        return targetEntity.hasEffect(SBEffects.COUNTER_MAGIC);
     }
 
     /**
@@ -843,7 +834,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         var handler = SpellUtil.getSpellHandler(caster);
         var list = handler.getActiveSpells(getSpellType());
         if (!list.isEmpty()) this.isRecast = true;
-        this.context = new SpellContext(this.caster, this.level, this.blockPos, livingEntity, this.isRecast);
+        this.context = new SpellContext(this.getSpellType(), this.caster, this.level, this.blockPos, livingEntity, this.isRecast);
 
         if (forceReset) {
             onCastReset(this.context);
@@ -853,6 +844,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         boolean incrementId = true;
         if (this.isRecast) {
             AbstractSpell prevSpell = null;
+
+            //TODO: FIXXXXIIXIXIXIXIXIXIX
             if (this.partialRecast) {
                 prevSpell = this.getPreviouslyCastSpell();
             } else if (this.fullRecast) {

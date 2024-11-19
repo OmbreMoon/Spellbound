@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common.content;
+package com.ombremoon.spellbound.common.content.world;
 
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.content.entity.spell.Cyclone;
@@ -20,7 +20,6 @@ import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraft.world.phys.AABB;
 
 import java.util.List;
-import java.util.Optional;
 
 public class HailstormSavedData extends SavedData implements HailstormData, Loggable {
     private static ClientHailstormData clientData;

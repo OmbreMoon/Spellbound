@@ -55,7 +55,7 @@ public class MysticArmorSpell extends AnimatedSpell {
                     if (skills.hasSkill(SBSkills.COMBAT_PERCEPTION.value()) && isPhysicalDamage(pre.getSource()) && RandomUtil.percentChance(0.1))
                         pre.setNewDamage(0);
 
-                    if (skills.hasSkillReady(SBSkills.SOUL_RECHARGE.value()) && caster.isHolding(SBItems.SOUL_SHARD.get()) && caster.getHealth() - pre.getNewDamage() < caster.getMaxHealth() * 0.1F) {
+                    if (skills.hasSkillReady(SBSkills.SOUL_RECHARGE.value()) && context.hasCatalyst(SBItems.SOUL_SHARD.get()) && caster.getHealth() - pre.getNewDamage() < caster.getMaxHealth() * 0.1F) {
                         pre.setNewDamage(0);
                         caster.setHealth(caster.getMaxHealth());
                         var items = caster.getHandSlots();
@@ -139,7 +139,7 @@ public class MysticArmorSpell extends AnimatedSpell {
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
         LivingEntity caster = context.getCaster();
-        removeSkillBuff(caster, SBSkills.MYSTIC_ARMOR.value(), 2);
+        removeSkillBuffs(caster, SBSkills.MYSTIC_ARMOR.value());
         removeSkillBuff(caster, SBSkills.ARCANE_VENGEANCE.value());
         removeSkillBuff(caster, SBSkills.PURSUIT.value());
         removeSkillBuff(caster, SBSkills.CRYSTALLINE_ARMOR.value());

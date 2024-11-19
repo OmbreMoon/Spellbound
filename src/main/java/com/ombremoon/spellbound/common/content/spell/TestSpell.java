@@ -33,14 +33,14 @@ public class TestSpell extends ChanneledSpell {
         super.onSpellStart(context);
         addEventBuff(context.getCaster(), SBSkills.TEST_SKILL.value(), BuffCategory.NEUTRAL, SpellEventListener.Events.JUMP, JUMP_EVENT, jumpEvent -> {
             Constants.LOG.info("Jumped");
-        }, 40);
+        });
         addSkillBuff(context.getCaster(), SBSkills.TEST_SKILL.value(), BuffCategory.BENEFICIAL, SkillBuff.MOB_EFFECT, new MobEffectInstance(MobEffects.INVISIBILITY, -1, 0, false, false), -1);
 //        context.getSpellHandler().getListener().addListener(SpellEventListener.Events.JUMP, JUMP_EVENT, playerJumpEvent -> {
 //            Constants.LOG.info("Jumped");
 //        });
         if (!context.getLevel().isClientSide) {
             LivingShadow livingShadow = SBEntities.LIVING_SHADOW.get().create(context.getLevel());
-            livingShadow.setData(SBData.OWNER_ID, context.getCaster().getId());
+            livingShadow.setOwner(context.getCaster());
             livingShadow.setPos(context.getCaster().position());
             context.getLevel().addFreshEntity(livingShadow);
             hurt(context.getCaster(), SBDamageTypes.SB_GENERIC, 2.0F);
@@ -88,7 +88,7 @@ public class TestSpell extends ChanneledSpell {
     @Override
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
-        removeSkillBuff(context.getCaster(), SBSkills.TEST_SKILL.value());
+        removeSkillBuff(context.getCaster(), SBSkills.TEST_SKILL.value(), 2);
         context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.POST_DAMAGE, DAMAGE_EVENT);
     }
 }

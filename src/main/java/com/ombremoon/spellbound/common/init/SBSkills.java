@@ -4,6 +4,7 @@ import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
 import com.ombremoon.spellbound.common.magic.skills.ModifierSkill;
+import com.ombremoon.spellbound.common.magic.skills.RadialSkill;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import net.minecraft.core.Holder;
@@ -183,6 +184,19 @@ public class SBSkills {
     public static Holder<Skill> REVERSAL = registerSkill("reversal", 0, 150, preReqs(OBSERVANT));
     public static Holder<Skill> SHADOW_CHAIN = registerSkill("shadow_chain", 50, 150, preReqs(OBSERVANT));
 
+    //Purge Magic
+    public static Holder<Skill> PURGE_MAGIC = registerRadialSkill("purge_magic");
+    public static Holder<Skill> COUNTER_MAGIC = registerRadialSkill("counter_magic", -50, 50, preReqs(PURGE_MAGIC), 1);
+    public static Holder<Skill> CLEANSE = registerSkill("cleanse", -50, 100, preReqs(COUNTER_MAGIC));
+    public static Holder<Skill> AVERSION = registerSkill("aversion", -50, 150, preReqs(CLEANSE));
+    public static Holder<Skill> RADIO_WAVES = registerSkill("radio_waves", 0, 50, preReqs(PURGE_MAGIC));
+    public static Holder<Skill> DOMINANT_MAGIC = registerSkill("dominant_magic", 50, 50, preReqs(PURGE_MAGIC));
+    public static Holder<Skill> RESIDUAL_DISRUPTION = registerSkill("residual_disruption", 25, 100, preReqs(DOMINANT_MAGIC));
+    public static Holder<Skill> UNFOCUSED = registerSkill("unfocused", 25, 150, preReqs(RESIDUAL_DISRUPTION));
+    public static Holder<Skill> MAGIC_POISONING = registerSkill("magic_poisoning", 75, 100, preReqs(DOMINANT_MAGIC));
+    public static Holder<Skill> NULLIFICATION = registerSkill("nullification", 75, 150, preReqs(MAGIC_POISONING));
+    public static Holder<Skill> EXPUNGE = registerSkill("expunge", 0, 200, preReqs(AVERSION, UNFOCUSED, NULLIFICATION));
+
     //Totem Spirit
     //TODO: Tree
     public static Holder<Skill> CONJURE_SPIRIT_TOTEM = registerSkill("conjure_cat_totem");
@@ -200,9 +214,19 @@ public class SBSkills {
     private static Holder<Skill> registerSkill(String name) {
         return SKILLS.register(name, () -> new Skill(CommonClass.customLocation(name)));
     }
+
     private static Holder<Skill> registerSkill(String name, int xPos, int yPos, HolderSet<Skill> prereqs) {
         return SKILLS.register(name, () -> new Skill(CommonClass.customLocation(name), xPos, yPos, prereqs));
     }
+
+    private static Holder<Skill> registerRadialSkill(String name) {
+        return SKILLS.register(name, () -> new RadialSkill(CommonClass.customLocation(name), 0));
+    }
+
+    private static Holder<Skill> registerRadialSkill(String name, int xPos, int yPos, HolderSet<Skill> prereqs, int skillFlag) {
+        return SKILLS.register(name, () -> new RadialSkill(CommonClass.customLocation(name), xPos, yPos, prereqs, skillFlag));
+    }
+
     private static Holder<Skill> registerConditionalSkill(String name, int xPos, int yPos, HolderSet<Skill> prereqs, BiPredicate<Player, SkillHolder> skillCondition) {
         return SKILLS.register(name, () -> new Skill(CommonClass.customLocation(name), xPos, yPos, prereqs) {
             @Override
@@ -211,6 +235,7 @@ public class SBSkills {
             }
         });
     }
+
     private static Holder<Skill> registerModifierSkill(String name, int xPos, int yPos, HolderSet<Skill> prereqs, SpellModifier... spellModifiers) {
         return SKILLS.register(name, () -> new ModifierSkill(CommonClass.customLocation(name), xPos, yPos, prereqs, spellModifiers));
     }

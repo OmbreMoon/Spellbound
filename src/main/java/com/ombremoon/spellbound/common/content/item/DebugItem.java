@@ -1,9 +1,6 @@
 package com.ombremoon.spellbound.common.content.item;
 
-import com.ombremoon.spellbound.Spellbound;
-import com.ombremoon.spellbound.client.ClientStuff;
-import com.ombremoon.spellbound.client.shader.SBShaders;
-import com.ombremoon.spellbound.common.content.HailstormSavedData;
+import com.ombremoon.spellbound.common.content.world.HailstormSavedData;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.SBSpells;
@@ -13,12 +10,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 
 public class DebugItem extends Item implements Loggable {
     public DebugItem(Properties properties) {
@@ -46,12 +41,12 @@ public class DebugItem extends Item implements Loggable {
     }
 
     private void ombreDebug(Level level, Player player, InteractionHand usedHand, SpellHandler spellHandler, SkillHolder skillHolder) {
-        spellHandler.setSelectedSpell(SBSpells.TEST_SPELL.get());
+//        spellHandler.setSelectedSpell(SBSpells.TEST_SPELL.get());
         if (!level.isClientSide) {
 //            spellHandler.removeSpell(SBSpells.VOLCANO.get());
 //            log(spellHandler.equippedSpellSet);
 //            spellHandler.setSelectedSpell(SBSpells.TEST_SPELL.get());
-//            ((HailstormSavedData)HailstormSavedData.get(level)).toggleHailing((ServerLevel) level, 600);
+            ((HailstormSavedData)HailstormSavedData.get(level)).toggleHailing((ServerLevel) level, 600);
         } else {
 //            log(ClientStuff.getInstance().getExamples().exampleBufferSource());
 //            Minecraft.getInstance().setScreen(new SpellSelectScreen());

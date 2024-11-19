@@ -46,7 +46,7 @@ public class ShadowbondSpell extends AnimatedSpell {
                     return true;
                 }
             }
-            return !context.isRecast() && context.getTarget() != null;
+            return !context.isRecast() && context.getTarget() != null && !spell.checkForCounterMagic(context.getTarget());
         }).duration(300).fullRecast();
     }
 
@@ -93,7 +93,12 @@ public class ShadowbondSpell extends AnimatedSpell {
                 for (Integer entityId : this.targetList) {
                     Entity entity = level.getEntity(entityId);
                     if (entity instanceof LivingEntity living)
-                        living.addEffect(mobEffectInstance);
+                        addSkillBuff(
+                                living,
+                                SBSkills.SHADOWBOND.value(),
+                                BuffCategory.HARMFUL,
+                                SkillBuff.MOB_EFFECT,
+                                mobEffectInstance);
                 }
             }
         }
@@ -127,7 +132,7 @@ public class ShadowbondSpell extends AnimatedSpell {
         if (!level.isClientSide) {
             for (Integer entityId : this.targetList) {
                 Entity entity = level.getEntity(entityId);
-                if (entity == null)
+                if (entity == null || (entity instanceof LivingEntity living && checkForCounterMagic(living)))
                     this.targetList.remove(entityId);
             }
 
@@ -194,9 +199,7 @@ public class ShadowbondSpell extends AnimatedSpell {
                     BuffCategory.BENEFICIAL,
                     SpellEventListener.Events.ATTACK,
                     SNEAK_ATTACK,
-                    pre -> {
-                        removeSkillBuff(caster, SBSkills.SNEAK_ATTACK.value(), 2);
-                        },
+                    pre -> removeSkillBuff(caster, SBSkills.SNEAK_ATTACK.value(), 2),
                     100);
         }
 
@@ -204,7 +207,7 @@ public class ShadowbondSpell extends AnimatedSpell {
         for (Integer entityId : this.targetList) {
             Entity effectEntity = level.getEntity(entityId);
             if (effectEntity instanceof LivingEntity living) {
-                living.removeEffect(MobEffects.INVISIBILITY);
+                removeSkillBuff(living, SBSkills.SHADOWBOND.value());
                 if (skills.hasSkill(SBSkills.SILENT_EXCHANGE.value()))
                     living.addEffect(new MobEffectInstance(SBEffects.SILENCED, 100, 0, false, true));
 

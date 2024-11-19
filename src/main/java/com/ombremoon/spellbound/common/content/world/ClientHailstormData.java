@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common.content;
+package com.ombremoon.spellbound.common.content.world;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
@@ -81,7 +81,7 @@ public class ClientHailstormData implements HailstormData {
             RenderSystem.enableDepthTest();
             int l = 5;
             if (Minecraft.useFancyGraphics())
-                l = 10;
+                l = 7;
 
             RenderSystem.depthMask(Minecraft.useShaderTransparency());
             int i1 = -1;

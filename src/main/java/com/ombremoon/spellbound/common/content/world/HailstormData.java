@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common.content;
+package com.ombremoon.spellbound.common.content.world;
 
 public interface HailstormData {
 

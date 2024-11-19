@@ -32,6 +32,7 @@ public class SBItems {
     public static final Supplier<Item> FROZEN_SHARD = registerSimpleItem("frozen_shard");
     public static final Supplier<Item> STORM_SHARD = registerSimpleItem("storm_shard");
     public static final Supplier<Item> HOLY_SHARD = registerSimpleItem("holy_shard");
+    public static final Supplier<Item> FOOL_SHARD = registerSimpleItem("fool_shard");
 
     public static final Supplier<Item> SPELL_TOME = ITEMS.register("spell_tome", () -> new SpellTomeItem(getItemProperties()));
     public static final Supplier<Item> MANA_TEAR = registerItem("mana_tear", () -> new ManaTearItem(getItemProperties()));

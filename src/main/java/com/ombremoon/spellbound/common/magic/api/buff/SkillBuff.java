@@ -55,8 +55,16 @@ public class SkillBuff<T> {
             this.buffObject.removeObject().accept(livingEntity, this.object);
     }
 
+    public Skill getSkill() {
+        return this.skill;
+    }
+
     public BuffCategory category() {
         return this.category;
+    }
+
+    public BuffObject<T> getBuffObject() {
+        return this.buffObject;
     }
 
     public boolean is(Skill skill) {

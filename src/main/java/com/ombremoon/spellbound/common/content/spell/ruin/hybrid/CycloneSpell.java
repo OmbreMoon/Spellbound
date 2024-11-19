@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.content.spell.ruin.hybrid;
 
-import com.ombremoon.spellbound.common.content.HailstormSavedData;
+import com.ombremoon.spellbound.common.content.world.HailstormSavedData;
 import com.ombremoon.spellbound.common.content.entity.spell.Cyclone;
 import com.ombremoon.spellbound.common.init.SBDataTypes;
 import com.ombremoon.spellbound.common.init.SBSkills;
@@ -67,7 +67,6 @@ public class CycloneSpell extends AnimatedSpell {
             if (!level.isClientSide)
                 endSpell();
         }
-//        log(context.getSpellHandler().getActiveSpells());
     }
 
     @Override

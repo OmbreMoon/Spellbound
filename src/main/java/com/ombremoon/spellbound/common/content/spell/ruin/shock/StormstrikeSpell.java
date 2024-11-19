@@ -24,6 +24,7 @@ public class StormstrikeSpell extends AnimatedSpell {
         Level level = context.getLevel();
         if (!level.isClientSide) {
             StormstrikeBolt bolt = new StormstrikeBolt(context.getLevel(), context.getCaster(), this);
+            bolt.setSpellId(this.getId());
             bolt.shootFromRotation(caster, caster.getXRot(), caster.getYRot(), 0.0F, 2.5F, 1.0F);
             level.addFreshEntity(bolt);
         }

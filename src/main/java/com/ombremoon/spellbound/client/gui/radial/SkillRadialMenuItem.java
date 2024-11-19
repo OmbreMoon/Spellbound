@@ -1,8 +1,8 @@
 package com.ombremoon.spellbound.client.gui.radial;
 
 import com.ombremoon.spellbound.common.magic.SpellType;
-import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
-import com.ombremoon.spellbound.common.magic.api.RadialSpell;
+import com.ombremoon.spellbound.common.magic.skills.RadialSkill;
+import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -39,27 +39,33 @@ import java.util.Optional;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-public class SpellRadialMenuItem extends RadialMenuItem {
+public class SkillRadialMenuItem extends RadialMenuItem {
     private final SpellType<?> spellType;
+    private final RadialSkill skill;
 
-    public SpellRadialMenuItem(RadialMenu owner, SpellType<?> spellType) {
+    public SkillRadialMenuItem(RadialMenu owner, SpellType<?> spellType, RadialSkill skill) {
         super(owner);
         this.spellType = spellType;
+        this.skill = skill;
     }
 
     public SpellType<?> getSpellType() {
         return this.spellType;
     }
 
+    public RadialSkill getSkill() {
+        return this.skill;
+    }
+
     @Override
     public boolean isSelected() {
         var handler = SpellUtil.getSpellHandler(this.owner.getScreen().getMinecraft().player);
-        return handler.getSelectedSpell() == this.spellType;
+        return handler.getFlag(this.spellType) == this.skill.getSkillFlag();
     }
 
     @Override
     public void draw(DrawingContext context) {
-        ResourceLocation sprite = this.getSpellType().createSpell().getTexture();
+        ResourceLocation sprite = this.skill.getTexture();
         float x = context.x - 12;
         float y = context.y - 12;
         context.guiGraphics.setColor(1.0F, 1.0F, 1.0F, 0.5F);
@@ -69,7 +75,7 @@ public class SpellRadialMenuItem extends RadialMenuItem {
 
     @Override
     public void drawTooltips(DrawingContext context) {
-        List<Component> list = List.of(this.getSpellType().createSpell().getName());
+        List<Component> list = List.of(this.skill.getName());
         context.guiGraphics.renderTooltip(context.fontRenderer, list, Optional.empty(), (int) context.x, (int) context.y);
     }
 }

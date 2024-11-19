@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.content.entity.spell;
 
 import com.ombremoon.sentinellib.api.BoxUtil;
 import com.ombremoon.spellbound.common.content.entity.SpellProjectile;
+import com.ombremoon.spellbound.common.content.spell.ruin.shock.StormstrikeSpell;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.ModifierType;
@@ -71,14 +72,14 @@ public class StormstrikeBolt extends SpellProjectile {
     }
 
     private void hurtSurroundingEnemies(Entity owner, int range, boolean inWater) {
+        StormstrikeSpell spell = SBSpells.STORMSTRIKE.get().createSpell();
         if (!owner.level().isClientSide) {
             var entities = this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(range), EntitySelector.NO_CREATIVE_OR_SPECTATOR);
             for (Entity entity : entities) {
-                if (entity instanceof LivingEntity target && !target.is(owner) && !target.isAlliedTo(owner)) {
-                    AbstractSpell spell = SBSpells.STORMSTRIKE.get().createSpell();
+                if (entity instanceof LivingEntity target && !target.is(owner) && !target.isAlliedTo(owner) && !spell.checkForCounterMagic(target)) {
                     float damage = 5F;
                     if (owner instanceof LivingEntity livingEntity) {
-                        damage = spell.getModifier(ModifierType.POTENCY, livingEntity) * 5;
+                        damage *= spell.getModifier(ModifierType.POTENCY, livingEntity);
 
                         if (inWater && target.isInWaterOrBubble()) {
                             target.setData(SBData.STORMSTRIKE_OWNER.get(), livingEntity.getId());

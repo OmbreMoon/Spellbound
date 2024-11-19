@@ -64,7 +64,7 @@ public class SpellCastEvents {
         if (spell != null) {
             spellContext = spell.getCastContext();
         } else {
-            spellContext = new SpellContext(player, isRecast);
+            spellContext = new SpellContext(spellType, player, isRecast);
             spell = spellType.createSpell();
             spell.setCastContext(spellContext);
             handler.setCurrentlyCastingSpell(spell);

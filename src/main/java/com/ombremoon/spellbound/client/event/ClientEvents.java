@@ -6,13 +6,14 @@ import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.gui.CastModeOverlay;
 import com.ombremoon.spellbound.client.gui.SpellSelectScreen;
 import com.ombremoon.spellbound.client.renderer.entity.CycloneRenderer;
+import com.ombremoon.spellbound.client.renderer.entity.HailRenderer;
 import com.ombremoon.spellbound.client.renderer.entity.ShadowGateRenderer;
 import com.ombremoon.spellbound.client.renderer.spell.*;
 import com.ombremoon.spellbound.client.renderer.entity.LivingShadowRenderer;
 import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
 import com.ombremoon.spellbound.client.shader.SBShaders;
-import com.ombremoon.spellbound.common.content.ClientHailstormData;
-import com.ombremoon.spellbound.common.content.HailstormSavedData;
+import com.ombremoon.spellbound.common.content.world.ClientHailstormData;
+import com.ombremoon.spellbound.common.content.world.HailstormSavedData;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.SBEffects;
 import com.ombremoon.spellbound.common.init.SBEntities;
@@ -49,6 +50,7 @@ public class ClientEvents {
             event.registerEntityRenderer(SBEntities.SOLAR_RAY.get(), EmissiveOutlineSpellRenderer::new);
             event.registerEntityRenderer(SBEntities.STORMSTRIKE_BOLT.get(), EmissiveSpellProjectileRenderer::new);
             event.registerEntityRenderer(SBEntities.CYCLONE.get(), CycloneRenderer::new);
+            event.registerEntityRenderer(SBEntities.HAIL.get(), HailRenderer::new);
             event.registerEntityRenderer(SBEntities.LIVING_SHADOW.get(), LivingShadowRenderer::new);
         }
 
