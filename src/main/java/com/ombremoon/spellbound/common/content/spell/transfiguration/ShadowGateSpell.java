@@ -39,27 +39,30 @@ import java.util.Map;
 
 public class ShadowGateSpell extends AnimatedSpell {
     private static Builder<ShadowGateSpell> createShadowGateBuilder() {
-        return createSimpleSpellBuilder(ShadowGateSpell.class).manaCost(30).castTime(20).duration(1200).castCondition((context, spell) -> {
-            var skills = context.getSkills();
-            int activePortals = spell.portalInfo.size();
-            boolean hasReach = skills.hasSkill(SBSkills.REACH.value());
-            BlockHitResult hitResult = spell.getTargetBlock(hasReach ? 100 : 50);
-            if (hitResult.getType() == HitResult.Type.MISS || hitResult.getDirection() == Direction.DOWN) return false;
+        return createSimpleSpellBuilder(ShadowGateSpell.class)
+                .manaCost(30).castTime(20)
+                .duration(context -> 1200)
+                .castCondition((context, spell) -> {
+                    var skills = context.getSkills();
+                    int activePortals = spell.portalInfo.size();
+                    boolean hasReach = skills.hasSkill(SBSkills.REACH.value());
+                    BlockHitResult hitResult = spell.getTargetBlock(hasReach ? 100 : 50);
+                    if (hitResult.getType() == HitResult.Type.MISS || hitResult.getDirection() == Direction.DOWN) return false;
 
-            BlockPos blockPos = hitResult.getBlockPos().above();
-            if (!context.getLevel().getBlockState(blockPos).isAir()) return false;
-            if (activePortals > 1) {
-                int portalRange = hasReach ? 10000 : 2500;
-                PortalInfo info = spell.portalInfo.get(spell.getPreviousGate());
-                spell.log(info.id);
-                double distance = info.position().distanceToSqr(blockPos.getCenter());
-                if (distance > portalRange) return false;
-            }
+                    BlockPos blockPos = hitResult.getBlockPos().above();
+                    if (!context.getLevel().getBlockState(blockPos).isAir()) return false;
+                    if (activePortals > 1) {
+                        int portalRange = hasReach ? 10000 : 2500;
+                        PortalInfo info = spell.portalInfo.get(spell.getPreviousGate());
+                        spell.log(info.id);
+                        double distance = info.position().distanceToSqr(blockPos.getCenter());
+                        if (distance > portalRange) return false;
+                    }
 
-            if (skills.hasSkill(SBSkills.DARKNESS_PREVAILS.value())) return true;
-            int i = context.getLevel().getRawBrightness(blockPos, 0) + context.getLevel().getBrightness(LightLayer.BLOCK, blockPos) - context.getLevel().getSkyDarken();
-            return i <= 4;
-        }).fullRecast().skipEndOnRecast();
+                    if (skills.hasSkill(SBSkills.DARKNESS_PREVAILS.value())) return true;
+                    int i = context.getLevel().getRawBrightness(blockPos, 0) + context.getLevel().getBrightness(LightLayer.BLOCK, blockPos) - context.getLevel().getSkyDarken();
+                    return i <= 4;
+                }).fullRecast().skipEndOnRecast();
     }
     private static final ResourceLocation UNWANTED_GUESTS = CommonClass.customLocation("unwanted_guests");
 

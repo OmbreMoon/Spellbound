@@ -34,20 +34,21 @@ public class ShadowbondSpell extends AnimatedSpell {
     private static final ResourceLocation DISORIENTED = CommonClass.customLocation("disoriented");
     private static final SpellDataKey<Boolean> EARLY_END = SyncedSpellData.registerDataKey(ShadowbondSpell.class, SBDataTypes.BOOLEAN.get());
     public static Builder<ShadowbondSpell> createShadowbondBuilder() {
-        return createSimpleSpellBuilder(ShadowbondSpell.class).castCondition((context, spell) -> {
-            if (context.isRecast()) {
-                if (spell.canReverse) {
-                    return true;
-                } else if (context.getSkills().hasSkill(SBSkills.SHADOW_CHAIN.value()) && context.getTarget() != null && context.getTarget().getId() != spell.firstTarget) {
-                    return spell.secondTarget == 0;
-                } else if (!spell.isEarlyEnd() && !spell.canReverse) {
-                    spell.spellData.set(EARLY_END, true);
-//                    spell.earlyEnd = true;
-                    return true;
-                }
-            }
-            return !context.isRecast() && context.getTarget() != null && !spell.checkForCounterMagic(context.getTarget());
-        }).duration(300).fullRecast();
+        return createSimpleSpellBuilder(ShadowbondSpell.class)
+                .duration(context -> 300)
+                .castCondition((context, spell) -> {
+                    if (context.isRecast()) {
+                        if (spell.canReverse) {
+                            return true;
+                        } else if (context.getSkills().hasSkill(SBSkills.SHADOW_CHAIN.value()) && context.getTarget() != null && context.getTarget().getId() != spell.firstTarget) {
+                            return spell.secondTarget == 0;
+                        } else if (!spell.isEarlyEnd() && !spell.canReverse) {
+                            spell.spellData.set(EARLY_END, true);
+                            return true;
+                        }
+                    }
+                    return !context.isRecast() && context.getTarget() instanceof LivingEntity target && !spell.checkForCounterMagic(target);
+                }).fullRecast();
     }
 
     private int firstTarget;
@@ -70,10 +71,10 @@ public class ShadowbondSpell extends AnimatedSpell {
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
         Level level = context.getLevel();
-        LivingEntity livingEntity = context.getTarget();
+        Entity target = context.getTarget();
         var skills = context.getSkills();
-        if (livingEntity == null) return;
-        int id = livingEntity.getId();
+        if (target == null) return;
+        int id = target.getId();
         boolean flag = skills.hasSkill(SBSkills.SHADOW_CHAIN.value());
 
         if (id > 0) {

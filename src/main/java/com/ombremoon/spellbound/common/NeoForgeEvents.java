@@ -194,19 +194,19 @@ public class NeoForgeEvents {
                         int j = chunkpos.getMinBlockZ();
                         BlockPos blockpos = savedData.findLightningTargetAround(serverLevel, level.getBlockRandomPos(i, 0, j, 15));
                         if (flag) {
-                            if (level.random.nextInt(100) == 0) {
-                                if (savedData.isHailingAt(level, blockpos) && savedData.chunkHasCyclone(serverLevel, blockpos)) {
+                            if (savedData.isHailingAt(level, blockpos) && savedData.chunkHasCyclone(serverLevel, blockpos)) {
+                                if (level.random.nextInt(100) == 0) {
                                     LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(level);
                                     if (lightningbolt != null) {
                                         lightningbolt.moveTo(Vec3.atBottomCenterOf(blockpos));
                                         level.addFreshEntity(lightningbolt);
                                     }
                                 }
-                            } else if (level.random.nextInt(1000) == 0) {
-                                if (savedData.isHailingAt(level, blockpos)) {
+
+                                if (level.random.nextInt(100) == 0) {
                                     Hail hail = SBEntities.HAIL.get().create(level);
                                     if (hail != null) {
-                                        hail.moveTo(Vec3.atBottomCenterOf(blockpos.atY(level.getMaxBuildHeight())/*offset(0, 10, 0)*/));
+                                        hail.moveTo(Vec3.atBottomCenterOf(blockpos.atY(level.getMaxBuildHeight())));
                                         level.addFreshEntity(hail);
                                     }
                                 }

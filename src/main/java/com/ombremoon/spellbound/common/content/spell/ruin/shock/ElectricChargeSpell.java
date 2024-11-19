@@ -24,16 +24,19 @@ import java.util.Set;
 public class ElectricChargeSpell extends AnimatedSpell {
     private static final SpellDataKey<Integer> DISCHARGE_TICK = SyncedSpellData.registerDataKey(ElectricChargeSpell.class, SBDataTypes.INT.get());
     public static Builder<ElectricChargeSpell> createElectricChargeBuilder() {
-        return createSimpleSpellBuilder(ElectricChargeSpell.class).duration(200).castType(CastType.CHARGING).castCondition((context, spell) -> {
-            Entity entity = context.getTarget();
-            if (spell.discharging) return false;
-            if (entity != null) {
-                return !spell.entityIds.contains(entity.getId());
-            } else {
-                if (spell.entityIds.size() >= 3) spell.discharged = true;
-                return context.isRecast();
-            }
-        }).fullRecast().updateInterval(1);
+        return createSimpleSpellBuilder(ElectricChargeSpell.class)
+                .duration(context -> 200)
+                .castType(CastType.CHARGING)
+                .castCondition((context, spell) -> {
+                    Entity entity = context.getTarget();
+                    if (spell.discharging) return false;
+                    if (entity != null) {
+                        return !spell.entityIds.contains(entity.getId());
+                    } else {
+                        if (spell.entityIds.size() >= 3) spell.discharged = true;
+                        return context.isRecast();
+                    }
+                }).fullRecast().updateInterval(1);
     }
 
     private Set<Integer> entityIds = new IntOpenHashSet();
@@ -53,9 +56,9 @@ public class ElectricChargeSpell extends AnimatedSpell {
     @Override
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
-        LivingEntity livingEntity = context.getTarget();
-        if (livingEntity != null && this.entityIds.size() < 3)
-            this.entityIds.add(livingEntity.getId());
+        Entity target = context.getTarget();
+        if (target != null && this.entityIds.size() < 3)
+            this.entityIds.add(target.getId());
     }
 
     @Override

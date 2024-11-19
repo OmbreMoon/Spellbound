@@ -91,7 +91,7 @@ public class SolarRaySpell extends ChanneledSpell {
     private final Map<LivingEntity, Integer> heatTracker = new Object2IntOpenHashMap<>();
 
     public static Builder<SolarRaySpell> createSolarRayBuilder() {
-        return createChannelledSpellBuilder(SolarRaySpell.class).castTime(18).castAnimation("solar_ray1");
+        return createChannelledSpellBuilder(SolarRaySpell.class).castTime(18).castAnimation(context -> "solar_ray1");
     }
 
     public SolarRaySpell() {
@@ -126,7 +126,7 @@ public class SolarRaySpell extends ChanneledSpell {
         super.whenCasting(context, castTime);
         LivingEntity caster = context.getCaster();
         var handler = context.getSpellHandler();
-        handler.setStationaryTicks(2);
+        handler.setStationaryTicks(1);
 
         SolarRay solarRay = getSolarRay(context);
         if (solarRay != null) {

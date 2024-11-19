@@ -24,10 +24,12 @@ public class CycloneSpell extends AnimatedSpell {
     protected static final SpellDataKey<Integer> CYCLONE = SyncedSpellData.registerDataKey(CycloneSpell.class, SBDataTypes.INT.get());
 
     private static Builder<CycloneSpell> createCycloneBuilder() {
-        return createSimpleSpellBuilder(CycloneSpell.class).duration(600).castCondition((context, cycloneSpell) -> {
-            BlockHitResult hitResult = cycloneSpell.getTargetBlock(100);
-            return hitResult.getType() != HitResult.Type.MISS && hitResult.getDirection() != Direction.DOWN;
-        }).partialRecast().updateInterval(1);
+        return createSimpleSpellBuilder(CycloneSpell.class)
+                .duration(context -> 600)
+                .castCondition((context, cycloneSpell) -> {
+                    BlockHitResult hitResult = cycloneSpell.getTargetBlock(100);
+                    return hitResult.getType() != HitResult.Type.MISS && hitResult.getDirection() != Direction.DOWN;
+                }).updateInterval(1);
     }
 
     public CycloneSpell() {

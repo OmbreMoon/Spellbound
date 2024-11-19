@@ -36,7 +36,9 @@ public class WildMushroomSpell extends SummonSpell {
     private int explosionInterval;
 
     public static Builder<WildMushroomSpell> createMushroomBuilder() {
-        return createSummonBuilder(WildMushroomSpell.class).duration(180).manaCost(20).partialRecast();
+        return createSummonBuilder(WildMushroomSpell.class)
+                .duration(context -> 180)
+                .manaCost(20);
     }
 
     public WildMushroomSpell() {

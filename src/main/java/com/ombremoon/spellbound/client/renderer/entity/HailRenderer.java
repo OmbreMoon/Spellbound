@@ -16,10 +16,12 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class HailRenderer extends GeoEntityRenderer<Hail> {
     public HailRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new HailModel());
+        addRenderLayer(new AutoGlowingGeoLayer<>(this));
     }
 
     @Override

@@ -11,7 +11,9 @@ import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 public class SpiritTotemSpell extends SummonSpell {
 
     public static Builder<SpiritTotemSpell> createSpiritTotemBuilder() {
-        return createSummonBuilder(SpiritTotemSpell.class).manaCost(50).duration(600);
+        return createSummonBuilder(SpiritTotemSpell.class)
+                .manaCost(50)
+                .duration(context -> 600);
     }
 
     public SpiritTotemSpell() {

@@ -40,6 +40,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -65,6 +66,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -77,13 +79,12 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     protected static final SpellDataKey<BlockPos> CAST_POS = SyncedSpellData.registerDataKey(AbstractSpell.class, SBDataTypes.BLOCK_POS.get());
     private final SpellType<?> spellType;
     private final int manaCost;
-    private final int duration;
+    private final Function<SpellContext, Integer> duration;
     private final int castTime;
     private final BiPredicate<SpellContext, AbstractSpell> castPredicate;
     private final CastType castType;
     private final SoundEvent castSound;
     private final boolean fullRecast;
-    private final boolean partialRecast;
     private final boolean skipEndOnRecast;
     private final boolean hasLayer;
     private final int updateInterval;
@@ -126,7 +127,6 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         this.castType = builder.castType;
         this.castSound = builder.castSound;
         this.fullRecast = builder.fullRecast;
-        this.partialRecast = builder.partialRecast;
         this.skipEndOnRecast = builder.skipEndOnRecast;
         this.hasLayer = builder.hasLayer;
         this.updateInterval = builder.updateInterval;
@@ -162,7 +162,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @return The spell duration
      */
     public int getDuration() {
-        return (int) Math.floor(this.duration * getModifier(ModifierType.DURATION));
+        return (int) Math.floor(this.duration.apply(this.context) * getModifier(ModifierType.DURATION));
     }
 
     public float getCastChance() {
@@ -718,11 +718,11 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         return this.level.clip(setupRayTraceContext(this.caster, range, ClipContext.Fluid.NONE));
     }
 
-    protected @Nullable LivingEntity getTargetEntity(double range) {
+    protected @Nullable Entity getTargetEntity(double range) {
         return getTargetEntity(this.caster, range);
     }
 
-    public @Nullable LivingEntity getTargetEntity(LivingEntity livingEntity, double range) {
+    public @Nullable Entity getTargetEntity(LivingEntity livingEntity, double range) {
         return getTargetEntity(livingEntity, livingEntity.getEyePosition(1.0F), range);
     }
 
@@ -733,7 +733,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param range The maximum range of the ray cast
      * @return An entity
      */
-    private @Nullable LivingEntity getTargetEntity(LivingEntity livingEntity, Vec3 startPosition, double range) {
+    private @Nullable Entity getTargetEntity(LivingEntity livingEntity, Vec3 startPosition, double range) {
         Vec3 lookVec = livingEntity.getViewVector(1.0F);
         Vec3 maxLength = startPosition.add(lookVec.x * range, lookVec.y * range, lookVec.z * range);
         AABB aabb = livingEntity.getBoundingBox().expandTowards(lookVec.scale(range)).inflate(2.0);
@@ -744,17 +744,14 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         if (hitResult == null)
             return null;
 
-
-        if (hitResult.getEntity() instanceof LivingEntity targetEntity) {
-
-            if (!blockHitResult.getType().equals(BlockHitResult.Type.MISS)) {
-                double blockDistance = blockHitResult.getLocation().distanceTo(startPosition);
-                if (blockDistance > targetEntity.distanceTo(livingEntity)) {
-                    return targetEntity;
-                }
-            } else {
+        Entity targetEntity = hitResult.getEntity();
+        if (!blockHitResult.getType().equals(BlockHitResult.Type.MISS)) {
+            double blockDistance = blockHitResult.getLocation().distanceTo(startPosition);
+            if (blockDistance > targetEntity.distanceTo(livingEntity)) {
                 return targetEntity;
             }
+        } else {
+            return targetEntity;
         }
         return null;
     }
@@ -824,9 +821,9 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param caster The casting living entity
      * @param level The current level
      * @param blockPos The block position the caster is in when the cast timer ends
-     * @param livingEntity The target entity of the caster
+     * @param target The target entity of the caster
      */
-    public void initSpell(LivingEntity caster, Level level, BlockPos blockPos, @Nullable LivingEntity livingEntity, boolean forceReset) {
+    public void initSpell(LivingEntity caster, Level level, BlockPos blockPos, @Nullable Entity target, boolean forceReset) {
         this.level = level;
         this.caster = caster;
         this.blockPos = blockPos;
@@ -834,7 +831,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         var handler = SpellUtil.getSpellHandler(caster);
         var list = handler.getActiveSpells(getSpellType());
         if (!list.isEmpty()) this.isRecast = true;
-        this.context = new SpellContext(this.getSpellType(), this.caster, this.level, this.blockPos, livingEntity, this.isRecast);
+        this.context = new SpellContext(this.getSpellType(), this.caster, this.level, this.blockPos, target, this.isRecast);
 
         if (forceReset) {
             onCastReset(this.context);
@@ -843,13 +840,12 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
         boolean incrementId = true;
         if (this.isRecast) {
-            AbstractSpell prevSpell = null;
+            AbstractSpell prevSpell;
 
-            //TODO: FIXXXXIIXIXIXIXIXIXIX
-            if (this.partialRecast) {
-                prevSpell = this.getPreviouslyCastSpell();
-            } else if (this.fullRecast) {
+            if (this.fullRecast) {
                 prevSpell = handler.getActiveSpells(getSpellType()).stream().findFirst().orElse(null);
+            } else {
+                prevSpell = this.getPreviouslyCastSpell();
             }
 
             if (prevSpell != null) {
@@ -945,13 +941,12 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param <T> Type extends AbstractSpell to give access to private fields in a static context
      */
     public static class Builder<T extends AbstractSpell> {
-        protected int duration = 10;
+        protected Function<SpellContext, Integer> duration = context -> 10;
         protected int manaCost;
         protected int castTime = 1;
         protected BiPredicate<SpellContext, T> castPredicate = (context, abstractSpell) -> true;
         protected CastType castType = CastType.INSTANT;
         protected SoundEvent castSound;
-        protected boolean partialRecast;
         protected boolean fullRecast;
         protected boolean skipEndOnRecast;
         protected boolean hasLayer;
@@ -972,7 +967,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
          * @param duration The duration
          * @return The spell builder
          */
-        public Builder<T> duration(int duration) {
+        public Builder<T> duration(Function<SpellContext, Integer> duration) {
             this.duration = duration;
             return this;
         }
@@ -1028,22 +1023,11 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         }
 
         /**
-         * Allows the spell to add on to the active spell list. Will save data on recast.
-         * @return The spell builder
-         */
-        public Builder<T> partialRecast() {
-            this.partialRecast = true;
-            this.fullRecast = false;
-            return this;
-        }
-
-        /**
          * Allows the spell to replace the previously cast spell of the same type in the active spell list. Will save data on recast.
          * @return The spell builder
          */
         public Builder<T> fullRecast() {
             this.fullRecast = true;
-            this.partialRecast = false;
             return this;
         }
 

@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.common.magic;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -17,7 +18,7 @@ public class SpellContext {
     private final BlockPos blockPos;
     private final ItemStack itemStack;
     @Nullable
-    private final LivingEntity target;
+    private final Entity target;
     private final SpellHandler spellHandler;
     private final SkillHolder skillHolder;
     private final boolean isRecast;
@@ -26,15 +27,15 @@ public class SpellContext {
         this(spellType, caster, caster.level(), caster.getOnPos(), caster.getOffhandItem(), null, isRecast);
     }
 
-    public SpellContext(SpellType<?> spellType, LivingEntity caster, LivingEntity target, boolean isRecast) {
+    public SpellContext(SpellType<?> spellType, LivingEntity caster, Entity target, boolean isRecast) {
         this(spellType, caster, caster.level(), caster.getOnPos(), caster.getOffhandItem(), target, isRecast);
     }
 
-    public SpellContext(SpellType<?> spellType, LivingEntity caster, Level level, BlockPos blockPos, LivingEntity target, boolean isRecast) {
+    public SpellContext(SpellType<?> spellType, LivingEntity caster, Level level, BlockPos blockPos, Entity target, boolean isRecast) {
         this(spellType, caster, level, blockPos, caster.getOffhandItem(), target, isRecast);
     }
 
-    public SpellContext(SpellType<?> spellType, LivingEntity caster, Level level, BlockPos blockPos, ItemStack itemStack, LivingEntity target, boolean isRecast) {
+    public SpellContext(SpellType<?> spellType, LivingEntity caster, Level level, BlockPos blockPos, ItemStack itemStack, Entity target, boolean isRecast) {
         this.spellType = spellType;
         this.caster = caster;
         this.level = level;
@@ -74,7 +75,7 @@ public class SpellContext {
         return this.itemStack;
     }
 
-    public @Nullable LivingEntity getTarget() {
+    public @Nullable Entity getTarget() {
         return this.target;
     }
 

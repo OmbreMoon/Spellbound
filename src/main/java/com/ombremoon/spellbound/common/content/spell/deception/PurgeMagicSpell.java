@@ -25,11 +25,17 @@ import java.util.List;
 
 public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
     private static Builder<PurgeMagicSpell> createPurgeMagicBuilder() {
-        return createSimpleSpellBuilder(PurgeMagicSpell.class).castCondition((context, purgeMagicSpell) -> {
-            if (context.getFlag() == 0)
-                return context.getTarget() != null;
-            return true;
-        }).fullRecast();
+        return createSimpleSpellBuilder(PurgeMagicSpell.class)
+                .duration(context -> {
+                    int flag = context.getFlag();
+                    if (flag == 1) return 200;
+                    return 10;
+                })
+                .castCondition((context, purgeMagicSpell) -> {
+                    if (context.getFlag() == 0)
+                        return context.getTarget() instanceof LivingEntity;
+                    return true;
+                }).fullRecast();
     }
 
     public PurgeMagicSpell() {
@@ -55,7 +61,7 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
             if (skills.hasSkill(SBSkills.RADIO_WAVES.value())) {
                 targets.addAll(level.getEntitiesOfClass(LivingEntity.class, caster.getBoundingBox().inflate(3), EntitySelector.NO_CREATIVE_OR_SPECTATOR));
             } else {
-                targets.add(context.getTarget());
+                targets.add((LivingEntity) context.getTarget());
             }
 
             for (LivingEntity target : targets) {
@@ -110,6 +116,7 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
                     int randSpell = target.getRandom().nextInt(0, targetHandler.getSpellList().size());
                     SpellType<?> spellType = targetHandler.getSpellList().stream().toList().get(randSpell);
                     targetHandler.removeSpell(spellType);
+                    addCooldown(SBSkills.EXPUNGE.value(), 24000);
                 }
             }
         }

@@ -6,12 +6,13 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.function.BiPredicate;
+import java.util.function.Function;
 
 /**
  * The main class most spell will extend from. Main utility is to handle spell casting animations.
  */
 public abstract class AnimatedSpell extends AbstractSpell {
-    private final String castAnimation;
+    private final Function<SpellContext, String> castAnimation;
 
     public static <T extends AnimatedSpell> Builder<T> createSimpleSpellBuilder(Class<T> spellClass) {
         return new Builder<>();
@@ -25,20 +26,24 @@ public abstract class AnimatedSpell extends AbstractSpell {
     @Override
     public void onCastStart(SpellContext context) {
         super.onCastStart(context);
-        if (context.getLevel().isClientSide && !this.castAnimation.isEmpty() && context.getSpellHandler().castTick == 1 && context.getCaster() instanceof Player player)
-            playAnimation(player, this.castAnimation);
+        String animation = this.castAnimation.apply(context);
+        if (context.getLevel().isClientSide && !animation.isEmpty() && context.getSpellHandler().castTick == 1 && context.getCaster() instanceof Player player)
+            playAnimation(player, animation);
 
     }
 
     @Override
     public void onCastReset(SpellContext context) {
         super.onCastReset(context);
-        if (context.getLevel().isClientSide && !this.castAnimation.isEmpty() && context.getCaster() instanceof Player player)
+        String animation = this.castAnimation.apply(context);
+        if (context.getLevel().isClientSide && !animation.isEmpty() && context.getCaster() instanceof Player player)
+            //Fade to fail animation
             stopAnimation(player);
     }
 
     public static class Builder<T extends AnimatedSpell> extends AbstractSpell.Builder<T> {
-        protected String castAnimation = "";
+        protected Function<SpellContext, String> castAnimation = context -> "";
+        protected Function<SpellContext, String> failAnimation = context -> "";
 
         public Builder<T> manaCost(int manaCost) {
             this.manaCost = manaCost;
@@ -50,8 +55,13 @@ public abstract class AnimatedSpell extends AbstractSpell {
             return this;
         }
 
-        public Builder<T> castAnimation(String castAnimationName) {
+        public Builder<T> castAnimation(Function<SpellContext, String> castAnimationName) {
             this.castAnimation = castAnimationName;
+            return this;
+        }
+
+        public Builder<T> failAnimation(Function<SpellContext, String> failAnimationName) {
+            this.failAnimation = failAnimationName;
             return this;
         }
 
@@ -65,7 +75,7 @@ public abstract class AnimatedSpell extends AbstractSpell {
             return this;
         }
 
-        public Builder<T> duration(int duration) {
+        public Builder<T> duration(Function<SpellContext, Integer> duration) {
             this.duration = duration;
             return this;
         }
@@ -80,15 +90,8 @@ public abstract class AnimatedSpell extends AbstractSpell {
             return this;
         }
 
-        public Builder<T> partialRecast() {
-            this.partialRecast = true;
-            this.fullRecast = false;
-            return this;
-        }
-
         public Builder<T> fullRecast() {
             this.fullRecast = true;
-            this.partialRecast = false;
             return this;
         }
 

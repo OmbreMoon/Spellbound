@@ -13,6 +13,7 @@ import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
@@ -72,8 +73,8 @@ public class TestSpell extends ChanneledSpell {
     @Override
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
-        LivingEntity livingEntity = this.getTargetEntity(10);
-        if (livingEntity != null) {
+        Entity targetEntity = this.getTargetEntity(10);
+        if (targetEntity instanceof LivingEntity livingEntity) {
             if (!context.getLevel().isClientSide) {
                 livingEntity.addEffect(new SBEffectInstance(context.getCaster(), SBEffects.AFTERGLOW, 40, true, 0, false, false));
             } else {

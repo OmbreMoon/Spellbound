@@ -28,7 +28,8 @@ public class MysticArmorSpell extends AnimatedSpell {
     private static final ResourceLocation CRYSTALLINE_ARMOR = CommonClass.customLocation("crystalline_armor");
 
     private static Builder<MysticArmorSpell> createMysticArmorBuilder() {
-        return createSimpleSpellBuilder(MysticArmorSpell.class).duration(1200).fullRecast();
+        return createSimpleSpellBuilder(MysticArmorSpell.class)
+                .duration(context -> 1200).fullRecast();
     }
 
     public MysticArmorSpell() {

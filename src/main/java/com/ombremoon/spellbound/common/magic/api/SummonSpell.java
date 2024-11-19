@@ -25,6 +25,7 @@ import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiPredicate;
+import java.util.function.Function;
 
 public abstract class SummonSpell extends AnimatedSpell {
     private static final ResourceLocation DAMAGE_EVENT = CommonClass.customLocation("summon_damage_event");
@@ -169,7 +170,7 @@ public abstract class SummonSpell extends AnimatedSpell {
             return this;
         }
 
-        public Builder<T> castAnimation(String castAnimationName) {
+        public Builder<T> castAnimation(Function<SpellContext, String> castAnimationName) {
             this.castAnimation = castAnimationName;
             return this;
         }
@@ -184,7 +185,7 @@ public abstract class SummonSpell extends AnimatedSpell {
             return this;
         }
 
-        public Builder<T> duration(int duration) {
+        public Builder<T> duration(Function<SpellContext, Integer> duration) {
             this.duration = duration;
             return this;
         }
@@ -196,18 +197,6 @@ public abstract class SummonSpell extends AnimatedSpell {
 
         public Builder<T> castSound(SoundEvent castSound) {
             this.castSound = castSound;
-            return this;
-        }
-
-        public Builder<T> partialRecast() {
-            this.partialRecast = true;
-            this.fullRecast = false;
-            return this;
-        }
-
-        public Builder<T> fullRecast() {
-            this.fullRecast = true;
-            this.partialRecast = false;
             return this;
         }
 

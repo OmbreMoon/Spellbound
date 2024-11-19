@@ -9,6 +9,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.function.BiPredicate;
+import java.util.function.Function;
 
 public abstract class ChanneledSpell extends AnimatedSpell {
     protected int manaTickCost;
@@ -79,7 +80,7 @@ public abstract class ChanneledSpell extends AnimatedSpell {
             return this;
         }
 
-        public Builder<T> castAnimation(String castAnimation) {
+        public Builder<T> castAnimation(Function<SpellContext, String> castAnimation) {
             this.castAnimation = castAnimation;
             return this;
         }

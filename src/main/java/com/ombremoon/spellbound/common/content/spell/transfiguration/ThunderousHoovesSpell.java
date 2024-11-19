@@ -31,7 +31,8 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
     protected static final ResourceLocation MOMENTUM = CommonClass.customLocation("momentum");
 
     public static Builder<ThunderousHoovesSpell> createThunderousHoovesBuilder() {
-        return createSimpleSpellBuilder(ThunderousHoovesSpell.class).duration(600).fullRecast();
+        return createSimpleSpellBuilder(ThunderousHoovesSpell.class)
+                .duration(context -> 600).fullRecast();
     }
 
     private int initialFoodLevel;
