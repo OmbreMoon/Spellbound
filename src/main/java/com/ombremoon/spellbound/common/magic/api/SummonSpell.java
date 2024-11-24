@@ -1,12 +1,14 @@
 package com.ombremoon.spellbound.common.magic.api;
 
 import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.common.content.entity.SmartSpellEntity;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.buff.events.ChangeTargetEvent;
 import com.ombremoon.spellbound.common.magic.api.buff.events.DamageEvent;
-import com.ombremoon.spellbound.util.SummonUtil;
+import com.ombremoon.spellbound.util.SpellUtil;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -14,6 +16,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -25,21 +28,23 @@ import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public abstract class SummonSpell extends AnimatedSpell {
     private static final ResourceLocation DAMAGE_EVENT = CommonClass.customLocation("summon_damage_event");
     private static final ResourceLocation TARGETING_EVENT = CommonClass.customLocation("summon_targeting_event");
-
-    private final Set<Integer> summons = new HashSet<>();
+    private final Set<Integer> summons = new IntOpenHashSet();
+    private final double spawnRange;
 
     @SuppressWarnings("unchecked")
     public static <T extends SummonSpell> Builder<T> createSummonBuilder(Class<T> spellClass) {
-        return (Builder<T>) new Builder<>().castCondition((context, spell) -> getSpawnPos(context.getCaster(), context.getLevel()) != null);
+        return (Builder<T>) new Builder<>().castCondition((context, spell) -> spell.getSpawnPos(spell.spawnRange) != null);
     }
 
     public SummonSpell(SpellType<?> spellType, Builder<?> builder) {
         super(spellType, builder);
+        this.spawnRange = builder.spawnRange;
     }
 
     /**
@@ -49,7 +54,6 @@ public abstract class SummonSpell extends AnimatedSpell {
     @Override
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
-
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.POST_DAMAGE, DAMAGE_EVENT, this::damageEvent);
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.CHANGE_TARGET, TARGETING_EVENT, this::changeTargetEvent);
     }
@@ -61,11 +65,21 @@ public abstract class SummonSpell extends AnimatedSpell {
     @Override
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
-
-        if (!context.getLevel().isClientSide) {
+        Level level = context.getLevel();
+        var handler = context.getSpellHandler();
+        if (!level.isClientSide) {
             for (int summonId : summons) {
-                if (context.getLevel().getEntity(summonId) != null)
-                    context.getLevel().getEntity(summonId).discard();
+                Entity entity = level.getEntity(summonId);
+                if (entity != null) {
+                    handler.removeSummon(summonId);
+                    if (entity instanceof SmartSpellEntity) {
+                        //SET DESPAWN ANIMATIONS
+                        log("Smart Entity");
+                        entity.discard();
+                    } else {
+                        entity.discard();
+                    }
+                }
             }
         }
 
@@ -81,69 +95,33 @@ public abstract class SummonSpell extends AnimatedSpell {
         return this.summons;
     }
 
-    /**
-     * Spawns the desired entity as a summon a chosen number of times, where the player is looking
-     * @param context the context of the spell
-     * @param entityType the entity being created
-     * @param mobCount number of the summon to spawn
-     * @return Set containing the IDs of the summoned entities
-     * @param <T> Chosen Entity
-     */
-    protected <T extends Entity> Set<T> summonMobs(SpellContext context, EntityType<T> entityType, int mobCount) {
-        Level level = context.getLevel();
-        LivingEntity caster = context.getCaster();
-
-        Set<Integer> summonedMobs = new HashSet<>();
-        Set<T> toReturn = new HashSet<>();
-        BlockPos blockPos = getSpawnPos(caster, level);
-        if (blockPos == null) return null;
-
-        Vec3 spawnPos = blockPos.getCenter();
-        for (int i = 0; i < mobCount; i++) {
-            T summon = entityType.create(level);
-            SummonUtil.setOwner(summon, caster);
-            summon.teleportTo(spawnPos.x, blockPos.getY(), spawnPos.z);
-            level.addFreshEntity(summon);
-            summonedMobs.add(summon.getId());
-            toReturn.add(summon);
-        }
-
-        this.summons.addAll(summonedMobs);
-        return toReturn;
-    }
-
-    /**
-     * Gets the position for the entity to spawn
-     * @param caster Caster of the spell
-     * @param level the Level to check blockstates on
-     * @return the BlockPos of a valid spawn position, null if none found
-     */
-    private static BlockPos getSpawnPos(LivingEntity caster, Level level) {
-        BlockHitResult blockHit = level.clip(setupRayTraceContext(caster, 5d, ClipContext.Fluid.NONE));
-        if (blockHit.getType() == HitResult.Type.MISS) return null;
-        if (blockHit.getDirection() == Direction.DOWN) return null;
-
-        return blockHit.getBlockPos().relative(blockHit.getDirection());
+    @Override
+    protected <T extends Entity> T summonEntity(SpellContext context, EntityType<T> entityType, double range, Consumer<T> extraData) {
+        T entity = super.summonEntity(context, entityType, range, extraData);
+        this.summons.add(entity.getId());
+        return entity;
     }
 
     protected final void setSummonsTarget(Level level, Set<Integer> summons, LivingEntity target) {
         for (int mobId : summons) {
-            if (level.getEntity(mobId) instanceof Monster monster) {
-                SummonUtil.setTarget(monster, target);
-            }
+            if (level.getEntity(mobId) instanceof PathfinderMob mob)
+                SpellUtil.setTarget(mob, target);
         }
     }
 
     protected final void damageEvent(DamageEvent.Post damageEvent) {
-        if (damageEvent.getSource().getEntity() == null) return;
-        LivingEntity player = damageEvent.getCaster();
+        Entity sourceEntity = damageEvent.getSource().getEntity();
+        LivingEntity damageEntity = damageEvent.getEntity();
 
-        if (damageEvent.getSource().getEntity().is(player)) {
-            if (!damageEvent.getEntity().is(player) && !SummonUtil.isSummonOf(damageEvent.getEntity(), player))
-                setSummonsTarget(damageEvent.getEntity().level(), getSummons(), damageEvent.getEntity());
-        } else if (damageEvent.getEntity().is(player) && damageEvent.getSource().getEntity() instanceof LivingEntity entity) {
-            if (!SummonUtil.isSummonOf(entity, player))
-                setSummonsTarget(entity.level(), getSummons(), entity);
+        if (sourceEntity == null) return;
+        LivingEntity caster = damageEvent.getCaster();
+
+        if (sourceEntity.is(caster)) {
+            if (!damageEntity.is(caster) && !SpellUtil.isSummonOf(damageEntity, caster))
+                setSummonsTarget(damageEntity.level(), getSummons(), damageEntity);
+        } else if (damageEntity.is(caster) && sourceEntity instanceof LivingEntity livingEntity) {
+            if (!SpellUtil.isSummonOf(livingEntity, caster))
+                setSummonsTarget(livingEntity.level(), getSummons(), livingEntity);
         }
     }
 
@@ -152,16 +130,23 @@ public abstract class SummonSpell extends AnimatedSpell {
 
         if (event.getNewAboutToBeSetTarget() == null) return;
 
-        Entity owner = SummonUtil.getOwner(event.getEntity());
+        Entity owner = SpellUtil.getOwner(event.getEntity());
         if (owner == null) return;
 
-        LivingEntity target = SummonUtil.getTarget(event.getEntity());
+        LivingEntity target = SpellUtil.getTarget(event.getEntity());
         event.setNewAboutToBeSetTarget(target);
     }
 
     public static class Builder<T extends SummonSpell> extends AnimatedSpell.Builder<T> {
+        private double spawnRange = 5;
+
         public Builder<T> manaCost(int manaCost) {
             this.manaCost = manaCost;
+            return this;
+        }
+
+        public Builder<T> xpModifier(float modifier) {
+            this.xpModifier = modifier;
             return this;
         }
 
@@ -172,6 +157,11 @@ public abstract class SummonSpell extends AnimatedSpell {
 
         public Builder<T> castAnimation(Function<SpellContext, String> castAnimationName) {
             this.castAnimation = castAnimationName;
+            return this;
+        }
+
+        public Builder<T> failAnimation(Function<SpellContext, String> failAnimationName) {
+            this.failAnimation = failAnimationName;
             return this;
         }
 
@@ -187,6 +177,11 @@ public abstract class SummonSpell extends AnimatedSpell {
 
         public Builder<T> duration(Function<SpellContext, Integer> duration) {
             this.duration = duration;
+            return this;
+        }
+
+        public Builder<T> spawnRange(double spawnRange) {
+            this.spawnRange = spawnRange;
             return this;
         }
 

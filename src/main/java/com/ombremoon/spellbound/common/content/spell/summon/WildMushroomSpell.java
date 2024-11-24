@@ -1,16 +1,16 @@
 package com.ombremoon.spellbound.common.content.spell.summon;
 
 import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.common.content.entity.spell.WildMushroom;
 import com.ombremoon.spellbound.common.EffectManager;
-import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
-import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.content.entity.spell.WildMushroom;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
+import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
-import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.events.DeathEvent;
+import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -44,20 +44,13 @@ public class WildMushroomSpell extends SummonSpell {
     public WildMushroomSpell() {
         super(SBSpells.WILD_MUSHROOM.get(), createMushroomBuilder());
     }
-/*
 
-    @Override
+/*    @Override
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.PLAYER_KILL, SYNTHESIS, this::playerKill);
         if (!context.getLevel().isClientSide) {
-            var mobs = summonMobs(context, SBEntities.MUSHROOM.get(), 1);
-            if (mobs == null || !mobs.iterator().hasNext()) {
-                endSpell();
-                context.getSpellHandler().awardMana(this.getManaCost());
-                return;
-            }
-
+            WildMushroom mushroom = summonEntity(context, SBEntities.MUSHROOM.get(), 5);
             this.mushroom = mobs.iterator().next();
             SkillHolder skillHolder = context.getSkills();
             double radius = skillHolder.hasSkill(SBSkills.VILE_INFLUENCE.value()) ? 3D : 2D;
@@ -66,7 +59,6 @@ public class WildMushroomSpell extends SummonSpell {
 
 
             boolean recycledFlag = context.getSpellHandler().getActiveSpells(getSpellType()).size() >= 3;
-            ;
             boolean recycledFlag2 = skillHolder.hasSkill(SBSkills.RECYCLED.value());
             if (recycledFlag && recycledFlag2)
                 this.addAttributeModifier(context.getCaster(), SBAttributes.MANA_REGEN, new AttributeModifier(RECYCLED_LOCATION,
@@ -161,6 +153,5 @@ public class WildMushroomSpell extends SummonSpell {
                 return;
             }
         }
-    }
-*/
+    }*/
 }

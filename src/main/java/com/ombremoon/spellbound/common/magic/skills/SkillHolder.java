@@ -45,22 +45,21 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
     }
 
     public int getPathLevel(SpellPath path) {
-        if (pathXp.get(path) == null) return 0;
-        return (int) Math.floor((double) pathXp.get(path) / 100D); //TODO: Sort xp per level
+        int level = this.getLevelFromXP(getPathXp(path));
+        return Math.min(level, 5);
     }
 
     public float getPathXp(SpellPath path) {
-        if (pathXp.get(path) == null) return 0;
-        return pathXp.get(path);
+        return pathXp.getOrDefault(path, 0F);
     }
 
     public int getSpellLevel(SpellType<?> spellType) {
-        return (int) Math.min(Math.floor((double) getSpellXp(spellType) / 100), 5); //TODO: What Duck said
+        int level = this.getLevelFromXP(getSpellXp(spellType));
+        return Math.min(level, 5);
     }
 
     public float getSpellXp(SpellType<?> spellType) {
-        spellXp.putIfAbsent(spellType, 0F);
-        return spellXp.get(spellType);
+        return spellXp.getOrDefault(spellType, 0F);
     }
 
     public void awardSpellXp(SpellType<?> spellType, float xp) {
@@ -139,6 +138,25 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
 
     public SkillCooldowns getCooldowns() {
         return this.cooldowns;
+    }
+
+    private int getLevelFromXP(float xp) {
+        int level = 0;
+        if (xp <= 0) return level;
+
+        float thresh = 1500F / xp;
+        if (thresh <= 1F) {
+            level = 5;
+        } else if (thresh <= 1.5F) {
+            level = 4;
+        } else if (thresh <= 2.5F) {
+            level = 3;
+        } else if (thresh <= 5F) {
+            level = 2;
+        } else if (thresh <= 15F) {
+            level = 1;
+        }
+        return level;
     }
 
     @Override

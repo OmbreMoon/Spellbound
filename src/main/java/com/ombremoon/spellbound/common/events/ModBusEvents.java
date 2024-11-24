@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common;
+package com.ombremoon.spellbound.common.events;
 
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.init.SBAttributes;

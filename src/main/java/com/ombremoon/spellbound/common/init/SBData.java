@@ -47,6 +47,8 @@ public class SBData {
             "target_id", () -> AttachmentType.builder(() -> 0).build());
 
     //Spell Data
+    public static final Supplier<AttachmentType<Integer>> SPELL_ID = ATTACHMENT_TYPES.register(
+            "spell_id", () -> AttachmentType.builder(() -> 0).build());
     public static final Supplier<AttachmentType<Integer>> HEAT_TICK = ATTACHMENT_TYPES.register(
             "heat_tick", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
     public static final Supplier<AttachmentType<Integer>> CATCH_TICK = ATTACHMENT_TYPES.register(

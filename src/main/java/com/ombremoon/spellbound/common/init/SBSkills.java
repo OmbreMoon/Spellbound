@@ -86,9 +86,9 @@ public class SBSkills {
     public static final Holder<Skill> MAELSTROM = registerSkill("maelstrom", 50, 100, preReqs(VORTEX));
     public static final Holder<Skill> HURRICANE = registerSkill("hurricane", 0, 50, preReqs(CYCLONE));
     public static final Holder<Skill> WHIRLING_TEMPEST = registerSkill("whirling_tempest", 0, 100, preReqs(HURRICANE));
-    public static final Holder<Skill> GALE_FORCE = registerModifierSkill("gale_force", -50, 150, preReqs(EYE_OF_THE_STORM), SpellModifier.GALE_FORCE);
-    public static final Holder<Skill> FROSTFRONT = registerSkill("frostfront", 0, 150, preReqs(EYE_OF_THE_STORM));
-    public static final Holder<Skill> STATIC_CHARGE = registerSkill("static_charge", 50, 150, preReqs(EYE_OF_THE_STORM));
+    public static final Holder<Skill> GALE_FORCE = registerModifierSkill("gale_force", -50, 150, preReqs(WHIRLING_TEMPEST), SpellModifier.GALE_FORCE);
+    public static final Holder<Skill> FROSTFRONT = registerSkill("frostfront", 0, 150, preReqs(WHIRLING_TEMPEST));
+    public static final Holder<Skill> STATIC_CHARGE = registerSkill("static_charge", 50, 150, preReqs(WHIRLING_TEMPEST));
     public static final Holder<Skill> HAILSTORM = registerConditionalSkill("hailstorm", 0, 200, preReqs(GALE_FORCE, FROSTFRONT, STATIC_CHARGE), (player, holder) -> holder.hasSkill(FROSTFRONT.value()) && holder.hasSkill(STATIC_CHARGE.value()));
 
     //Shadow Gate

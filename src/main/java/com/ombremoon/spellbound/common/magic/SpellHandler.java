@@ -47,6 +47,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     protected AbstractSpell currentlyCastingSpell;
     private final Map<SpellType<?>, Integer> spellFlags = new Object2IntOpenHashMap<>();
     private final Map<SkillBuff<?>, Integer> skillBuffs = new Object2IntOpenHashMap<>();
+    private final Set<Integer> activeSummons = new IntOpenHashSet();
     private final Set<Integer> glowEntities = new IntOpenHashSet();
     public int castTick;
     private boolean channelling;
@@ -243,7 +244,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     }
 
     /**
-     * Replaces an {@link AbstractSpell} in the active spell map. This is only called is the spell has {@link AbstractSpell#partialRecast} or {@link AbstractSpell#fullRecast} checked in the builder method. Recast spells will all call {@link AbstractSpell#endSpell()} unless they have {@link AbstractSpell#skipEndOnRecast()} checked in the spell builder.
+     * Replaces an {@link AbstractSpell} in the active spell map. This is only called is the spell has {@link AbstractSpell#fullRecast} checked in the builder method. Recast spells will all call {@link AbstractSpell#endSpell()} unless they have {@link AbstractSpell#skipEndOnRecast()} checked in the spell builder.
      * @param spell
      */
     public void recastSpell(AbstractSpell spell) {
@@ -342,13 +343,15 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         if (ticks == -1)
             duration = -1;
 
-        skillBuff.addBuff(this.caster, duration);
+        skillBuff.addBuff(this.caster);
         this.skillBuffs.put(skillBuff, duration);
     }
 
     public void removeSkillBuff(SkillBuff<?> skillBuff) {
-        skillBuff.removeBuff(this.caster);
-        this.skillBuffs.remove(skillBuff);
+        if (this.skillBuffs.containsKey(skillBuff)) {
+            skillBuff.removeBuff(this.caster);
+            this.skillBuffs.remove(skillBuff);
+        }
     }
 
     public Set<SkillBuff<?>> getBuffs() {
@@ -425,6 +428,18 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
      */
     public void setChannelling(boolean channelling) {
         this.channelling = channelling;
+    }
+
+    public void addSummon(int summonId) {
+        this.activeSummons.add(summonId);
+    }
+
+    public void removeSummon(int summonId) {
+        this.activeSummons.add(summonId);
+    }
+
+    public Set<Integer> getSummons() {
+        return this.activeSummons;
     }
 
     /**

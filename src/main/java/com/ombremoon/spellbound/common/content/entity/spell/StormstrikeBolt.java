@@ -22,10 +22,6 @@ public class StormstrikeBolt extends SpellProjectile {
         super(entityType, level);
     }
 
-    public StormstrikeBolt(Level level, LivingEntity shooter, AbstractSpell spell) {
-        super(level, SBEntities.STORMSTRIKE_BOLT.get(), shooter, spell);
-    }
-
     @Override
     public void tick() {
         super.tick();

@@ -11,4 +11,8 @@ public interface ISpellEntity {
 
     @Nullable
     Entity getOwner();
+
+    void setSpellId(int id);
+
+    int getSpellId();
 }

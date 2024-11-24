@@ -114,8 +114,5 @@ public class SpellCastEvents {
         if (!SpellUtil.canCastSpell(player, spell)) return;
 
         PayloadHandler.castSpell();
-//        spell.initSpell(player, player.level(), player.getOnPos());
-//        var handler = SpellUtil.getSpellHandler(player);
-//        handler.setCurrentlyCastingSpell(null);
     }
 }

@@ -1,6 +1,5 @@
 package com.ombremoon.spellbound.common.content.entity;
 
-import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -21,26 +20,14 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public abstract class SpellProjectile extends Projectile implements GeoEntity {
+public abstract class SpellProjectile extends Projectile implements GeoEntity, ISpellEntity {
     private static final EntityDataAccessor<Integer> SPELL_ID = SynchedEntityData.defineId(SpellProjectile.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(SpellProjectile.class, EntityDataSerializers.INT);
     protected static final String CONTROLLER = "controller";
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    private AbstractSpell spell;
 
     protected SpellProjectile(EntityType<? extends Projectile> entityType, Level level) {
         super(entityType, level);
-    }
-
-    public SpellProjectile(Level level, EntityType<? extends Projectile> entityType, LivingEntity shooter, AbstractSpell spell) {
-        this(entityType, level);
-        this.setOwner(shooter);
-        this.setPos(shooter.getX(), shooter.getEyeY() - 0.1F, shooter.getZ());
-        this.spell = spell;
-    }
-
-    public AbstractSpell getSpell() {
-        return this.spell;
     }
 
     @Override

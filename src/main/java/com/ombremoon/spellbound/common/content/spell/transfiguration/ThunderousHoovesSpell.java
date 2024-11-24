@@ -131,7 +131,6 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
 
             if (skills.hasSkill(SBSkills.MOMENTUM.value())) {
                 if (this.ticks % 4 == 0) {
-                    log(this.movementTicks);
                     if (!this.currentPos.equals(caster.getOnPos())) {
                         this.movementTicks += 4;
                         this.currentPos = caster.getOnPos();

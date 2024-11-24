@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.magic.api;
 
+import com.ombremoon.spellbound.common.events.EventFactory;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import net.minecraft.sounds.SoundEvent;
@@ -19,7 +20,7 @@ public abstract class AnimatedSpell extends AbstractSpell {
     }
 
     public AnimatedSpell(SpellType<?> spellType, Builder<?> builder) {
-        super(spellType, builder);
+        super(spellType, EventFactory.getAnimatedBuilder(spellType, builder));
         this.castAnimation = builder.castAnimation;
     }
 
@@ -47,6 +48,11 @@ public abstract class AnimatedSpell extends AbstractSpell {
 
         public Builder<T> manaCost(int manaCost) {
             this.manaCost = manaCost;
+            return this;
+        }
+
+        public Builder<T> xpModifier(float modifier) {
+            this.xpModifier = modifier;
             return this;
         }
 

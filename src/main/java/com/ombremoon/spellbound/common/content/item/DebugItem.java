@@ -42,11 +42,12 @@ public class DebugItem extends Item implements Loggable {
 
     private void ombreDebug(Level level, Player player, InteractionHand usedHand, SpellHandler spellHandler, SkillHolder skillHolder) {
 //        spellHandler.setSelectedSpell(SBSpells.TEST_SPELL.get());
+        log(spellHandler.getActiveSpells());
         if (!level.isClientSide) {
 //            spellHandler.removeSpell(SBSpells.VOLCANO.get());
 //            log(spellHandler.equippedSpellSet);
 //            spellHandler.setSelectedSpell(SBSpells.TEST_SPELL.get());
-            ((HailstormSavedData)HailstormSavedData.get(level)).toggleHailing((ServerLevel) level, 600);
+//            ((HailstormSavedData)HailstormSavedData.get(level)).toggleHailing((ServerLevel) level, 600);
         } else {
 //            log(ClientStuff.getInstance().getExamples().exampleBufferSource());
 //            Minecraft.getInstance().setScreen(new SpellSelectScreen());

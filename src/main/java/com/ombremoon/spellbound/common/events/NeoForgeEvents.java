@@ -1,20 +1,19 @@
-package com.ombremoon.spellbound.common;
+package com.ombremoon.spellbound.common.events;
 
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.CommandDispatcher;
 import com.ombremoon.sentinellib.common.event.RegisterPlayerSentinelBoxEvent;
 import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.common.EffectManager;
 import com.ombremoon.spellbound.common.commands.LearnSkillsCommand;
 import com.ombremoon.spellbound.common.commands.LearnSpellCommand;
 import com.ombremoon.spellbound.common.content.entity.spell.Hail;
 import com.ombremoon.spellbound.common.content.world.HailstormData;
 import com.ombremoon.spellbound.common.content.world.HailstormSavedData;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
-import com.ombremoon.spellbound.common.init.SBEntities;
+import com.ombremoon.spellbound.common.events.custom.BuildSpellEvent;
+import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
-import com.ombremoon.spellbound.common.init.SBAttributes;
-import com.ombremoon.spellbound.common.init.SBData;
-import com.ombremoon.spellbound.common.init.SBEffects;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.buff.events.*;
 import com.ombremoon.spellbound.networking.PayloadHandler;
@@ -55,6 +54,7 @@ import java.util.List;
 
 @EventBusSubscriber(modid = Constants.MOD_ID)
 public class NeoForgeEvents {
+
 
     @SubscribeEvent
     public static void registerCommands(RegisterCommandsEvent event) {

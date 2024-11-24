@@ -1,0 +1,134 @@
+The overall goal of Spellbound is to offer players more say on their own path through the world of magic. From a
+variety of spells, upgrades, radial options and more, players will have a choice in how their spells progress and how
+they can interact with the world around them
+
+- Spell Acquisition:
+    - Spells from each path are acquired through different means that match the theme of the provided path.
+    - Adds gameplay options and replayability through mini boss/boss battles, structures, and biome/dimension
+        exploration.
+
+    - Ruin:
+        - Scattered across the overworld are Dormant Ruin Portals. Just like vanilla Ruined Portals, these portals will
+            always be found with blocks missing. These blocks missing blocks can either be found in dungeons or traded
+            for Arcanthus with the Elder Magi
+
+        - To activate these portals, Magi's must use a keystone that corresponds with the spell they wish to receive.
+            Keystones will be a mix of Arcanthus and Stone. Spell specific keystones are crafted by mixing the
+            necessary materials with the keystone.
+
+        - Activating and entering these portals takes Magi's to themed battle arena that vary with the sub path of the
+            desired spell, as well as the difficulty of the battle (which scales with the strength of the spell). Each
+            sub path has will have 3 bosses, scaling from early, to mid, to late game.
+
+        - Upon defeating the boss, all players are transported out the arena, the portal is closed, and the desired
+            spell tome is dropped. However, if the player who activated the portal dies or leaves the arena for
+            whatever reason, all players are transported out and the portal closes with no reward.
+
+    - Transfiguration:
+        - Scattered across the biomes, you can find Enchanted Pools. They can be found as high as mountain biomes and
+            as low as the Ancient City.
+
+        - Each biome gives a slight variation to the effect/color of these pools.
+
+        - Taking a dip will reinforce your mana, giving you +5% to spell potency and +30 mana for 1 minute. This can
+            also be picked up by bucket to be transported to a Magi's base, or bottled up and taken on adventures.
+            Drinking the bottle gives the same effect as taking a swim.
+
+        - Placing the Enchanted Pool liquid will have it take the effect of whatever biome it is placed in.
+
+        - Throwing in the right combination of items with some Arcanthus in the pool in the appropriate biome will
+            result in a Transfiguration spell tome.
+
+    - Summon:
+        - Located deep in the nether, Magi's can find Ruined Summon Circles.
+
+        - At these structures, there are inactive summon blocks arranged in a circle with a centerpiece missing.
+
+        - Activating these summon circles will open a portal to a themed arena where the players must defeat the summon
+            to receive the spell tome.
+
+        - To activate the portal, Magi's fill in the center block with their desired marked summon block and must
+            right-click all unactivated blocks with Arcanthus.
+
+        - Upon defeating the summon, all players in the arena are transported back to summon circle, the spell tome is
+            dropped and the center block is destroyed. However, if the Magi who activated the center block dies in the
+            arena or leaves for any reason, the trial is forfeited, all players are transported back to the summon
+            circle and the center block is destroyed.
+
+    - Divine:
+        - Located in Overworld biomes, Magi's can find Divine Temples of different variations.
+
+        - In the center of these temples, guarded by a Valkyr, a divine guardian, are Divine Shrines.
+
+        - Shrines can be mined with a diamond pickaxe or higher to be taken to a Magi's base for decor or utility.
+
+        - Shrines can be activated once a day with Arcanthus to grant the user a random temporary buff (if a buff is
+            not already active).
+
+        - To obtain divine spells, players must perform a divine actions that correspond with the spell within a
+            50-block radius of an activated shrine.
+
+    - Deception:
+        - Found underground in all vanilla dimensions, Magi's can find Sealed Puzzle Dungeons. These dungeons can be
+            found either by using a Puzzle Map (traded with an Elder Magi) or by using Arcane Eyes (Ender Pearls mixed
+            with Arcanthus).
+
+        - These dungeons hold both bountiful loot and deadly traps.
+
+        - Dungeons can have 1 - 3 connected puzzle rooms, each with vary difficulty.
+
+        - Successfully solving the puzzle in one of these rooms will result in a bounty, which will always result in a
+            Deception spell tome that matches the theme of the puzzle. However, failed attempts will result in magical
+            traps that scale with the difficulty of the room.
+
+        - To avoid player griefing or cheese mechanics, no room or puzzle will be redstone powered and loot will
+            dramatically appear in the center of the room
+
+
+- Path Uniqueness:
+    - Each path will have certain aspects that are unique and specific to them, giving paths more purpose and offering
+        more gameplay options.
+    - Adds amulets for ruin, divine, and deception the player can wear to view the build up of these effects
+
+    - Ruin: Contains subpaths, most with respective status effects that players can proc after receive a certain amount
+            of damage.
+            - Subpaths:
+                - Elementalist - Fire, Water, Air, Earth, Shock
+                - Misc - Arcane, Poison, Blood, Disease
+
+    - Transfiguration: Effects, entities, and layers change based on the biome
+
+    - Summon: Offers familiars that scale with the path level. Can persist after death and travel with the player
+                between dimension. Can be customized.
+
+    - Divine: Players receive divine judgement. The more good actions and positive energy spells they use, the more
+                potent they become. However, this also decreases the potency of negative energy spells. Likewise, the
+                more negative actions and negative energy spells the player uses, the more potent they become, reducing
+                the potency of positive spells.
+
+    - Deception: Successfully getting hit by these spells slowly fills up their Hallucination meter. Once full, a
+                    random hallucinatory effect takes place.
+
+
+
+- Fear Effect:
+    - Sends enemy running in a random direction away from the caster for a few seconds.
+    - Reduces attack damage, spell potency, defense, and magic resistance
+
+
+- Biomes/Dimensions:
+    - Bioluminescent Mushroom Fields
+
+- Familiars:
+    - When killed, the familiar disappears and Summon Familiar will go on a 5-minute cooldown
+    - Lvl 1: Cat - Mild combat aid that pounces at enemies for 1-2 damage, increases attack speed while in combat
+                    and deters creepers.
+    - Lvl 1: Frog - Utility aid that grabs items from a short range, grants a small jump boost, and creates Froglights
+                     like regular frogs.
+    - Lvl 1: Owl - A mix of utility and combat. In Fight Mode, will occasionally swoop to attack enemies. In Flight
+                    Mode, will occasionally fly up to survey the area, highlighting any mob or player in an 8-block
+                    radius. By default, will just fly around the player and hoot when mobs are approaching.
+
+- Summon Mob Battles:
+    - Giant Spider:
+        - Destructible eggs spawn in arena, hatch into spiders if not destroyed in time

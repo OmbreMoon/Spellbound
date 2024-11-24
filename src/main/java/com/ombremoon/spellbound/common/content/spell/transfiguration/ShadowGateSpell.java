@@ -46,15 +46,13 @@ public class ShadowGateSpell extends AnimatedSpell {
                     var skills = context.getSkills();
                     int activePortals = spell.portalInfo.size();
                     boolean hasReach = skills.hasSkill(SBSkills.REACH.value());
-                    BlockHitResult hitResult = spell.getTargetBlock(hasReach ? 100 : 50);
-                    if (hitResult.getType() == HitResult.Type.MISS || hitResult.getDirection() == Direction.DOWN) return false;
+                    BlockPos blockPos = spell.getSpawnPos(hasReach ? 100 : 50);
+                    if (blockPos == null) return false;
 
-                    BlockPos blockPos = hitResult.getBlockPos().above();
                     if (!context.getLevel().getBlockState(blockPos).isAir()) return false;
                     if (activePortals > 1) {
                         int portalRange = hasReach ? 10000 : 2500;
                         PortalInfo info = spell.portalInfo.get(spell.getPreviousGate());
-                        spell.log(info.id);
                         double distance = info.position().distanceToSqr(blockPos.getCenter());
                         if (distance > portalRange) return false;
                     }
@@ -80,23 +78,16 @@ public class ShadowGateSpell extends AnimatedSpell {
         if (!level.isClientSide) {
             int activePortals = this.portalInfo.size();
             boolean hasReach = context.getSkills().hasSkill(SBSkills.REACH.value());
-            BlockHitResult hitResult = this.getTargetBlock(hasReach ? 100 : 50);
-            Vec3 vec3 = Vec3.atBottomCenterOf(hitResult.getBlockPos().above());
-            ShadowGate shadowGate = SBEntities.SHADOW_GATE.get().create(level);
-            if (shadowGate != null) {
+            this.summonEntity(context, SBEntities.SHADOW_GATE.get(), hasReach ? 100 : 50, shadowGate -> {
                 int maxPortals = skills.hasSkill(SBSkills.DUAL_DESTINATION.value()) ? 3 : 2;
                 if (activePortals >= maxPortals) {
-                    shiftGates(level, shadowGate.getId(), vec3);
+                    shiftGates(level, shadowGate.getId(), shadowGate.position());
                 } else {
-                    PortalInfo info = new PortalInfo(activePortals, vec3);
+                    PortalInfo info = new PortalInfo(activePortals, shadowGate.position());
                     this.portalInfo.put(shadowGate.getId(), info);
                 }
-                shadowGate.setOwner(context.getCaster());
-                shadowGate.setPos(vec3);
-                shadowGate.setYRot(context.getRotation());
                 shadowGate.setStartTick(20);
-                level.addFreshEntity(shadowGate);
-            }
+            });
         }
     }
 

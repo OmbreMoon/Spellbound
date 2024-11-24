@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.common.magic.api;
 
 import com.ombremoon.spellbound.client.KeyBinds;
+import com.ombremoon.spellbound.common.events.EventFactory;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -19,7 +20,7 @@ public abstract class ChanneledSpell extends AnimatedSpell {
     }
 
     public ChanneledSpell(SpellType<?> spellType, Builder<?> builder) {
-        super(spellType, builder);
+        super(spellType, EventFactory.getChanneledBuilder(spellType, builder));
         this.manaTickCost = builder.manaTickCost;
     }
 
@@ -75,6 +76,11 @@ public abstract class ChanneledSpell extends AnimatedSpell {
             return this;
         }
 
+        public Builder<T> xpModifier(float modifier) {
+            this.xpModifier = modifier;
+            return this;
+        }
+
         public Builder<T> castTime(int castTime) {
             this.castTime = castTime;
             return this;
@@ -87,6 +93,11 @@ public abstract class ChanneledSpell extends AnimatedSpell {
 
         public Builder<T> channelAnimation(String channelAnimation) {
             this.channelAnimation = channelAnimation;
+            return this;
+        }
+
+        public Builder<T> failAnimation(Function<SpellContext, String> failAnimationName) {
+            this.failAnimation = failAnimationName;
             return this;
         }
 

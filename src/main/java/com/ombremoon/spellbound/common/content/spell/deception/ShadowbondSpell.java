@@ -116,7 +116,7 @@ public class ShadowbondSpell extends AnimatedSpell {
 
             if (this.isEarlyEnd()) {
                 this.canReverse = skills.hasSkill(SBSkills.REVERSAL.value()) && !this.targetList.isEmpty();
-                if (!level.isClientSide) handleSwapEffect(caster, level, skills);
+                if (!level.isClientSide) handleSwapEffect(context, caster, level, skills);
                 if (!this.canReverse) endSpell();
             } else {
                 endSpell();
@@ -140,7 +140,7 @@ public class ShadowbondSpell extends AnimatedSpell {
             int extension = skills.hasSkill(SBSkills.EVERLASTING_BOND.value()) ? 200 : 100;
             if (this.ticks == this.getDuration() - extension) {
                 swapTargets(caster, level);
-                handleSwapEffect(caster, level, skills);
+                handleSwapEffect(context, caster, level, skills);
             } else if (this.ticks > this.getDuration() - extension) {
                 this.canReverse = skills.hasSkill(SBSkills.REVERSAL.value()) && !this.targetList.isEmpty();
             }
@@ -176,7 +176,7 @@ public class ShadowbondSpell extends AnimatedSpell {
         }
     }
 
-    private void handleSwapEffect(LivingEntity caster, Level level, SkillHolder skills) {
+    private void handleSwapEffect(SpellContext context, LivingEntity caster, Level level, SkillHolder skills) {
         if (skills.hasSkill(SBSkills.SHADOW_STEP.value()))
             addSkillBuff(
                     caster,
@@ -200,7 +200,7 @@ public class ShadowbondSpell extends AnimatedSpell {
                     BuffCategory.BENEFICIAL,
                     SpellEventListener.Events.ATTACK,
                     SNEAK_ATTACK,
-                    pre -> removeSkillBuff(caster, SBSkills.SNEAK_ATTACK.value(), 2),
+                    pre -> removeSkillBuff(caster, SBSkills.SNEAK_ATTACK.value()),
                     100);
         }
 
@@ -230,10 +230,7 @@ public class ShadowbondSpell extends AnimatedSpell {
         }
 
         if (skills.hasSkill(SBSkills.LIVING_SHADOW.value())) {
-            LivingShadow livingShadow = SBEntities.LIVING_SHADOW.get().create(level);
-            livingShadow.setOwner(caster);
-            livingShadow.setPos(caster.position());
-            level.addFreshEntity(livingShadow);
+            summonEntity(context, SBEntities.LIVING_SHADOW.get(), caster.position(), livingShadow -> {});
             caster.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 100, 0, false, false));
         }
     }

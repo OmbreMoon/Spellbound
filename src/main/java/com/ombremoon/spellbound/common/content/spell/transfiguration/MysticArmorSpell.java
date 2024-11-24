@@ -11,6 +11,7 @@ import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
 import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;
 import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -82,10 +83,10 @@ public class MysticArmorSpell extends AnimatedSpell {
                     Entity entity = post.getSource().getEntity();
                     if (entity instanceof LivingEntity living) {
                         if (skills.hasSkill(SBSkills.EQUILIBRIUM.value()))
-                            living.hurt(post.getSource(), caster.getMaxHealth() * 0.1F);
+                            hurt(living, post.getSource(), caster.getMaxHealth() * 0.1F);
 
                         if (skills.hasSkill(SBSkills.PLANAR_DEFLECTION.value()) && isPhysicalDamage(post.getSource()))
-                            living.hurt(post.getSource(), post.getNewDamage() * 0.3F);
+                            hurt(living, post.getSource(), post.getNewDamage() * 0.3F);
                     }
                 });
         if (skills.hasSkill(SBSkills.ARCANE_VENGEANCE.value())) {
@@ -140,7 +141,7 @@ public class MysticArmorSpell extends AnimatedSpell {
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
         LivingEntity caster = context.getCaster();
-        removeSkillBuffs(caster, SBSkills.MYSTIC_ARMOR.value());
+        removeSkillBuff(caster, SBSkills.MYSTIC_ARMOR.value());
         removeSkillBuff(caster, SBSkills.ARCANE_VENGEANCE.value());
         removeSkillBuff(caster, SBSkills.PURSUIT.value());
         removeSkillBuff(caster, SBSkills.CRYSTALLINE_ARMOR.value());

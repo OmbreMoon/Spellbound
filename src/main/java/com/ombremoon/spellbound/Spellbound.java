@@ -16,8 +16,8 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 
-//TODO: General - Discuss Path Shards with team
 //TODO: General - Discuss with Duck about bobHurt in GameRenderer
+//TODO: General - Discuss with Duck about Followers
 
 @Mod(Constants.MOD_ID)
 public class Spellbound {

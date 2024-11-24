@@ -109,15 +109,10 @@ public class SolarRaySpell extends ChanneledSpell {
         LivingEntity caster = context.getCaster();
         Level level = context.getLevel();
         if (!level.isClientSide) {
-            SolarRay solarRay = SBEntities.SOLAR_RAY.get().create(level);
-            if (solarRay != null) {
-                this.setSolarRay(solarRay.getId());
-                solarRay.setOwner(caster);
-                solarRay.setPos(caster.position());
-                solarRay.setYRot(caster.getYRot());
+            this.summonEntity(context, SBEntities.SOLAR_RAY.get(), caster.position(), solarRay -> {
                 solarRay.setStartTick(18);
-                level.addFreshEntity(solarRay);
-            }
+                this.setSolarRay(solarRay.getId());
+            });
         }
     }
 
@@ -149,11 +144,12 @@ public class SolarRaySpell extends ChanneledSpell {
         var skills = context.getSkills();
         if (!context.getLevel().isClientSide) {
             boolean flag = skills.hasSkill(SBSkills.SUNSHINE.value());
-            ((ISentinel)caster).triggerSentinelBox(flag ? SOLAR_RAY_EXTENDED : SOLAR_RAY);
+            var boxOwner = (ISentinel) caster;
+            boxOwner.triggerSentinelBox(flag ? SOLAR_RAY_EXTENDED : SOLAR_RAY);
 
             if (skills.hasSkill(SBSkills.SOLAR_BURST.value())) {
-                ((ISentinel)caster).triggerSentinelBox(SOLAR_BURST_FRONT);
-                ((ISentinel)caster).triggerSentinelBox(flag ? SOLAR_BURST_END_EXTENDED : SOLAR_BURST_END);
+                boxOwner.triggerSentinelBox(SOLAR_BURST_FRONT);
+                boxOwner.triggerSentinelBox(flag ? SOLAR_BURST_END_EXTENDED : SOLAR_BURST_END);
             }
         }
     }

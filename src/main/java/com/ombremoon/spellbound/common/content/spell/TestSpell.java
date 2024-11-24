@@ -89,7 +89,7 @@ public class TestSpell extends ChanneledSpell {
     @Override
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
-        removeSkillBuff(context.getCaster(), SBSkills.TEST_SKILL.value(), 2);
+        removeSkillBuff(context.getCaster(), SBSkills.TEST_SKILL.value());
         context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.POST_DAMAGE, DAMAGE_EVENT);
     }
 }
