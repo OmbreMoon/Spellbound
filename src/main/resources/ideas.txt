@@ -110,10 +110,50 @@ they can interact with the world around them
                     random hallucinatory effect takes place.
 
 
+- Novice Spells:
+    - These are spells that you can trade for with the Elder Magi instead of having to adventure out on path specific
+        quests.
 
-- Fear Effect:
-    - Sends enemy running in a random direction away from the caster for a few seconds.
-    - Reduces attack damage, spell potency, defense, and magic resistance
+    - Ruin:
+        - Fire: Fireball, Flame Jet
+        - Water: Ice Bolt, Bubble Shield
+        - Air: Gust, Glide
+        - Earth: Stone Spike, Rock Wall
+        - Shock: Stormstrike, Electric Charge
+
+    - Transfiguration:
+        - Cobbled Hide
+        - Stride
+        - Dolphin's Fin
+
+    - Summon:
+        - Summon Undead
+        - Bound Bow
+        - Summon Villager
+
+    - Divine:
+        - Healing Touch
+        - Smite
+        - Blessing
+
+    - Deception:
+        - Shadow Veil
+        - Cursed Rune
+        - Flicker
+
+
+- Arcanthus:
+    - The main crafting ingredient for all things spell related
+
+
+- Mob Effects:
+    - Fear:
+        - Sends enemy running in a random direction away from the caster for a few seconds.
+        - Reduces attack damage, spell potency, defense, and magic resistance
+
+    - Sleep:
+        - Stuns enemies for a few seconds.
+        - Immediately ends after taking any damage.
 
 
 - Biomes/Dimensions:
@@ -132,3 +172,39 @@ they can interact with the world around them
 - Summon Mob Battles:
     - Giant Spider:
         - Destructible eggs spawn in arena, hatch into spiders if not destroyed in time
+
+
+- Deception Puzzles:
+    - Shadow Veil - Hall of Darkness
+        - Upon activating the Deception Altar, the player is given the Darkness effect and statues holding unlit
+            torches are scattered throughout the room
+
+        - Along with statues are Shadow Watchers who patrol the room (with very minimal line of sight). They can only
+            see players if they move in bright areas, move too close, or too quickly
+
+        - To successfully solve the puzzle, the player must light all torches without being seen in a set amount of
+            time.
+
+        - Failing to light the torches in time or being seen by a Watcher will result in alerting all Watchers in the
+            room of your presence, instantly pulling aggro
+
+    - Doppelgänger - Hall of Reflections
+        - Upon activating the Deception Altar, clones of the player appear around them
+
+        - Each clone has a slightly different appearance, with only one perfectly matching the player's appearance
+
+        - To successfully solve this puzzle, for 5 waves, the player must interact with the correct clone in a set
+            amount of time. Each wave increases the amount of clones added and decreases the amount of time.
+
+        - Failed attempts cause the clones to come to life to attack the player
+
+    - Purge Magic - Hall of Nullification
+        - Upon activating the Deception alter, a 2x2 glyph appears above the entrance of the hall. Along with the glyph
+            are about a dozen floating, glowing orbs (cubes) each with a symbol on them.
+
+        - To successfully solve this puzzle, the player must collide with the proper orbs that match the symbols on the
+            glyph. Colliding with the correct orb will remove a symbol from the glyph and remove the glow from the orb.
+
+        - Touching an incorrect orb will turn it and the glyph red, summoning two small runic constructs, having high
+            resistance to physical and projectile attacks. Any player seen by these constructs are silenced. The puzzle
+            will not activate again until these constructs are killed.
