@@ -53,7 +53,6 @@ public class ShadowbondSpell extends AnimatedSpell {
 
     private int firstTarget;
     private int secondTarget;
-    private boolean earlyEnd;
     private boolean canReverse = false;
     private List<Integer> targetList = new IntArrayList();
 
@@ -69,7 +68,6 @@ public class ShadowbondSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStart(SpellContext context) {
-        super.onSpellStart(context);
         Level level = context.getLevel();
         Entity target = context.getTarget();
         var skills = context.getSkills();
@@ -148,6 +146,11 @@ public class ShadowbondSpell extends AnimatedSpell {
         if (this.isEarlyEnd() && this.ticks >= 100) {
             endSpell();
         }
+    }
+
+    @Override
+    protected void onSpellStop(SpellContext context) {
+
     }
 
     private void teleport(LivingEntity first, LivingEntity second) {

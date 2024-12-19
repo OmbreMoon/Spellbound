@@ -109,7 +109,6 @@ public class HealingTouchSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStop(SpellContext context) {
-        super.onSpellStop(context);
         context.getCaster().removeEffect(SBEffects.HEALING_TOUCH);
     }
 

@@ -1,6 +1,6 @@
-package com.ombremoon.spellbound.common.content.spell.ruin.hybrid;
+package com.ombremoon.spellbound.common.content.spell.ruin.air;
 
-import com.ombremoon.spellbound.common.content.world.HailstormSavedData;
+import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
 import com.ombremoon.spellbound.common.content.entity.spell.Cyclone;
 import com.ombremoon.spellbound.common.init.SBDataTypes;
 import com.ombremoon.spellbound.common.init.SBEntities;
@@ -10,17 +10,12 @@ import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
 
 public class CycloneSpell extends AnimatedSpell {
     protected static final SpellDataKey<Integer> CYCLONE = SyncedSpellData.registerDataKey(CycloneSpell.class, SBDataTypes.INT.get());
@@ -43,14 +38,13 @@ public class CycloneSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStart(SpellContext context) {
-        super.onSpellStart(context);
         Level level = context.getLevel();
         if (!level.isClientSide) {
             summonEntity(context, SBEntities.CYCLONE.get(), 100, cyclone -> this.setCyclone(cyclone.getId()));
 
             if (context.getSkills().hasSkill(SBSkills.HAILSTORM.value())) {
                 HailstormSavedData data = ((HailstormSavedData) HailstormSavedData.get(level));
-                data.toggleHailing((ServerLevel) level, this.getDuration());
+//                data.toggleHailing((ServerLevel) level, this.getDuration());
             }
         }
     }
@@ -68,7 +62,6 @@ public class CycloneSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStop(SpellContext context) {
-        super.onSpellStop(context);
         Level level = context.getLevel();
         if (!level.isClientSide()) {
             Cyclone cyclone = this.getCyclone(context);

@@ -72,7 +72,6 @@ public class ShadowGateSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStart(SpellContext context) {
-        super.onSpellStart(context);
         Level level = context.getLevel();
         var skills = context.getSkills();
         if (!level.isClientSide) {
@@ -180,7 +179,6 @@ public class ShadowGateSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStop(SpellContext context) {
-        super.onSpellStop(context);
         Level level = context.getLevel();
         if (!level.isClientSide()) {
             this.portalInfo.forEach((integer, portalInfo) -> {

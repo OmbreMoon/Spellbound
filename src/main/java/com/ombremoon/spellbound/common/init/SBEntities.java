@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.init;
 
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.content.entity.living.LivingShadow;
+import com.ombremoon.spellbound.common.content.entity.living.Valkyr;
 import com.ombremoon.spellbound.common.content.entity.spell.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.*;
@@ -27,6 +28,7 @@ public class SBEntities {
     public static final Supplier<EntityType<Cyclone>> CYCLONE = registerEntity("cyclone", Cyclone::new, 3.0F, 3.0F);
     public static final Supplier<EntityType<Hail>> HAIL = registerEntity("hail", Hail::new, 3.0F, 3.0F);
     public static final Supplier<EntityType<LivingShadow>> LIVING_SHADOW = registerMob("living_shadow", LivingShadow::new, MobCategory.CREATURE,0.6F, 1.95F, 8, LivingShadow::createLivingShadowAttributes, false);
+    public static final Supplier<EntityType<Valkyr>> VALKYR = registerMob("valkyr", Valkyr::new, MobCategory.CREATURE,0.6F, 1.95F, 8, Valkyr::createValkyrAttributes, false);
     //public static final Supplier<EntityType<TotemSpiritEntity>> TOTEM_SPIRIT = registerMob("totem_spirit", TotemSpiritEntity::new, MobCategory.CREATURE, 1f, 1f, 8, LivingShadow::createLivingShadowAttributes, false);
 
 

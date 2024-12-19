@@ -49,29 +49,25 @@ public abstract class SummonSpell extends AnimatedSpell {
 
     /**
      * Attaches event listeners to hande summon targeting
-     * @param context the context of the spell
+     * @param context the context of the spells
      */
     @Override
     protected void onSpellStart(SpellContext context) {
-        super.onSpellStart(context);
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.POST_DAMAGE, DAMAGE_EVENT, this::damageEvent);
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.CHANGE_TARGET, TARGETING_EVENT, this::changeTargetEvent);
     }
 
     /**
      * Discards the summons and removes the event listeners
-     * @param context the context of the spell
+     * @param context the context of the spells
      */
     @Override
     protected void onSpellStop(SpellContext context) {
-        super.onSpellStop(context);
         Level level = context.getLevel();
-        var handler = context.getSpellHandler();
         if (!level.isClientSide) {
             for (int summonId : summons) {
                 Entity entity = level.getEntity(summonId);
                 if (entity != null) {
-                    handler.removeSummon(summonId);
                     if (entity instanceof SmartSpellEntity) {
                         //SET DESPAWN ANIMATIONS
                         log("Smart Entity");
@@ -88,7 +84,7 @@ public abstract class SummonSpell extends AnimatedSpell {
     }
 
     /**
-     * Returns the IDs of all summons created by this spell
+     * Returns the IDs of all summons created by this spells
      * @return Set of entity IDs
      */
     public Set<Integer> getSummons() {

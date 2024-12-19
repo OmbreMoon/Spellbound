@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common.content.world;
+package com.ombremoon.spellbound.common.content.world.hailstorm;
 
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.content.entity.spell.Cyclone;

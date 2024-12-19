@@ -17,11 +17,13 @@ public class CommonClass {
         SBEntities.register(modEventBus);
         SBSpells.register(modEventBus);
         SBEffects.register(modEventBus);
+        SBBlockEntities.register(modEventBus);
         SBData.register(modEventBus);
         SBStats.register(modEventBus);
         SBSkills.register(modEventBus);
         SBAttributes.register(modEventBus);
         SBDataTypes.register(modEventBus);
+        SBTriggers.register(modEventBus);
 //        fixAttributes();
     }
 

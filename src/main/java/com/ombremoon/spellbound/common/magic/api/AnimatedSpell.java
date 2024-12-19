@@ -10,7 +10,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 /**
- * The main class most spell will extend from. Main utility is to handle spell casting animations.
+ * The main class most spells will extend from. Main utility is to handle spells casting animations.
  */
 public abstract class AnimatedSpell extends AbstractSpell {
     private final Function<SpellContext, String> castAnimation;

@@ -2,8 +2,8 @@ package com.ombremoon.spellbound.common.content.entity.living;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.common.content.entity.SmartSpellEntity;
-import com.ombremoon.spellbound.common.content.entity.behaviors.ApplySurroundingEffectBehavior;
-import com.ombremoon.spellbound.common.content.entity.behaviors.DelayedLeapAtTarget;
+import com.ombremoon.spellbound.common.content.entity.behavior.ApplySurroundingEffectBehavior;
+import com.ombremoon.spellbound.common.content.entity.behavior.DelayedLeapAtTarget;
 import com.ombremoon.spellbound.common.content.spell.summon.SpiritTotemSpell;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.init.SBEffects;
@@ -158,11 +158,11 @@ public class TotemSpiritEntity extends SmartSpellEntity {
         if (skills.hasSkillReady(SBSkills.NINE_LIVES.value())) {
 //            TotemSpiritEntity entity = EntityInit.TOTEM_SPIRIT.get().create(this.level());
 //            if (entity == null) return;
-//            SummonUtil.setOwner(entity, spell.getCastContext().getPlayer());
-//            entity.initSpell(skills, spell);
+//            SummonUtil.setOwner(entity, spells.getCastContext().getPlayer());
+//            entity.initSpell(skills, spells);
 //            entity.setHealth(entity.getMaxHealth()/2);
-//            spell.getSummons().remove(this.getId());
-//            spell.getSummons().add(entity.getId());
+//            spells.getSummons().remove(this.getId());
+//            spells.getSummons().add(entity.getId());
         } else {
             spell.endSpell();
         }

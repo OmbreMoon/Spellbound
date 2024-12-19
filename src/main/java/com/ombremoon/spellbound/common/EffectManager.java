@@ -18,8 +18,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EffectManager implements INBTSerializable<CompoundTag> {
+    private LivingEntity livingEntity;
     private final Map<Effect, Float> buildUp = new HashMap<>();
-    private LivingEntity self;
+    private float judgement;
 
     /**
      * Checks if the entity is rooted (cant move)
@@ -57,28 +58,39 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
      * @param self the entity to attach the effect handler to
      */
     public void init(LivingEntity self) {
-        this.self = self;
+        this.livingEntity = self;
     }
 
     /**
      * Checks if the effect handler has been initialised
      * @return true if initialised, false otherwise
      */
-    public boolean isInitialised() { return self != null; }
+    public boolean isInitialised() { return livingEntity != null; }
 
     /**
      * Increments a given status effect by a set amount, will apply the effect upon reaching 100
      * @param effect The status effect to add buildup to
      * @param amount amount to increase the build up by
      */
-    public void increment(Effect effect, int amount) {
+    public void increment(Effect effect, float amount) {
         Float progress = buildUp.get(effect);
-        float postResistAmount = amount * (1f - effect.getEntityResistance(self)/100f);
+        float postResistAmount = amount * (1F - effect.getEntityResistance(livingEntity) / 100F);
         if (progress == null) progress = postResistAmount;
         else progress = Math.clamp(progress + postResistAmount, 0, 100);
 
         buildUp.put(effect, progress);
-        if (progress >= 100) tryApplyEffect(effect);
+        if (progress >= 100) {
+            tryApplyEffect(effect);
+            this.buildUp.put(effect, 0F);
+        }
+    }
+
+    public float getJudgement() {
+        return this.judgement;
+    }
+
+    public void giveJudgement(float amount) {
+        this.judgement = Math.clamp(this.judgement + amount, -200, 200);
     }
 
     /**
@@ -95,8 +107,8 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
      * @param effect the effect to clear
      */
     public void clearEffect(Effect effect) {
-        buildUp.put(effect, 0f);
-        self.removeEffect(effect.getEffect());
+        buildUp.put(effect, 0F);
+        livingEntity.removeEffect(effect.getEffect());
     }
 
     /**
@@ -112,8 +124,8 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
      */
     @ApiStatus.Internal
     public void tick(int tickCount) {
-        if (self == null) throw new RuntimeException("Status Effects not initialised.");
-        if (tickCount % 20 == 0) buildUp.replaceAll((effect, amount) -> amount > 0 ? amount-1 : 0);
+        if (livingEntity == null) throw new RuntimeException("Status Effects not initialised.");
+        if (tickCount % 20 == 0) buildUp.replaceAll((effect, amount) -> amount > 0 ? amount - 1 : 0);
     }
 
     /**
@@ -122,7 +134,7 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
      */
     private void tryApplyEffect(Effect effect) {
         if (effect.getEffect() == null) return;
-        self.addEffect(new MobEffectInstance(effect.getEffect(), 60));
+        livingEntity.addEffect(new MobEffectInstance(effect.getEffect(), 60));
     }
     
     @Override

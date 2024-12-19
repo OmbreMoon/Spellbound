@@ -17,7 +17,7 @@ public class WildMushroom extends SpellEntity {
     }
 
     public void explode() {
-        //Explosion code from the spell
+        //Explosion code from the spells
 //                if (intervalProgress <= 12 && intervalProgress % 6 == 0) {
 //            Vec3 center = damageZone.getCenter();
 //            for (double i = 1; i <= 20; i++) {

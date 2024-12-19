@@ -1,13 +1,11 @@
 package com.ombremoon.spellbound.common.magic.api;
 
-import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.common.events.EventFactory;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -30,13 +28,12 @@ public abstract class ChanneledSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStart(SpellContext context) {
-        super.onSpellStart(context);
         LivingEntity caster = context.getCaster();
         var handler = SpellUtil.getSpellHandler(caster);
         handler.setChannelling(true);
 
         if (context.getLevel().isClientSide) {
-
+            //Play Channel Anim
         }
     }
 
@@ -52,10 +49,10 @@ public abstract class ChanneledSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStop(SpellContext context) {
-        super.onSpellStop(context);
         LivingEntity caster = context.getCaster();
         var handler = SpellUtil.getSpellHandler(caster);
         handler.setChannelling(false);
+        //Stop Channel Anim
     }
 
     public static class Builder<T extends ChanneledSpell> extends AnimatedSpell.Builder<T> {

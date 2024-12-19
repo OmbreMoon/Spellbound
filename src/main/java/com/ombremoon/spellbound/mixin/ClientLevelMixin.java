@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.mixin;
 
-import com.ombremoon.spellbound.common.content.world.ClientHailstormData;
-import com.ombremoon.spellbound.common.content.world.HailstormSavedData;
+import com.ombremoon.spellbound.common.content.world.hailstorm.ClientHailstormData;
+import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.CubicSampler;

@@ -20,6 +20,6 @@ public record SpellDataKey<T>(int id, SpellDataType<T> dataType) {
 
     @Override
     public String toString() {
-        return "<spell data: " + this.id + ">";
+        return "<spells data: " + this.id + ">";
     }
 }

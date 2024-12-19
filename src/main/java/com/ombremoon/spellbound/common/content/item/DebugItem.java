@@ -1,13 +1,15 @@
 package com.ombremoon.spellbound.common.content.item;
 
-import com.ombremoon.spellbound.common.content.world.HailstormSavedData;
+import com.ombremoon.spellbound.common.init.SBTriggers;
+import com.ombremoon.spellbound.common.magic.acquisition.divine.DivineAction;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.util.Loggable;
 import com.ombremoon.spellbound.util.SpellUtil;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -42,10 +44,11 @@ public class DebugItem extends Item implements Loggable {
 
     private void ombreDebug(Level level, Player player, InteractionHand usedHand, SpellHandler spellHandler, SkillHolder skillHolder) {
 //        spellHandler.setSelectedSpell(SBSpells.TEST_SPELL.get());
-        log(spellHandler.getActiveSpells());
+//        log(spellHandler.getActiveSpells());
         if (!level.isClientSide) {
 //            spellHandler.removeSpell(SBSpells.VOLCANO.get());
-//            log(spellHandler.equippedSpellSet);
+//            log(Registries.elementsDirPath(DivineAction.REGISTRY));
+            SBTriggers.TEST_TRIGGER.get().trigger((ServerPlayer) player);
 //            spellHandler.setSelectedSpell(SBSpells.TEST_SPELL.get());
 //            ((HailstormSavedData)HailstormSavedData.get(level)).toggleHailing((ServerLevel) level, 600);
         } else {

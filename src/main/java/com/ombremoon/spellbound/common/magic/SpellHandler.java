@@ -3,18 +3,21 @@ package com.ombremoon.spellbound.common.magic;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.common.EffectManager;
 import com.ombremoon.spellbound.common.init.SBAttributes;
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.init.SBSpells;
+import com.ombremoon.spellbound.common.magic.acquisition.divine.PlayerDivineActions;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
-import com.ombremoon.spellbound.common.magic.api.RadialSpell;
+import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
 import com.ombremoon.spellbound.networking.PayloadHandler;
+import com.ombremoon.spellbound.util.Loggable;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -22,6 +25,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
@@ -31,14 +35,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Handler class for all things spell related
+ * Handler class for all things spells related
  */
 @SuppressWarnings("unchecked")
-public class SpellHandler implements INBTSerializable<CompoundTag> {
+public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     private SpellEventListener listener;
     public LivingEntity caster;
     private SkillHolder skillHolder;
+    private EffectManager effectManager;
     private UpgradeTree upgradeTree;
+    private PlayerDivineActions divineActions;
     protected boolean castMode;
     protected Set<SpellType<?>> spellSet = new ObjectOpenHashSet<>();
     public Set<SpellType<?>> equippedSpellSet = new ObjectOpenHashSet<>(/*10*/);
@@ -47,7 +53,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     protected AbstractSpell currentlyCastingSpell;
     private final Map<SpellType<?>, Integer> spellFlags = new Object2IntOpenHashMap<>();
     private final Map<SkillBuff<?>, Integer> skillBuffs = new Object2IntOpenHashMap<>();
-    private final Set<Integer> activeSummons = new IntOpenHashSet();
     private final Set<Integer> glowEntities = new IntOpenHashSet();
     public int castTick;
     private boolean channelling;
@@ -57,7 +62,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     private boolean initialized;
 
     /**
-     * Syncs spell handler data from the server to the client.
+     * Syncs spells handler data from the server to the client.
      */
     public void sync() {
         if (this.caster instanceof Player player)
@@ -66,7 +71,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     /**
      * <p>
-     * Initializes the spell handler.
+     * Initializes the spells handler.
      * </p>
      * See:
      * <ul>
@@ -81,7 +86,13 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
         this.listener = new SpellEventListener(caster);
         this.skillHolder = SpellUtil.getSkillHolder(this.caster);
         this.skillHolder.init(caster);
+        this.effectManager = SpellUtil.getSpellEffects(this.caster);
+        this.effectManager.init(caster);
         this.upgradeTree = this.caster.getData(SBData.UPGRADE_TREE);
+
+        if (!caster.level().isClientSide)
+            this.getDivineActions();
+
         this.initialized = true;
     }
 
@@ -105,7 +116,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     }
 
     /**
-     * Handles ticking logic for the spell handler. Called every tick on both the client and the server.
+     * Handles ticking logic for the spells handler. Called every tick on both the client and the server.
      */
     public void tick() {
         activeSpells.forEach((spellType, spell) -> spell.tick());
@@ -161,14 +172,14 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     /**
      * Returns the set of spells known by the player.
-     * @return The spell set
+     * @return The spells set
      */
     public Set<SpellType<?>> getSpellList() {
         return this.spellSet;
     }
 
     /**
-     * Adds a spell to the player's spell set. This also adds data to both the {@link SkillHolder} and {@link UpgradeTree}.
+     * Adds a spells to the player's spells set. This also adds data to both the {@link SkillHolder} and {@link UpgradeTree}.
      * @param spellType
      */
     public void learnSpell(SpellType<?> spellType) {
@@ -187,8 +198,8 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     }
 
     /**
-     * Removes a spell from the player's spell set. This also removes data from both the {@link SkillHolder} and {@link UpgradeTree}.
-     * @param spellType The spell to be removed
+     * Removes a spells from the player's spells set. This also removes data from both the {@link SkillHolder} and {@link UpgradeTree}.
+     * @param spellType The spells to be removed
      */
     public void removeSpell(SpellType<?> spellType) {
         this.skillHolder.resetSkills(spellType);
@@ -205,7 +216,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     }
 
     /**
-     * Clears the player's known spell set. This also clears data in both the {@link SkillHolder} and {@link UpgradeTree}.
+     * Clears the player's known spells set. This also clears data in both the {@link SkillHolder} and {@link UpgradeTree}.
      */
     public void clearList() {
         this.spellSet.forEach(skillHolder::resetSkills);
@@ -222,7 +233,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     }
 
     /**
-     * Adds an {@link AbstractSpell} to the active spell map.
+     * Adds an {@link AbstractSpell} to the active spells map.
      * @param spell The AbstractSpell
      */
     public void activateSpell(AbstractSpell spell) {
@@ -230,21 +241,21 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     }
 
     /**
-     * Clears all spells in the active spell map. This will not call {@link AbstractSpell#endSpell()}.
+     * Clears all spells in the active spells map. This will not call {@link AbstractSpell#endSpell()}.
      */
     public void clearSpells() {
         this.activeSpells.clear();
     }
 
     /**
-     * Ends all spells in the active spell map.
+     * Ends all spells in the active spells map.
      */
     public void endSpells() {
         this.activeSpells.forEach((spellType, spell) -> spell.endSpell());
     }
 
     /**
-     * Replaces an {@link AbstractSpell} in the active spell map. This is only called is the spell has {@link AbstractSpell#fullRecast} checked in the builder method. Recast spells will all call {@link AbstractSpell#endSpell()} unless they have {@link AbstractSpell#skipEndOnRecast()} checked in the spell builder.
+     * Replaces an {@link AbstractSpell} in the active spells map. This is only called is the spells has {@link AbstractSpell#fullRecast} checked in the builder method. Recast spells will all call {@link AbstractSpell#endSpell()} unless they have {@link AbstractSpell#skipEndOnRecast()} checked in the spells builder.
      * @param spell
      */
     public void recastSpell(AbstractSpell spell) {
@@ -256,7 +267,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     /**
      * Returns a list of {@link AbstractSpell}s of a certain {@link SpellType}.
-     * @param spellType The spell type
+     * @param spellType The spells type
      * @return The list of spells active
      */
     public List<AbstractSpell> getActiveSpells(SpellType<?> spellType) {
@@ -272,8 +283,8 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     }
 
     /**
-     * Returns the first instance of an {@link AbstractSpell} in the active spell map of a given {@link SpellType}.
-     * @param spellType The spell type
+     * Returns the first instance of an {@link AbstractSpell} in the active spells map of a given {@link SpellType}.
+     * @param spellType The spells type
      * @return The AbstractSpell
      * @param <T>
      */
@@ -282,9 +293,9 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     }
 
     /**
-     * Returns an instance of an {@link AbstractSpell} in the active spell map given its {@link SpellType} and cast id.
-     * @param spellType The spell type
-     * @param id The cast id of the spell instance
+     * Returns an instance of an {@link AbstractSpell} in the active spells map given its {@link SpellType} and cast id.
+     * @param spellType The spells type
+     * @param id The cast id of the spells instance
      * @return The AbstractSpell
      * @param <T>
      */
@@ -296,43 +307,43 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     }
 
     /**
-     * Checks whether there is an active instance of a spell.
-     * @param spellType The spell type
-     * @return If the spell type is active
+     * Checks whether there is an active instance of a spells.
+     * @param spellType The spells type
+     * @return If the spells type is active
      */
     public boolean hasActiveSpell(SpellType<?> spellType) {
         return !getActiveSpells(spellType).isEmpty();
     }
 
     /**
-     * Returns the currently selected spell of the player.
-     * @return The selected spell
+     * Returns the currently selected spells of the player.
+     * @return The selected spells
      */
     public SpellType<?> getSelectedSpell() {
         return this.selectedSpell != null ? this.selectedSpell : !getSpellList().isEmpty() && getSpellList().iterator().hasNext() ? getSpellList().iterator().next() : null;
     }
 
     /**
-     * Sets the currently selected spell of the player.
-     * @param selectedSpell The selected spell
+     * Sets the currently selected spells of the player.
+     * @param selectedSpell The selected spells
      */
     public void setSelectedSpell(SpellType<?> selectedSpell) {
         this.selectedSpell = selectedSpell;
         this.currentlyCastingSpell = null;
-        Constants.LOG.debug("Selected spell: {}", selectedSpell != null ? selectedSpell.createSpell().getName().getString() : null);
+        Constants.LOG.debug("Selected spells: {}", selectedSpell != null ? selectedSpell.createSpell().getName().getString() : null);
     }
 
     /**
-     * Returns the spell that is currently being cast by the player. Necessary for defining casting specific {@link SpellContext}.
-     * @return The spell being cast
+     * Returns the spells that is currently being cast by the player. Necessary for defining casting specific {@link SpellContext}.
+     * @return The spells being cast
      */
     public AbstractSpell getCurrentlyCastSpell() {
         return this.currentlyCastingSpell;
     }
 
     /**
-     * Sets the spell that is currently being cast.
-     * @param abstractSpell The spell being cast
+     * Sets the spells that is currently being cast.
+     * @param abstractSpell The spells being cast
      */
     public void setCurrentlyCastingSpell(AbstractSpell abstractSpell) {
         this.currentlyCastingSpell = abstractSpell;
@@ -414,32 +425,29 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
     }
 
     /**
-     * Checks if the player is channeling a spell.
+     * Checks if the player is channeling a spells.
      * @see ChanneledSpell
-     * @return Whether the player is channeling a spell
+     * @return Whether the player is channeling a spells
      */
     public boolean isChannelling() {
         return this.channelling;
     }
 
     /**
-     * Sets whether the player is channeling a spell.
-     * @param channelling If a spell is being channeled
+     * Sets whether the player is channeling a spells.
+     * @param channelling If a spells is being channeled
      */
     public void setChannelling(boolean channelling) {
         this.channelling = channelling;
     }
 
-    public void addSummon(int summonId) {
-        this.activeSummons.add(summonId);
-    }
-
-    public void removeSummon(int summonId) {
-        this.activeSummons.add(summonId);
-    }
-
     public Set<Integer> getSummons() {
-        return this.activeSummons;
+        Set<Integer> summons = new IntOpenHashSet();
+        for (var spell : this.getActiveSpells()) {
+            if (spell instanceof SummonSpell summonSpell)
+                summons.addAll(summonSpell.getSummons());
+        }
+        return summons;
     }
 
     /**
@@ -469,7 +477,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
 
     /**
      * Returns the {@link SpellEventListener} for the player.
-     * @return The spell event listener
+     * @return The spells event listener
      */
     public SpellEventListener getListener() {
         return this.listener != null ? this.listener : new SpellEventListener(this.caster);
@@ -481,6 +489,18 @@ public class SpellHandler implements INBTSerializable<CompoundTag> {
      */
     public SkillHolder getSkillHolder() {
         return this.skillHolder;
+    }
+
+    public PlayerDivineActions getDivineActions() {
+        if (!(this.caster instanceof Player)) return null;
+        if (this.caster.level().isClientSide) {
+            warn("Tried to retrieve Divine Actions from the client, but they do not exist.");
+            return null;
+        }
+        if (this.divineActions == null)
+            this.divineActions = new PlayerDivineActions((ServerPlayer) this.caster);
+
+        return this.divineActions;
     }
 
     @Override

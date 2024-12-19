@@ -20,7 +20,7 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public abstract class SpellProjectile extends Projectile implements GeoEntity, ISpellEntity {
+public abstract class SpellProjectile extends Projectile implements ISpellEntity {
     private static final EntityDataAccessor<Integer> SPELL_ID = SynchedEntityData.defineId(SpellProjectile.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(SpellProjectile.class, EntityDataSerializers.INT);
     protected static final String CONTROLLER = "controller";
@@ -94,6 +94,11 @@ public abstract class SpellProjectile extends Projectile implements GeoEntity, I
 
     public boolean hasOwner() {
         return getOwner() != null;
+    }
+
+    @Override
+    public EntityType<?> entityType() {
+        return this.getType();
     }
 
     @Override

@@ -59,11 +59,9 @@ public class SBData {
             "stormstrike_owner", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
     public static final Supplier<AttachmentType<Boolean>> STORMSTRIKE_FLAG = ATTACHMENT_TYPES.register(
             "stormstrike_flag", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).build());
-    public static final Supplier<AttachmentType<Boolean>> COUNTER_MAGIC = ATTACHMENT_TYPES.register(
-            "counter_magic", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).build());
 
     //Components
-    public static final Supplier<DataComponentType<String>> SPELL = COMPONENT_TYPES.registerComponentType("spell",
+    public static final Supplier<DataComponentType<String>> SPELL = COMPONENT_TYPES.registerComponentType("spells",
             builder -> builder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
 
     public static void register(IEventBus modEventBus) {

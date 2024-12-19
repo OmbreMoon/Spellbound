@@ -39,7 +39,6 @@ public class MysticArmorSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStart(SpellContext context) {
-        super.onSpellStart(context);
         LivingEntity caster = context.getCaster();
         var skills = context.getSkills();
         addEventBuff(
@@ -139,7 +138,6 @@ public class MysticArmorSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStop(SpellContext context) {
-        super.onSpellStop(context);
         LivingEntity caster = context.getCaster();
         removeSkillBuff(caster, SBSkills.MYSTIC_ARMOR.value());
         removeSkillBuff(caster, SBSkills.ARCANE_VENGEANCE.value());

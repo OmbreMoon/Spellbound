@@ -6,7 +6,8 @@
   "refmap": "spellbound.refmap.json",
   "mixins": [
     "LivingEntityMixin",
-    "DuckRangedAttribute"
+    "DuckRangedAttribute",
+    "ServerPlayerMixin"
   ],
   "client": [
     "MinecraftMixin",

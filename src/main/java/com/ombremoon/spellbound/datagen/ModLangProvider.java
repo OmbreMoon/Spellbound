@@ -74,12 +74,12 @@ public class ModLangProvider extends LanguageProvider {
 
     protected void manualEntries() {
         skillDescriptions();
-        add("chat.spelltome.awardxp", "Spell already known. +10 spell XP.");
-        add("chat.spelltome.nospell", "This spell tome is blank.");
+        add("chat.spelltome.awardxp", "Spell already known. +10 spells XP.");
+        add("chat.spelltome.nospell", "This spells tome is blank.");
         add("chat.spelltome.spellunlocked", "Spell unlocked: %1$s");
         add("tooltip.spellbound.holdshift", "Hold shift for more information.");
 
-        add("command.spellbound.spellunknown", "You don't know the spell %1$s.");
+        add("command.spellbound.spellunknown", "You don't know the spells %1$s.");
         add("command.spellbound.spellforgot", "%1$s has been forgotten successfully.");
         add("command.spellbound.alreadyknown", "%1$s is already known.");
         add("command.spellbound.singleskilllearnt", "%1$s has been unlocked.");

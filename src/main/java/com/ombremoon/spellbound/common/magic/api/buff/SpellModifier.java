@@ -14,9 +14,9 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 /**
- * Used to modify certain attributes (specifically mana, duration, or potency) of a spell or category of spells. Spell modifiers must be registered in the *insert event here* and used as parameters for {@link ModifierSkill}s.
+ * Used to modify certain attributes (specifically mana, duration, or potency) of a spells or category of spells. Spell modifiers must be registered in the *insert event here* and used as parameters for {@link ModifierSkill}s.
  * @see SkillBuff#SPELL_MODIFIER
- * @param id The resource location of the spell modifier
+ * @param id The resource location of the spells modifier
  * @param modifierType The type of attribute that modifier affects
  * @param spellPredicate The condition necessary for the modifier to take effect
  * @param modifier The amount the attribute is modified by. Modifiers are <b><u>ALWAYS</u></b> multiplicative.

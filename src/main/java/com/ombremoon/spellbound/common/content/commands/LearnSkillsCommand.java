@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common.commands;
+package com.ombremoon.spellbound.common.content.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
@@ -19,14 +19,14 @@ public class LearnSkillsCommand {
 
     public LearnSkillsCommand(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
         dispatcher.register(Commands.literal("learnskills")
-                .then(Commands.argument("spell", ResourceArgument.resource(context, SBSpells.SPELL_TYPE_REGISTRY_KEY))
+                .then(Commands.argument("spells", ResourceArgument.resource(context, SBSpells.SPELL_TYPE_REGISTRY_KEY))
                         .executes(cmdContext -> learnSpells(cmdContext.getSource(),
-                                ResourceArgument.getResource(cmdContext, "spell", SBSpells.SPELL_TYPE_REGISTRY_KEY))))
-                .then(Commands.argument("spell", ResourceArgument.resource(context, SBSpells.SPELL_TYPE_REGISTRY_KEY))
+                                ResourceArgument.getResource(cmdContext, "spells", SBSpells.SPELL_TYPE_REGISTRY_KEY))))
+                .then(Commands.argument("spells", ResourceArgument.resource(context, SBSpells.SPELL_TYPE_REGISTRY_KEY))
                         .then(Commands.literal("reset")
                                 .executes(cmdContext -> resetSpells(cmdContext.getSource(),
-                                        ResourceArgument.getResource(cmdContext, "spell", SBSpells.SPELL_TYPE_REGISTRY_KEY)))))
-                .then(Commands.argument("spell", ResourceArgument.resource(context, SBSpells.SPELL_TYPE_REGISTRY_KEY))
+                                        ResourceArgument.getResource(cmdContext, "spells", SBSpells.SPELL_TYPE_REGISTRY_KEY)))))
+                .then(Commands.argument("spells", ResourceArgument.resource(context, SBSpells.SPELL_TYPE_REGISTRY_KEY))
                         .then(Commands.argument("skill", ResourceArgument.resource(context, SBSkills.SKILL_REGISTRY_KEY))
                                 .executes(cmdContext -> learnSingleSkill(cmdContext.getSource(),
                                         ResourceArgument.getResource(cmdContext, "skill", SBSkills.SKILL_REGISTRY_KEY))))));

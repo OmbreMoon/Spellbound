@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common.commands;
+package com.ombremoon.spellbound.common.content.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
@@ -16,13 +16,13 @@ public class LearnSpellCommand {
 
     public LearnSpellCommand(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
         dispatcher.register(Commands.literal("learnspell")
-                .then(Commands.argument("spell", ResourceArgument.resource(context, SBSpells.SPELL_TYPE_REGISTRY_KEY))
+                .then(Commands.argument("spells", ResourceArgument.resource(context, SBSpells.SPELL_TYPE_REGISTRY_KEY))
                         .executes(cmdContext -> learnSpell(cmdContext.getSource(),
-                                ResourceArgument.getResource(cmdContext, "spell", SBSpells.SPELL_TYPE_REGISTRY_KEY))))
-                .then(Commands.argument("spell", ResourceArgument.resource(context, SBSpells.SPELL_TYPE_REGISTRY_KEY))
+                                ResourceArgument.getResource(cmdContext, "spells", SBSpells.SPELL_TYPE_REGISTRY_KEY))))
+                .then(Commands.argument("spells", ResourceArgument.resource(context, SBSpells.SPELL_TYPE_REGISTRY_KEY))
                         .then(Commands.literal("forget")
                                 .executes(cmdContext -> forgetSpell(cmdContext.getSource(),
-                                        ResourceArgument.getResource(cmdContext, "spell", SBSpells.SPELL_TYPE_REGISTRY_KEY))))));
+                                        ResourceArgument.getResource(cmdContext, "spells", SBSpells.SPELL_TYPE_REGISTRY_KEY))))));
     }
 
     private int learnSpell(CommandSourceStack context, Holder.Reference<SpellType<?>> spellType) {

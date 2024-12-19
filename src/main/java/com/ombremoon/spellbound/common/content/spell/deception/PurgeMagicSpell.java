@@ -44,7 +44,6 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
 
     @Override
     protected void onSpellStart(SpellContext context) {
-        super.onSpellStart(context);
         LivingEntity caster = context.getCaster();
         Level level = context.getLevel();
         var skills = context.getSkills();
@@ -120,5 +119,10 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
                 }
             }
         }
+    }
+
+    @Override
+    protected void onSpellStop(SpellContext context) {
+
     }
 }

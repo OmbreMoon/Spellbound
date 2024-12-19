@@ -8,7 +8,7 @@ import com.ombremoon.spellbound.common.content.spell.deception.ShadowbondSpell;
 import com.ombremoon.spellbound.common.content.spell.divine.HealingTouchSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.VolcanoSpell;
-import com.ombremoon.spellbound.common.content.spell.ruin.hybrid.CycloneSpell;
+import com.ombremoon.spellbound.common.content.spell.ruin.air.CycloneSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.ElectricChargeSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.StormstrikeSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.SpiritTotemSpell;
@@ -21,6 +21,7 @@ import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.RegistryBuilder;
@@ -118,6 +119,7 @@ public class SBSpells {
     }
 
     private static <T extends AbstractSpell> SpellType.Builder<T> summonBuilder(String name, SpellType.SpellFactory<T> factory) {
+        SBBlocks.registerSummonStone(name + "_summon_stone", name);
         return new SpellType.Builder<>(name, factory).setPath(SpellPath.SUMMONS);
     }
 
@@ -132,4 +134,28 @@ public class SBSpells {
     public static void register(IEventBus modEventBus) {
         SPELL_TYPES.register(modEventBus);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

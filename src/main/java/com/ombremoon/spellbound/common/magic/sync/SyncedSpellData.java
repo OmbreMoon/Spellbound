@@ -18,7 +18,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 /**
- * Class used to define and manipulate spell data that can be synced from the server to the client. Custom data types can be registered the same as any other {@link DeferredRegister}
+ * Class used to define and manipulate spells data that can be synced from the server to the client. Custom data types can be registered the same as any other {@link DeferredRegister}
  * @see SBDataTypes
  */
 @SuppressWarnings("unchecked")
@@ -35,10 +35,10 @@ public class SyncedSpellData {
     }
 
     /**
-     * Creates a data key for a spell class
-     * @param clazz The spell class
+     * Creates a data key for a spells class
+     * @param clazz The spells class
      * @param dataType The data type
-     * @return The spell data key
+     * @return The spells data key
      * @param <T>
      */
     public static <T> SpellDataKey<T> registerDataKey(Class<? extends SpellDataHolder> clazz, SpellDataType<T> dataType) {
@@ -150,7 +150,7 @@ public class SyncedSpellData {
     private <T> void assignValue(DataItem<T> target, DataValue<?> entry) {
         if (!Objects.equals(entry.dataType(), target.dataKey.dataType())) {
             throw new IllegalStateException(
-                    String.format(Locale.ROOT,"Invalid spell data item type for field %d on spell %s: old=%s(%s), new =%s(%s)",
+                    String.format(Locale.ROOT,"Invalid spells data item type for field %d on spells %s: old=%s(%s), new =%s(%s)",
                     target.dataKey.id(), this.spell, target.value, target.value.getClass(), entry.value, entry.value.getClass()));
         } else {
             target.setValue((T) entry.value);
@@ -168,10 +168,10 @@ public class SyncedSpellData {
         }
 
         /**
-         * Defines the default data value used for a specified data key. This <b><u>MUST</u></b> be called from {@link AbstractSpell#defineSpellData(Builder)} for the spell data to work properly.
+         * Defines the default data value used for a specified data key. This <b><u>MUST</u></b> be called from {@link AbstractSpell#defineSpellData(Builder)} for the spells data to work properly.
          * @param key The data key
          * @param value The default data value
-         * @return The synced spell data builder
+         * @return The synced spells data builder
          * @param <T>
          */
         public <T> SyncedSpellData.Builder define(SpellDataKey<T> key, T value) {

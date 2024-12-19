@@ -1,4 +1,4 @@
-//package com.ombremoon.spellbound.common.content.spell.summon;
+//package com.ombremoon.spellbound.common.content.spells.summon;
 //
 //import com.ombremoon.spellbound.common.init.SBSpells;
 //import com.ombremoon.spellbound.common.magic.SpellContext;
@@ -11,7 +11,7 @@
 //        return createSummonBuilder(SummonUndeadSpell.class)
 //                .manaCost(10)
 //                .duration(180)
-//                .additionalCondition((context, spell) -> context.getLevel().getDifficulty() != Difficulty.PEACEFUL);
+//                .additionalCondition((context, spells) -> context.getLevel().getDifficulty() != Difficulty.PEACEFUL);
 //    }
 //
 //    public SummonUndeadSpell() {

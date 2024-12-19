@@ -1,10 +1,8 @@
-package com.ombremoon.spellbound.common.content.entity.behaviors;
+package com.ombremoon.spellbound.common.content.entity.behavior;
 
-import com.mojang.datafixers.types.Func;
 import com.mojang.datafixers.util.Pair;
 import com.ombremoon.spellbound.common.content.entity.SmartSpellEntity;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;

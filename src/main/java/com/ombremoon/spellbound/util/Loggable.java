@@ -10,6 +10,11 @@ public interface Loggable {
     default void log(Object o) {
         Constants.LOG.info("{}", o);
     }
+
+    default void debug(Object o) {
+        Constants.LOG.debug("{}", o);
+    }
+
     default void warn(Object o) {
         Constants.LOG.warn("{}", o);
     }

@@ -2,11 +2,7 @@ package com.ombremoon.spellbound.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.ombremoon.spellbound.client.model.GenericSpellModel;
 import com.ombremoon.spellbound.client.model.entity.HailModel;
-import com.ombremoon.spellbound.client.renderer.spell.GenericSpellRenderer;
-import com.ombremoon.spellbound.client.renderer.spell.OutlineSpellRenderer;
-import com.ombremoon.spellbound.common.content.entity.spell.Cyclone;
 import com.ombremoon.spellbound.common.content.entity.spell.Hail;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -14,7 +10,6 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 

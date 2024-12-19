@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common.content.entity.behaviors;
+package com.ombremoon.spellbound.common.content.entity.behavior;
 
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Mob;

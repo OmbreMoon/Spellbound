@@ -1,8 +1,8 @@
 package com.ombremoon.spellbound.networking.clientbound;
 
 import com.ombremoon.spellbound.client.gui.WorkbenchScreen;
-import com.ombremoon.spellbound.common.content.world.HailstormData;
-import com.ombremoon.spellbound.common.content.world.HailstormSavedData;
+import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormData;
+import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;

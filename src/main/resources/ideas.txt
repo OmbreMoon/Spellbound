@@ -174,6 +174,59 @@ they can interact with the world around them
         - Destructible eggs spawn in arena, hatch into spiders if not destroyed in time
 
 
+- Valkyr, the Divine Guardians:
+    - At every Divine Temple, guarding the shrine in the center is a Valkyr, a humanoid mini boss with wings. Masked,
+        armored up, and wielding a javelin, these mobs are sworn to protect the shrine from looters.
+
+    - Will ignore players with +50 judgement and use special moves on players with negative judgement
+
+    - Wings texture changes with the biome the temple is located at.
+
+    - Valkyr Moveset:
+        - Radiant Combo: The Valkyr performs a 3-strike combo with its javelin
+            - If Enraged, adds a quick multi strike javelin thrust to the end of the combo
+            - Blockable
+
+        - Javelin Toss: The Valkyr tosses its javelin at the player
+            - If Enraged, the Valkyr charges the javelin with divine energy before throwing it, dealing AoE damage
+            - Blockable (if not Enraged)
+
+        - Ground Slam: The Valkyr quickly flies into the air and slams down onto the area around its target
+            - If Enraged, does the Godrick triple ground slam
+            - Unblockable
+
+        - Winged Dash: The Valkyr spreads its wings and charges at the player with great speed
+            - If Enraged, leaves a trail of light that damages all entities inside
+            - Blockable
+
+        - Guardian's Call: The Valkyr summons radiant spears from the heavens that rain down randomly. During this
+            time, the Valkyr remains protected in a divine shield, reflecting players attacks as sparks, dealing minor
+            damage
+                - If Enraged, the Valkyr will instead relentlessly attack the player while the spears rain down
+                - Unblockable
+                - Can be purged
+
+        - Resplendent Blessing: When under 75% HP, the Valkyr will heal for 15% max HP. This will happen once and randomly
+            - If Enraged, will heal for 30% max HP instead
+
+        - Valkyr's Flight: The Valkyr flies into the air, rapidly firing radiant projectiles at its target and strafing
+            enemy attacks. Will only go in this mode at 50% HP or less.
+                - If Enraged, occasionally try to pick up the player, dropping them when they get back up to a
+                    dangerous height
+                - If Enraged, will have a chance to use Guardian's Call or Grand Slam
+                - Unblockable
+
+
+- Divine Actions:
+    - Close Wounds - Heal to full health from half a heart
+
+    - Healing Touch - Cure a Zombie Villager
+
+    - Smite - Kill 10 Undead
+
+    - Healing Blossom - Plant every flower
+
+
 - Deception Puzzles:
     - Shadow Veil - Hall of Darkness
         - Upon activating the Deception Altar, the player is given the Darkness effect and statues holding unlit

@@ -5,13 +5,12 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.ombremoon.sentinellib.common.event.RegisterPlayerSentinelBoxEvent;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.EffectManager;
-import com.ombremoon.spellbound.common.commands.LearnSkillsCommand;
-import com.ombremoon.spellbound.common.commands.LearnSpellCommand;
+import com.ombremoon.spellbound.common.content.commands.LearnSkillsCommand;
+import com.ombremoon.spellbound.common.content.commands.LearnSpellCommand;
 import com.ombremoon.spellbound.common.content.entity.spell.Hail;
-import com.ombremoon.spellbound.common.content.world.HailstormData;
-import com.ombremoon.spellbound.common.content.world.HailstormSavedData;
+import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormData;
+import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
-import com.ombremoon.spellbound.common.events.custom.BuildSpellEvent;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
@@ -80,7 +79,6 @@ public class NeoForgeEvents {
     @SubscribeEvent
     public static void onEntityJoinWorld(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof LivingEntity livingEntity) {
-            livingEntity.getData(SBData.STATUS_EFFECTS).init(livingEntity);
             var handler = SpellUtil.getSpellHandler(livingEntity);
             handler.initData(livingEntity);
 
@@ -133,7 +131,7 @@ public class NeoForgeEvents {
 
     @SubscribeEvent
     public static void onLevelTick(LevelTickEvent.Pre event) {
-        Level level = event.getLevel();
+       /* Level level = event.getLevel();
         HailstormData data = HailstormSavedData.get(level);
         if (level.dimension() == Level.OVERWORLD) {
             if (!level.isClientSide) {
@@ -215,7 +213,7 @@ public class NeoForgeEvents {
                     }
                 }
             }
-        }
+        }*/
     }
 
     @SubscribeEvent

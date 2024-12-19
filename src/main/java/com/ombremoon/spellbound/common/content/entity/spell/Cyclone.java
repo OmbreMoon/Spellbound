@@ -2,7 +2,7 @@ package com.ombremoon.spellbound.common.content.entity.spell;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.common.content.entity.SpellEntity;
-import com.ombremoon.spellbound.common.content.spell.ruin.hybrid.CycloneSpell;
+import com.ombremoon.spellbound.common.content.spell.ruin.air.CycloneSpell;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
 import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;

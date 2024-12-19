@@ -1,25 +1,22 @@
 package com.ombremoon.spellbound.util;
 
-import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
-import com.ombremoon.spellbound.common.magic.api.SummonSpell;
-import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
-import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.EffectManager;
+import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
 import com.ombremoon.spellbound.common.init.SBData;
-import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -35,6 +32,10 @@ public class SpellUtil {
 
     public static SkillHolder getSkillHolder(LivingEntity livingEntity) {
         return livingEntity.getData(SBData.SKILL_HOLDER);
+    }
+
+    public static EffectManager getSpellEffects(LivingEntity livingEntity) {
+        return livingEntity.getData(SBData.STATUS_EFFECTS);
     }
 
     public static CompoundTag storeSpell(SpellType<?> spellType) {
@@ -81,9 +82,9 @@ public class SpellUtil {
     }
 
     /**
-     * Sets the spell data attachment of a given entity to the given spell
-     * @param entity The summon/SpellEntity to set the spell of
-     * @param spell The spell
+     * Sets the spells data attachment of a given entity to the given spells
+     * @param entity The summon/SpellEntity to set the spells of
+     * @param spell The spells
      */
     public static void setSpell(@NotNull Entity entity, @NotNull AbstractSpell spell) {
         entity.setData(SBData.SPELL_ID, spell.getId());

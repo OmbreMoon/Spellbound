@@ -55,7 +55,6 @@ public class ElectricChargeSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStart(SpellContext context) {
-        super.onSpellStart(context);
         Entity target = context.getTarget();
         if (target != null && this.entityIds.size() < 3)
             this.entityIds.add(target.getId());
@@ -79,6 +78,11 @@ public class ElectricChargeSpell extends AnimatedSpell {
             }
             endSpell();
         }
+    }
+
+    @Override
+    protected void onSpellStop(SpellContext context) {
+
     }
 
     @Override

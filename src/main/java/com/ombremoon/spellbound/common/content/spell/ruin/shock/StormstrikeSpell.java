@@ -17,10 +17,14 @@ public class StormstrikeSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStart(SpellContext context) {
-        super.onSpellStart(context);
         Level level = context.getLevel();
         if (!level.isClientSide) {
             this.shootProjectile(context, SBEntities.STORMSTRIKE_BOLT.get(), 2.5F, 1.0F);
         }
+    }
+
+    @Override
+    protected void onSpellStop(SpellContext context) {
+
     }
 }

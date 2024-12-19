@@ -73,7 +73,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * The main class used to create spells. Spells exist on both the client and server and must be handled as such. In general, spells should extend {@link AnimatedSpell} unless you don't want the player to have an animation while casting the spell.
+ * The main class used to create spells. Spells exist on both the client and server and must be handled as such. In general, spells should extend {@link AnimatedSpell} unless you don't want the player to have an animation while casting the spells.
  */
 @SuppressWarnings("unchecked")
 public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, Loggable {
@@ -108,7 +108,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
     /**
      * <p>
-     * Creates a static instance of a spell builder.
+     * Creates a static instance of a spells builder.
      * </p>
      * See:
      * <ul>
@@ -116,7 +116,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      *     <li>{@code ChanneledSpell.Builder}</li>
      *     <li>{@code SummonSpell.Builder}</li>
      * </ul>
-     * @return The spell builder
+     * @return The spells builder
      */
     public static <T extends AbstractSpell> Builder<T> createBuilder() {
         return new Builder<>();
@@ -142,8 +142,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns the spell type of the spell.
-     * @return The spell type
+     * Returns the spells type of the spells.
+     * @return The spells type
      */
     public SpellType<?> getSpellType() {
         return this.spellType;
@@ -154,8 +154,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns the total mana cost to cast the spell.
-     * @param caster The living entity casting the spell
+     * Returns the total mana cost to cast the spells.
+     * @param caster The living entity casting the spells
      * @return The mana cost
      */
     public float getManaCost(LivingEntity caster) {
@@ -163,8 +163,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns the total duration the spell will remain active.
-     * @return The spell duration
+     * Returns the total duration the spells will remain active.
+     * @return The spells duration
      */
     public int getDuration() {
         return (int) Math.floor(this.duration.apply(this.context) * getModifier(ModifierType.DURATION));
@@ -175,7 +175,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns the sound played when the spell cast is complete.
+     * Returns the sound played when the spells cast is complete.
      * @return The cast sound
      */
     protected SoundEvent getCastSound() {
@@ -183,7 +183,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns the type of cast the spell takes. Instant spells will cast instantly after spell cast, charged spell have the capability to be charged after spell cast, and channeled spells must be channeled to keep the spell active.
+     * Returns the type of cast the spells takes. Instant spells will cast instantly after spells cast, charged spells have the capability to be charged after spells cast, and channeled spells must be channeled to keep the spells active.
      * @return The cast type
      */
     public CastType getCastType() {
@@ -191,7 +191,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns the amount of time it takes to cast the spell.
+     * Returns the amount of time it takes to cast the spells.
      * @return The cast time
      */
     public int getCastTime() {
@@ -199,8 +199,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns the resource location of the current spell's spell type.
-     * @return The spell type's resource location
+     * Returns the resource location of the current spells's spells type.
+     * @return The spells type's resource location
      */
     public ResourceLocation location() {
         return SBSpells.REGISTRY.getKey(this.spellType);
@@ -220,7 +220,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      */
     protected String getOrCreateNameId() {
         if (this.nameId == null) {
-            this.nameId = Util.makeDescriptionId("spell", this.location());
+            this.nameId = Util.makeDescriptionId("spells", this.location());
         }
         return this.nameId;
     }
@@ -239,14 +239,14 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      */
     protected String getOrCreateDescriptionId() {
         if (this.descriptionId == null) {
-            this.descriptionId = Util.makeDescriptionId("spell.description", this.location());
+            this.descriptionId = Util.makeDescriptionId("spells.description", this.location());
         }
         return this.descriptionId;
     }
 
     /**
-     * Returns the texture location of the spell used in the casting overlay.
-     * @return The spell texture resource location
+     * Returns the texture location of the spells used in the casting overlay.
+     * @return The spells texture resource location
      */
     public ResourceLocation getTexture() {
         ResourceLocation name = this.location();
@@ -254,65 +254,65 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns a component of the spell name.
-     * @return The spell name
+     * Returns a component of the spells name.
+     * @return The spells name
      */
     public MutableComponent getName() {
         return Component.translatable(this.getNameId());
     }
 
     /**
-     * Returns a component of the spell description.
-     * @return The spell description
+     * Returns a component of the spells description.
+     * @return The spells description
      */
     public MutableComponent getDescription() {
         return Component.translatable(this.getDescriptionId());
     }
 
     /**
-     * Returns the spell type from the spell registry given a resource location.
-     * @param resourceLocation The spell type resource location
-     * @return The spell type
+     * Returns the spells type from the spells registry given a resource location.
+     * @param resourceLocation The spells type resource location
+     * @return The spells type
      */
     public static SpellType<?> getSpellByName(ResourceLocation resourceLocation) {
         return SBSpells.REGISTRY.get(resourceLocation);
     }
 
     /**
-     * Returns the spell path of the spell.
-     * @return The spell path
+     * Returns the spells path of the spells.
+     * @return The spells path
      */
     public SpellPath getPath() {
         return this.getSpellType().getPath();
     }
 
     /**
-     * Returns the sub path of the spell if present.
-     * @return The spell sub path
+     * Returns the sub path of the spells if present.
+     * @return The spells sub path
      */
     public @Nullable SpellPath getSubPath() {
         return this.getSpellType().getSubPath();
     }
 
     /**
-     * Returns a temporary {@link SpellContext} for the spell. Specifically used for casting mechanics.
-     * @return The casting specific spell context
+     * Returns a temporary {@link SpellContext} for the spells. Specifically used for casting mechanics.
+     * @return The casting specific spells context
      */
     public SpellContext getCastContext() {
         return this.castContext;
     }
 
     /**
-     * Sets a temporary {@link SpellContext} for the spell. Specifically used for casting mechanics.
-     * @param context The casting specific spell context
+     * Sets a temporary {@link SpellContext} for the spells. Specifically used for casting mechanics.
+     * @param context The casting specific spells context
      */
     public void setCastContext(SpellContext context) {
         this.castContext = context;
     }
 
     /**
-     * The specific cast id for this spell type within the caster's active spells. Useful for getting a specific instance(s) of a spell.
-     * @return The spell's cast id
+     * The specific cast id for this spells type within the caster's active spells. Useful for getting a specific instance(s) of a spells.
+     * @return The spells's cast id
      */
     public int getId() {
         return this.castId;
@@ -320,15 +320,15 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
     /**
      * Defines the default data values of the synced data keys.
-     * @param builder The synced spell data builder
+     * @param builder The synced spells data builder
      */
     protected void defineSpellData(SyncedSpellData.Builder builder) {
 
     }
 
     /**
-     * Returns the synced spell data. Is used to get/set spell data on server that is synced with the client every update interval tick. Default data values must be defined before they can be manipulated.
-     * @return The synced spell data
+     * Returns the synced spells data. Is used to get/set spells data on server that is synced with the client every update interval tick. Default data values must be defined before they can be manipulated.
+     * @return The synced spells data
      */
     public SyncedSpellData getSpellData() {
         return this.spellData;
@@ -344,7 +344,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Loads recast data from the previously cast spell.
+     * Loads recast data from the previously cast spells.
      * @param nbt The saved data tag
      */
     public void load(CompoundTag nbt) {
@@ -359,6 +359,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         if (init) {
             this.startSpell();
         } else if (!isInactive) {
+//            log(getSpellType().location());
             if (this.shouldTickSpellEffect(this.context)) {
                 this.onSpellTick(this.context);
             }
@@ -374,7 +375,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Triggers the spell to start ticking.
+     * Triggers the spells to start ticking.
      */
     private void startSpell() {
         this.init = false;
@@ -384,7 +385,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Ends the spell. Can be called to end the spell early.
+     * Ends the spells. Can be called to end the spells early.
      */
     public final void endSpell() {
         this.onSpellStop(this.context);
@@ -396,37 +397,35 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Called every tick while a spell is active.
-     * @param context The spell context
+     * Called every tick while a spells is active.
+     * @param context The spells context
      */
     protected void onSpellTick(SpellContext context) {
     }
 
     /**
-     * Called when a spell starts.
-     * @param context The spell context
+     * Called when a spells starts.
+     * @param context The spells context
      */
-    protected void onSpellStart(SpellContext context) {
-    }
+    protected abstract void onSpellStart(SpellContext context);
 
     /**
-     * Called when a spell is recast.
-     * @param context The spell context
+     * Called when a spells is recast.
+     * @param context The spells context
      */
     protected void onSpellRecast(SpellContext context) {
     }
 
     /**
-     * Called when a spell ends.
-     * @param context The spell context
+     * Called when a spells ends.
+     * @param context The spells context
      */
-    protected void onSpellStop(SpellContext context) {
-    }
+    protected abstract void onSpellStop(SpellContext context);
 
     //TODO: CHECK
     /**
      * Called at the start of casting.
-     * @param context The casting specific spell context
+     * @param context The casting specific spells context
      */
     public void onCastStart(SpellContext context) {
         if (!context.getLevel().isClientSide) {
@@ -437,7 +436,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
     /**
      * Called every tick while the caster is casting
-     * @param context The casting specific spell context
+     * @param context The casting specific spells context
      * @param castTime The current cast tick
      */
     public void whenCasting(SpellContext context, int castTime) {
@@ -450,7 +449,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
     /**
      * Called when a cast condition isn't met or if the cast key is released before the cast duration.
-     * @param context The casting specific spell context
+     * @param context The casting specific spells context
      */
     public void onCastReset(SpellContext context) {
         context.getSpellHandler().setCurrentlyCastingSpell(null);
@@ -459,7 +458,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Called when spell data is synced from the server to the client
+     * Called when spells data is synced from the server to the client
      * @param newData The list of data values being synced
      */
     @Override
@@ -467,24 +466,24 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Called when spell data is synced from the server to the client
-     * @param dataKey The specific spell data key being synced
+     * Called when spells data is synced from the server to the client
+     * @param dataKey The specific spells data key being synced
      */
     @Override
     public void onSpellDataUpdated(SpellDataKey<?> dataKey) {
     }
 
     /**
-     * Checks if the spell should tick. Can be used to start/stop spell effects in certain conditions
-     * @param context The spell context
-     * @return Whether the spell should tick
+     * Checks if the spells should tick. Can be used to start/stop spells effects in certain conditions
+     * @param context The spells context
+     * @return Whether the spells should tick
      */
     protected boolean shouldTickSpellEffect(SpellContext context) {
         return true;
     }
 
     /**
-     * Hurts the target entity, taking spell potency into account. Suitable for modded damage types.
+     * Hurts the target entity, taking spells potency into account. Suitable for modded damage types.
      * @param ownerEntity The damage causing entity
      * @param targetEntity The hurt entity
      * @param damageType The damage type
@@ -575,8 +574,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns the modified potency of the spell
-     * @param initialAmount The initial amount of the spell damage/effect
+     * Returns the modified potency of the spells
+     * @param initialAmount The initial amount of the spells damage/effect
      * @return The modified damage/effect amount
      */
     protected float potency(LivingEntity livingEntity, float initialAmount) {
@@ -588,7 +587,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns the modifier amount for the caster of the spell specifically.
+     * Returns the modifier amount for the caster of the spells specifically.
      * @param modifierType The type of modifier
      * @return The modifier amount
      */
@@ -626,7 +625,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
     /**
      * Spawns the desired entity as a summon to a given location
-     * @param context The context of the spell
+     * @param context The context of the spells
      * @param entityType The entity being created
      * @param spawnPos The spawn position
      * @param extraData Callback to initialize extra data on the entity
@@ -634,7 +633,6 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param <T> The type of entity
      */
     protected <T extends Entity> T summonEntity(SpellContext context, EntityType<T> entityType, Vec3 spawnPos, Consumer<T> extraData) {
-        var handler = context.getSpellHandler();
         Level level = context.getLevel();
         LivingEntity caster = context.getCaster();
 
@@ -646,10 +644,6 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
             summon.setYRot(caster.getYRot());
             extraData.accept(summon);
             level.addFreshEntity(summon);
-
-            if (summon instanceof LivingEntity)
-                handler.addSummon(summon.getId());
-
             return summon;
         }
         return null;
@@ -687,7 +681,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Checks if the caster of the spell has an attribute modifier
+     * Checks if the caster of the spells has an attribute modifier
      * @param attribute The attribute to check if modified
      * @param modifier ResourceLocation of the AttributeModifier
      * @return true if the modifier is present, false otherwise
@@ -697,7 +691,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Checks whether the entity is the caster of this spell.
+     * Checks whether the entity is the caster of this spells.
      * @param livingEntity The living entity
      * @return If the living entity is the caster
      */
@@ -706,7 +700,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Checks if the damage dealt was spell damage.
+     * Checks if the damage dealt was spells damage.
      * @param damageSource The source of damage
      * @return Whether the damage source has the {@link SBTags.DamageTypes Spell Damage} tag
      */
@@ -728,9 +722,9 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns a number from 0 to 1 based on the amount of time a spell was charged.
-     * @param charge The amount of time the spell has been charged
-     * @param totalCharge The amount of time need for the spell to reach maximum charge
+     * Returns a number from 0 to 1 based on the amount of time a spells was charged.
+     * @param charge The amount of time the spells has been charged
+     * @param totalCharge The amount of time need for the spells to reach maximum charge
      * @return A proportion of the charge to total charge
      */
     public static float getPowerForTime(int charge, float totalCharge) {
@@ -882,16 +876,16 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Will allow a spell to be recast without calling the end methods of the previously cast spell.
-     * @return Whether the spell should skip the end methods on recast.
+     * Will allow a spells to be recast without calling the end methods of the previously cast spells.
+     * @return Whether the spells should skip the end methods on recast.
      */
     public boolean skipEndOnRecast() {
         return this.skipEndOnRecast;
     }
 
     /**
-     * Checks if the {@link GenericSpellLayer} should render a vfx layer when the spell is active.
-     * @return Whether the spell has a render layer
+     * Checks if the {@link GenericSpellLayer} should render a vfx layer when the spells is active.
+     * @return Whether the spells has a render layer
      */
     public boolean hasLayer() {
         return this.hasLayer;
@@ -906,7 +900,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Initializes spell data before activation. Will only activate the spell upon a successful cast condition.
+     * Initializes spells data before activation. Will only activate the spells upon a successful cast condition.
      * @param caster The casting living entity
      * @param level The current level
      * @param blockPos The block position the caster is in when the cast timer ends
@@ -970,8 +964,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns the spell cast prior to this one of the same spell type. Necessary for saving/loading data on recast spells.
-     * @return The previously cast spell
+     * Returns the spells cast prior to this one of the same spells type. Necessary for saving/loading data on recast spells.
+     * @return The previously cast spells
      */
     private AbstractSpell getPreviouslyCastSpell() {
         var handler = this.context.getSpellHandler();
@@ -985,7 +979,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Called when the spell actually activates. That is after mana consumption and cast condition have already been taken into account.
+     * Called when the spells actually activates. That is after mana consumption and cast condition have already been taken into account.
      */
     private void activateSpell() {
         var handler = this.context.getSpellHandler();
@@ -1005,7 +999,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Registers the controllers for the spell vfx layer. Layers must be geckolib models that use the {@link SpellLayerModel} and {@link SpellLayerRenderer}.
+     * Registers the controllers for the spells vfx layer. Layers must be geckolib models that use the {@link SpellLayerModel} and {@link SpellLayerRenderer}.
      * @param controllers The object to register your controller instances to
      */
     @Override
@@ -1028,7 +1022,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Base builder class for all spell builders. Should always be instantiated statically using the helper method from its parent class.
+     * Base builder class for all spells builders. Should always be instantiated statically using the helper method from its parent class.
      * @param <T> Type extends AbstractSpell to give access to private fields in a static context
      */
     public static class Builder<T extends AbstractSpell> {
@@ -1045,9 +1039,9 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         protected int updateInterval = 3;
 
         /**
-         * Sets the mana cost of the spell.
+         * Sets the mana cost of the spells.
          * @param manaCost The mana cost
-         * @return The spell builder
+         * @return The spells builder
          */
         public Builder<T> manaCost(int manaCost) {
             this.manaCost = manaCost;
@@ -1055,9 +1049,9 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         }
 
         /**
-         * Sets the duration of the spell.
+         * Sets the duration of the spells.
          * @param duration The duration
-         * @return The spell builder
+         * @return The spells builder
          */
         public Builder<T> duration(Function<SpellContext, Integer> duration) {
             this.duration = duration;
@@ -1065,9 +1059,9 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         }
 
         /**
-         * Sets the amount of xp scaled from the spell's mana cost gained by the caster.
+         * Sets the amount of xp scaled from the spells's mana cost gained by the caster.
          * @param modifier The scaling amount
-         * @return The spell builder
+         * @return The spells builder
          */
         public Builder<T> xpModifier(float modifier) {
             this.xpModifier = modifier;
@@ -1075,9 +1069,9 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         }
 
         /**
-         * Sets the amount of time it takes to cast the spell.
+         * Sets the amount of time it takes to cast the spells.
          * @param castTime The cast time
-         * @return The spell builder
+         * @return The spells builder
          */
         public Builder<T> castTime(int castTime) {
             this.castTime = castTime;
@@ -1085,9 +1079,9 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         }
 
         /**
-         * Sets the cast type of the spell.
+         * Sets the cast type of the spells.
          * @param castType The cast type
-         * @return The spell builder
+         * @return The spells builder
          */
         public Builder<T> castType(CastType castType) {
             this.castType = castType;
@@ -1097,7 +1091,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         /**
          * Sets the sound played on a successful cast.
          * @param castSound The cast sound
-         * @return The spell builder
+         * @return The spells builder
          */
         public Builder<T> castSound(SoundEvent castSound) {
             this.castSound = castSound;
@@ -1105,9 +1099,9 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         }
 
         /**
-         * Sets the necessary condition for a spell to successfully be cast.
+         * Sets the necessary condition for a spells to successfully be cast.
          * @param castCondition The cast predicate
-         * @return The spell builder
+         * @return The spells builder
          */
         public Builder<T> castCondition(BiPredicate<SpellContext, T> castCondition) {
             this.castPredicate = castCondition;
@@ -1117,7 +1111,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         /**
          * Used to append conditions of spells whose parents already have cast conditions.
          * @param castCondition The appended cast predicate
-         * @return The spell builder
+         * @return The spells builder
          */
         public Builder<T> additionalCondition(BiPredicate<SpellContext, T> castCondition) {
             this.castPredicate = this.castPredicate.and(castCondition);
@@ -1125,8 +1119,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         }
 
         /**
-         * Allows the spell to replace the previously cast spell of the same type in the active spell list. Will save data on recast.
-         * @return The spell builder
+         * Allows the spells to replace the previously cast spells of the same type in the active spells list. Will save data on recast.
+         * @return The spells builder
          */
         public Builder<T> fullRecast() {
             this.fullRecast = true;
@@ -1134,8 +1128,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         }
 
         /**
-         * Allows the spell to skip the endSpell method. Mainly used for recasting.
-         * @return The spell builder
+         * Allows the spells to skip the endSpell method. Mainly used for recasting.
+         * @return The spells builder
          */
         public Builder<T> skipEndOnRecast() {
             this.skipEndOnRecast = true;
@@ -1143,8 +1137,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         }
 
         /**
-         * Must be set to render the layer set by this spell.
-         * @return The spell builder
+         * Must be set to render the layer set by this spells.
+         * @return The spells builder
          */
         public Builder<T> hasLayer() {
             this.hasLayer = true;
@@ -1152,9 +1146,9 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         }
 
         /**
-         * Sets the update interval for when spell data should be synced from the server to the client.
+         * Sets the update interval for when spells data should be synced from the server to the client.
          * @param updateInterval The update interval
-         * @return The spell builder
+         * @return The spells builder
          */
         public Builder<T> updateInterval(int updateInterval) {
             this.updateInterval = updateInterval;

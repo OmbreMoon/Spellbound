@@ -1,10 +1,7 @@
 package com.ombremoon.spellbound.datagen;
 
 import com.ombremoon.spellbound.Constants;
-import net.minecraft.core.Cloner;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -33,6 +30,7 @@ public class ModDataGen {
         generator.addProvider(includeServer, new ModTagProvider.Blocks(packOutput, event.getLookupProvider(), existingFileHelper));
         generator.addProvider(includeServer, new ModTagProvider.Items(packOutput, event.getLookupProvider(), existingFileHelper));
         generator.addProvider(includeServer, new ModGlobalLootModifiersProvider(packOutput, lookupProvider));
+        generator.addProvider(includeServer, new ModDivineActionProvider(packOutput, lookupProvider));
         generator.addProvider(includeClient, new ModItemModelProvider(packOutput, existingFileHelper));
         generator.addProvider(includeClient, new ModBlockStateProvider(packOutput, existingFileHelper));
         generator.addProvider(includeClient, new ModLangProvider(packOutput));

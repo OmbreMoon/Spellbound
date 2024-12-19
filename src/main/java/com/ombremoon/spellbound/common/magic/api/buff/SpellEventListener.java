@@ -46,7 +46,7 @@ public class SpellEventListener {
      * @param event The event
      * @param location The event resource location
      * @param consumer The action to take place when the event is fired
-     * @param <T> The spell event class
+     * @param <T> The spells event class
      */
     public <T extends SpellEvent> void addListener(IEvent<T> event, ResourceLocation location, Consumer<T> consumer) {
         if (checkSide(event)) return;
@@ -99,7 +99,7 @@ public class SpellEventListener {
      * @param event The event
      * @param instance The event instance
      * @return The list of event instances for the specific event
-     * @param <T> The spell event class
+     * @param <T> The spells event class
      */
     private <T extends SpellEvent> List<EventInstance<? extends SpellEvent>> refreshListeners(IEvent<T> event, EventInstance<T> instance) {
         var list = this.events.get(event);
@@ -115,9 +115,9 @@ public class SpellEventListener {
     /**
      * Accepts the event consumer given the event is on the proper side and isn't cancelled/
      * @param event The event
-     * @param spellEvent The spell event instance
+     * @param spellEvent The spells event instance
      * @return If the event was actually fired
-     * @param <T> The spell event class
+     * @param <T> The spells event class
      */
     @SuppressWarnings("unchecked")
     public <T extends SpellEvent> boolean fireEvent(IEvent<?> event, T spellEvent) {

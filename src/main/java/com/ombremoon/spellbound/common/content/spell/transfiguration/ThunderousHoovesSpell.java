@@ -46,7 +46,6 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStart(SpellContext context) {
-        super.onSpellStart(context);
         LivingEntity caster = context.getCaster();
         Level level = context.getLevel();
         var skills = context.getSkills();
@@ -155,7 +154,6 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStop(SpellContext context) {
-        super.onSpellStop(context);
         LivingEntity caster = context.getCaster();
         removeMovementBenefits(caster);
         if (this.mount != null)

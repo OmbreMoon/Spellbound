@@ -39,6 +39,7 @@ import java.util.function.BiFunction;
 //TODO: CHANGE MODEL BASED ON SKILL
 //TODO: ADD SOLAR BURST ANIMATIONS
 //TODO: FIX ATTACK CONDITION
+//TODO: ADD BLUE TEXTURE FOR CONCENTRATED HEAT?
 
 public class SolarRaySpell extends ChanneledSpell {
     protected static final SpellDataKey<Integer> SOLAR_RAY_ID = SyncedSpellData.registerDataKey(SolarRaySpell.class, SBDataTypes.INT.get());
@@ -124,10 +125,8 @@ public class SolarRaySpell extends ChanneledSpell {
         handler.setStationaryTicks(1);
 
         SolarRay solarRay = getSolarRay(context);
-        if (solarRay != null) {
+        if (solarRay != null)
             solarRay.setPos(caster.position());
-            solarRay.setYRot(caster.getYRot());
-        }
     }
 
     @Override
@@ -163,12 +162,9 @@ public class SolarRaySpell extends ChanneledSpell {
         if (skills.hasSkill(SBSkills.OVERHEAT.value()) && this.ticks >= 100)
             ((ISentinel)caster).triggerSentinelBox(OVERHEAT);
 
-
         SolarRay solarRay = getSolarRay(context);
-        if (solarRay != null) {
-            solarRay.setYRot(caster.getYRot());
+        if (solarRay != null)
             solarRay.setPos(caster.position());
-        }
 
         if (context.getLevel().isClientSide && caster instanceof Player player) {
             shakeScreen(player, 10, 5);
@@ -180,6 +176,7 @@ public class SolarRaySpell extends ChanneledSpell {
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
         var handler = context.getSpellHandler();
+        var skills = context.getSkills();
         handler.setStationaryTicks(16);
         for (SentinelBox box : BOXES) {
             ((ISentinel) context.getCaster()).removeSentinelInstance(box);
@@ -187,8 +184,7 @@ public class SolarRaySpell extends ChanneledSpell {
 
         SolarRay solarRay = getSolarRay(context);
         if (solarRay != null)
-            solarRay.setEndTick(15);
-
+            solarRay.setEndTick(skills.hasSkill(SBSkills.SUNSHINE.value()) ? 15 : 9);
     }
 
     private void setSolarRay(int solarRay) {

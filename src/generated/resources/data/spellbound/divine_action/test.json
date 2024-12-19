@@ -1,0 +1,17 @@
+{
+  "criteria": {
+    "testing": {
+      "trigger": "spellbound:test"
+    }
+  },
+  "requirements": [
+    [
+      "testing"
+    ]
+  ],
+  "rewards": {
+    "spells": [
+      "spellbound:healing_touch"
+    ]
+  }
+}

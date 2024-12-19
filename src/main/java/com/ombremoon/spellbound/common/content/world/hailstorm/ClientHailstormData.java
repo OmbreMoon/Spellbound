@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common.content.world;
+package com.ombremoon.spellbound.common.content.world.hailstorm;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;

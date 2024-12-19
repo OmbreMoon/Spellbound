@@ -2,16 +2,15 @@ package com.ombremoon.spellbound.client.renderer.spell;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.ombremoon.spellbound.client.model.GenericSpellModel;
+import com.ombremoon.spellbound.client.model.GenericModel;
 import com.ombremoon.spellbound.common.content.entity.SpellEntity;
-import com.ombremoon.spellbound.common.content.entity.spell.SolarRay;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 public class GenericSpellRenderer<T extends SpellEntity> extends GeoEntityRenderer<T> {
     public GenericSpellRenderer(EntityRendererProvider.Context renderManager) {
-        super(renderManager, new GenericSpellModel<>());
+        super(renderManager, new GenericModel<>());
     }
 
     @Override
