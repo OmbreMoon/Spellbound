@@ -125,8 +125,8 @@ public class NeoForgeEvents {
 
     @SubscribeEvent
     public static void onLevelLoad(LevelEvent.Load event) {
-        HailstormData data = HailstormSavedData.get(event.getLevel());
-        data.prepareHail();
+//        HailstormData data = HailstormSavedData.get(event.getLevel());
+//        data.prepareHail();
     }
 
     @SubscribeEvent

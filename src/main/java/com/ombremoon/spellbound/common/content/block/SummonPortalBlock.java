@@ -30,6 +30,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class SummonPortalBlock extends BaseEntityBlock {
+    public static final ResourceKey<Level> DIM = ResourceKey.create(Registries.DIMENSION, CommonClass.customLocation("test"));
     public static final MapCodec<SummonPortalBlock> CODEC = simpleCodec(SummonPortalBlock::new);
     protected static final VoxelShape SHAPE = Block.box(0.0, 6.0, 0.0, 16.0, 12.0, 16.0);
 
@@ -68,8 +69,7 @@ public class SummonPortalBlock extends BaseEntityBlock {
                 state.getShape(level, pos),
                 BooleanOp.AND
         )) {
-            var levelKey = ResourceKey.create(Registries.DIMENSION, CommonClass.customLocation("test"));
-            ServerLevel arena = DynamicDimensionFactory.getOrCreateWorld(server, levelKey, TestDimensionFactory::createDimension);
+            ServerLevel arena = DynamicDimensionFactory.getOrCreateWorld(server, DIM, TestDimensionFactory::createLevel);
             if (arena != null)
                 DynamicDimensionFactory.spawnInArena(entity, arena);
         }

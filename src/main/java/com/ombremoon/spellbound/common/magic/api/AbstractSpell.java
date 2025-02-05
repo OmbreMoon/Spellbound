@@ -33,7 +33,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -43,13 +42,11 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -347,7 +344,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * Loads recast data from the previously cast spells.
      * @param nbt The saved data tag
      */
-    public void load(CompoundTag nbt) {
+    public void loadData(CompoundTag nbt) {
 
     }
 
@@ -498,7 +495,9 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         if (flag) {
             //BUILD UP EFFECTS
             ownerEntity.setLastHurtByMob(targetEntity);
-            awardXp(hurtAmount * xpModifier);
+            //Results in null error for stormstrike since skill holder isn't initialized. Find alternative.
+
+            //awardXp(hurtAmount * xpModifier);
         }
         return flag;
     }
@@ -509,6 +508,10 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
     public boolean hurt(LivingEntity targetEntity, DamageSource source, float hurtAmount) {
         return hurt(this.caster, targetEntity, source.typeHolder().getKey(), hurtAmount);
+    }
+
+    public boolean drainMana(LivingEntity targetEntity, float amount) {
+        return SpellUtil.getSpellHandler(targetEntity).consumeMana(amount);
     }
 
     /**
@@ -935,7 +938,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
                 this.castId = prevSpell.castId + 1;
                 incrementId = false;
                 CompoundTag nbt = prevSpell.saveData(new CompoundTag());
-                this.load(nbt);
+                this.loadData(nbt);
             }
         }
 

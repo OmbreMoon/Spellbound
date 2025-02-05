@@ -78,6 +78,19 @@ public class SBSkills {
     public static final Holder<Skill> AMPLIFY = registerSkill("amplify", -50, 200, preReqs(CHAIN_REACTION));
     public static final Holder<Skill> ALTERNATING_CURRENT = registerSkill("alternating_current", 0, 200, preReqs(CHAIN_REACTION));
 
+    //Storm Rift
+    public static final Holder<Skill> STORM_RIFT = registerSkill("storm_rift");
+    public static final Holder<Skill> STORM_FURY = registerSkill("storm_fury", 0, 50, preReqs(STORM_RIFT));
+    public static final Holder<Skill> DISPLACEMENT_FIELD = registerSkill("displacement_field", 50, 50, preReqs(STORM_RIFT));
+    public static final Holder<Skill> MAGNETIC_FIELD = registerSkill("magnetic_field", 0, 100, preReqs(STORM_FURY));
+    public static final Holder<Skill> EVENT_HORIZON = registerSkill("event_horizon", -50, 100, preReqs(STORM_FURY));
+    public static final Holder<Skill> CHARGED_RIFT = registerSkill("charged_rift", 0, 150, preReqs(MAGNETIC_FIELD));
+    public static final Holder<Skill> MOTION_SICKNESS = registerSkill("motion_sickness", 0, 200, preReqs(CHARGED_RIFT));
+    public static final Holder<Skill> FORCED_WARP = registerSkill("forced_warp", -50, 200, preReqs(CHARGED_RIFT));
+    public static final Holder<Skill> STORM_CALLER = registerSkill("storm_caller", 50, 200, preReqs(CHARGED_RIFT));
+    public static final Holder<Skill> IMPLOSION = registerSkill("implosion", -25, 250, preReqs(FORCED_WARP, MOTION_SICKNESS, STORM_CALLER));
+    public static final Holder<Skill> ORBITAL_SHELL = registerSkill("orbital_shell", 25, 250, preReqs(FORCED_WARP, MOTION_SICKNESS, STORM_CALLER));
+
     //Cyclone
     public static final Holder<Skill> CYCLONE = registerSkill("cyclone");
     public static final Holder<Skill> EYE_OF_THE_STORM = registerSkill("eye_of_the_storm", -50, 50, preReqs(CYCLONE));
@@ -170,6 +183,19 @@ public class SBSkills {
     public static final Holder<Skill> BLASPHEMY = registerSkill("blasphemy", -50, 50, preReqs(HEALING_TOUCH));
     public static final Holder<Skill> CONVALESCENCE = registerSkill("convalescence", -50, 100, preReqs(HEALING_TOUCH));
     public static final Holder<Skill> OAK_BLESSING = registerSkill("oak_blessing", 0, 50, preReqs(HEALING_STREAM));
+
+    //Healing Blossom
+//    public static final Holder<Skill> HEALING_BLOSSOM = registerSkill("healing_blossom");
+//    public static final Holder<Skill> THORNY_VINES = registerSkill("healing_blossom");
+//    public static final Holder<Skill> BLOOM = registerSkill("healing_blossom");
+//    public static final Holder<Skill> ETERNAL_SPRING = registerSkill("healing_blossom");
+//    public static final Holder<Skill> FLOWER_FIELD = registerSkill("healing_blossom");
+//    public static final Holder<Skill> FLOURISHING_GROWTH = registerSkill("healing_blossom");
+//    public static final Holder<Skill> HEALING_WINDS = registerSkill("healing_blossom");
+//    public static final Holder<Skill> BURST_OF_LIFE = registerSkill("healing_blossom");
+//    public static final Holder<Skill> PETAL_SHIELD = registerSkill("healing_blossom");
+//    public static final Holder<Skill> VERDANT_RENEWAL = registerSkill("healing_blossom");
+//    public static final Holder<Skill> REBIRTH = registerSkill("healing_blossom");
 
     //Shadowbond
     public static Holder<Skill> SHADOWBOND = registerSkill("shadowbond");

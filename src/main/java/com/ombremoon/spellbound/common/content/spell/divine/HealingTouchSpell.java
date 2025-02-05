@@ -152,7 +152,7 @@ public class HealingTouchSpell extends AnimatedSpell {
     }
 
     @Override
-    public void load(CompoundTag nbt) {
+    public void loadData(CompoundTag nbt) {
         this.overgrowthStacks = nbt.getInt("overgrowth");
         this.blessingDuration = nbt.getInt("blessing");
     }

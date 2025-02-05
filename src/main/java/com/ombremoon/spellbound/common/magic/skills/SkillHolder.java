@@ -107,6 +107,10 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
         return false;
     }
 
+    public boolean hasSkill(Holder<Skill> skill) {
+        return hasSkill(skill.value());
+    }
+
     public boolean hasSkill(Skill skill) {
         var spellType = skill.getSpell();
         if (unlockedSkills.get(spellType) == null) return false;

@@ -2,12 +2,10 @@ package com.ombremoon.spellbound.common.content.spell.deception;
 
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.common.content.effects.SBEffectInstance;
-import com.ombremoon.spellbound.common.content.entity.living.LivingShadow;
 import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
 import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;
 import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
-import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
@@ -252,8 +250,8 @@ public class ShadowbondSpell extends AnimatedSpell {
     }
 
     @Override
-    public void load(CompoundTag nbt) {
-        super.load(nbt);
+    public void loadData(CompoundTag nbt) {
+        super.loadData(nbt);
         this.firstTarget = nbt.getInt("FirstTargetId");
         this.secondTarget = nbt.getInt("SecondTargetId");
         this.targetList = IntArrayList.of(nbt.getIntArray("TargetList"));

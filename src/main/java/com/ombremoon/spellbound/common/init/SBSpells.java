@@ -5,11 +5,13 @@ import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.content.spell.TestSpell;
 import com.ombremoon.spellbound.common.content.spell.deception.PurgeMagicSpell;
 import com.ombremoon.spellbound.common.content.spell.deception.ShadowbondSpell;
+import com.ombremoon.spellbound.common.content.spell.divine.HealingBlossomSpell;
 import com.ombremoon.spellbound.common.content.spell.divine.HealingTouchSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.VolcanoSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.air.CycloneSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.ElectricChargeSpell;
+import com.ombremoon.spellbound.common.content.spell.ruin.shock.StormRiftSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.StormstrikeSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.SpiritTotemSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.WildMushroomSpell;
@@ -52,6 +54,10 @@ public class SBSpells {
             .skills(SBSkills.ELECTRIC_CHARGE, SBSkills.ELECTRIFICATION, SBSkills.SUPERCONDUCTOR, SBSkills.CYCLONIC_FURY,
                     SBSkills.OSCILLATION, SBSkills.HIGH_VOLTAGE, SBSkills.UNLEASHED_STORM, SBSkills.STORM_SURGE,
                     SBSkills.CHAIN_REACTION, SBSkills.AMPLIFY, SBSkills.ALTERNATING_CURRENT));
+    public static final Supplier<SpellType<StormRiftSpell>> STORM_RIFT = registerSpell("storm_rift", shockRuinBuilder("storm_rift", StormRiftSpell::new)
+            .skills(SBSkills.STORM_RIFT, SBSkills.STORM_FURY, SBSkills.DISPLACEMENT_FIELD, SBSkills.MAGNETIC_FIELD,
+                    SBSkills.EVENT_HORIZON, SBSkills.CHARGED_RIFT, SBSkills.MOTION_SICKNESS, SBSkills.FORCED_WARP,
+                    SBSkills.STORM_CALLER, SBSkills.IMPLOSION, SBSkills.ORBITAL_SHELL));
     public static final Supplier<SpellType<CycloneSpell>> CYCLONE = registerSpell("cyclone", ruinBuilder("cyclone", CycloneSpell::new)
             .skills(SBSkills.CYCLONE, SBSkills.WHIRLING_TEMPEST, SBSkills.VORTEX,
                     SBSkills.FALLING_DEBRIS, SBSkills.MAELSTROM, SBSkills.HURRICANE, SBSkills.EYE_OF_THE_STORM,

@@ -204,7 +204,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
     }
 
     @Override
-    public void load(CompoundTag nbt) {
+    public void loadData(CompoundTag nbt) {
         this.entityIds = new IntOpenHashSet(nbt.getIntArray("ChargedTargets"));
         this.discharged = nbt.getBoolean("Discharged");
         this.discharging = nbt.getBoolean("Discharging");

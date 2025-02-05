@@ -1,6 +1,5 @@
 package com.ombremoon.spellbound.common.content.spell.ruin.fire;
 
-import com.ombremoon.sentinellib.api.BoxUtil;
 import com.ombremoon.sentinellib.api.box.AABBSentinelBox;
 import com.ombremoon.sentinellib.api.box.OBBSentinelBox;
 import com.ombremoon.sentinellib.api.box.SentinelBox;

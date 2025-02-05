@@ -4,9 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.ombremoon.spellbound.CommonClass;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.WorldGenRegion;
@@ -15,6 +13,7 @@ import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.FixedBiomeSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -34,25 +33,22 @@ import java.util.concurrent.CompletableFuture;
 public class TestChunkGenerator extends ChunkGenerator {
     public static ResourceKey<Biome> TEST_BIOME = ResourceKey.create(Registries.BIOME, CommonClass.customLocation("test"));
 
-    public static final MapCodec<TestChunkGenerator> CODEC = RecordCodecBuilder.mapCodec(
-            instance -> instance.group(
-                    RegistryOps.retrieveRegistryLookup(Registries.BIOME).forGetter(TestChunkGenerator::getBiomes)
-            ).apply(instance, instance.stable(TestChunkGenerator::new))
-    );
+    public static final MapCodec<TestChunkGenerator> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            BiomeSource.CODEC.fieldOf("biome_source").forGetter(TestChunkGenerator::getBiomeRegistry)
+    ).apply(instance, TestChunkGenerator::new));
 
-    private final HolderLookup.RegistryLookup<Biome> biomes;
+    private final BiomeSource biomes;
 
-    public HolderLookup.RegistryLookup<Biome> getBiomes() {
+    public BiomeSource getBiomeRegistry() {
         return this.biomes;
     }
 
     public TestChunkGenerator(MinecraftServer server) {
-        this(server.registryAccess()
-                .registryOrThrow(Registries.BIOME).asLookup());
+        this(new FixedBiomeSource(server.registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(TEST_BIOME)));
     }
 
-    public TestChunkGenerator(HolderLookup.RegistryLookup<Biome> biomes) {
-        super(new FixedBiomeSource(biomes.getOrThrow(TEST_BIOME)));
+    public TestChunkGenerator(BiomeSource biomes) {
+        super(biomes);
         this.biomes = biomes;
     }
 

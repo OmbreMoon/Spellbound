@@ -6,15 +6,14 @@ import com.ombremoon.spellbound.common.init.SBEntities;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.api.*;
 import com.ombremoon.spellbound.common.magic.api.buff.*;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import com.ombremoon.spellbound.util.portal.PortalInfo;
+import com.ombremoon.spellbound.util.portal.PortalMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
@@ -27,13 +26,10 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.List;
-import java.util.Map;
 
 //TODO: ADD OPEN/CLOSE ANIMATIONS
 
@@ -44,7 +40,7 @@ public class ShadowGateSpell extends AnimatedSpell {
                 .duration(context -> 1200)
                 .castCondition((context, spell) -> {
                     var skills = context.getSkills();
-                    int activePortals = spell.portalInfo.size();
+                    int activePortals = spell.portalMap.size();
                     boolean hasReach = skills.hasSkill(SBSkills.REACH.value());
                     BlockPos blockPos = spell.getSpawnPos(hasReach ? 100 : 50);
                     if (blockPos == null) return false;
@@ -52,7 +48,7 @@ public class ShadowGateSpell extends AnimatedSpell {
                     if (!context.getLevel().getBlockState(blockPos).isAir()) return false;
                     if (activePortals > 1) {
                         int portalRange = hasReach ? 10000 : 2500;
-                        PortalInfo info = spell.portalInfo.get(spell.getPreviousGate());
+                        PortalInfo info = spell.portalMap.get(spell.portalMap.getPreviousPortal());
                         double distance = info.position().distanceToSqr(blockPos.getCenter());
                         if (distance > portalRange) return false;
                     }
@@ -64,7 +60,7 @@ public class ShadowGateSpell extends AnimatedSpell {
     }
     private static final ResourceLocation UNWANTED_GUESTS = CommonClass.customLocation("unwanted_guests");
 
-    private final Map<Integer, PortalInfo> portalInfo = new Int2ObjectOpenHashMap<>();
+    private final PortalMap<ShadowGate> portalMap = new PortalMap<>();
 
     public ShadowGateSpell() {
         super(SBSpells.SHADOW_GATE.get(), createShadowGateBuilder());
@@ -75,17 +71,10 @@ public class ShadowGateSpell extends AnimatedSpell {
         Level level = context.getLevel();
         var skills = context.getSkills();
         if (!level.isClientSide) {
-            int activePortals = this.portalInfo.size();
             boolean hasReach = context.getSkills().hasSkill(SBSkills.REACH.value());
             this.summonEntity(context, SBEntities.SHADOW_GATE.get(), hasReach ? 100 : 50, shadowGate -> {
                 int maxPortals = skills.hasSkill(SBSkills.DUAL_DESTINATION.value()) ? 3 : 2;
-                if (activePortals >= maxPortals) {
-                    shiftGates(level, shadowGate.getId(), shadowGate.position());
-                } else {
-                    PortalInfo info = new PortalInfo(activePortals, shadowGate.position());
-                    this.portalInfo.put(shadowGate.getId(), info);
-                }
-                shadowGate.setStartTick(20);
+                this.portalMap.summonPortal(shadowGate, maxPortals, 20);
             });
         }
     }
@@ -97,8 +86,8 @@ public class ShadowGateSpell extends AnimatedSpell {
         Level level = context.getLevel();
         if (!level.isClientSide()) {
             var skills = context.getSkills();
-            if (!this.portalInfo.isEmpty()) {
-                for (var entry : this.portalInfo.entrySet()) {
+            if (!this.portalMap.isEmpty()) {
+                for (var entry : this.portalMap.entrySet()) {
                     ShadowGate shadowGate = (ShadowGate) level.getEntity(entry.getKey());
                     if (shadowGate != null) {
                         List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, shadowGate.getBoundingBox());
@@ -111,63 +100,55 @@ public class ShadowGateSpell extends AnimatedSpell {
                             }
                         }
 
-                        ShadowGate adjacentGate = this.getAdjacentGate(shadowGate, level);
-                        if (adjacentGate != null) {
-                            for (LivingEntity entity : teleportList) {
-                                if (!shadowGate.isOnCooldown(entity)) {
-                                    Vec3 position = adjacentGate.position();
-                                    adjacentGate.addCooldown(entity);
-                                    entity.teleportTo(position.x, position.y, position.z);
-                                    if (entity instanceof Player teleportedPlayer)
-                                        PayloadHandler.setRotation(teleportedPlayer, teleportedPlayer.getXRot(), adjacentGate.getYRot());
+                        for (LivingEntity entity : teleportList) {
+                            if (this.portalMap.attemptTeleport(entity, shadowGate)) {
+                                if (skills.hasSkill(SBSkills.BLINK.value()) && isCaster(entity))
+                                    addSkillBuff(
+                                            caster,
+                                            SBSkills.BLINK.value(),
+                                            BuffCategory.BENEFICIAL,
+                                            SkillBuff.ATTRIBUTE_MODIFIER,
+                                            new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(CommonClass.customLocation("blink"), 1.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                                            100);
 
-                                    if (skills.hasSkill(SBSkills.BLINK.value()) && isCaster(entity))
-                                        addSkillBuff(
-                                                caster,
-                                                SBSkills.BLINK.value(),
-                                                BuffCategory.BENEFICIAL,
-                                                SkillBuff.ATTRIBUTE_MODIFIER,
-                                                new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(CommonClass.customLocation("blink"), 1.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
-                                                100);
+                                if (skills.hasSkillReady(SBSkills.QUICK_RECHARGE.value())) {
+                                    context.getSpellHandler().awardMana(20);
+                                    addCooldown(SBSkills.QUICK_RECHARGE.value(), 200);
+                                }
 
-                                    if (skills.hasSkillReady(SBSkills.QUICK_RECHARGE.value())) {
-                                        context.getSpellHandler().awardMana(20);
-                                        addCooldown(SBSkills.QUICK_RECHARGE.value(), 200);
-                                    }
+                                if (skills.hasSkill(SBSkills.SHADOW_ESCAPE.value()) && isCaster(entity) && caster.getHealth() < caster.getMaxHealth() * 0.5F && !caster.hasEffect(MobEffects.INVISIBILITY))
+                                    caster.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 100, 0, false, false, true));
 
-                                    if (skills.hasSkill(SBSkills.SHADOW_ESCAPE.value()) && isCaster(entity) && caster.getHealth() < caster.getMaxHealth() * 0.5F && !caster.hasEffect(MobEffects.INVISIBILITY))
-                                        caster.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 100, 0, false, false, true));
+                                if (!isCaster(entity) && skills.hasSkill(SBSkills.UNWANTED_GUESTS.value()) && !entity.isAlliedTo(context.getCaster())) {
+                                    addEventBuff(
+                                            entity,
+                                            SBSkills.UNWANTED_GUESTS.value(),
+                                            BuffCategory.HARMFUL,
+                                            SpellEventListener.Events.PRE_DAMAGE,
+                                            UNWANTED_GUESTS,
+                                            pre -> pre.setNewDamage(pre.getOriginalDamage() * 0.9F),
+                                            200);
+                                    addSkillBuff(
+                                            entity,
+                                            SBSkills.UNWANTED_GUESTS.value(),
+                                            BuffCategory.HARMFUL,
+                                            SkillBuff.SPELL_MODIFIER,
+                                            SpellModifier.UNWANTED_GUESTS,
+                                            200);
+                                }
 
-                                    if (skills.hasSkill(SBSkills.UNWANTED_GUESTS.value()) && !entity.isAlliedTo(context.getCaster())) {
-                                        addEventBuff(
-                                                entity,
-                                                SBSkills.UNWANTED_GUESTS.value(),
-                                                BuffCategory.HARMFUL,
-                                                SpellEventListener.Events.PRE_DAMAGE,
-                                                UNWANTED_GUESTS,
-                                                pre -> pre.setNewDamage(pre.getOriginalDamage() * 0.9F),
-                                                200);
-                                        addSkillBuff(
-                                                entity,
-                                                SBSkills.UNWANTED_GUESTS.value(),
-                                                BuffCategory.HARMFUL,
-                                                SkillBuff.SPELL_MODIFIER,
-                                                SpellModifier.UNWANTED_GUESTS,
-                                                200);
-                                    }
+                                if (skills.hasSkill(SBSkills.BAIT_AND_SWITCH.value()) && !entity.isAlliedTo(caster)) {
+                                    entity.hurt(level.damageSources().magic(), 10);
+                                    SpellUtil.getSpellHandler(entity).consumeMana(10);
+                                }
 
-                                    if (skills.hasSkill(SBSkills.BAIT_AND_SWITCH.value()) && !entity.isAlliedTo(caster)) {
-                                        entity.hurt(level.damageSources().magic(), 10);
-                                        SpellUtil.getSpellHandler(entity).consumeMana(10);
-                                    }
-
-                                    if (skills.hasSkill(SBSkills.GRAVITY_SHIFT.value())) {
-                                        Vec3 lookVec = adjacentGate.getViewVector(1.0F);
-                                        entity.setDeltaMovement(lookVec.x, 2, lookVec.z);
-                                        entity.hurtMarked = true;
-                                        if (isCaster(entity))
-                                            entity.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 100));
-                                    }
+                                if (skills.hasSkill(SBSkills.GRAVITY_SHIFT.value())) {
+                                    ShadowGate adjacentGate = this.portalMap.getAdjacentPortal(shadowGate, level);
+                                    Vec3 lookVec = adjacentGate.getViewVector(1.0F);
+                                    entity.setDeltaMovement(lookVec.x, 2, lookVec.z);
+                                    entity.hurtMarked = true;
+                                    if (isCaster(entity))
+                                        entity.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 100));
                                 }
                             }
                         }
@@ -181,70 +162,18 @@ public class ShadowGateSpell extends AnimatedSpell {
     protected void onSpellStop(SpellContext context) {
         Level level = context.getLevel();
         if (!level.isClientSide()) {
-            this.portalInfo.forEach((integer, portalInfo) -> {
-                Entity entity = context.getLevel().getEntity(integer);
+            this.portalMap.forEach((id, portalInfo) -> {
+                Entity entity = context.getLevel().getEntity(id);
                 if (entity instanceof ShadowGate shadowGate)
                     shadowGate.setEndTick(20);
             });
         }
     }
 
-    private void shiftGates(Level level, int shadowGateID, Vec3 position) {
-        for (var entry : this.portalInfo.entrySet()) {
-            var info = entry.getValue();
-            if (info.id == 0) {
-                ShadowGate shadowGate = (ShadowGate) level.getEntity(entry.getKey());
-                if (shadowGate != null)
-                    shadowGate.discard();
-
-                this.portalInfo.remove(entry.getKey());
-            } else {
-                PortalInfo newInfo = new PortalInfo(info.id - 1, info.position);
-                this.portalInfo.replace(entry.getKey(), newInfo);
-            }
-        }
-        PortalInfo info = new PortalInfo(this.portalInfo.size(), position);
-        this.portalInfo.put(shadowGateID, info);
-    }
-
-    private ShadowGate getAdjacentGate(ShadowGate shadowGate, Level level) {
-        int activePortals = this.portalInfo.size();
-        if (activePortals < 2) return null;
-
-        int id = shadowGate.getId();
-        PortalInfo info = this.portalInfo.get(id);
-        if (info != null) {
-            int portalId = info.id + 1;
-            if (portalId >= activePortals) portalId = 0;
-            for (var entry : this.portalInfo.entrySet()) {
-                if (portalId == entry.getValue().id())
-                    return (ShadowGate) level.getEntity(entry.getKey());
-            }
-        }
-        return null;
-    }
-
-    private int getPreviousGate() {
-        int i = 0;
-        for (var entry : this.portalInfo.entrySet()) {
-            if (entry.getValue().id() > i)
-                i = entry.getValue().id;
-        }
-        return getGateFromID(i);
-    }
-
-    private int getGateFromID(int id) {
-        for (var entry : this.portalInfo.entrySet()) {
-            if (entry.getValue().id == id)
-                return entry.getKey();
-        }
-        return 0;
-    }
-
     @Override
     public @UnknownNullability CompoundTag saveData(CompoundTag compoundTag) {
         ListTag listTag = new ListTag();
-        for (var entry : this.portalInfo.entrySet()) {
+        for (var entry : this.portalMap.entrySet()) {
             CompoundTag nbt = new CompoundTag();
             nbt.putInt("PortalEntityId", entry.getKey());
             nbt.putInt("PortalId", entry.getValue().id());
@@ -258,7 +187,7 @@ public class ShadowGateSpell extends AnimatedSpell {
     }
 
     @Override
-    public void load(CompoundTag nbt) {
+    public void loadData(CompoundTag nbt) {
         if (nbt.contains("PortalInfo", 9)) {
             ListTag listTag = nbt.getList("PortalInfo", 10);
             for (int i = 0; i < listTag.size(); i++) {
@@ -266,10 +195,8 @@ public class ShadowGateSpell extends AnimatedSpell {
                 int entityId = compoundTag.getInt("PortalEntityId");
                 int portalId = compoundTag.getInt("PortalId");
                 var posArray = compoundTag.getIntArray("PortalPosition");
-                this.portalInfo.put(entityId, new PortalInfo(portalId, new Vec3(posArray[0], posArray[1], posArray[2])));
+                this.portalMap.put(entityId, new PortalInfo(portalId, new Vec3(posArray[0], posArray[1], posArray[2])));
             }
         }
     }
-
-    private record PortalInfo(int id, Vec3 position) {}
 }
