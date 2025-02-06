@@ -6,6 +6,7 @@ import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.EffectManager;
 import com.ombremoon.spellbound.common.content.commands.LearnSkillsCommand;
 import com.ombremoon.spellbound.common.content.commands.LearnSpellCommand;
+import com.ombremoon.spellbound.common.content.item.SpellTomeItem;
 import com.ombremoon.spellbound.common.content.world.SBTrades;
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormData;
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
@@ -13,6 +14,7 @@ import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
 import com.ombremoon.spellbound.common.events.custom.SpellboundTradesEvent;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.buff.events.*;
 import com.ombremoon.spellbound.networking.PayloadHandler;
@@ -23,10 +25,16 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.trading.ItemCost;
+import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.world.level.ItemLike;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.living.*;
@@ -39,17 +47,14 @@ import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.village.VillagerTradesEvent;
 import net.neoforged.neoforge.server.command.ConfigCommand;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
 @EventBusSubscriber(modid = Constants.MOD_ID)
 public class NeoForgeEvents {
-
-    @SubscribeEvent
-    public static void addVillagerTrades(VillagerTradesEvent event) {
-        SBTrades.initialiseTrades();
-        NeoForge.EVENT_BUS.post(new SpellboundTradesEvent());
-    }
 
     @SubscribeEvent
     public static void registerCommands(RegisterCommandsEvent event) {

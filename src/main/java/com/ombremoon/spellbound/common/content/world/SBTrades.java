@@ -1,11 +1,23 @@
 package com.ombremoon.spellbound.common.content.world;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.ombremoon.spellbound.common.content.entity.SBMerchantType;
+import com.ombremoon.spellbound.common.content.entity.living.SBMerchant;
 import com.ombremoon.spellbound.common.content.item.SpellTomeItem;
 import com.ombremoon.spellbound.common.init.SBBlocks;
+import com.ombremoon.spellbound.common.init.SBEntities;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellType;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.Util;
+import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.trading.ItemCost;
+import net.minecraft.world.item.trading.Merchant;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.ItemLike;
@@ -14,20 +26,30 @@ import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.DOMErrorHandler;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 public class SBTrades {
-    public static final MerchantOffers SPELL_BROKER = new MerchantOffers();
+    public static final Map<SBMerchantType, Int2ObjectMap<MerchantOffer[]>> TRADES = Util.make(Maps.newHashMap(), map -> {
+        map.put(SBMerchantType.SPELL_BROKER, toIntMap(ImmutableMap.of(1, new MerchantOffer[]{
+                spellTrade(20, Items.GOLDEN_APPLE, 10, SBSpells.HEALING_TOUCH.get()),
+                spellTrade(20, Items.ECHO_SHARD, 5, SBSpells.SHADOW_GATE.get()),
+                spellTrade(20, Items.BOOK, 20, SBSpells.PURGE_MAGIC.get()),
+                spellTrade(20, Items.LAVA_BUCKET, 1, SBSpells.SOLAR_RAY.get()),
+                spellTrade(20, Items.SADDLE, 1, SBSpells.THUNDEROUS_HOOVES.get()),
+                spellTrade(15, Items.GOLD_BLOCK, 32, SBSpells.SPIRIT_TOTEM.get())
+        }, 2, new MerchantOffer[]{
+                spellTrade(20, Items.GOLDEN_APPLE, 10, SBSpells.HEALING_TOUCH.get()),
+                spellTrade(20, Items.GOLDEN_APPLE, 10, SBSpells.HEALING_TOUCH.get()),
+                spellTrade(20, Items.GOLDEN_APPLE, 10, SBSpells.HEALING_TOUCH.get()),
+                spellTrade(20, Items.GOLDEN_APPLE, 10, SBSpells.HEALING_TOUCH.get()),
+                spellTrade(20, Items.GOLDEN_APPLE, 10, SBSpells.HEALING_TOUCH.get()),
+        })));
+    });
 
-    public static void initialiseTrades() {
-        SPELL_BROKER.addAll(List.of(
-                spellTrade(10, SBSpells.HEALING_TOUCH.get()),
-                spellTrade(20, SBSpells.SHADOW_GATE.get())
-        ));
-    }
-
-    private static MerchantOffer spellTrade(int arcanthusCost, SpellType<?> spell) {
-        return makeOffer(SBBlocks.ARCANTHUS.get().asItem(), arcanthusCost, SpellTomeItem.createWithSpell(spell), 999, 0, 0f);
+    private static MerchantOffer spellTrade(int arcanthusCost, ItemLike item, int count, SpellType<?> spell) {
+        return makeOffer(SBBlocks.ARCANTHUS.get().asItem(), arcanthusCost, item, count, SpellTomeItem.createWithSpell(spell), 999, 0, 0f);
     }
 
     private static MerchantOffer makeOffer(@NotNull ItemLike item, int count, @NotNull ItemStack result, int maxUses, int xp, float multiplier) {
@@ -45,5 +67,9 @@ public class SBTrades {
                 xp,
                 multiplier
         );
+    }
+
+    private static Int2ObjectMap<MerchantOffer[]> toIntMap(ImmutableMap<Integer, MerchantOffer[]> map) {
+        return new Int2ObjectOpenHashMap(map);
     }
 }
