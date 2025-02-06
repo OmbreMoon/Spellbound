@@ -18,6 +18,7 @@ import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.animatable.GeoAnimatable;
 
 import java.util.HashSet;
 import java.util.OptionalInt;
@@ -42,12 +43,14 @@ public abstract class SBMerchant extends PathfinderMob implements Merchant {
 
     private void startTrading(Player player) {
         this.setTradingPlayer(player);
+        System.out.println(player);
         this.openTradingScreen(player, this.getDisplayName(), 1);
     }
 
     @Override
     public void setTradingPlayer(@Nullable Player player) {
         this.tradingPlayer = player;
+        System.out.println(player);
     }
 
     @Nullable
