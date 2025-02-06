@@ -7,6 +7,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.player.Player;
@@ -43,8 +44,13 @@ public abstract class SBMerchant extends PathfinderMob implements Merchant {
 
     private void startTrading(Player player) {
         this.setTradingPlayer(player);
-        System.out.println(player);
         this.openTradingScreen(player, this.getDisplayName(), 1);
+    }
+
+    @Override
+    public void die(DamageSource damageSource) {
+        super.die(damageSource);
+        this.setTradingPlayer(null);
     }
 
     @Override
