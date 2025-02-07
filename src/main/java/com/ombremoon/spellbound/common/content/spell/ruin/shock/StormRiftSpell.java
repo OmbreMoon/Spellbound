@@ -9,6 +9,7 @@ import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
 import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;
 import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
+import com.ombremoon.spellbound.util.SpellUtil;
 import com.ombremoon.spellbound.util.portal.PortalInfo;
 import com.ombremoon.spellbound.util.portal.PortalMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
@@ -127,7 +128,7 @@ public class StormRiftSpell extends AnimatedSpell {
                         if (this.portalMap.size() > 1 || skills.hasSkill(SBSkills.DISPLACEMENT_FIELD))
                             this.pullTargets(context);
 
-                        List<LivingEntity> teleportList = level.getEntitiesOfClass(LivingEntity.class, stormRift.getBoundingBox(), EntitySelector.NO_CREATIVE_OR_SPECTATOR.and(entity -> entity.isAlive() && entity instanceof LivingEntity livingEntity/* && !isCaster(livingEntity)*/));
+                        List<LivingEntity> teleportList = level.getEntitiesOfClass(LivingEntity.class, stormRift.getBoundingBox(), EntitySelector.NO_CREATIVE_OR_SPECTATOR.and(entity -> entity.isAlive() && entity instanceof LivingEntity livingEntity && !isCaster(livingEntity) && !livingEntity.isAlliedTo(caster)));
                         for (LivingEntity livingEntity : teleportList) {
                             if (!checkForCounterMagic(livingEntity)) {
                                 if (this.portalMap.attemptTeleport(livingEntity, stormRift)) {
@@ -135,7 +136,7 @@ public class StormRiftSpell extends AnimatedSpell {
                                     this.hurt(livingEntity, SBDamageTypes.RUIN_SHOCK, damage);
                                     this.drainMana(livingEntity, damage);
                                     if (skills.hasSkill(SBSkills.EVENT_HORIZON))
-                                        this.quicklyPullTargets(level, stormRift, livingEntity);
+                                        this.quicklyPullTargets(level, stormRift, caster, livingEntity);
 
                                     if (skills.hasSkill(SBSkills.FORCED_WARP) && !stormRift.isOnCooldown(livingEntity))
                                         this.throwTarget(level, livingEntity);
@@ -182,7 +183,10 @@ public class StormRiftSpell extends AnimatedSpell {
                                             break;
                                         }
                                     }
-                                    this.quicklyPullTargets(level, stormRift, livingEntity);
+
+                                    if (skills.hasSkill(SBSkills.EVENT_HORIZON))
+                                        this.quicklyPullTargets(level, stormRift, caster, livingEntity);
+
                                     if (skills.hasSkill(SBSkills.FORCED_WARP) && !stormRift.isOnCooldown(livingEntity))
                                         this.throwTarget(level, livingEntity);
                                 }
@@ -232,15 +236,16 @@ public class StormRiftSpell extends AnimatedSpell {
 
     private void pullTargets(SpellContext context) {
         Level level = context.getLevel();
+        LivingEntity caster = context.getCaster();
         var skills = context.getSkills();
         for (var entry : this.portalMap.entrySet()) {
             StormRift stormRift = (StormRift) level.getEntity(entry.getKey());
 
             if (stormRift != null) {
                 double range = (stormRift.getBbWidth() / 2) + stormRift.getBbWidth() * 1.5F;
-                List<LivingEntity> pullList = level.getEntitiesOfClass(LivingEntity.class, stormRift.getBoundingBox().inflate(range), EntitySelector.NO_CREATIVE_OR_SPECTATOR.and(entity -> !checkForCounterMagic((LivingEntity) entity)));
+                List<LivingEntity> pullList = level.getEntitiesOfClass(LivingEntity.class, stormRift.getBoundingBox().inflate(range), EntitySelector.NO_CREATIVE_OR_SPECTATOR.and(entity -> entity instanceof LivingEntity livingEntity && !checkForCounterMagic(livingEntity) && !isCaster(livingEntity) && !livingEntity.isAlliedTo(caster)));
                 for (LivingEntity livingEntity : pullList) {
-                    if (!stormRift.isOnCooldown(livingEntity)/* && !isCaster(livingEntity)*/) {
+                    if (!stormRift.isOnCooldown(livingEntity)) {
                         float strength = 0.02F;
                         if (skills.hasSkill(SBSkills.MAGNETIC_FIELD)) {
                             strength = 0.04F;
@@ -264,8 +269,8 @@ public class StormRiftSpell extends AnimatedSpell {
         }
     }
 
-    private void quicklyPullTargets(Level level, StormRift stormRift, LivingEntity excludedEntity) {
-        List<LivingEntity> list = level.getEntitiesOfClass(LivingEntity.class, stormRift.getBoundingBox().inflate(10), EntitySelector.NO_CREATIVE_OR_SPECTATOR.and(entity -> entity.isAlive() && entity instanceof LivingEntity living/* && !isCaster(livingEntity)*/));
+    private void quicklyPullTargets(Level level, StormRift stormRift, LivingEntity caster, LivingEntity excludedEntity) {
+        List<LivingEntity> list = level.getEntitiesOfClass(LivingEntity.class, stormRift.getBoundingBox().inflate(10), EntitySelector.NO_CREATIVE_OR_SPECTATOR.and(entity -> entity.isAlive() && entity instanceof LivingEntity living && !isCaster(living) && !living.isAlliedTo(caster)));
         for (LivingEntity living : list) {
             if (!living.is(excludedEntity)) {
                 Vec3 direction = stormRift.getBoundingBox().getCenter().subtract(living.position()).normalize().scale(0.6F);
