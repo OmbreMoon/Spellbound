@@ -19,6 +19,11 @@ public class ShadowGate extends PortalEntity {
     }
 
     @Override
+    public int getPortalCooldown() {
+        return 20;
+    }
+
+    @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, CONTROLLER, 0, this::genericController));
     }

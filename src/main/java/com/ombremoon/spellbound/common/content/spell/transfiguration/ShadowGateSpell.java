@@ -8,14 +8,12 @@ import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.*;
 import com.ombremoon.spellbound.common.magic.api.buff.*;
-import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import com.ombremoon.spellbound.util.portal.PortalInfo;
 import com.ombremoon.spellbound.util.portal.PortalMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -23,7 +21,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
@@ -74,7 +71,7 @@ public class ShadowGateSpell extends AnimatedSpell {
             boolean hasReach = context.getSkills().hasSkill(SBSkills.REACH.value());
             this.summonEntity(context, SBEntities.SHADOW_GATE.get(), hasReach ? 100 : 50, shadowGate -> {
                 int maxPortals = skills.hasSkill(SBSkills.DUAL_DESTINATION.value()) ? 3 : 2;
-                this.portalMap.summonPortal(shadowGate, maxPortals, 20);
+                this.portalMap.createOrShiftPortal(shadowGate, maxPortals, 20);
             });
         }
     }
@@ -172,31 +169,12 @@ public class ShadowGateSpell extends AnimatedSpell {
 
     @Override
     public @UnknownNullability CompoundTag saveData(CompoundTag compoundTag) {
-        ListTag listTag = new ListTag();
-        for (var entry : this.portalMap.entrySet()) {
-            CompoundTag nbt = new CompoundTag();
-            nbt.putInt("PortalEntityId", entry.getKey());
-            nbt.putInt("PortalId", entry.getValue().id());
-
-            Vec3 vec3 = entry.getValue().position();
-            nbt.putIntArray("PortalPosition", List.of((int)vec3.x(), (int)vec3.y(), (int)vec3.z()));
-            listTag.add(nbt);
-        }
-        compoundTag.put("PortalInfo", listTag);
+        this.portalMap.serialize(compoundTag);
         return compoundTag;
     }
 
     @Override
     public void loadData(CompoundTag nbt) {
-        if (nbt.contains("PortalInfo", 9)) {
-            ListTag listTag = nbt.getList("PortalInfo", 10);
-            for (int i = 0; i < listTag.size(); i++) {
-                CompoundTag compoundTag = listTag.getCompound(i);
-                int entityId = compoundTag.getInt("PortalEntityId");
-                int portalId = compoundTag.getInt("PortalId");
-                var posArray = compoundTag.getIntArray("PortalPosition");
-                this.portalMap.put(entityId, new PortalInfo(portalId, new Vec3(posArray[0], posArray[1], posArray[2])));
-            }
-        }
+        this.portalMap.deserialize(nbt);
     }
 }

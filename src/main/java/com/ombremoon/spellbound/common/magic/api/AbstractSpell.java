@@ -67,6 +67,7 @@ import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -561,7 +562,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
     public void removeSkillBuff(LivingEntity livingEntity, Skill skill) {
         var handler = SpellUtil.getSpellHandler(livingEntity);
-        var buffs = handler.getBuffs().stream().filter(skillBuff -> skillBuff.is(skill)).collect(Collectors.toSet());
+        var buffs = handler.getBuffs().stream().filter(skillBuff -> skillBuff.isSkill(skill)).collect(Collectors.toSet());
         this.removeSkillBuff(livingEntity, skill, buffs.size());
     }
 
@@ -615,15 +616,19 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         return f;
     }
 
-    protected <T extends Entity> T summonEntity(SpellContext context, EntityType<T> entityType, double range) {
+    public <T extends Entity> T summonEntity(SpellContext context, EntityType<T> entityType, double range) {
         return this.summonEntity(context, entityType, range, entity -> {});
     }
 
-    protected <T extends Entity> T summonEntity(SpellContext context, EntityType<T> entityType, double range, Consumer<T> extraData) {
+    public <T extends Entity> T summonEntity(SpellContext context, EntityType<T> entityType, double range, Consumer<T> extraData) {
         BlockPos blockPos = this.getSpawnPos(range);
         if (blockPos == null) return null;
         Vec3 spawnPos = Vec3.atBottomCenterOf(blockPos);
         return this.summonEntity(context, entityType, spawnPos, extraData);
+    }
+
+    public <T extends Entity> T summonEntity(SpellContext context, EntityType<T> entityType, Vec3 spawnPos) {
+        return this.summonEntity(context, entityType, spawnPos, entity -> {});
     }
 
     /**
@@ -635,7 +640,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @return The summoned entity
      * @param <T> The type of entity
      */
-    protected <T extends Entity> T summonEntity(SpellContext context, EntityType<T> entityType, Vec3 spawnPos, Consumer<T> extraData) {
+    public <T extends Entity> T summonEntity(SpellContext context, EntityType<T> entityType, Vec3 spawnPos, Consumer<T> extraData) {
         Level level = context.getLevel();
         LivingEntity caster = context.getCaster();
 
@@ -935,14 +940,12 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
             }
 
             if (prevSpell != null) {
-                this.castId = prevSpell.castId + 1;
+                this.castId = this.fullRecast ? 1 : prevSpell.castId + 1;
                 incrementId = false;
                 CompoundTag nbt = prevSpell.saveData(new CompoundTag());
                 this.loadData(nbt);
             }
         }
-
-        log(castId);
         if (!level.isClientSide) {
             if (!(this.castPredicate.test(this.context, this) && RandomUtil.percentChance(getCastChance()))) {
                 onCastReset(this.context);
@@ -961,6 +964,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         activateSpell();
 
         if (incrementId) this.castId++;
+
+        log(castId);
         EventFactory.onSpellCast(caster, this, this.context);
 
         this.init = true;

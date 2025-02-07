@@ -51,6 +51,8 @@ public class SBData {
             "spell_id", () -> AttachmentType.builder(() -> 0).build());
     public static final Supplier<AttachmentType<Integer>> HEAT_TICK = ATTACHMENT_TYPES.register(
             "heat_tick", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
+    public static final Supplier<AttachmentType<Boolean>> FORCE_WARP = ATTACHMENT_TYPES.register(
+            "force_warp", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).build());
     public static final Supplier<AttachmentType<Integer>> CATCH_TICK = ATTACHMENT_TYPES.register(
             "catch_tick", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
     public static final Supplier<AttachmentType<Integer>> THROWN_TICK = ATTACHMENT_TYPES.register(

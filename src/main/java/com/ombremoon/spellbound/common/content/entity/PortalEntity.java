@@ -8,7 +8,7 @@ import net.minecraft.world.level.Level;
 import java.util.Map;
 import java.util.UUID;
 
-public class PortalEntity extends SpellEntity {
+public abstract class PortalEntity extends SpellEntity {
     private final Map<UUID, Integer> portalCooldown = new Object2IntOpenHashMap<>();
 
     public PortalEntity(EntityType<?> entityType, Level level) {
@@ -21,8 +21,10 @@ public class PortalEntity extends SpellEntity {
         this.portalCooldown.entrySet().removeIf(entry -> entry.getValue() <= this.tickCount);
     }
 
+    public abstract int getPortalCooldown();
+
     public void addCooldown(LivingEntity entity) {
-        this.portalCooldown.put(entity.getUUID(), this.tickCount + 20);
+        this.portalCooldown.put(entity.getUUID(), this.tickCount + this.getPortalCooldown());
     }
 
     public boolean isOnCooldown(LivingEntity livingEntity) {

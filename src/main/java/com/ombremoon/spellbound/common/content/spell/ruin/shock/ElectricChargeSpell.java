@@ -64,17 +64,14 @@ public class ElectricChargeSpell extends AnimatedSpell {
     protected void onSpellRecast(SpellContext context) {
         super.onSpellRecast(context);
         Level level = context.getLevel();
-        LivingEntity caster = context.getCaster();
-        var handler = context.getSpellHandler();
         var skills = context.getSkills();
         boolean hasShard = context.hasCatalyst(SBItems.STORM_SHARD.get());
         if (skills.hasSkill(SBSkills.AMPLIFY.value())) return;
         if (context.getTarget() == null || this.discharged) {
             for (Integer entityId : this.entityIds) {
                 Entity entity = level.getEntity(entityId);
-                if (entity instanceof LivingEntity livingEntity) {
-                    discharge(caster, level, livingEntity, handler, skills, hasShard);
-                }
+                if (entity instanceof LivingEntity livingEntity)
+                    discharge(context, livingEntity, hasShard);
             }
             endSpell();
         }
@@ -88,7 +85,6 @@ public class ElectricChargeSpell extends AnimatedSpell {
     @Override
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
-        LivingEntity caster = context.getCaster();
         Level level = context.getLevel();
         var handler = context.getSpellHandler();
         var skills = context.getSkills();
@@ -102,9 +98,8 @@ public class ElectricChargeSpell extends AnimatedSpell {
                 } else if (this.getDischargeTick() >= 1 && !handler.castKeyDown) {
                     for (Integer entityId : this.entityIds) {
                         Entity entity = level.getEntity(entityId);
-                        if (entity instanceof LivingEntity livingEntity) {
-                            discharge(caster, level, livingEntity, handler, skills, hasShard);
-                        }
+                        if (entity instanceof LivingEntity livingEntity)
+                            discharge(context, livingEntity, hasShard);
                     }
                     endSpell();
                 }
@@ -112,7 +107,11 @@ public class ElectricChargeSpell extends AnimatedSpell {
         }
     }
 
-    private void discharge(LivingEntity caster, Level level, LivingEntity target, SpellHandler handler, SkillHolder skills, boolean hasShard) {
+    private void discharge(SpellContext context, LivingEntity target, boolean hasShard) {
+        Level level = context.getLevel();
+        LivingEntity caster = context.getCaster();
+        var handler = context.getSpellHandler();
+        var skills = context.getSkills();
         if (!level.isClientSide) {
             float damage = 10;
             if (skills.hasSkill(SBSkills.OSCILLATION.value())) {
@@ -161,7 +160,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
                         if (!isCaster(paralysisTarget))
                             paralysisTarget.addEffect(mobEffectInstance);
                     }
-                    caster.getOffhandItem().shrink(1);
+                    context.useCatalyst(SBItems.STORM_SHARD.get());
                     addCooldown(SBSkills.HIGH_VOLTAGE.value(), 600);
                 }
 
@@ -179,7 +178,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
                     for (LivingEntity livingEntity : entities) {
                         if (!isCaster(livingEntity) && !this.entityIds.contains(livingEntity.getId())) {
                             this.entityIds.add(livingEntity.getId());
-                            discharge(caster, level, livingEntity, handler, skills, hasShard);
+                            discharge(context, target, hasShard);
                         }
                     }
                 }

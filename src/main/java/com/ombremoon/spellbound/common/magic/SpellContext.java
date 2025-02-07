@@ -47,6 +47,10 @@ public class SpellContext {
         this.isRecast = isRecast;
     }
 
+    public static SpellContext simple(SpellType<?> spellType, LivingEntity caster) {
+        return new SpellContext(spellType, caster, false);
+    }
+
     public SpellHandler getSpellHandler() {
         return this.spellHandler;
     }
@@ -85,6 +89,18 @@ public class SpellContext {
 
     public boolean hasCatalyst(Item catalyst) {
         return this.caster.isHolding(catalyst);
+    }
+
+    public ItemStack getCatalyst(Item catalyst) {
+        return this.caster.getMainHandItem().is(catalyst) ? this.caster.getMainHandItem() : this.caster.getOffhandItem();
+    }
+
+    public void useCatalyst(Item catalyst) {
+        if (this.caster.getMainHandItem().is(catalyst)) {
+            this.caster.getMainHandItem().shrink(1);
+        } else  {
+            this.caster.getOffhandItem().shrink(1);
+        }
     }
 
     public boolean hasActiveSpells(int amount) {

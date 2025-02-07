@@ -3,17 +3,26 @@ package com.ombremoon.spellbound.util.portal;
 import com.ombremoon.spellbound.common.content.entity.PortalEntity;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.List;
+import java.util.function.Consumer;
+
 public class PortalMap<T extends PortalEntity> extends Int2ObjectOpenHashMap<PortalInfo> {
 
-    public void summonPortal(T portal, int maxPortals, int spawnTicks) {
+    public void createOrShiftPortal(T portal, int maxPortals, int spawnTicks) {
+        this.createOrShiftPortal(portal, maxPortals, spawnTicks, spawnedPortal -> {});
+    }
+
+    public <E extends Entity> void createOrShiftPortal(T portal, int maxPortals, int spawnTicks, Consumer<E> onShift) {
         if (this.size() >= maxPortals) {
-            this.shiftPortals(portal.level(), portal.getId(), portal.position());
+            this.shiftPortals(portal.level(), portal.getId(), portal.position(), onShift);
         } else {
             PortalInfo info = new PortalInfo(this.size(), portal.position());
             this.put(portal.getId(), info);
@@ -37,13 +46,16 @@ public class PortalMap<T extends PortalEntity> extends Int2ObjectOpenHashMap<Por
         return false;
     }
 
-    private void shiftPortals(Level level, int portalID, Vec3 position) {
+    @SuppressWarnings("unchecked")
+    private <E extends Entity> void shiftPortals(Level level, int portalID, Vec3 position, Consumer<E> onShift) {
         for (var entry : this.entrySet()) {
             var info = entry.getValue();
             if (info.id() == 0) {
-                Entity entity = level.getEntity(entry.getKey());
-                if (entity != null)
+                E entity = (E) level.getEntity(entry.getKey());
+                if (entity != null) {
+                    onShift.accept(entity);
                     entity.discard();
+                }
 
                 this.remove(entry.getKey());
             } else {
@@ -88,5 +100,32 @@ public class PortalMap<T extends PortalEntity> extends Int2ObjectOpenHashMap<Por
                 return entry.getKey();
         }
         return 0;
+    }
+
+    public void serialize(CompoundTag compoundTag) {
+        ListTag listTag = new ListTag();
+        for (var entry : this.entrySet()) {
+            CompoundTag nbt = new CompoundTag();
+            nbt.putInt("PortalEntityId", entry.getKey());
+            nbt.putInt("PortalId", entry.getValue().id());
+
+            Vec3 vec3 = entry.getValue().position();
+            nbt.putIntArray("PortalPosition", List.of((int)vec3.x(), (int)vec3.y(), (int)vec3.z()));
+            listTag.add(nbt);
+        }
+        compoundTag.put("PortalInfo", listTag);
+    }
+
+    public void deserialize(CompoundTag compoundTag) {
+        if (compoundTag.contains("PortalInfo", 9)) {
+            ListTag listTag = compoundTag.getList("PortalInfo", 10);
+            for (int i = 0; i < listTag.size(); i++) {
+                CompoundTag nbt = listTag.getCompound(i);
+                int entityId = nbt.getInt("PortalEntityId");
+                int portalId = nbt.getInt("PortalId");
+                var posArray = nbt.getIntArray("PortalPosition");
+                this.put(entityId, new PortalInfo(portalId, new Vec3(posArray[0], posArray[1], posArray[2])));
+            }
+        }
     }
 }

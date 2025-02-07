@@ -92,7 +92,7 @@ public abstract class SummonSpell extends AnimatedSpell {
     }
 
     @Override
-    protected <T extends Entity> T summonEntity(SpellContext context, EntityType<T> entityType, double range, Consumer<T> extraData) {
+    public <T extends Entity> T summonEntity(SpellContext context, EntityType<T> entityType, double range, Consumer<T> extraData) {
         T entity = super.summonEntity(context, entityType, range, extraData);
         this.summons.add(entity.getId());
         return entity;

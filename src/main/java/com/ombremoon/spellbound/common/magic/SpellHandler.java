@@ -350,12 +350,19 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     }
 
     public void addSkillBuff(SkillBuff<?> skillBuff, int ticks) {
-        int duration = this.caster.tickCount + ticks;
-        if (ticks == -1)
-            duration = -1;
+        for (SkillBuff<?> buff : this.skillBuffs.keySet()) {
+            if (buff.is(skillBuff))
+                return;
+        }
 
-        skillBuff.addBuff(this.caster);
-        this.skillBuffs.put(skillBuff, duration);
+        if (!this.skillBuffs.containsKey(skillBuff)) {
+            int duration = this.caster.tickCount + ticks;
+            if (ticks == -1)
+                duration = -1;
+
+            skillBuff.addBuff(this.caster);
+            this.skillBuffs.put(skillBuff, duration);
+        }
     }
 
     public void removeSkillBuff(SkillBuff<?> skillBuff) {
@@ -370,7 +377,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     }
 
     public Optional<SkillBuff<?>> getSkillBuff(Skill skill) {
-        return this.skillBuffs.keySet().stream().filter(skillBuff -> skillBuff.is(skill)).findAny();
+        return this.skillBuffs.keySet().stream().filter(skillBuff -> skillBuff.isSkill(skill)).findAny();
     }
 
     private void tickSkillBuffs() {

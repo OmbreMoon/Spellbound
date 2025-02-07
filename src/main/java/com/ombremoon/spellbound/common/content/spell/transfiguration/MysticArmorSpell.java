@@ -59,13 +59,7 @@ public class MysticArmorSpell extends AnimatedSpell {
                     if (skills.hasSkillReady(SBSkills.SOUL_RECHARGE.value()) && context.hasCatalyst(SBItems.SOUL_SHARD.get()) && caster.getHealth() - pre.getNewDamage() < caster.getMaxHealth() * 0.1F) {
                         pre.setNewDamage(0);
                         caster.setHealth(caster.getMaxHealth());
-                        var items = caster.getHandSlots();
-                        for (ItemStack stack : items) {
-                            if (stack.is(SBItems.SOUL_SHARD.get())) {
-                                stack.shrink(1);
-                                break;
-                            }
-                        }
+                        context.useCatalyst(SBItems.SOUL_SHARD.get());
                         addCooldown(SBSkills.SOUL_RECHARGE.value(), 3600);
                     } else if (skills.hasSkillReady(SBSkills.ELDRITCH_INTERVENTION.value()) && caster.getHealth() - pre.getNewDamage() < caster.getMaxHealth() * 0.2F) {
                         caster.heal(caster.getMaxHealth() / 2 - caster.getHealth());

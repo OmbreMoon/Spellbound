@@ -5,7 +5,6 @@ import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
-import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiConsumer;
@@ -67,8 +66,29 @@ public class SkillBuff<T> {
         return this.buffObject;
     }
 
-    public boolean is(Skill skill) {
+    public boolean is(SkillBuff<?> skillBuff) {
+        return this.skill.equals(skillBuff.skill) && this.object.equals(skillBuff.object);
+    }
+
+    public boolean isSkill(Skill skill) {
         return this.skill.equals(skill);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        } else {
+            return obj instanceof SkillBuff<?> skillBuff && this.skill == skillBuff.getSkill()
+                    && this.category == skillBuff.category
+                    && this.buffObject == skillBuff.buffObject
+                    && this.object == skillBuff.object;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "SkillBuff: [" + "Skill: " + this.skill + ", Category: " + this.category + ", Buff: " + this.object + "]";
     }
 
     public record BuffObject<T>(BiConsumer<LivingEntity, T> addObject, BiConsumer<LivingEntity, T> removeObject) {}

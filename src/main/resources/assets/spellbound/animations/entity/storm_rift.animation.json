@@ -1,7 +1,7 @@
 {
 	"format_version": "1.8.0",
 	"animations": {
-		"animation.model.idle": {
+		"idle": {
 			"loop": true,
 			"animation_length": 0.75,
 			"bones": {
@@ -91,7 +91,7 @@
 				}
 			}
 		},
-		"animation.model.explosion": {
+		"explosion": {
 			"animation_length": 0.75,
 			"bones": {
 				"rift": {
