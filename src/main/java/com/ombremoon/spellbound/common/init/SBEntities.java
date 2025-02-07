@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.init;
 
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.content.entity.living.LivingShadow;
+import com.ombremoon.spellbound.common.content.entity.living.SpellBrokerEntity;
 import com.ombremoon.spellbound.common.content.entity.living.Valkyr;
 import com.ombremoon.spellbound.common.content.entity.spell.*;
 import net.minecraft.core.registries.Registries;
@@ -34,7 +35,7 @@ public class SBEntities {
     public static final Supplier<EntityType<LivingShadow>> LIVING_SHADOW = registerMob("living_shadow", LivingShadow::new, MobCategory.CREATURE,0.6F, 1.95F, 8, LivingShadow::createLivingShadowAttributes, false);
     public static final Supplier<EntityType<Valkyr>> VALKYR = registerMob("valkyr", Valkyr::new, MobCategory.CREATURE,0.6F, 1.95F, 8, Valkyr::createValkyrAttributes, false);
     //public static final Supplier<EntityType<TotemSpiritEntity>> TOTEM_SPIRIT = registerMob("totem_spirit", TotemSpiritEntity::new, MobCategory.CREATURE, 1f, 1f, 8, LivingShadow::createLivingShadowAttributes, false);
-
+    public static final Supplier<EntityType<SpellBrokerEntity>> SPELL_BROKER = registerMob("spell_broker", SpellBrokerEntity::new, MobCategory.CREATURE, 1f, 1f, 8, SpellBrokerEntity::createAttributes);
 
     protected static <T extends Mob> Supplier<EntityType<T>> registerMob(String name, EntityType.EntityFactory<T> factory, MobCategory category, float width, float height, int clientTrackingRange, Supplier<AttributeSupplier.Builder> attributeSupplier) {
         return registerMob(name, factory, category, true, width, height, clientTrackingRange, attributeSupplier, true);
