@@ -15,6 +15,7 @@ import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
@@ -51,7 +52,7 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
         if (flag == 1) {
             caster.addEffect(new MobEffectInstance(SBEffects.COUNTER_MAGIC, 200, 0, false ,false));
             if (skills.hasSkill(SBSkills.CLEANSE.value()))
-                caster.getActiveEffects().stream().filter(instance -> !instance.getEffect().value().isBeneficial()).forEach(instance -> caster.removeEffect(instance.getEffect()));
+                caster.getActiveEffects().stream().filter(instance -> instance.getEffect().value().getCategory() == MobEffectCategory.HARMFUL).forEach(instance -> caster.removeEffect(instance.getEffect()));
 
             if (skills.hasSkill(SBSkills.AVERSION.value()))
                 log("SOMETHING");

@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.common.content.world.dimension;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.common.init.SBChunkGenerators;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -11,10 +12,7 @@ import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureManager;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeManager;
-import net.minecraft.world.level.biome.BiomeSource;
-import net.minecraft.world.level.biome.FixedBiomeSource;
+import net.minecraft.world.level.biome.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -26,10 +24,6 @@ import net.minecraft.world.level.levelgen.blending.Blender;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * @author Commoble
- * https://gist.github.com/Commoble/7db2ef25f94952a4d2e2b7e3d4be53e0
- */
 public class TestChunkGenerator extends ChunkGenerator {
     public static ResourceKey<Biome> TEST_BIOME = ResourceKey.create(Registries.BIOME, CommonClass.customLocation("test"));
 
@@ -54,7 +48,7 @@ public class TestChunkGenerator extends ChunkGenerator {
 
     @Override
     protected MapCodec<? extends ChunkGenerator> codec() {
-        return CODEC;
+        return SBChunkGenerators.TEST.get();
     }
 
     @Override

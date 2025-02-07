@@ -69,7 +69,7 @@ public class SummonPortalBlock extends BaseEntityBlock {
                 state.getShape(level, pos),
                 BooleanOp.AND
         )) {
-            ServerLevel arena = DynamicDimensionFactory.getOrCreateWorld(server, DIM, TestDimensionFactory::createLevel);
+            ServerLevel arena = TestDimensionFactory.createDimension(server, DIM);
             if (arena != null)
                 DynamicDimensionFactory.spawnInArena(entity, arena);
         }

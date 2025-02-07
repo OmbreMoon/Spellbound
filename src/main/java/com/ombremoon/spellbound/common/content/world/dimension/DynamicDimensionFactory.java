@@ -33,8 +33,4 @@ public class DynamicDimensionFactory {
         entity.changeDimension(transition);
 //          entity.portalCooldown = something
     }
-
-    public static ServerLevel getOrCreateWorld(MinecraftServer server, ResourceKey<Level> level, Function<MinecraftServer, LevelStem> dimensionFactory) {
-        return API.getOrCreateLevel(server, level, () -> dimensionFactory.apply(server));
-    }
 }

@@ -24,6 +24,7 @@ public class CommonClass {
         SBAttributes.register(modEventBus);
         SBDataTypes.register(modEventBus);
         SBTriggers.register(modEventBus);
+        SBChunkGenerators.register(modEventBus);
 //        fixAttributes();
     }
 

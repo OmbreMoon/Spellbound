@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.ombremoon.sentinellib.common.event.RegisterPlayerSentinelBoxEvent;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.EffectManager;
+import com.ombremoon.spellbound.common.content.block.SummonPortalBlock;
 import com.ombremoon.spellbound.common.content.commands.LearnSkillsCommand;
 import com.ombremoon.spellbound.common.content.commands.LearnSpellCommand;
 import com.ombremoon.spellbound.common.content.item.SpellTomeItem;
@@ -19,8 +20,11 @@ import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.buff.events.*;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
+import net.commoble.infiniverse.api.InfiniverseAPI;
+import net.commoble.infiniverse.internal.DimensionManager;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -30,6 +34,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.NeoForge;
@@ -51,6 +56,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @EventBusSubscriber(modid = Constants.MOD_ID)
@@ -95,6 +101,13 @@ public class NeoForgeEvents {
                 }
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onEntityLeaveDynamicDimension(EntityLeaveLevelEvent event) {
+        if (event.getEntity() instanceof Player player && !event.getLevel().isClientSide)
+            if (event.getLevel().dimension() == SummonPortalBlock.DIM)
+                InfiniverseAPI.get().markDimensionForUnregistration(event.getEntity().getServer(), SummonPortalBlock.DIM);
     }
 
     @SubscribeEvent

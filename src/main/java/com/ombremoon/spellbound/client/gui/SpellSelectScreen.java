@@ -80,7 +80,6 @@ public class SpellSelectScreen extends Screen {
         for (int i = 0; i < handler.equippedSpellSet.size(); i++) {
             this.items.add(spellItems[i]);
         }
-
     }
 
     @Override
