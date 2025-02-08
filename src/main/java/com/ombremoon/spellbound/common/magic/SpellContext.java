@@ -35,7 +35,7 @@ public class SpellContext {
         this(spellType, caster, level, blockPos, caster.getOffhandItem(), target, isRecast);
     }
 
-    public SpellContext(SpellType<?> spellType, LivingEntity caster, Level level, BlockPos blockPos, ItemStack itemStack, Entity target, boolean isRecast) {
+    protected SpellContext(SpellType<?> spellType, LivingEntity caster, Level level, BlockPos blockPos, ItemStack itemStack, Entity target, boolean isRecast) {
         this.spellType = spellType;
         this.caster = caster;
         this.level = level;
@@ -96,11 +96,7 @@ public class SpellContext {
     }
 
     public void useCatalyst(Item catalyst) {
-        if (this.caster.getMainHandItem().is(catalyst)) {
-            this.caster.getMainHandItem().shrink(1);
-        } else  {
-            this.caster.getOffhandItem().shrink(1);
-        }
+        this.getCatalyst(catalyst).shrink(1);
     }
 
     public boolean hasActiveSpells(int amount) {

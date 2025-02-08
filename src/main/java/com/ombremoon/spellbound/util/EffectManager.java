@@ -1,8 +1,7 @@
-package com.ombremoon.spellbound.common;
+package com.ombremoon.spellbound.util;
 
 import com.ombremoon.spellbound.common.init.SBAttributes;
 import com.ombremoon.spellbound.common.init.SBEffects;
-import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;

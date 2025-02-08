@@ -1,6 +1,5 @@
 package com.ombremoon.spellbound.util;
 
-import com.ombremoon.spellbound.common.EffectManager;
 import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.SpellHandler;

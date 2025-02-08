@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.common.content.spell.divine;
 
 import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.common.EffectManager;
+import com.ombremoon.spellbound.util.EffectManager;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;

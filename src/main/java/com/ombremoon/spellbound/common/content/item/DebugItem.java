@@ -48,7 +48,7 @@ public class DebugItem extends Item implements Loggable {
         if (!level.isClientSide) {
 //            spellHandler.removeSpell(SBSpells.VOLCANO.get());
 //            log(Registries.elementsDirPath(DivineAction.REGISTRY));
-            SBTriggers.TEST_TRIGGER.get().trigger((ServerPlayer) player);
+            log(level.dimension());
 //            spellHandler.setSelectedSpell(SBSpells.TEST_SPELL.get());
 //            ((HailstormSavedData)HailstormSavedData.get(level)).toggleHailing((ServerLevel) level, 600);
         } else {

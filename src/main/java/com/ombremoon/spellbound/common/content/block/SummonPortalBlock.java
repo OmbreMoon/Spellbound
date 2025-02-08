@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.content.block;
 
 import com.mojang.serialization.MapCodec;
 import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.common.content.block.entity.SummonBlockEntity;
 import com.ombremoon.spellbound.common.content.world.dimension.DynamicDimensionFactory;
 import com.ombremoon.spellbound.common.content.world.dimension.TestDimensionFactory;
 import net.minecraft.core.BlockPos;
@@ -21,6 +22,8 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -45,7 +48,7 @@ public class SummonPortalBlock extends BaseEntityBlock {
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return null;
+        return new SummonBlockEntity(pos, state);
     }
 
     @Override
@@ -55,24 +58,9 @@ public class SummonPortalBlock extends BaseEntityBlock {
 
     @Override
     protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
-        if (entity.level().isClientSide || entity.getServer() == null)
-            return;
-
-        if (entity.isOnPortalCooldown())
-            return;
-
-        MinecraftServer server = entity.getServer();
-        boolean canTeleportInDimension = entity.level().dimension() == Level.NETHER || entity.level().dimension() == Level.OVERWORLD;
-        if (canTeleportInDimension && entity.canUsePortal(false)
-                && Shapes.joinIsNotEmpty(
-                        Shapes.create(entity.getBoundingBox().move(-pos.getX(), -pos.getY(), -pos.getZ())),
-                state.getShape(level, pos),
-                BooleanOp.AND
-        )) {
-            ServerLevel arena = TestDimensionFactory.createDimension(server, DIM);
-            if (arena != null)
-                DynamicDimensionFactory.spawnInArena(entity, arena);
-        }
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof SummonBlockEntity summonBlockEntity)
+            summonBlockEntity.entityInside(state, level, pos, entity);
     }
 
     @Override

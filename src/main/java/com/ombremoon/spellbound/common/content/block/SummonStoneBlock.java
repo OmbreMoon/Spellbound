@@ -4,9 +4,15 @@ import com.google.common.base.Predicates;
 import com.mojang.serialization.MapCodec;
 import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.common.content.block.entity.SummonBlockEntity;
+import com.ombremoon.spellbound.common.content.world.dimension.TestDimensionFactory;
 import com.ombremoon.spellbound.common.init.SBBlocks;
+import com.ombremoon.spellbound.common.magic.acquisition.ArenaSavedData;
+import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -16,6 +22,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
@@ -79,20 +86,39 @@ public class SummonStoneBlock extends Block {
 
     public void activateStone(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand) {
         if (!state.getValue(POWERED)) {
-            Constants.LOG.info("POWERED");
             BlockState blockState = state.setValue(POWERED, Boolean.TRUE);
             level.setBlock(pos, blockState, 3);
             level.updateNeighbourForOutputSignal(pos, SBBlocks.SUMMON_STONE.get());
             player.getItemInHand(hand).shrink(1);
             level.levelEvent(1503, pos, 0);
-            BlockPattern.BlockPatternMatch blockPatternMatch = getOrCreatePortalShape().find(level, pos);
-            if (blockPatternMatch != null) {
-                BlockPos blockPos = blockPatternMatch.getFrontTopLeft().offset(-3, 0, -3);
-                BlockPos blockPos1 = blockPatternMatch.getFrontTopLeft().offset(-2, 0, -2);
+            if (this.spell != null) {
+                BlockPattern.BlockPatternMatch blockPatternMatch = getOrCreatePortalShape().find(level, pos);
+                if (blockPatternMatch != null) {
+                    var handler = SpellUtil.getSpellHandler(player);
+                    int arenaId = 0;
+                    if (!level.isClientSide) {
+                        MinecraftServer server = level.getServer();
+                        ArenaSavedData data = ArenaSavedData.get(server);
+                        arenaId = data.incrementId();
+                    }
 
-                for (int i = 0; i < 3; i++) {
-                    for (int j = 0; j < 3; j++) {
-                        level.setBlock(blockPos.offset(i, 0, j), SBBlocks.SUMMON_PORTAL.get().defaultBlockState(), 2);
+                    handler.openArena(arenaId);
+                    BlockPos blockPos = blockPatternMatch.getFrontTopLeft().offset(-3, 0, -3);
+
+                    for (int i = 0; i < 3; i++) {
+                        for (int j = 0; j < 3; j++) {
+                            BlockPos blockPos1 = blockPos.offset(i, 0, j);
+                            level.setBlock(blockPos1, SBBlocks.SUMMON_PORTAL.get().defaultBlockState(), 2);
+                            BlockEntity blockEntity = level.getBlockEntity(blockPos1);
+                            if (blockEntity instanceof SummonBlockEntity summonBlockEntity) {
+                                if (!level.isClientSide) {
+                                    summonBlockEntity.setOwner(player.getUUID());
+                                    summonBlockEntity.setArenaID(arenaId);
+                                    summonBlockEntity.setFrontTopLeft(blockPatternMatch.getFrontTopLeft());
+                                    summonBlockEntity.setSpell(this.spell);
+                                }
+                            }
+                        }
                     }
                 }
             }

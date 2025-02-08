@@ -1,25 +1,14 @@
 package com.ombremoon.spellbound.common.content.spell.summon;
 
 import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.common.EffectManager;
 import com.ombremoon.spellbound.common.content.entity.spell.WildMushroom;
 import com.ombremoon.spellbound.common.init.*;
-import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
-import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
-import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
-import com.ombremoon.spellbound.common.magic.api.buff.events.DeathEvent;
-import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
-import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.phys.AABB;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class WildMushroomSpell extends SummonSpell {

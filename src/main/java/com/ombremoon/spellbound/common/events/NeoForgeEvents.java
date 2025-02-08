@@ -3,43 +3,31 @@ package com.ombremoon.spellbound.common.events;
 import com.mojang.brigadier.CommandDispatcher;
 import com.ombremoon.sentinellib.common.event.RegisterPlayerSentinelBoxEvent;
 import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.common.EffectManager;
-import com.ombremoon.spellbound.common.content.block.SummonPortalBlock;
+import com.ombremoon.spellbound.util.EffectManager;
 import com.ombremoon.spellbound.common.content.commands.LearnSkillsCommand;
 import com.ombremoon.spellbound.common.content.commands.LearnSpellCommand;
-import com.ombremoon.spellbound.common.content.item.SpellTomeItem;
-import com.ombremoon.spellbound.common.content.world.SBTrades;
-import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormData;
-import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
-import com.ombremoon.spellbound.common.events.custom.SpellboundTradesEvent;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
-import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.buff.events.*;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.commoble.infiniverse.api.InfiniverseAPI;
-import net.commoble.infiniverse.internal.DimensionManager;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.trading.ItemCost;
-import net.minecraft.world.item.trading.MerchantOffer;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.living.*;
@@ -50,14 +38,9 @@ import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.village.VillagerTradesEvent;
 import net.neoforged.neoforge.server.command.ConfigCommand;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @EventBusSubscriber(modid = Constants.MOD_ID)
 public class NeoForgeEvents {
@@ -98,16 +81,37 @@ public class NeoForgeEvents {
 
                     var tree = player.getData(SBData.UPGRADE_TREE);
                     tree.update(player, tree.getUnlockedSkills());
+
+                    Level level = player.level();
+                    BlockPos blockPos = handler.getLastArenaPosition();
+                    if (handler.isArenaOwner(handler.getLastArenaEntered()) && blockPos != null && !level.dimension().location().getNamespace().equals(Constants.MOD_ID)) {
+                        blockPos = blockPos.offset(-4, 0, -4);
+
+                        for (int i = 0; i < 5; i++) {
+                            for (int j = 0; j < 5; j++) {
+                                BlockPos blockPos1 = blockPos.offset(i, 0, j);
+                                BlockState blockState = level.getBlockState(blockPos1);
+                                if (blockState.is(SBBlocks.SUMMON_STONE.get()) || blockState.is(SBBlocks.SUMMON_PORTAL.get()))
+                                    level.setBlock(blockPos1, Blocks.AIR.defaultBlockState(), 3);
+                            }
+                        }
+                        handler.setLastArenaPosition(null);
+                        handler.closeArena(handler.getLastArenaEntered());
+                    }
                 }
             }
         }
     }
 
     @SubscribeEvent
-    public static void onEntityLeaveDynamicDimension(EntityLeaveLevelEvent event) {
-        if (event.getEntity() instanceof Player player && !event.getLevel().isClientSide)
-            if (event.getLevel().dimension() == SummonPortalBlock.DIM)
-                InfiniverseAPI.get().markDimensionForUnregistration(event.getEntity().getServer(), SummonPortalBlock.DIM);
+    public static void onEntityLeaveDimension(EntityLeaveLevelEvent event) {
+        Level level = event.getLevel();
+        Entity entity = event.getEntity();
+        if (!level.isClientSide && entity instanceof Player player) {
+            var handler = SpellUtil.getSpellHandler(player);
+            if (handler.isArenaOwner(handler.getLastArenaEntered()) && level.dimension().location().getNamespace().equals(Constants.MOD_ID))
+                InfiniverseAPI.get().markDimensionForUnregistration(level.getServer(), level.dimension());
+        }
     }
 
     @SubscribeEvent

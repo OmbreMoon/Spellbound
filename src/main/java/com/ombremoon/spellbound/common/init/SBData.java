@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.ombremoon.spellbound.Constants;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
-import com.ombremoon.spellbound.common.EffectManager;
+import com.ombremoon.spellbound.util.EffectManager;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
