@@ -42,6 +42,9 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
@@ -63,6 +66,8 @@ import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.constant.dataticket.DataTicket;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
@@ -477,6 +482,42 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      */
     protected boolean shouldTickSpellEffect(SpellContext context) {
         return true;
+    }
+
+    /**
+     * Clears all harmful effects from the caster
+     */
+    public void cleanseCaster() {
+        cleanseCaster(0);
+    }
+
+    /**
+     * Clears a given number of harmful effects from the caster
+     * @param effectsToRemove Number of effects to remove, 0 will remove all harmful effects
+     */
+    public void cleanseCaster(int effectsToRemove) {
+        Collection<MobEffectInstance> effects = context.getCaster().getActiveEffects();
+        if (effectsToRemove == 0) {
+            effects = List.copyOf(effects);
+            for (MobEffectInstance instance : effects) {
+                if (instance.getEffect().value().getCategory() == MobEffectCategory.HARMFUL) {
+                    this.caster.removeEffect(instance.getEffect());
+                }
+            }
+        } else {
+            List<Holder<MobEffect>> harmfulEffects = new ArrayList<>();
+            for (MobEffectInstance instance : effects) {
+                if (instance.getEffect().value().getCategory() == MobEffectCategory.HARMFUL) harmfulEffects.add(instance.getEffect());
+            }
+
+            if (harmfulEffects.isEmpty()) return;
+            effectsToRemove = Math.min(effectsToRemove, harmfulEffects.size());
+            for (int i = 0; i < effectsToRemove; i++) {
+                Holder<MobEffect> removed = harmfulEffects.get(context.getCaster().getRandom().nextInt(0, harmfulEffects.size()));
+                context.getCaster().removeEffect(removed);
+                harmfulEffects.remove(removed);
+            }
+        }
     }
 
     /**

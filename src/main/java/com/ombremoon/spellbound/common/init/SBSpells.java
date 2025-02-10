@@ -93,6 +93,10 @@ public class SBSpells {
             .skills(SBSkills.HEALING_TOUCH, SBSkills.DIVINE_BALANCE, SBSkills.HEALING_STREAM, SBSkills.ACCELERATED_GROWTH,
                     SBSkills.TRANQUILITY_OF_WATER, SBSkills.NATURES_TOUCH, SBSkills.CLEANSING_TOUCH,
                     SBSkills.OVERGROWTH, SBSkills.BLASPHEMY, SBSkills.CONVALESCENCE));
+    public static final Supplier<SpellType<HealingBlossomSpell>> HEALING_BLOSSOM = registerSpell("healing_blossom", divineBuilder("healing_blossom", HealingBlossomSpell::new)
+            .skills(SBSkills.HEALING_BLOSSOM, SBSkills.THORNY_VINES, SBSkills.BLOOM, SBSkills.ETERNAL_SPRING,
+                    SBSkills. FLOWER_FIELD, SBSkills.FLOURISHING_GROWTH, SBSkills.HEALING_WINDS, SBSkills.BURST_OF_LIFE,
+                    SBSkills.PETAL_SHIELD, SBSkills.VERDANT_RENEWAL, SBSkills.REBIRTH));
 
     //Deception
     public static final Supplier<SpellType<ShadowbondSpell>> SHADOWBOND = registerSpell("shadowbond", deceptionBuilder("shadowbond", ShadowbondSpell::new)
