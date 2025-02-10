@@ -8,7 +8,6 @@ import net.minecraft.world.entity.player.Player;
 
 import java.util.function.BiPredicate;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * The main class most spells will extend from. Main utility is to handle spells casting animations.
@@ -102,13 +101,8 @@ public abstract class AnimatedSpell extends AbstractSpell {
             return this;
         }
 
-        public Builder<T> skipEndOnRecast(Predicate<SpellContext> skipIf) {
-            this.skipEndOnRecast = skipIf;
-            return this;
-        }
-
         public Builder<T> skipEndOnRecast() {
-            this.skipEndOnRecast = context -> true;
+            this.skipEndOnRecast = true;
             return this;
         }
 
