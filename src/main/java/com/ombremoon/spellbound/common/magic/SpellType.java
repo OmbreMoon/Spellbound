@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.magic;
 
-import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.skills.Skill;

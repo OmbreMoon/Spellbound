@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.util;
 
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.Constants;
 
 /**
  * Utility interface used to make objects easier to debug.

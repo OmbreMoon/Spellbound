@@ -1,8 +1,8 @@
 package com.ombremoon.spellbound.common.magic.api;
 
 import com.ombremoon.sentinellib.api.BoxUtil;
-import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.CommonClass;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.client.CameraEngine;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
@@ -67,7 +67,6 @@ import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -399,6 +398,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param context The spells context
      */
     protected void onSpellTick(SpellContext context) {
+        log(getModifier(ModifierType.DURATION));
     }
 
     /**
@@ -610,7 +610,10 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         float f = 1;
         for (var modifier : skills.getModifiers()) {
             if (modifierType.equals(modifier.modifierType()) && modifier.spellPredicate().test(getSpellType())) {
-                f *= modifier.modifier();
+                if (f == 1 && modifier.operation() == SpellModifier.Operation.ADD)
+                    f = 0;
+
+                f = modifier.operation().modifierValue(f, modifier.modifier());
             }
         }
         return f;

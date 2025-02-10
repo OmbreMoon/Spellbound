@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.networking.clientbound;
 
-import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.main.CommonClass;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;

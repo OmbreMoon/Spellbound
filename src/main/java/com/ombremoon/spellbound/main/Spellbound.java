@@ -1,7 +1,6 @@
-package com.ombremoon.spellbound;
+package com.ombremoon.spellbound.main;
 
 import com.ombremoon.spellbound.client.ClientStuff;
-import com.ombremoon.spellbound.client.shader.Examples;
 import com.ombremoon.spellbound.common.init.SBDataTypes;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.init.SBSpells;
@@ -13,6 +12,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
@@ -29,6 +29,8 @@ public class Spellbound {
         modEventBus.addListener(this::clientSetup);
         modEventBus.addListener(this::registerRegistry);
         CommonClass.init(modEventBus);
+
+        modContainer.registerConfig(ModConfig.Type.COMMON, ConfigHandler.COMMON_SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {

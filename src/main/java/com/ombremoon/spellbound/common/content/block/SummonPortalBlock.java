@@ -1,16 +1,9 @@
 package com.ombremoon.spellbound.common.content.block;
 
 import com.mojang.serialization.MapCodec;
-import com.ombremoon.spellbound.CommonClass;
 import com.ombremoon.spellbound.common.content.block.entity.SummonBlockEntity;
-import com.ombremoon.spellbound.common.content.world.dimension.DynamicDimensionFactory;
-import com.ombremoon.spellbound.common.content.world.dimension.TestDimensionFactory;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -22,18 +15,13 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class SummonPortalBlock extends BaseEntityBlock {
-    public static final ResourceKey<Level> DIM = ResourceKey.create(Registries.DIMENSION, CommonClass.customLocation("test"));
     public static final MapCodec<SummonPortalBlock> CODEC = simpleCodec(SummonPortalBlock::new);
     protected static final VoxelShape SHAPE = Block.box(0.0, 6.0, 0.0, 16.0, 12.0, 16.0);
 

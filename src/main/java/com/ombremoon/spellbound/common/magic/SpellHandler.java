@@ -2,7 +2,7 @@ package com.ombremoon.spellbound.common.magic;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.util.EffectManager;
 import com.ombremoon.spellbound.common.init.SBAttributes;
 import com.ombremoon.spellbound.common.init.SBData;
@@ -531,6 +531,14 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      */
     public SkillHolder getSkillHolder() {
         return this.skillHolder;
+    }
+
+    /**
+     * Returns the {@link EffectManager} for the player.
+     * @return The effect manager
+     */
+    public EffectManager getEffectManager() {
+        return this.effectManager;
     }
 
     public PlayerDivineActions getDivineActions() {

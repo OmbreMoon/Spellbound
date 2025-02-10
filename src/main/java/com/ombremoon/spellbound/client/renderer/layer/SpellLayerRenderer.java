@@ -2,7 +2,7 @@ package com.ombremoon.spellbound.client.renderer.layer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;

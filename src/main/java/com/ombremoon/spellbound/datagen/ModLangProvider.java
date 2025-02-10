@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.datagen;
 
 import com.google.common.collect.ImmutableMap;
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.init.SBItems;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.init.SBSpells;

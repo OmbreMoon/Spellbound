@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.client;
 
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.util.math.NoiseGenerator;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Camera;

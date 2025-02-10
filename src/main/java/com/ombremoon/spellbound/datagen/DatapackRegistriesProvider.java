@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.datagen;
 
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.init.SBDamageTypes;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;

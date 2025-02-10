@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.content.spell.ruin.shock;
 
-import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.entity.spell.StormCloud;
 import com.ombremoon.spellbound.common.content.entity.spell.StormRift;
 import com.ombremoon.spellbound.common.init.*;
@@ -9,7 +9,6 @@ import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
 import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;
 import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
-import com.ombremoon.spellbound.util.SpellUtil;
 import com.ombremoon.spellbound.util.portal.PortalInfo;
 import com.ombremoon.spellbound.util.portal.PortalMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;

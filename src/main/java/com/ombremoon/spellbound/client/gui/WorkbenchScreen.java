@@ -2,8 +2,7 @@ package com.ombremoon.spellbound.client.gui;
 
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.SBData;
@@ -253,10 +252,10 @@ public class WorkbenchScreen extends Screen {
         float spellXP = skillHolder.getSpellXp(this.selectedSpell);
         int spellLevel = skillHolder.getSpellLevel(this.selectedSpell);
         if (spellXP > 0) {
-            int xpGoal = Math.min(100 * (spellLevel + 1), 500);
+            int xpGoal = Math.min(100 * (spellLevel + 1), SkillHolder.MAX_SPELL_LEVEL * 100);
             int scale = RenderUtil.getScaledRender(spellXP - (100 * spellLevel), xpGoal - (100 * spellLevel), 122);
             guiGraphics.drawCenteredString(this.font, Component.literal((int )spellXP + " / " + xpGoal), xPos + 190, yPos + 143, textColor);
-            guiGraphics.blit(TEXTURE, xPos + 129, yPos + 153, 134, 194, spellXP != 500 ? scale : 122, 5);
+            guiGraphics.blit(TEXTURE, xPos + 129, yPos + 153, 134, 194, spellXP != SkillHolder.MAX_SPELL_LEVEL * 100 ? scale : 122, 5);
         }
     }
 

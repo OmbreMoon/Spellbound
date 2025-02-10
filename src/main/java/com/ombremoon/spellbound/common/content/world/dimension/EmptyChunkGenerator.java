@@ -2,7 +2,7 @@ package com.ombremoon.spellbound.common.content.world.dimension;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.init.SBChunkGenerators;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -24,12 +24,12 @@ import net.minecraft.world.level.levelgen.blending.Blender;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class TestChunkGenerator extends ChunkGenerator {
+public class EmptyChunkGenerator extends ChunkGenerator {
     public static ResourceKey<Biome> TEST_BIOME = ResourceKey.create(Registries.BIOME, CommonClass.customLocation("test"));
 
-    public static final MapCodec<TestChunkGenerator> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            BiomeSource.CODEC.fieldOf("biome_source").forGetter(TestChunkGenerator::getBiomeRegistry)
-    ).apply(instance, TestChunkGenerator::new));
+    public static final MapCodec<EmptyChunkGenerator> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            BiomeSource.CODEC.fieldOf("biome_source").forGetter(EmptyChunkGenerator::getBiomeRegistry)
+    ).apply(instance, EmptyChunkGenerator::new));
 
     private final BiomeSource biomes;
 
@@ -37,18 +37,18 @@ public class TestChunkGenerator extends ChunkGenerator {
         return this.biomes;
     }
 
-    public TestChunkGenerator(MinecraftServer server) {
+    public EmptyChunkGenerator(MinecraftServer server) {
         this(new FixedBiomeSource(server.registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(TEST_BIOME)));
     }
 
-    public TestChunkGenerator(BiomeSource biomes) {
+    public EmptyChunkGenerator(BiomeSource biomes) {
         super(biomes);
         this.biomes = biomes;
     }
 
     @Override
     protected MapCodec<? extends ChunkGenerator> codec() {
-        return SBChunkGenerators.TEST.get();
+        return SBChunkGenerators.EMPTY.get();
     }
 
     @Override

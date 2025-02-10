@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.common.init;
 
-import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.CommonClass;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;

@@ -1,15 +1,7 @@
 package com.ombremoon.spellbound.mixin;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.ombremoon.spellbound.Spellbound;
-import com.ombremoon.spellbound.client.ClientStuff;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(LevelRenderer.class)
 public class LevelRendererMixin {

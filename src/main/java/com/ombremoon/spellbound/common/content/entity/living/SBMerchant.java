@@ -2,7 +2,7 @@ package com.ombremoon.spellbound.common.content.entity.living;
 
 import com.google.common.collect.Lists;
 import com.mojang.serialization.DataResult;
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.content.entity.SBMerchantType;
 import com.ombremoon.spellbound.common.content.world.SBTrades;
 import com.ombremoon.spellbound.common.events.custom.ModifySpellTradesEvent;

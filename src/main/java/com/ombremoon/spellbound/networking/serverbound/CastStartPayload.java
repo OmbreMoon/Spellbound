@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.networking.serverbound;
 
-import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import net.minecraft.network.RegistryFriendlyByteBuf;

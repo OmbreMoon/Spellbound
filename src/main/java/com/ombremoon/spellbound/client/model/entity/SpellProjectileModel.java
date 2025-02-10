@@ -1,7 +1,6 @@
 package com.ombremoon.spellbound.client.model.entity;
 
-import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.common.content.entity.SpellEntity;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.entity.SpellProjectile;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;

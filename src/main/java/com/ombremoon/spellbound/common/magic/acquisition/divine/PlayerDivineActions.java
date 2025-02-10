@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.magic.acquisition.divine;
 
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.init.SBTriggers;
 import com.ombremoon.spellbound.util.Loggable;
 import com.ombremoon.spellbound.util.SpellUtil;

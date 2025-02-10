@@ -2,9 +2,8 @@ package com.ombremoon.spellbound.client.shader;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.Spellbound;
+import com.ombremoon.spellbound.main.CommonClass;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.client.shader.post.Example2PostShader;
 import com.ombremoon.spellbound.client.shader.post.ExamplePostShader;
 import com.ombremoon.spellbound.client.shader.post.PostShader;

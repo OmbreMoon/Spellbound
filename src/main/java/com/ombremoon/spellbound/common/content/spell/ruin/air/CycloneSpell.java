@@ -40,7 +40,7 @@ public class CycloneSpell extends AnimatedSpell {
     protected void onSpellStart(SpellContext context) {
         Level level = context.getLevel();
         if (!level.isClientSide) {
-            summonEntity(context, SBEntities.CYCLONE.get(), 100, cyclone -> this.setCyclone(cyclone.getId()));
+            this.setCyclone(summonEntity(context, SBEntities.CYCLONE.get(), 100).getId());
 
             if (context.getSkills().hasSkill(SBSkills.HAILSTORM.value())) {
                 HailstormSavedData data = ((HailstormSavedData) HailstormSavedData.get(level));

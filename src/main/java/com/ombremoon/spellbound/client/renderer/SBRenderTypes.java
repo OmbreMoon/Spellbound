@@ -2,7 +2,6 @@ package com.ombremoon.spellbound.client.renderer;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.ombremoon.spellbound.Spellbound;
 import com.ombremoon.spellbound.client.ClientStuff;
 import com.ombremoon.spellbound.client.shader.SBShaders;
 import net.minecraft.Util;

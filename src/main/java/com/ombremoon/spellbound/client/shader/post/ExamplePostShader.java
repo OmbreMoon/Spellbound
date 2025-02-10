@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.client.shader.post;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.main.CommonClass;
 
 public class ExamplePostShader extends PostShader {
     public ExamplePostShader() {

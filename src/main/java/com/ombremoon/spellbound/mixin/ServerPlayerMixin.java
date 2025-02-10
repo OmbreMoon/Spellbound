@@ -1,7 +1,5 @@
 package com.ombremoon.spellbound.mixin;
 
-import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.init.SBTriggers;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.EntityTypeTags;

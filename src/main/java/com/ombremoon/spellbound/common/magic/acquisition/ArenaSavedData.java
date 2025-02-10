@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.common.magic.acquisition;
 
-import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.CommonClass;
+import com.ombremoon.spellbound.main.Constants;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;

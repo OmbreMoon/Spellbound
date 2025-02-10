@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.common.content.spell;
 
-import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.CommonClass;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.content.effects.SBEffectInstance;
 import com.ombremoon.spellbound.common.content.entity.living.LivingShadow;
 import com.ombremoon.spellbound.common.init.*;

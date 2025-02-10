@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.client.event;
 
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.util.EffectManager;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;

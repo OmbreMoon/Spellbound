@@ -1,16 +1,23 @@
 package com.ombremoon.spellbound.common.content.world.dimension;
 
-import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.CommonClass;
+import com.ombremoon.spellbound.main.Constants;
+import net.commoble.infiniverse.api.InfiniverseAPI;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -23,6 +30,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 public class DynamicDimensionFactory {
+
+    public static ServerLevel createDimension(MinecraftServer server, ResourceKey<Level> levelKey) {
+        return InfiniverseAPI.get().getOrCreateLevel(server, levelKey, () -> createLevel(server));
+    }
+
+    private static LevelStem createLevel(MinecraftServer server) {
+        ChunkGenerator oldChunkGenerator = new EmptyChunkGenerator(server);
+        Holder<DimensionType> typeHolder = server.overworld().dimensionTypeRegistration();
+        return new LevelStem(typeHolder, oldChunkGenerator);
+    }
 
     public static void spawnInArena(Entity entity, ServerLevel level, ResourceLocation spell, boolean spawnArena) {
         BlockPos blockPos = new BlockPos(0, 64, 0);

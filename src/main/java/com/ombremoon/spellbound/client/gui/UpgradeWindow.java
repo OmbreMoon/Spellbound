@@ -1,9 +1,7 @@
 package com.ombremoon.spellbound.client.gui;
 
 import com.google.common.collect.Maps;
-import com.ombremoon.spellbound.CommonClass;
-import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.tree.SkillNode;
 import net.minecraft.client.Minecraft;

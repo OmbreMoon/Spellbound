@@ -5,6 +5,7 @@ import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.main.ConfigHandler;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -23,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class SkillHolder implements INBTSerializable<CompoundTag> {
+    public static final int MAX_SPELL_LEVEL = ConfigHandler.COMMON.maxSpellLevel.get();
     private LivingEntity caster;
     protected final Map<SpellPath, Float> pathXp = new Object2FloatOpenHashMap<>();
     protected final Map<SpellType<?>, Float> spellXp = new Object2FloatOpenHashMap<>();
@@ -46,7 +48,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
 
     public int getPathLevel(SpellPath path) {
         int level = this.getLevelFromXP(getPathXp(path));
-        return Math.min(level, 5);
+        return Math.min(level, MAX_SPELL_LEVEL);
     }
 
     public float getPathXp(SpellPath path) {
@@ -55,7 +57,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
 
     public int getSpellLevel(SpellType<?> spellType) {
         int level = this.getLevelFromXP(getSpellXp(spellType));
-        return Math.min(level, 5);
+        return Math.min(level, MAX_SPELL_LEVEL);
     }
 
     public float getSpellXp(SpellType<?> spellType) {
@@ -63,7 +65,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
     }
 
     public void awardSpellXp(SpellType<?> spellType, float xp) {
-        spellXp.put(spellType, Math.min(getSpellXp(spellType) + xp, 500));
+        spellXp.put(spellType, Math.min(getSpellXp(spellType) + xp, MAX_SPELL_LEVEL * 100));
         pathXp.put(spellType.getPath(), getPathXp(spellType.getPath()) + (xp / 2));
     }
 

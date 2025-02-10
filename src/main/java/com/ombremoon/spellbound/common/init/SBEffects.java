@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.init;
 
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.content.effects.SBEffect;
 import com.ombremoon.spellbound.common.content.effects.StormstrikeEffect;
 import net.minecraft.core.Holder;

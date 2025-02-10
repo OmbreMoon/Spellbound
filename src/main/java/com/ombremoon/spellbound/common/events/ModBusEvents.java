@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.events;
 
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.init.SBAttributes;
 import com.ombremoon.spellbound.common.init.SBEntities;
 import net.minecraft.world.entity.EntityType;

@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.common.init;
 
 import com.mojang.serialization.Codec;
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.util.EffectManager;

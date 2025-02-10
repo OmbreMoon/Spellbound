@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.Constants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;

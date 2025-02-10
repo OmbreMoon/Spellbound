@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.content.spell.summon;
 
-import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.entity.spell.WildMushroom;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;

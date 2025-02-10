@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.magic.tree;
 
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.networking.clientbound.UpdateTreePayload;

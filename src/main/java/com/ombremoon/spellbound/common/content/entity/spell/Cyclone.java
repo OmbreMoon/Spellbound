@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.content.entity.spell;
 
-import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.entity.SpellEntity;
 import com.ombremoon.spellbound.common.content.spell.ruin.air.CycloneSpell;
 import com.ombremoon.spellbound.common.init.*;

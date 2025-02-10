@@ -1,18 +1,12 @@
 package com.ombremoon.spellbound.datagen;
 
-import com.ombremoon.spellbound.Constants;
-import com.ombremoon.spellbound.common.init.SBDamageTypes;
-import com.ombremoon.spellbound.common.init.SBTags;
+import com.ombremoon.spellbound.main.Constants;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;

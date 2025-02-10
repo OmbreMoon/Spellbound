@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.datagen;
 
-import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.acquisition.divine.ActionHolder;
 import com.ombremoon.spellbound.common.magic.acquisition.divine.ActionRewards;

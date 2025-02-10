@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.client.renderer.layer;
 
-import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.model.GeoModel;

@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.client.model.entity;
 
-import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.entity.spell.SolarRay;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.util.SpellUtil;

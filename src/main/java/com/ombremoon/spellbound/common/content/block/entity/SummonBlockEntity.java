@@ -1,8 +1,7 @@
 package com.ombremoon.spellbound.common.content.block.entity;
 
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.content.world.dimension.DynamicDimensionFactory;
-import com.ombremoon.spellbound.common.content.world.dimension.TestDimensionFactory;
 import com.ombremoon.spellbound.common.init.SBBlockEntities;
 import com.ombremoon.spellbound.common.magic.acquisition.ArenaSavedData;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -62,7 +61,7 @@ public class SummonBlockEntity extends BlockEntity {
             if (blockEntity instanceof SummonBlockEntity) {
                 ArenaSavedData data = ArenaSavedData.get(server);
                 ResourceKey<Level> levelKey = data.getOrCreateKey(server, this.arenaId);
-                ServerLevel arena = TestDimensionFactory.createDimension(server, levelKey);
+                ServerLevel arena = DynamicDimensionFactory.createDimension(server, levelKey);
                 if (arena != null && this.spell != null) {
                     var handler = SpellUtil.getSpellHandler(livingEntity);
                     DynamicDimensionFactory.spawnInArena(entity, arena, this.spell, !this.hasEnteredPortal);
@@ -125,7 +124,7 @@ public class SummonBlockEntity extends BlockEntity {
     }
 
     public boolean shouldRenderFace(Direction face) {
-        return face.getAxis() == Direction.Axis.Y;
+        return /*face.getAxis() == Direction.Axis.Y*/true;
     }
 
     @Override

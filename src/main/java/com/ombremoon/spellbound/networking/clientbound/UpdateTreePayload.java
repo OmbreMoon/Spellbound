@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.networking.clientbound;
 
-import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import net.minecraft.network.RegistryFriendlyByteBuf;

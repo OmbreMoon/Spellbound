@@ -2,7 +2,7 @@ package com.ombremoon.spellbound.common.magic.tree;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;

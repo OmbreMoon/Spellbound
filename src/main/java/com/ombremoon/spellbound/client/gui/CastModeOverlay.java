@@ -1,9 +1,8 @@
 package com.ombremoon.spellbound.client.gui;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.ombremoon.spellbound.CommonClass;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.SBAttributes;
 import com.ombremoon.spellbound.common.init.SBData;

@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.init;
 
-import com.ombremoon.spellbound.Constants;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.content.entity.living.LivingShadow;
 import com.ombremoon.spellbound.common.content.entity.living.SpellBrokerEntity;
 import com.ombremoon.spellbound.common.content.entity.living.Valkyr;
