@@ -255,12 +255,12 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     }
 
     /**
-     * Replaces an {@link AbstractSpell} in the active spells map. This is only called is the spells has {@link AbstractSpell#fullRecast} checked in the builder method. Recast spells will all call {@link AbstractSpell#endSpell()} unless they have {@link AbstractSpell#skipEndOnRecast()} checked in the spells builder.
+     * Replaces an {@link AbstractSpell} in the active spells map. This is only called is the spells has {@link AbstractSpell#fullRecast} checked in the builder method. Recast spells will all call {@link AbstractSpell#endSpell()} unless they have {@link AbstractSpell#skipEndOnRecast} checked in the spells builder.
      * @param spell
      */
-    public void recastSpell(AbstractSpell spell) {
+    public void recastSpell(AbstractSpell spell, SpellContext context) {
         if (this.activeSpells.containsKey(spell.getSpellType()))
-            this.activeSpells.get(spell.getSpellType()).stream().filter(abstractSpell -> !abstractSpell.skipEndOnRecast()).forEach(AbstractSpell::endSpell);
+            this.activeSpells.get(spell.getSpellType()).stream().filter(abstractSpell -> !abstractSpell.skipEndOnRecast(context)).forEach(AbstractSpell::endSpell);
 
         this.activeSpells.replaceValues(spell.getSpellType(), List.of(spell));
     }

@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public abstract class SummonSpell extends AnimatedSpell {
     private static final ResourceLocation DAMAGE_EVENT = CommonClass.customLocation("summon_damage_event");
@@ -191,8 +192,13 @@ public abstract class SummonSpell extends AnimatedSpell {
             return this;
         }
 
+        public Builder<T> skipEndOnRecast(Predicate<SpellContext> skipIf) {
+            this.skipEndOnRecast = skipIf;
+            return this;
+        }
+
         public Builder<T> skipEndOnRecast() {
-            this.skipEndOnRecast = true;
+            this.skipEndOnRecast = context -> true;
             return this;
         }
 
