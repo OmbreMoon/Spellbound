@@ -51,7 +51,7 @@ public class ClientEvents {
             event.registerEntityRenderer(SBEntities.STORM_RIFT.get(), StormRiftRenderer::new);
             event.registerEntityRenderer(SBEntities.CYCLONE.get(), CycloneRenderer::new);
             event.registerEntityRenderer(SBEntities.HAIL.get(), HailRenderer::new);
-            event.registerEntityRenderer(SBEntities.HEALING_BLOSSOM.get(), GenericSpellRenderer::new);
+            event.registerEntityRenderer(SBEntities.HEALING_BLOSSOM.get(), EmissiveSpellRenderer::new);
 
             event.registerEntityRenderer(SBEntities.LIVING_SHADOW.get(), LivingShadowRenderer::new);
             event.registerEntityRenderer(SBEntities.VALKYR.get(), GenericLivingEntityRenderer::new);
