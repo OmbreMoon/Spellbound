@@ -19,6 +19,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class SpellSelectScreen extends Screen {
@@ -75,9 +76,14 @@ public class SpellSelectScreen extends Screen {
         super.init();
         this.x = (float) this.width / 2;
         this.y = (float) this.height / 2;
-        for (int i = 0; i < handler.equippedSpellSet.size(); i++) {
-            this.items.add(spellItems[i]);
+        if (this.items.isEmpty()) {
+            this.items.addAll(Arrays.asList(spellItems).subList(0, handler.equippedSpellSet.size()));
         }
+    }
+
+    @Override
+    public void resize(Minecraft minecraft, int width, int height) {
+        super.resize(minecraft, width, height);
     }
 
     @Override

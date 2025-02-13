@@ -11,12 +11,18 @@ public class ConfigHandler {
 
     public static class Common {
         public final ModConfigSpec.IntValue maxSpellLevel;
+        public final ModConfigSpec.BooleanValue skillRequiresPrereqs;
 
         Common(ModConfigSpec.Builder builder) {
             maxSpellLevel = builder
-                    .comment("The maximum number of levels any spell can obtain")
+                    .comment("The maximum number of levels any spell can obtain.")
                     .translation("spellbound.config.maxSpellLevel")
                     .defineInRange("maxSpellLevel", 5, 1, 10);
+
+            skillRequiresPrereqs = builder
+                    .comment("Set this to false if any skill can be unlocked without unlocking the necessary prerequisites.")
+                    .translation("spellbound.config.skillRequiresPrereqs")
+                    .define("skillRequiresPrereqs", true);
         }
 
     }

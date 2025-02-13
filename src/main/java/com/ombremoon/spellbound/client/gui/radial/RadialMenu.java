@@ -99,6 +99,10 @@ public class RadialMenu {
         }
     }
 
+    public void resize() {
+        this.state = State.INITIALIZING;
+    }
+
     public void clickItem() {
         switch (state) {
             case DEFAULT:
@@ -303,7 +307,7 @@ public class RadialMenu {
     private void drawTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
         for (RadialMenuItem item : this.items) {
             if (item.isHovered()) {
-                DrawingContext context = new DrawingContext(graphics, screen.width, screen.height, mouseX, mouseY, 0, screen.getMinecraft().font, drawingHelper);
+                DrawingContext context = new DrawingContext(graphics, screen.width, screen.height, mouseX, mouseY, 0, this.items.size(), screen.getMinecraft().font, drawingHelper);
                 item.drawTooltips(context);
             }
         }
@@ -315,7 +319,7 @@ public class RadialMenu {
             float posX = x + itemRadius * (float) Math.cos(middle);
             float posY = y + itemRadius * (float) Math.sin(middle);
 
-            DrawingContext context = new DrawingContext(graphics, width, height, posX, posY, z, font, drawingHelper);
+            DrawingContext context = new DrawingContext(graphics, width, height, posX, posY, z, this.items.size(), font, drawingHelper);
             item.draw(context);
         });
     }

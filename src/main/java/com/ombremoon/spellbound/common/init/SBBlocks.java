@@ -27,15 +27,21 @@ public class SBBlocks {
                     .lightLevel(state -> 15)
                     .strength(-1.0F, 3600000.0F)
                     .noLootTable()
-                    .pushReaction(PushReaction.BLOCK)));
+                    .pushReaction(PushReaction.BLOCK)), false);
 
     public static void registerSummonStone(String name, String spell) {
         registerBlock(name, () -> new SummonStoneBlock(CommonClass.customLocation(spell), BlockBehaviour.Properties.of()));
     }
 
     private static <T extends Block> DeferredBlock<T> registerBlock(String name, Supplier<T> block) {
+        return registerBlock(name, block, true);
+    }
+
+    private static <T extends Block> DeferredBlock<T> registerBlock(String name, Supplier<T> block, boolean registerItem) {
         DeferredBlock<T> deferredBlock = BLOCKS.register(name, block);
-        SBItems.registerBlockItem(name, deferredBlock);
+        if (registerItem)
+            SBItems.registerBlockItem(name, deferredBlock);
+
         return deferredBlock;
     }
 

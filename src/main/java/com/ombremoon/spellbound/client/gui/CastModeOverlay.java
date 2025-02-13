@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.client.gui;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.SBAttributes;
@@ -44,26 +45,25 @@ public class CastModeOverlay implements LayeredDraw.Layer {
     private void renderCastMode(GuiGraphics guiGraphics, Player player, SpellHandler handler) {
         int x = guiGraphics.guiWidth() - 27;
         int y = 30;
-        SpellType<?> spell = handler.getSelectedSpell();
-        if (spell == null) return;
-
-        ResourceLocation texture = spell.createSpell().getTexture();
-
-        guiGraphics.blit(texture, x, y, 0, 0, 24, 24, 24, 24);
-        guiGraphics.blit(BACKGROUND, x - 1, y - 1, 0, 0, 26, 26, 26, 26);
         guiGraphics.blit(MANA_BAR, guiGraphics.guiWidth() / 2 - 200, guiGraphics.guiHeight() - 20, 0, 0, 106, 16, 106, 28);
         guiGraphics.blit(MANA_BAR, guiGraphics.guiWidth() / 2 - 198, guiGraphics.guiHeight() - 15, 2, 18, RenderUtil.getScaledRender((int)Math.floor(player.getData(SBData.MANA)), (int)Math.floor(player.getAttributeValue(SBAttributes.MAX_MANA)), 103), 8, 106, 28);
-        guiGraphics.drawString(Minecraft.getInstance().font,
-                spell.createSpell().getName(),
-                40, guiGraphics.guiHeight() - 60,
-                8889187, false);
-
         guiGraphics.drawString(Minecraft.getInstance().font,
                 player.getData(SBData.MANA) + "/" + player.getAttribute(SBAttributes.MAX_MANA).getValue(),
                 40,
                 guiGraphics.guiHeight() - 40,
                 8889187 ,
                 false);
+
+        SpellType<?> spell = handler.getSelectedSpell();
+        if (spell == null || spell == SBSpells.TEST_SPELL.get()) return;
+
+        ResourceLocation texture = spell.createSpell().getTexture();
+        guiGraphics.blit(texture, x, y, 0, 0, 24, 24, 24, 24);
+        guiGraphics.blit(BACKGROUND, x - 1, y - 1, 0, 0, 26, 26, 26, 26);
+        guiGraphics.drawString(Minecraft.getInstance().font,
+                spell.createSpell().getName(),
+                40, guiGraphics.guiHeight() - 60,
+                8889187, false);
     }
 
     private void renderActiveSpells(GuiGraphics guiGraphics, SpellHandler handler) {

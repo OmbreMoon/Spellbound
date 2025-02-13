@@ -8,10 +8,16 @@ import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+
+import java.util.Set;
+import java.util.function.Consumer;
 
 public class ClientPayloadHandler {
 
@@ -28,7 +34,7 @@ public class ClientPayloadHandler {
         context.enqueueWork(() -> {
             var handler = SpellUtil.getSpellHandler(context.player());
             AbstractSpell spell = handler.getCurrentlyCastSpell();
-            spell.initSpell(context.player(), context.player().level(), context.player().getOnPos(), payload.forceReset());
+            spell.clientInitSpell(context.player(), context.player().level(), context.player().getOnPos(), payload.isRecast(), payload.castId(), payload.forceReset());
             handler.setCurrentlyCastingSpell(null);
         });
     }
@@ -104,6 +110,19 @@ public class ClientPayloadHandler {
         context.enqueueWork(() -> {
             HailstormData data = HailstormSavedData.get(context.player().level());
             data.setHailLevel(payload.hailLevel());
+        });
+    }
+
+    public static void handleUpdateDimensions(UpdateDimensionsPayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            @SuppressWarnings("resource")
+            final LocalPlayer player = Minecraft.getInstance().player;
+            if (player == null)
+                return;
+
+            final Set<ResourceKey<Level>> dimensionList = player.connection.levels();
+            Consumer<ResourceKey<Level>> keyConsumer = payload.add() ? dimensionList::add : dimensionList::remove;
+            payload.keys().forEach(keyConsumer);
         });
     }
 }

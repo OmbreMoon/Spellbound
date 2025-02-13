@@ -123,8 +123,6 @@ public class MysticArmorSpell extends AnimatedSpell {
         if (!level.isClientSide) {
             if (skills.hasSkill(SBSkills.SUBLIME_BEACON.value()))
                 caster.heal(caster.getArmorValue() * 0.25F);
-
-            log(caster.getArmorValue());
         }
     }
 

@@ -2,18 +2,21 @@ package com.ombremoon.spellbound.common.events;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.ombremoon.sentinellib.common.event.RegisterPlayerSentinelBoxEvent;
-import com.ombremoon.spellbound.main.Constants;
-import com.ombremoon.spellbound.util.EffectManager;
 import com.ombremoon.spellbound.common.content.commands.LearnSkillsCommand;
 import com.ombremoon.spellbound.common.content.commands.LearnSpellCommand;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
-import com.ombremoon.spellbound.common.init.*;
+import com.ombremoon.spellbound.common.content.world.dimension.DimensionCreator;
+import com.ombremoon.spellbound.common.init.SBAttributes;
+import com.ombremoon.spellbound.common.init.SBBlocks;
+import com.ombremoon.spellbound.common.init.SBData;
+import com.ombremoon.spellbound.common.init.SBEffects;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.buff.events.*;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.PayloadHandler;
+import com.ombremoon.spellbound.util.EffectManager;
 import com.ombremoon.spellbound.util.SpellUtil;
-import net.commoble.infiniverse.api.InfiniverseAPI;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
@@ -110,7 +113,7 @@ public class NeoForgeEvents {
         if (!level.isClientSide && entity instanceof Player player) {
             var handler = SpellUtil.getSpellHandler(player);
             if (handler.isArenaOwner(handler.getLastArenaEntered()) && level.dimension().location().getNamespace().equals(Constants.MOD_ID))
-                InfiniverseAPI.get().markDimensionForUnregistration(level.getServer(), level.dimension());
+                DimensionCreator.get().markDimensionForUnregistration(level.getServer(), level.dimension());
         }
     }
 

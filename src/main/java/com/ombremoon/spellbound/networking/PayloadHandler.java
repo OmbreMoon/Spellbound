@@ -8,10 +8,14 @@ import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import com.ombremoon.spellbound.networking.clientbound.*;
 import com.ombremoon.spellbound.networking.serverbound.*;
 import com.ombremoon.spellbound.util.SpellUtil;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -68,8 +72,8 @@ public class PayloadHandler {
         PacketDistributor.sendToServer(new UnlockSkillPayload(skill));
     }
 
-    public static void updateSpells(Player player, boolean forceReset) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player, new UpdateSpellsPayload(forceReset));
+    public static void updateSpells(Player player, boolean isRecast, int castId, boolean forceReset) {
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new UpdateSpellsPayload(isRecast, castId, forceReset));
     }
 
     public static void endSpell(Player player, SpellType<?> spellType, int castId) {
@@ -121,8 +125,20 @@ public class PayloadHandler {
         PacketDistributor.sendToPlayer((ServerPlayer) player, new RemoveGlowEffectPayload(entityId));
     }
 
+    public static void updateDimensions(MinecraftServer server, Set<ResourceKey<Level>> keys, boolean add) {
+        sendToAll(server, new UpdateDimensionsPayload(keys, add));
+    }
+
     public static void changeHailLevel(ServerLevel level, float hailLevel) {
         PacketDistributor.sendToPlayersInDimension(level, new ChangeHailLevelPayload(hailLevel));
+    }
+
+    public static <PACKET extends CustomPacketPayload> void sendToAll(MinecraftServer server, PACKET packet) {
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            if (player.connection.hasChannel(packet)) {
+                PacketDistributor.sendToPlayer(player, packet);
+            }
+        }
     }
 
     @SubscribeEvent
@@ -243,6 +259,11 @@ public class PayloadHandler {
                 ChangeHailLevelPayload.TYPE,
                 ChangeHailLevelPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleChangeHailLevel
+        );
+        registrar.playToClient(
+                UpdateDimensionsPayload.TYPE,
+                UpdateDimensionsPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleUpdateDimensions
         );
     }
 }

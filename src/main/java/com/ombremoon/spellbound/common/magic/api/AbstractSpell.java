@@ -289,6 +289,12 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @return The spells sub path
      */
     public @Nullable SpellPath getSubPath() {
+        if (this.spellType.getPath() != SpellPath.RUIN)
+            throw new IllegalStateException("Tried to get a sub-path from invalid path: " + this.spellType.getPath().getSerializedName() + ". Only the ruin path can contain sub-paths");
+
+        if (this.spellType.getPath().isSubPath())
+            throw new IllegalStateException("Tried to get a sub-path from a sub-path: " + this.spellType.getPath().getSerializedName());
+
         return this.getSpellType().getSubPath();
     }
 
@@ -361,7 +367,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
             if (this.shouldTickSpellEffect(this.context)) {
                 this.onSpellTick(this.context);
             }
-            if (this.getCastType() != CastType.CHANNEL && ticks % getDuration() == 0) {
+            if (this.getCastType() != CastType.CHANNEL && ticks >= getDuration()) {
                 this.endSpell();
             }
         }
@@ -399,7 +405,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param context The spells context
      */
     protected void onSpellTick(SpellContext context) {
-        log(getModifier(ModifierType.DURATION));
+        log(castId);
     }
 
     /**
@@ -470,6 +476,14 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      */
     @Override
     public void onSpellDataUpdated(SpellDataKey<?> dataKey) {
+    }
+
+    /**
+     * Sets the amount of ticks the spell will continue to tick
+     * @param ticks The amount of ticks left for the spell
+     */
+    protected void setRemainingTicks(int ticks) {
+        this.ticks = Mth.clamp(this.getDuration() - ticks, 0, this.getDuration());
     }
 
     /**
@@ -716,7 +730,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param damageSource The source of damage
      * @return Whether the damage source has the {@link SBTags.DamageTypes Spell Damage} tag
      */
-    protected boolean isSpellDamage(@NotNull DamageSource damageSource) {
+    public static boolean isSpellDamage(@NotNull DamageSource damageSource) {
         return damageSource.is(SBTags.DamageTypes.SPELL_DAMAGE);
     }
 
@@ -725,7 +739,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param damageSource The source of damage
      * @return Whether the damage source has the {@link SBTags.DamageTypes Physical Damage} tag
      */
-    protected boolean isPhysicalDamage(@NotNull DamageSource damageSource) {
+    public static boolean isPhysicalDamage(@NotNull DamageSource damageSource) {
         return damageSource.is(SBTags.DamageTypes.PHYSICAL_DAMAGE);
     }
 
@@ -904,7 +918,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     public void initSpell(LivingEntity caster, Level level, BlockPos blockPos) {
-        initSpell(caster, level, blockPos, this.getTargetEntity(caster, 10), false);
+        initSpell(caster, level, blockPos, false);
     }
 
     public void initSpell(LivingEntity caster, Level level, BlockPos blockPos, boolean forceReset) {
@@ -919,57 +933,81 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param target The target entity of the caster
      */
     public void initSpell(LivingEntity caster, Level level, BlockPos blockPos, @Nullable Entity target, boolean forceReset) {
+        if (!level.isClientSide) {
+            this.level = level;
+            this.caster = caster;
+            this.blockPos = blockPos;
+
+            var handler = SpellUtil.getSpellHandler(caster);
+            var list = handler.getActiveSpells(getSpellType());
+            if (!list.isEmpty()) this.isRecast = true;
+            this.context = new SpellContext(this.getSpellType(), this.caster, this.level, this.blockPos, target, this.isRecast);
+
+            boolean incrementId = true;
+            if (this.isRecast) {
+                AbstractSpell prevSpell;
+
+                if (this.fullRecast) {
+                    prevSpell = handler.getActiveSpells(getSpellType()).stream().findFirst().orElse(null);
+                } else {
+                    prevSpell = this.getPreviouslyCastSpell();
+                }
+
+                if (prevSpell != null) {
+                    if (this.fullRecast && !prevSpell.skipEndOnRecast(prevSpell.context)) {
+                        prevSpell.endSpell();
+                        this.castId = 1;
+                    } else if (this.fullRecast) {
+                        this.castId = 1;
+                    } else {
+                        this.castId = prevSpell.castId + 1;
+                    }
+
+                    incrementId = false;
+                    CompoundTag nbt = prevSpell.saveData(new CompoundTag());
+                    this.loadData(nbt);
+                }
+            }
+
+            if (incrementId) this.castId++;
+
+            if (!(this.castPredicate.test(this.context, this) && RandomUtil.percentChance(getCastChance()))) {
+                onCastReset(this.context);
+                if (caster instanceof Player player)
+                    PayloadHandler.updateSpells(player, this.isRecast, this.castId, true);
+
+                return;
+            }
+
+            if (caster instanceof Player player) {
+                PayloadHandler.updateSpells(player, this.isRecast, this.castId, false);
+                awardXp(this.manaCost * this.xpModifier);
+                player.awardStat(SBStats.SPELLS_CAST.get());
+            }
+
+
+            activateSpell();
+            EventFactory.onSpellCast(caster, this, this.context);
+
+            this.init = true;
+        }
+    }
+
+    public void clientInitSpell(LivingEntity caster, Level level, BlockPos blockPos, boolean isRecast, int castId, boolean forceReset) {
         this.level = level;
         this.caster = caster;
         this.blockPos = blockPos;
 
-        var handler = SpellUtil.getSpellHandler(caster);
-        var list = handler.getActiveSpells(getSpellType());
-        if (!list.isEmpty()) this.isRecast = true;
-        this.context = new SpellContext(this.getSpellType(), this.caster, this.level, this.blockPos, target, this.isRecast);
+        this.isRecast = isRecast;
+        this.context = new SpellContext(this.getSpellType(), this.caster, this.level, this.blockPos, this.getTargetEntity(caster, 10), this.isRecast);
 
         if (forceReset) {
             onCastReset(this.context);
             return;
         }
 
-        boolean incrementId = true;
-        if (this.isRecast) {
-            AbstractSpell prevSpell;
-
-            if (this.fullRecast) {
-                prevSpell = handler.getActiveSpells(getSpellType()).stream().findFirst().orElse(null);
-            } else {
-                prevSpell = this.getPreviouslyCastSpell();
-            }
-
-            if (prevSpell != null) {
-                this.castId = this.fullRecast ? 1 : prevSpell.castId + 1;
-                incrementId = false;
-                CompoundTag nbt = prevSpell.saveData(new CompoundTag());
-                this.loadData(nbt);
-            }
-        }
-        if (!level.isClientSide) {
-            if (!(this.castPredicate.test(this.context, this) && RandomUtil.percentChance(getCastChance()))) {
-                onCastReset(this.context);
-                if (caster instanceof Player player)
-                    PayloadHandler.updateSpells(player, true);
-
-                return;
-            }
-
-            if (caster instanceof Player player) {
-                PayloadHandler.updateSpells(player, false);
-                awardXp(this.manaCost * this.xpModifier);
-                player.awardStat(SBStats.SPELLS_CAST.get());
-            }
-        }
+        this.castId = castId;
         activateSpell();
-
-        if (incrementId) this.castId++;
-
-        log(castId);
         EventFactory.onSpellCast(caster, this, this.context);
 
         this.init = true;
@@ -995,13 +1033,15 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      */
     private void activateSpell() {
         var handler = this.context.getSpellHandler();
-        if (this.fullRecast) {
+        if (this.fullRecast && this.isRecast) {
             handler.recastSpell(this, this.context);
         } else {
             handler.activateSpell(this);
-            if (!this.level.isClientSide)
-                this.sendDirtySpellData();
         }
+
+        if (!this.level.isClientSide)
+            this.sendDirtySpellData();
+
         handler.consumeMana(getManaCost(), true);
     }
 
@@ -1046,7 +1086,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         protected CastType castType = CastType.INSTANT;
         protected SoundEvent castSound;
         protected boolean fullRecast;
-        protected Predicate<SpellContext> skipEndOnRecast;
+        protected Predicate<SpellContext> skipEndOnRecast = context -> false;
         protected boolean hasLayer;
         protected int updateInterval = 3;
 

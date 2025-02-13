@@ -190,7 +190,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * @param spellType
      */
     public void learnSpell(SpellType<?> spellType) {
-        if (this.spellSet.isEmpty()) this.selectedSpell = spellType;
+        if (this.spellSet.isEmpty() || this.selectedSpell == null || this.selectedSpell == SBSpells.TEST_SPELL.get()) this.selectedSpell = spellType;
         this.spellSet.add(spellType);
         if (this.equippedSpellSet.size() < 10)
             this.equippedSpellSet.add(spellType);
@@ -209,8 +209,10 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * @param spellType The spells to be removed
      */
     public void removeSpell(SpellType<?> spellType) {
-        this.skillHolder.resetSkills(spellType);
+        if (this.selectedSpell == spellType)
+            this.selectedSpell = null;
 
+        this.skillHolder.resetSkills(spellType);
         var locations = spellType.getSkills().stream().map(Skill::location).collect(Collectors.toSet());
         this.spellSet.remove(spellType);
         this.equippedSpellSet.remove(spellType);
@@ -266,10 +268,13 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * @param spell
      */
     public void recastSpell(AbstractSpell spell, SpellContext context) {
-        if (this.activeSpells.containsKey(spell.getSpellType()))
-            this.activeSpells.get(spell.getSpellType()).stream().filter(abstractSpell -> !abstractSpell.skipEndOnRecast(context)).forEach(AbstractSpell::endSpell);
-
+        /*if (!caster.level().isClientSide) {
+            if (this.activeSpells.containsKey(spell.getSpellType()))
+                this.activeSpells.get(spell.getSpellType()).stream().filter(abstractSpell -> !abstractSpell.skipEndOnRecast(context)).forEach(AbstractSpell::endSpell);
+        }
+*/
         this.activeSpells.replaceValues(spell.getSpellType(), List.of(spell));
+        log(this.activeSpells);
     }
 
     /**

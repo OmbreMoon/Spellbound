@@ -11,6 +11,7 @@ import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.tree.SkillNode;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.RenderUtil;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -242,7 +243,7 @@ public class WorkbenchScreen extends Screen {
         float pathXP = skillHolder.getPathXp(SpellPath.values()[this.pageIndex]);
         int pathLevel = skillHolder.getPathLevel(SpellPath.values()[this.pageIndex]);
         if (pathXP > 0) {
-            int xpGoal = 100 * (pathLevel + 1);
+            int xpGoal = skillHolder.getXPGoal(pathLevel + 1);
             int scale = RenderUtil.getScaledRender(pathXP - (100 * pathLevel), xpGoal - (100 * pathLevel), 141);
             guiGraphics.blit(TEXTURE, xPos + 101, yPos + 5, 115, 188, scale, 5);
         }
@@ -252,7 +253,7 @@ public class WorkbenchScreen extends Screen {
         float spellXP = skillHolder.getSpellXp(this.selectedSpell);
         int spellLevel = skillHolder.getSpellLevel(this.selectedSpell);
         if (spellXP > 0) {
-            int xpGoal = Math.min(100 * (spellLevel + 1), SkillHolder.MAX_SPELL_LEVEL * 100);
+            int xpGoal = skillHolder.getXPGoal(spellLevel + 1);
             int scale = RenderUtil.getScaledRender(spellXP - (100 * spellLevel), xpGoal - (100 * spellLevel), 122);
             guiGraphics.drawCenteredString(this.font, Component.literal((int )spellXP + " / " + xpGoal), xPos + 190, yPos + 143, textColor);
             guiGraphics.blit(TEXTURE, xPos + 129, yPos + 153, 134, 194, spellXP != SkillHolder.MAX_SPELL_LEVEL * 100 ? scale : 122, 5);

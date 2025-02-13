@@ -6,6 +6,7 @@ import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.main.ConfigHandler;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -25,6 +26,7 @@ import java.util.Set;
 
 public class SkillHolder implements INBTSerializable<CompoundTag> {
     public static final int MAX_SPELL_LEVEL = ConfigHandler.COMMON.maxSpellLevel.get();
+    public static final boolean REQUIRES_PREREQS = ConfigHandler.COMMON.skillRequiresPrereqs.get();
     private LivingEntity caster;
     protected final Map<SpellPath, Float> pathXp = new Object2FloatOpenHashMap<>();
     protected final Map<SpellType<?>, Float> spellXp = new Object2FloatOpenHashMap<>();
@@ -52,7 +54,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
     }
 
     public float getPathXp(SpellPath path) {
-        return pathXp.getOrDefault(path, 0F);
+        return Math.min(pathXp.getOrDefault(path, 0F), MAX_SPELL_LEVEL * 100);
     }
 
     public int getSpellLevel(SpellType<?> spellType) {
@@ -97,13 +99,17 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
     public boolean canUnlockSkill(Skill skill) {
         var spellType = skill.getSpell();
         if (hasSkill(skill)) return false;
-        if (skill.isRoot()) return false;
+        if (skill.isRoot() || skill.getPrereqs() == null) return false;
 
         Set<Skill> unlocked = unlockedSkills.get(spellType);
         if (unlocked == null) return false;
+        if (unlocked.size() >= MAX_SPELL_LEVEL) return false;
         if (!skill.canUnlockSkill((Player) this.caster, this)) return false;
-        for (Holder<Skill> prereq : skill.getPrereqs()) {
-            if (unlocked.contains(prereq.value())) return true;
+
+        if (!REQUIRES_PREREQS) return true;
+
+        for (Holder<Skill> preReq : skill.getPrereqs()) {
+            if (unlocked.contains(preReq.value())) return true;
         }
 
         return false;
@@ -147,22 +153,12 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
     }
 
     private int getLevelFromXP(float xp) {
-        int level = 0;
-        if (xp <= 0) return level;
+        double level = (-1 + Math.sqrt(1 + 4 * (xp / 50.0))) / 2;
+        return (int) Math.floor(level);
+    }
 
-        float thresh = 1500F / xp;
-        if (thresh <= 1F) {
-            level = 5;
-        } else if (thresh <= 1.5F) {
-            level = 4;
-        } else if (thresh <= 2.5F) {
-            level = 3;
-        } else if (thresh <= 5F) {
-            level = 2;
-        } else if (thresh <= 15F) {
-            level = 1;
-        }
-        return level;
+    public int getXPGoal(int level) {
+        return 100 * (level * (level + 1)) / 2;
     }
 
     @Override

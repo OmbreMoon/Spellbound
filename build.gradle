@@ -129,7 +129,6 @@ dependencies {
     implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
     implementation "net.tslat.smartbrainlib:SmartBrainLib-neoforge-${project.minecraft_version}:${project.sbl_version}"
     implementation("local:sentinellib:1.1.6")
-    implementation "curse.maven:infiniverse-568341:5486311"
 }
 
 tasks.named('jarJar') {

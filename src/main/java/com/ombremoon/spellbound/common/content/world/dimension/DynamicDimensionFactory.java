@@ -2,7 +2,6 @@ package com.ombremoon.spellbound.common.content.world.dimension;
 
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;
-import net.commoble.infiniverse.api.InfiniverseAPI;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -32,7 +31,7 @@ import java.util.Optional;
 public class DynamicDimensionFactory {
 
     public static ServerLevel createDimension(MinecraftServer server, ResourceKey<Level> levelKey) {
-        return InfiniverseAPI.get().getOrCreateLevel(server, levelKey, () -> createLevel(server));
+        return DimensionCreator.get().getOrCreateLevel(server, levelKey, () -> createLevel(server));
     }
 
     private static LevelStem createLevel(MinecraftServer server) {

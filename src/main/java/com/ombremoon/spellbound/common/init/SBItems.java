@@ -44,7 +44,8 @@ public class SBItems {
                             if (registryObject != SPELL_TOME) output.accept(new ItemStack(registryObject.get()));
                         });
                         SBSpells.SPELL_TYPES.getEntries().forEach((registryObject) -> {
-                            output.accept(SpellTomeItem.createWithSpell(registryObject.get()));
+                            if (registryObject != SBSpells.TEST_SPELL)
+                                output.accept(SpellTomeItem.createWithSpell(registryObject.get()));
                         });
                     }).title(Component.translatable("itemGroup.spellbound"))
             .build());
