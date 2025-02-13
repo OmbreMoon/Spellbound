@@ -88,7 +88,7 @@ public class SpellUtil {
     public static void setSpell(@NotNull Entity entity, @NotNull AbstractSpell spell) {
         entity.setData(SBData.SPELL_ID, spell.getId());
         if (entity instanceof ISpellEntity spellEntity)
-            spellEntity.setSpellId(spell.getId());
+            spellEntity.setSpell(spell.getSpellType(), spell.getId());
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.common.content.entity.living;
 
 import com.ombremoon.spellbound.common.content.entity.SmartSpellEntity;
+import com.ombremoon.spellbound.common.content.spell.deception.ShadowbondSpell;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.EntityType;
@@ -13,7 +14,7 @@ import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 
 import java.util.List;
 
-public class LivingShadow extends SmartSpellEntity {
+public class LivingShadow extends SmartSpellEntity<ShadowbondSpell> {
     public LivingShadow(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
     }
@@ -29,7 +30,7 @@ public class LivingShadow extends SmartSpellEntity {
     }
 
     @Override
-    public List<? extends ExtendedSensor<? extends SmartSpellEntity>> getSensors() {
+    public List<? extends ExtendedSensor<? extends SmartSpellEntity<ShadowbondSpell>>> getSensors() {
         return ObjectArrayList.of();
     }
 }

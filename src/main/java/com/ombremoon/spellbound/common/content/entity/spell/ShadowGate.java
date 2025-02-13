@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.content.entity.spell;
 
 import com.ombremoon.spellbound.common.content.entity.PortalEntity;
 import com.ombremoon.spellbound.common.content.entity.SpellEntity;
+import com.ombremoon.spellbound.common.content.spell.transfiguration.ShadowGateSpell;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -12,7 +13,7 @@ import software.bernie.geckolib.animation.*;
 import java.util.Map;
 import java.util.UUID;
 
-public class ShadowGate extends PortalEntity {
+public class ShadowGate extends PortalEntity<ShadowGateSpell> {
 
     public ShadowGate(EntityType<?> entityType, Level level) {
         super(entityType, level);

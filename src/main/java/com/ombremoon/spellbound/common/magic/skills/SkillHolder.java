@@ -103,7 +103,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
 
         Set<Skill> unlocked = unlockedSkills.get(spellType);
         if (unlocked == null) return false;
-        if (unlocked.size() >= MAX_SPELL_LEVEL) return false;
+        if (unlocked.size() > MAX_SPELL_LEVEL) return false;
         if (!skill.canUnlockSkill((Player) this.caster, this)) return false;
 
         if (!REQUIRES_PREREQS) return true;

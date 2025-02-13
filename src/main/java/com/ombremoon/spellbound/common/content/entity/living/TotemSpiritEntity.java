@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.content.entity.living;
 
+import com.ombremoon.spellbound.common.content.entity.spell.SBLivingEntity;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.entity.SmartSpellEntity;
 import com.ombremoon.spellbound.common.content.entity.behavior.ApplySurroundingEffectBehavior;
@@ -41,7 +42,7 @@ import net.tslat.smartbrainlib.util.BrainUtils;
 
 import java.util.List;
 
-public class TotemSpiritEntity extends SmartSpellEntity {
+public class TotemSpiritEntity extends SmartSpellEntity<SpiritTotemSpell> {
     private static final ResourceLocation FERAL_DAMAGE = CommonClass.customLocation("feral_damage");
     private static final ResourceLocation FERAL_SPEED = CommonClass.customLocation("feral_speed");
     private static final ResourceLocation TOTEMIC_ARMOR = CommonClass.customLocation("totemic_armor_mod");
@@ -196,7 +197,7 @@ public class TotemSpiritEntity extends SmartSpellEntity {
     }
 
     @Override
-    public List<? extends ExtendedSensor<? extends SmartSpellEntity>> getSensors() {
+    public List<? extends ExtendedSensor<? extends SBLivingEntity>> getSensors() {
         return ObjectArrayList.of(
                 new NearbyLivingEntitySensor<>(),
                 new HurtBySensor<>()
@@ -204,7 +205,7 @@ public class TotemSpiritEntity extends SmartSpellEntity {
     }
 
     @Override
-    public BrainActivityGroup<? extends SmartSpellEntity> getCoreTasks() {
+    public BrainActivityGroup<? extends SBLivingEntity> getCoreTasks() {
         return BrainActivityGroup.coreTasks(
                 new LookAtTarget<>(),
                 new MoveToWalkTarget<>()
@@ -212,7 +213,7 @@ public class TotemSpiritEntity extends SmartSpellEntity {
     }
 
     @Override
-    public BrainActivityGroup<? extends SmartSpellEntity> getIdleTasks() {
+    public BrainActivityGroup<? extends SBLivingEntity> getIdleTasks() {
         return BrainActivityGroup.idleTasks(
                 new FirstApplicableBehaviour<>(
                     new TargetOrRetaliate<>()
@@ -224,7 +225,7 @@ public class TotemSpiritEntity extends SmartSpellEntity {
     }
 
     @Override
-    public BrainActivityGroup<SmartSpellEntity> getFightTasks() {
+    public BrainActivityGroup<SBLivingEntity> getFightTasks() {
         return BrainActivityGroup.fightTasks(
                 new InvalidateAttackTarget<>(),
                 new FirstApplicableBehaviour<>(

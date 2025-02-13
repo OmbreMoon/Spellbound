@@ -1,9 +1,8 @@
 package com.ombremoon.spellbound.common.content.entity.living;
 
 import com.mojang.datafixers.util.Pair;
-import com.ombremoon.spellbound.common.content.entity.SmartSpellEntity;
-import com.ombremoon.spellbound.common.content.entity.behavior.path.SetFlyingTarget;
 import com.ombremoon.spellbound.common.content.entity.behavior.target.ExtendedInvalidateAttackTarget;
+import com.ombremoon.spellbound.common.content.entity.spell.SBLivingEntity;
 import com.ombremoon.spellbound.common.init.SBBlocks;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -40,7 +39,6 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.look.LookAtTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.Idle;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.WalkOrRunToWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomFlyingTarget;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomHoverTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetPlayerLookTarget;
@@ -62,7 +60,7 @@ import software.bernie.geckolib.animation.*;
 import java.util.List;
 import java.util.UUID;
 
-public class Valkyr extends SmartSpellEntity implements NeutralMob {
+public class Valkyr extends SBLivingEntity implements NeutralMob {
     protected static final String CONTROLLER = "controller";
     private static final EntityDataAccessor<Boolean> IN_FLIGHT = SynchedEntityData.defineId(Valkyr.class, EntityDataSerializers.BOOLEAN);
     private final PathNavigation groundNav;
@@ -187,7 +185,7 @@ public class Valkyr extends SmartSpellEntity implements NeutralMob {
     }
 
     @Override
-    public List<? extends ExtendedSensor<? extends SmartSpellEntity>> getSensors() {
+    public List<? extends ExtendedSensor<? extends SBLivingEntity>> getSensors() {
         return ObjectArrayList.of(
                 new NearbyPlayersSensor<Valkyr>()
                         .setRadius(10)
@@ -196,12 +194,12 @@ public class Valkyr extends SmartSpellEntity implements NeutralMob {
                             return !player.getAbilities().invulnerable && effects.getJudgement() < 100;
                         }),
                 new HurtBySensor<>(),
-                new NearbyBlocksSensor<SmartSpellEntity>().setRadius(15).setPredicate((blockState, spellEntity) -> blockState.is(SBBlocks.DIVINE_SHRINE.get()))
+                new NearbyBlocksSensor<SBLivingEntity>().setRadius(15).setPredicate((blockState, spellEntity) -> blockState.is(SBBlocks.DIVINE_SHRINE.get()))
         );
     }
 
     @Override
-    public BrainActivityGroup<? extends SmartSpellEntity> getCoreTasks() {
+    public BrainActivityGroup<? extends SBLivingEntity> getCoreTasks() {
         return BrainActivityGroup.coreTasks(
                 new LookAtTarget<Valkyr>(),
                 new CircleAroundShrine(),
@@ -210,7 +208,7 @@ public class Valkyr extends SmartSpellEntity implements NeutralMob {
     }
 
     @Override
-    public BrainActivityGroup<? extends SmartSpellEntity> getIdleTasks() {
+    public BrainActivityGroup<? extends SBLivingEntity> getIdleTasks() {
         return BrainActivityGroup.idleTasks(
                 new FirstApplicableBehaviour<>(
                         new TargetOrRetaliate<>()
@@ -230,7 +228,7 @@ public class Valkyr extends SmartSpellEntity implements NeutralMob {
     }
 
     @Override
-    public BrainActivityGroup<? extends SmartSpellEntity> getFightTasks() {
+    public BrainActivityGroup<? extends SBLivingEntity> getFightTasks() {
         return BrainActivityGroup.fightTasks(
                 new ExtendedInvalidateAttackTarget<>(),
                 new FirstApplicableBehaviour<>(

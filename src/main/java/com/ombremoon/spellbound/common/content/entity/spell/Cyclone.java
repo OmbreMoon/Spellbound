@@ -38,7 +38,7 @@ import software.bernie.geckolib.animation.AnimationController;
 import java.util.List;
 import java.util.Map;
 
-public class Cyclone extends SpellEntity {
+public class Cyclone extends SpellEntity<CycloneSpell> {
     private static final EntityDataAccessor<Integer> CYCLONE_STACK = SynchedEntityData.defineId(Cyclone.class, EntityDataSerializers.INT);
     protected static final ResourceLocation FROSTFRONT = CommonClass.customLocation("frostfront");
     private final Map<Entity, Integer> catchDuration = new Object2IntOpenHashMap<>();
@@ -147,7 +147,7 @@ public class Cyclone extends SpellEntity {
         this.checkInsideBlocks();
         Entity owner = this.getOwner();
         if (owner instanceof LivingEntity && this.skills != null && this.handler != null) {
-            CycloneSpell spell = handler.getSpell(SBSpells.CYCLONE.get(), this.getSpellId());
+            CycloneSpell spell = this.getSpell();
             if (spell != null) {
                 double range = 5 + this.getStacks() * 2.5;
                 if (skills.hasSkill(SBSkills.VORTEX.value()))

@@ -17,7 +17,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 
-public class StormstrikeBolt extends SpellProjectile {
+public class StormstrikeBolt extends SpellProjectile <StormstrikeSpell> {
     public StormstrikeBolt(EntityType<? extends Projectile> entityType, Level level) {
         super(entityType, level);
     }

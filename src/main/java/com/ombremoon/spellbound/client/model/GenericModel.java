@@ -6,7 +6,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.model.GeoModel;
 
-public class GenericModel<T extends ISpellEntity> extends GeoModel<T> {
+public class GenericModel<T extends ISpellEntity<?>> extends GeoModel<T> {
 
     @Override
     public ResourceLocation getModelResource(T animatable) {

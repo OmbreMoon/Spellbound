@@ -14,7 +14,7 @@ import software.bernie.geckolib.animation.*;
 
 import java.util.List;
 
-public class StormBolt extends SpellEntity {
+public class StormBolt extends SpellEntity<StormRiftSpell> {
     public StormBolt(EntityType<?> entityType, Level level) {
         super(entityType, level);
     }
@@ -30,7 +30,7 @@ public class StormBolt extends SpellEntity {
                 );
 
         if (this.handler != null) {
-            StormRiftSpell spell = handler.getSpell(SBSpells.STORM_RIFT.get(), this.getSpellId());
+            StormRiftSpell spell = this.getSpell();
             Entity owner = this.getOwner();
             if (owner instanceof LivingEntity livingEntity) {
                 for (Entity entity : list) {

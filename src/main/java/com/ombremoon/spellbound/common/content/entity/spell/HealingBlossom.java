@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.common.content.entity.spell;
 
 import com.ombremoon.spellbound.common.content.entity.SpellEntity;
+import com.ombremoon.spellbound.common.content.spell.divine.HealingBlossomSpell;
 import com.ombremoon.spellbound.common.init.SBItems;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -25,7 +26,7 @@ import org.checkerframework.checker.units.qual.A;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animation.*;
 
-public class HealingBlossom extends SpellEntity {
+public class HealingBlossom extends SpellEntity<HealingBlossomSpell> {
     private static final EntityDataAccessor<Boolean> FAST_BLOOMING = SynchedEntityData.defineId(HealingBlossom.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> EMPOWERED = SynchedEntityData.defineId(HealingBlossom.class, EntityDataSerializers.BOOLEAN);
 

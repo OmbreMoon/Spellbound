@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.content.entity.spell;
 
 import com.ombremoon.sentinellib.api.Easing;
 import com.ombremoon.spellbound.common.content.entity.PortalEntity;
+import com.ombremoon.spellbound.common.content.spell.ruin.shock.StormRiftSpell;
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.init.SBEffects;
 import net.minecraft.core.BlockPos;
@@ -23,7 +24,7 @@ import software.bernie.geckolib.animation.*;
 
 import java.util.List;
 
-public class StormRift extends PortalEntity {
+public class StormRift extends PortalEntity<StormRiftSpell> {
     private static final EntityDataAccessor<Boolean> GROW = SynchedEntityData.defineId(StormRift.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> IMPLODE = SynchedEntityData.defineId(StormRift.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> ROTATE = SynchedEntityData.defineId(StormRift.class, EntityDataSerializers.BOOLEAN);
@@ -35,7 +36,6 @@ public class StormRift extends PortalEntity {
     private int explosionTimer = 13;
     public int rotationTick;
     public float rotationAngle = 0.0F;
-    public float rotationSpeed = 0.02F;
     public static final String EXPLODE = "explode";
 
     public StormRift(EntityType<?> entityType, Level level) {

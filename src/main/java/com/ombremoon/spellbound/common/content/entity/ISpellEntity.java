@@ -1,5 +1,7 @@
 package com.ombremoon.spellbound.common.content.entity;
 
+import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -8,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.GeoEntity;
 
-public interface ISpellEntity extends GeoEntity {
+public interface ISpellEntity<T extends AbstractSpell> extends GeoEntity {
 
     EntityType<?> entityType();
 
@@ -17,7 +19,7 @@ public interface ISpellEntity extends GeoEntity {
     @Nullable
     Entity getOwner();
 
-    void setSpellId(int id);
+    void setSpell(SpellType<?> spellType, int id);
 
-    int getSpellId();
+    T getSpell();
 }

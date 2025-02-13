@@ -1,6 +1,9 @@
 package com.ombremoon.spellbound.common.content.entity;
 
+import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.util.Loggable;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -8,6 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,7 +26,8 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public abstract class SpellEntity extends Entity implements ISpellEntity, Loggable {
+public abstract class SpellEntity<T extends AbstractSpell> extends Entity implements ISpellEntity<T>, Loggable {
+    private static final EntityDataAccessor<String> SPELL_TYPE = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Integer> SPELL_ID = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<Byte> ID_FLAGS = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.INT);
@@ -48,6 +53,7 @@ public abstract class SpellEntity extends Entity implements ISpellEntity, Loggab
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(SPELL_TYPE, "");
         builder.define(SPELL_ID, -1);
         builder.define(ID_FLAGS, (byte)0);
         builder.define(OWNER_ID, 0);
@@ -68,13 +74,18 @@ public abstract class SpellEntity extends Entity implements ISpellEntity, Loggab
     @Override
     public void tick() {
         super.tick();
-        if (this.getOwner() instanceof LivingEntity livingEntity && this.tickCount < 5) {
+        if (this.getOwner() instanceof LivingEntity livingEntity && this.tickCount < 5 && (this.handler == null || this.skills == null)) {
             this.handler = SpellUtil.getSpellHandler(livingEntity);
             this.skills = SpellUtil.getSkillHolder(livingEntity);
         }
 
         if (!this.hasOwner() || (this.isEnding() && this.tickCount >= this.getEndTick()))
             discard();
+
+        T spell = this.getSpell();
+        if (spell != null) {
+
+        }
     }
 
     @Override
@@ -82,7 +93,7 @@ public abstract class SpellEntity extends Entity implements ISpellEntity, Loggab
 
     }
 
-    protected <T extends GeoAnimatable> PlayState genericController(AnimationState<T> data) {
+    protected <S extends GeoAnimatable> PlayState genericController(AnimationState<S> data) {
         if (isStarting()) {
             data.setAnimation(RawAnimation.begin().thenPlay("spawn"));
         } else if (isEnding()) {
@@ -100,6 +111,28 @@ public abstract class SpellEntity extends Entity implements ISpellEntity, Loggab
         } else {
             this.entityData.set(ID_FLAGS, (byte)(b0 & ~id));
         }
+    }
+
+    public T getSpell() {
+        SpellType<T> spellType = this.getSpellType();
+        if (this.handler != null && spellType != null)
+            return this.handler.getSpell(spellType, this.getSpellId());
+
+        return null;
+    }
+
+    public void setSpell(SpellType<?> spellType, int spellId) {
+        this.setSpellType(spellType);
+        this.setSpellId(spellId);
+    }
+
+    @SuppressWarnings("unchecked")
+    public SpellType<T> getSpellType(){
+        return (SpellType<T>) SBSpells.REGISTRY.get(ResourceLocation.tryParse(this.entityData.get(SPELL_TYPE)));
+    }
+
+    public void setSpellType(SpellType<?> spellType) {
+        this.entityData.set(SPELL_TYPE, spellType.location().toString());
     }
 
     public int getSpellId(){

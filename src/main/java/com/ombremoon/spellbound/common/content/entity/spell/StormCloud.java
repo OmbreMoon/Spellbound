@@ -14,7 +14,7 @@ import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
 
-public class StormCloud extends SpellEntity {
+public class StormCloud extends SpellEntity<StormRiftSpell> {
     private int lightningTimer = 60;
 
     public StormCloud(EntityType<?> entityType, Level level) {

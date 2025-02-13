@@ -1,12 +1,18 @@
 package com.ombremoon.spellbound.common.content.entity;
 
+import com.ombremoon.spellbound.common.content.entity.spell.SBLivingEntity;
 import com.ombremoon.spellbound.common.init.SBData;
+import com.ombremoon.spellbound.common.init.SBSpells;
+import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.util.Loggable;
+import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -24,11 +30,13 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.function.Predicate;
 
-public abstract class SmartSpellEntity extends PathfinderMob implements SmartBrainOwner<SmartSpellEntity>, ISpellEntity, Loggable {
+public abstract class SmartSpellEntity<T extends AbstractSpell> extends SBLivingEntity implements ISpellEntity<T> {
+    private static final EntityDataAccessor<String> SPELL_TYPE = SynchedEntityData.defineId(SmartSpellEntity.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Integer> SPELL_ID = SynchedEntityData.defineId(SmartSpellEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(SmartSpellEntity.class, EntityDataSerializers.INT);
-    
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    protected SpellHandler handler;
+    protected SkillHolder skills;
 
     protected SmartSpellEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
@@ -53,6 +61,37 @@ public abstract class SmartSpellEntity extends PathfinderMob implements SmartBra
     @Override
     public boolean isAlliedTo(Entity entity) {
         return (entity instanceof LivingEntity livingEntity && isOwner(livingEntity)) || super.isAlliedTo(entity);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (this.getOwner() instanceof LivingEntity livingEntity && this.tickCount < 5 && (this.handler == null || this.skills == null)) {
+            this.handler = SpellUtil.getSpellHandler(livingEntity);
+            this.skills = SpellUtil.getSkillHolder(livingEntity);
+        }
+    }
+
+    public T getSpell() {
+        SpellType<T> spellType = this.getSpellType();
+        if (this.handler != null && spellType != null)
+            return this.handler.getSpell(spellType, this.getSpellId());
+
+        return null;
+    }
+
+    public void setSpell(SpellType<?> spellType, int spellId) {
+        this.setSpellType(spellType);
+        this.setSpellId(spellId);
+    }
+
+    @SuppressWarnings("unchecked")
+    public SpellType<T> getSpellType(){
+        return (SpellType<T>) SBSpells.REGISTRY.get(ResourceLocation.tryParse(this.entityData.get(SPELL_TYPE)));
+    }
+
+    public void setSpellType(SpellType<?> spellType) {
+        this.entityData.set(SPELL_TYPE, spellType.location().toString());
     }
 
     public int getSpellId(){
@@ -84,6 +123,7 @@ public abstract class SmartSpellEntity extends PathfinderMob implements SmartBra
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
+        builder.define(SPELL_TYPE, "");
         builder.define(SPELL_ID, -1);
         builder.define(OWNER_ID, 0);
     }
