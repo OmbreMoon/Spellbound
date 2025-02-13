@@ -38,6 +38,8 @@ public record SpellModifier(ResourceLocation id, ModifierType modifierType, Pred
     public static final SpellModifier GALE_FORCE = registerModifier("gale_force", ModifierType.DURATION, spell -> spell == SBSpells.CYCLONE.get(), 2F);
     public static final SpellModifier RESIDUAL_DISRUPTION = registerModifier("residual_disruption", ModifierType.CAST_CHANCE, spell -> true, 0.85F);
     public static final SpellModifier UNFOCUSED = registerModifier("unfocused", ModifierType.POTENCY, spell -> true, 0.8F);
+    public static final SpellModifier BLOOM = registerModifier("bloom", ModifierType.DURATION, spell -> spell == SBSpells.HEALING_BLOSSOM.get(), -200, Operation.ADD);
+
 
     private static SpellModifier registerModifier(String name, ModifierType type, Predicate<SpellType<?>> spellPredicate, float modifier) {
         return registerModifier(name, type, spellPredicate, modifier, Operation.MULTIPLY);
