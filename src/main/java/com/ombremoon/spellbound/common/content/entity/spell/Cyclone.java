@@ -149,6 +149,9 @@ public class Cyclone extends SpellEntity<CycloneSpell> {
         if (owner instanceof LivingEntity && this.skills != null && this.handler != null) {
             CycloneSpell spell = this.getSpell();
             if (spell != null) {
+                if (spell.isInactive)
+                    discard();
+
                 double range = 5 + this.getStacks() * 2.5;
                 if (skills.hasSkill(SBSkills.VORTEX.value()))
                     this.checkCycloneCollision(spell);
@@ -267,7 +270,7 @@ public class Cyclone extends SpellEntity<CycloneSpell> {
 
                     this.incrementStacks(cyclone1);
                     this.growthTick = 20;
-                    spell.ticks = 1;
+                    spell.setRemainingTicks(spell.getDuration());
                     cyclone1.discard();
                 }
             }

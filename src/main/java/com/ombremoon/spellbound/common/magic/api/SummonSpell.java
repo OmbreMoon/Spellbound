@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.magic.api;
 
+import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.entity.SmartSpellEntity;
 import com.ombremoon.spellbound.common.magic.SpellContext;
@@ -85,7 +86,7 @@ public abstract class SummonSpell extends AnimatedSpell {
     }
 
     @Override
-    public <T extends Entity> T summonEntity(SpellContext context, EntityType<T> entityType, double range, Consumer<T> extraData) {
+    public <T extends Entity & ISpellEntity<?>> T summonEntity(SpellContext context, EntityType<T> entityType, double range, Consumer<T> extraData) {
         T entity = super.summonEntity(context, entityType, range, extraData);
         this.summons.add(entity.getId());
         return entity;

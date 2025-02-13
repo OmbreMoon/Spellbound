@@ -34,6 +34,7 @@ public abstract class SpellEntity<T extends AbstractSpell> extends Entity implem
     private static final EntityDataAccessor<Integer> END_TICK = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> START_TICK = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.INT);
     protected static final String CONTROLLER = "controller";
+    protected T spell;
     protected SpellHandler handler;
     protected SkillHolder skills;
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -83,9 +84,8 @@ public abstract class SpellEntity<T extends AbstractSpell> extends Entity implem
             discard();
 
         T spell = this.getSpell();
-        if (spell != null) {
-
-        }
+        if (spell != null)
+            spell.onEntityTick(this, spell.getContext());
     }
 
     @Override
@@ -114,11 +114,13 @@ public abstract class SpellEntity<T extends AbstractSpell> extends Entity implem
     }
 
     public T getSpell() {
-        SpellType<T> spellType = this.getSpellType();
-        if (this.handler != null && spellType != null)
-            return this.handler.getSpell(spellType, this.getSpellId());
+        if (this.spell == null) {
+            SpellType<T> spellType = this.getSpellType();
+            if (this.handler != null && spellType != null)
+                this.spell = this.handler.getSpell(spellType, this.getSpellId());
+        }
 
-        return null;
+        return this.spell;
     }
 
     public void setSpell(SpellType<?> spellType, int spellId) {

@@ -18,6 +18,7 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -32,6 +33,7 @@ public abstract class SpellProjectile<T extends AbstractSpell> extends Projectil
     private static final EntityDataAccessor<Integer> SPELL_ID = SynchedEntityData.defineId(SpellProjectile.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(SpellProjectile.class, EntityDataSerializers.INT);
     protected static final String CONTROLLER = "controller";
+    protected T spell;
     protected SpellHandler handler;
     protected SkillHolder skills;
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -73,11 +75,19 @@ public abstract class SpellProjectile<T extends AbstractSpell> extends Projectil
     }
 
     @Override
+    protected void onHitEntity(EntityHitResult result) {
+        super.onHitEntity(result);
+        T spell = this.getSpell();
+        if (spell != null)
+            spell.onProjectileHitEntity(this, spell.getContext(), result);
+    }
+
+    @Override
     protected void onHitBlock(BlockHitResult result) {
         super.onHitBlock(result);
-        if (!this.level().isClientSide) {
-            this.discard();
-        }
+        T spell = this.getSpell();
+        if (spell != null)
+            spell.onProjectileHitBlock(this, spell.getContext(), result);
     }
 
     @Override
@@ -88,11 +98,13 @@ public abstract class SpellProjectile<T extends AbstractSpell> extends Projectil
     }
 
     public T getSpell() {
-        SpellType<T> spellType = this.getSpellType();
-        if (this.handler != null && spellType != null)
-            return this.handler.getSpell(spellType, this.getSpellId());
+        if (this.spell == null) {
+            SpellType<T> spellType = this.getSpellType();
+            if (this.handler != null && spellType != null)
+                this.spell = this.handler.getSpell(spellType, this.getSpellId());
+        }
 
-        return null;
+        return this.spell;
     }
 
     public void setSpell(SpellType<?> spellType, int spellId) {

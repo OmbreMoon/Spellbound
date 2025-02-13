@@ -1,5 +1,7 @@
 package com.ombremoon.spellbound.common.content.spell.ruin.shock;
 
+import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
+import com.ombremoon.spellbound.common.content.entity.spell.StormBolt;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.entity.spell.StormCloud;
 import com.ombremoon.spellbound.common.content.entity.spell.StormRift;
@@ -15,13 +17,17 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -62,6 +68,7 @@ public class StormRiftSpell extends AnimatedSpell {
     private final IntOpenHashSet thrownEntities = new IntOpenHashSet();
     private IntOpenHashSet stormClouds = new IntOpenHashSet();
     private int portalCharge;
+    private int lightningTimer = 60;
 
     public StormRiftSpell() {
         super(SBSpells.STORM_RIFT.get(), createStormRiftBuilder());
@@ -229,6 +236,68 @@ public class StormRiftSpell extends AnimatedSpell {
                 if (entity instanceof StormCloud stormCloud)
                     stormCloud.setEndTick(10);
             });
+        }
+    }
+
+    @Override
+    public void onEntityTick(ISpellEntity<?> spellEntity, SpellContext context) {
+        Level level = context.getLevel();
+        var handler = context.getSpellHandler();
+        if (spellEntity instanceof StormCloud stormCloud) {
+            if (!level.isClientSide) {
+                if (this.lightningTimer > 0) {
+                    this.lightningTimer--;
+                } else {
+                    this.lightningTimer = 40 + stormCloud.getRandom().nextInt(40);
+                    double x = stormCloud.getX() + (stormCloud.getRandom().nextDouble() * 8 - 4);
+                    double y = stormCloud.getY() - 7;
+                    double z = stormCloud.getZ() + (stormCloud.getRandom().nextDouble() * 8 - 4);
+                    BlockPos blockPos = BlockPos.containing(x, y, z);
+                    if (handler != null) {
+                        StormRiftSpell spell = handler.getSpell(SBSpells.STORM_RIFT.get());
+                        if (spell != null) {
+                            spell.summonEntity(SpellContext.simple(SBSpells.STORM_RIFT.get(), handler.caster), SBEntities.STORM_BOLT.get(), Vec3.atBottomCenterOf(blockPos));
+                            level.playSound(
+                                    stormCloud,
+                                    stormCloud.getOnPos(),
+                                    SoundEvents.LIGHTNING_BOLT_THUNDER,
+                                    SoundSource.WEATHER,
+                                    10000.0F,
+                                    0.8F + stormCloud.getRandom().nextFloat() * 0.2F
+                            );
+                            level.playSound(
+                                    stormCloud,
+                                    stormCloud.getOnPos(),
+                                    SoundEvents.LIGHTNING_BOLT_IMPACT,
+                                    SoundSource.WEATHER,
+                                    2.0F,
+                                    0.5F + stormCloud.getRandom().nextFloat() * 0.2F
+                            );
+                        }
+                    }
+                }
+            }
+        } else if (spellEntity instanceof StormBolt stormBolt) {
+            List<Entity> list = level
+                    .getEntities(
+                            stormBolt,
+                            new AABB(stormBolt.getX() - 5.0, stormBolt.getY() - 3.0, stormBolt.getZ() - 5.0, stormBolt.getX() + 5.0, stormBolt.getY() + 6.0 + 3.0, stormBolt.getZ() + 5.0),
+                            Entity::isAlive
+                    );
+
+            for (Entity entity : list) {
+                if (!isCaster(entity)) {
+                    entity.setRemainingFireTicks(entity.getRemainingFireTicks() + 1);
+                    if (entity.getRemainingFireTicks() == 0)
+                        entity.igniteForSeconds(8.0F);
+
+                    if (entity instanceof LivingEntity target)
+                        this.hurt(target, DamageTypes.LIGHTNING_BOLT, 5.0F);
+                }
+            }
+
+            if (stormBolt.tickCount >= 15)
+                stormBolt.discard();
         }
     }
 

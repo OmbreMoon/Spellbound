@@ -35,6 +35,7 @@ public abstract class SmartSpellEntity<T extends AbstractSpell> extends SBLiving
     private static final EntityDataAccessor<Integer> SPELL_ID = SynchedEntityData.defineId(SmartSpellEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(SmartSpellEntity.class, EntityDataSerializers.INT);
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    protected T spell;
     protected SpellHandler handler;
     protected SkillHolder skills;
 
@@ -73,11 +74,13 @@ public abstract class SmartSpellEntity<T extends AbstractSpell> extends SBLiving
     }
 
     public T getSpell() {
-        SpellType<T> spellType = this.getSpellType();
-        if (this.handler != null && spellType != null)
-            return this.handler.getSpell(spellType, this.getSpellId());
+        if (this.spell == null) {
+            SpellType<T> spellType = this.getSpellType();
+            if (this.handler != null && spellType != null)
+                this.spell = this.handler.getSpell(spellType, this.getSpellId());
+        }
 
-        return null;
+        return this.spell;
     }
 
     public void setSpell(SpellType<?> spellType, int spellId) {

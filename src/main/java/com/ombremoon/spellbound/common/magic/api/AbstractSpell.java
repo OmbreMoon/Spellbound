@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.common.magic.api;
 
 import com.ombremoon.sentinellib.api.BoxUtil;
+import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.client.CameraEngine;
@@ -304,6 +305,14 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
+     * Returns the {@link SpellContext} for the spell
+     * @return The casting specific spells context
+     */
+    public @Nullable SpellContext getContext() {
+        return this.context;
+    }
+
+    /**
      * Returns a temporary {@link SpellContext} for the spells. Specifically used for casting mechanics.
      * @return The casting specific spells context
      */
@@ -487,7 +496,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * Sets the amount of ticks the spell will continue to tick
      * @param ticks The amount of ticks left for the spell
      */
-    protected void setRemainingTicks(int ticks) {
+    public void setRemainingTicks(int ticks) {
         this.ticks = Mth.clamp(this.getDuration() - ticks, 0, this.getDuration());
     }
 
@@ -551,7 +560,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         boolean flag = targetEntity.hurt(BoxUtil.sentinelDamageSource(ownerEntity.level(), damageType, ownerEntity), getModifier(ModifierType.POTENCY, ownerEntity) * hurtAmount);
         if (flag) {
             //BUILD UP EFFECTS
-            ownerEntity.setLastHurtByMob(targetEntity);
+            targetEntity.setLastHurtByMob(ownerEntity);
             //Results in null error for stormstrike since skill holder isn't initialized. Find alternative.
 
             //awardXp(hurtAmount * xpModifier);
@@ -675,18 +684,18 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         return f;
     }
 
-    public <T extends Entity> T summonEntity(SpellContext context, EntityType<T> entityType, double range) {
+    public <T extends Entity & ISpellEntity<?>> T summonEntity(SpellContext context, EntityType<T> entityType, double range) {
         return this.summonEntity(context, entityType, range, entity -> {});
     }
 
-    public <T extends Entity> T summonEntity(SpellContext context, EntityType<T> entityType, double range, Consumer<T> extraData) {
+    public <T extends Entity & ISpellEntity<?>> T summonEntity(SpellContext context, EntityType<T> entityType, double range, Consumer<T> extraData) {
         BlockPos blockPos = this.getSpawnPos(range);
         if (blockPos == null) return null;
         Vec3 spawnPos = Vec3.atBottomCenterOf(blockPos);
         return this.summonEntity(context, entityType, spawnPos, extraData);
     }
 
-    public <T extends Entity> T summonEntity(SpellContext context, EntityType<T> entityType, Vec3 spawnPos) {
+    public <T extends Entity & ISpellEntity<?>> T summonEntity(SpellContext context, EntityType<T> entityType, Vec3 spawnPos) {
         return this.summonEntity(context, entityType, spawnPos, entity -> {});
     }
 
@@ -699,7 +708,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @return The summoned entity
      * @param <T> The type of entity
      */
-    public <T extends Entity> T summonEntity(SpellContext context, EntityType<T> entityType, Vec3 spawnPos, Consumer<T> extraData) {
+    public <T extends Entity & ISpellEntity<?>> T summonEntity(SpellContext context, EntityType<T> entityType, Vec3 spawnPos, Consumer<T> extraData) {
         Level level = context.getLevel();
         LivingEntity caster = context.getCaster();
 
@@ -716,23 +725,35 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         return null;
     }
 
-    protected <T extends Projectile> T shootProjectile(SpellContext context, EntityType<T> entityType, float velocity, float inaccuracy) {
+    protected <T extends Projectile & ISpellEntity<?>> T shootProjectile(SpellContext context, EntityType<T> entityType, float velocity, float inaccuracy) {
         return this.shootProjectile(context, entityType, new Vec3(caster.getX(), caster.getEyeY() - 0.1F, caster.getZ()), caster.getXRot(), caster.getYRot(), velocity, inaccuracy, projectile -> {});
     }
 
-    protected <T extends Projectile> T shootProjectile(SpellContext context, EntityType<T> entityType, float velocity, float inaccuracy, Consumer<T> extraData) {
+    protected <T extends Projectile & ISpellEntity<?>> T shootProjectile(SpellContext context, EntityType<T> entityType, float velocity, float inaccuracy, Consumer<T> extraData) {
         return this.shootProjectile(context, entityType, new Vec3(caster.getX(), caster.getEyeY() - 0.1F, caster.getZ()), caster.getXRot(), caster.getYRot(), velocity, inaccuracy, extraData);
     }
 
-    protected <T extends Projectile> T shootProjectile(SpellContext context, EntityType<T> entityType, float x, float y, float velocity, float inaccuracy, Consumer<T> extraData) {
+    protected <T extends Projectile & ISpellEntity<?>> T shootProjectile(SpellContext context, EntityType<T> entityType, float x, float y, float velocity, float inaccuracy, Consumer<T> extraData) {
         return this.shootProjectile(context, entityType, new Vec3(caster.getX(), caster.getEyeY() - 0.1F, caster.getZ()), x, y, velocity, inaccuracy, extraData);
     }
 
-    protected <T extends Projectile> T shootProjectile(SpellContext context, EntityType<T> entityType, Vec3 spawnPos, float x, float y, float velocity, float inaccuracy, Consumer<T> extraData) {
+    protected <T extends Projectile & ISpellEntity<?>> T shootProjectile(SpellContext context, EntityType<T> entityType, Vec3 spawnPos, float x, float y, float velocity, float inaccuracy, Consumer<T> extraData) {
         return this.summonEntity(context, entityType, spawnPos, projectile -> {
             projectile.shootFromRotation(caster, x, y, 0.0F, velocity, inaccuracy);
             extraData.accept(projectile);
         });
+    }
+
+    public void onEntityTick(ISpellEntity<?> spellEntity, SpellContext context) {
+
+    }
+
+    public void onProjectileHitEntity(ISpellEntity<?> spellEntity, SpellContext context, EntityHitResult result) {
+
+    }
+
+    public void onProjectileHitBlock(ISpellEntity<?> spellEntity, SpellContext context, BlockHitResult result) {
+
     }
 
     /**
@@ -759,11 +780,11 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
     /**
      * Checks whether the entity is the caster of this spells.
-     * @param livingEntity The living entity
+     * @param entity The entity
      * @return If the living entity is the caster
      */
-    protected boolean isCaster(@NotNull LivingEntity livingEntity) {
-        return livingEntity.is(this.caster);
+    protected boolean isCaster(@NotNull Entity entity) {
+        return entity.is(this.caster);
     }
 
     /**

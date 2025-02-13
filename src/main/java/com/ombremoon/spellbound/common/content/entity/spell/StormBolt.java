@@ -20,35 +20,6 @@ public class StormBolt extends SpellEntity<StormRiftSpell> {
     }
 
     @Override
-    public void tick() {
-        super.tick();
-        List<Entity> list = this.level()
-                .getEntities(
-                        this,
-                        new AABB(this.getX() - 5.0, this.getY() - 3.0, this.getZ() - 5.0, this.getX() + 5.0, this.getY() + 6.0 + 3.0, this.getZ() + 5.0),
-                        Entity::isAlive
-                );
-
-        if (this.handler != null) {
-            StormRiftSpell spell = this.getSpell();
-            Entity owner = this.getOwner();
-            if (owner instanceof LivingEntity livingEntity) {
-                for (Entity entity : list) {
-                    entity.setRemainingFireTicks(entity.getRemainingFireTicks() + 1);
-                    if (entity.getRemainingFireTicks() == 0)
-                        entity.igniteForSeconds(8.0F);
-
-                    if (entity instanceof LivingEntity target && spell != null)
-                        spell.hurt(livingEntity, target, DamageTypes.LIGHTNING_BOLT, 5.0F);
-                }
-            }
-        }
-
-        if (this.tickCount >= 15)
-            this.discard();
-    }
-
-    @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, CONTROLLER, 0, this::stormBoltController));
     }
