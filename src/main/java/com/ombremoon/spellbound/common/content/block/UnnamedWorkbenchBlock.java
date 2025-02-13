@@ -42,12 +42,6 @@ public class UnnamedWorkbenchBlock extends HorizontalDirectionalBlock {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         } else {
-            if (state.getValue(PART) != WorkbenchPart.RIGHT) {
-                pos = pos.relative(state.getValue(FACING));
-                state = level.getBlockState(pos);
-                if (!state.is(this)) return InteractionResult.CONSUME;
-            }
-
             PayloadHandler.openWorkbenchScreen(player);
             player.awardStat(SBStats.INTERACT_WITH_BENCH.get());
             return InteractionResult.CONSUME;

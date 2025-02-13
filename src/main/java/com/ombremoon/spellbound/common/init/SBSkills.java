@@ -185,17 +185,17 @@ public class SBSkills {
     public static final Holder<Skill> OAK_BLESSING = registerSkill("oak_blessing", 0, 50, preReqs(HEALING_STREAM));
 
     //Healing Blossom
-//    public static final Holder<Skill> HEALING_BLOSSOM = registerSkill("healing_blossom");
-//    public static final Holder<Skill> THORNY_VINES = registerSkill("healing_blossom");
-//    public static final Holder<Skill> BLOOM = registerSkill("healing_blossom");
-//    public static final Holder<Skill> ETERNAL_SPRING = registerSkill("healing_blossom");
-//    public static final Holder<Skill> FLOWER_FIELD = registerSkill("healing_blossom");
-//    public static final Holder<Skill> FLOURISHING_GROWTH = registerSkill("healing_blossom");
-//    public static final Holder<Skill> HEALING_WINDS = registerSkill("healing_blossom");
-//    public static final Holder<Skill> BURST_OF_LIFE = registerSkill("healing_blossom");
-//    public static final Holder<Skill> PETAL_SHIELD = registerSkill("healing_blossom");
-//    public static final Holder<Skill> VERDANT_RENEWAL = registerSkill("healing_blossom");
-//    public static final Holder<Skill> REBIRTH = registerSkill("healing_blossom");
+    public static final Holder<Skill> HEALING_BLOSSOM = registerSkill("healing_blossom");
+    public static final Holder<Skill> THORNY_VINES = registerSkill("thorny_vines", -75, 50, preReqs(HEALING_BLOSSOM));
+    public static final Holder<Skill> BLOOM = registerSkill("bloom", -25, 50, preReqs(HEALING_BLOSSOM));
+    public static final Holder<Skill> ETERNAL_SPRING = registerSkill("eternal_spring", -25, 100, preReqs(BLOOM));
+    public static final Holder<Skill> FLOWER_FIELD = registerSkill("flower_field", 25, 50, preReqs(HEALING_BLOSSOM));
+    public static final Holder<Skill> FLOURISHING_GROWTH = registerSkill("flourishing_growth", 25, 100, preReqs(FLOWER_FIELD));
+    public static final Holder<Skill> HEALING_WINDS = registerSkill("healing_winds", 25, 150, preReqs(FLOURISHING_GROWTH));
+    public static final Holder<Skill> BURST_OF_LIFE = registerSkill("burst_of_life", 75, 50, preReqs(HEALING_BLOSSOM));
+    public static final Holder<Skill> PETAL_SHIELD = registerSkill("petal_shield", 75, 100, preReqs(BURST_OF_LIFE));
+    public static final Holder<Skill> VERDANT_RENEWAL = registerSkill("verdant_renewal", 75, 150, preReqs(PETAL_SHIELD));
+    public static final Holder<Skill> REBIRTH = registerSkill("rebirth", 50, 200, preReqs(VERDANT_RENEWAL, HEALING_WINDS));
 
     //Shadowbond
     public static Holder<Skill> SHADOWBOND = registerSkill("shadowbond");

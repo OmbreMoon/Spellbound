@@ -9,11 +9,8 @@ import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.events.DamageEvent;
 import com.ombremoon.spellbound.util.SpellUtil;
-import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -21,10 +18,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.UnknownNullability;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public class HealingTouchSpell extends AnimatedSpell {
     private static final ResourceLocation ARMOR_MOD = CommonClass.customLocation("oak_blessing_mod");
@@ -58,17 +51,7 @@ public class HealingTouchSpell extends AnimatedSpell {
         this.caster = context.getCaster();
         if (skills.hasSkill(SBSkills.NATURES_TOUCH.value())) context.getCaster().heal(2f);
 
-        if (skills.hasSkill(SBSkills.CLEANSING_TOUCH.value())) {
-            Collection<MobEffectInstance> effects = context.getCaster().getActiveEffects();
-            List<Holder<MobEffect>> harmfulEffects = new ArrayList<>();
-            for (MobEffectInstance instance : effects) {
-                if (instance.getEffect().value().getCategory() == MobEffectCategory.HARMFUL) harmfulEffects.add(instance.getEffect());
-            }
-
-            if (harmfulEffects.isEmpty()) return;
-            Holder<MobEffect> removed = harmfulEffects.get(context.getCaster().getRandom().nextInt(0, harmfulEffects.size()));
-            context.getCaster().removeEffect(removed);
-        }
+        if (skills.hasSkill(SBSkills.CLEANSING_TOUCH.value())) this.cleanseCaster(1);
 
     }
 
