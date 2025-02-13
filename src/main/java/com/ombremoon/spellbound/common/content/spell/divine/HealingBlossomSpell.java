@@ -95,6 +95,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
     @Override
     protected void onSpellTick(SpellContext context) {
         if (context.getLevel().isClientSide) return;
+        if ((ticks+2) % 30 != 0 && ticks % 20 != 0) return;
         HealingBlossom blossom = getBlossom(context);
         if (blossom == null) return;
         LivingEntity caster = context.getCaster();
@@ -108,7 +109,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
 
         //Damage is done separately to healing to sync with animation better
         List<LivingEntity> effectedEntities = level.getEntitiesOfClass(LivingEntity.class, blossom.getBoundingBox().inflate(10));
-        if (ticks % 20 != 0) {
+        if ((ticks+2) % 30 == 0) {
             for (LivingEntity entity : effectedEntities) {
                 if (skills.hasSkill(SBSkills.THORNY_VINES) && canAttack(entity))
                     this.hurt(entity, SBDamageTypes.SB_GENERIC, 4f);
@@ -143,7 +144,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
 
     @Override
     protected boolean shouldTickSpellEffect(SpellContext context) {
-        return ((fastBloomed && ticks >= 20) || ticks >= 200) && (ticks % 20 == 0 || (ticks+2) % 30 == 0);
+        return ((fastBloomed && ticks >= 20) || ticks >= 200);
     }
 
     @Override
