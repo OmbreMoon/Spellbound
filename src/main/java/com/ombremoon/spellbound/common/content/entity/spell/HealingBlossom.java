@@ -6,9 +6,14 @@ import com.ombremoon.spellbound.common.init.SBItems;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.util.Mth;
+import net.minecraft.util.ParticleUtils;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -30,45 +35,41 @@ public class HealingBlossom extends SpellEntity<HealingBlossomSpell> {
     private static final EntityDataAccessor<Boolean> FAST_BLOOMING = SynchedEntityData.defineId(HealingBlossom.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> EMPOWERED = SynchedEntityData.defineId(HealingBlossom.class, EntityDataSerializers.BOOLEAN);
 
-    public HealingBlossom(EntityType<?> entityType, Level level) {
-        super(entityType, level);
-    }
-
     @Override
     public void tick() {
         super.tick();
-        if (level().isClientSide || isFastBlooming() || isSlowBlooming()) return;
+        if (level().isClientSide) animateTick(level(), blockPosition(), getRandom());
+    }
 
-        if (skills.hasSkill(SBSkills.HEALING_WINDS)) {
-            Entity entity = getOwner();
-            if (!(entity instanceof LivingEntity caster)) return;
-            float distanceTo = caster.distanceTo(this);
-            if (distanceTo > 15) {
-                this.teleportToAroundBlockPos(caster.blockPosition());
-            } else if (distanceTo > 7) {
-                this.move(MoverType.SELF, caster.position().add(0, 1, 0).subtract(this.position()).normalize().scale(0.2f));
+    public void animateTick(Level p_222504_, BlockPos p_222505_, RandomSource p_222506_) {
+        int i = p_222505_.getX();
+        int j = p_222505_.getY();
+        int k = p_222505_.getZ();
+        double d0 = (double)i + p_222506_.nextDouble();
+        double d1 = (double)j + 0.7;
+        double d2 = (double)k + p_222506_.nextDouble();
+        p_222504_.addParticle(ParticleTypes.FALLING_SPORE_BLOSSOM, d0, d1, d2, 0.0, 0.0, 0.0);
+        BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
+
+        for (int l = 0; l < 14; l++) {
+            blockpos$mutableblockpos.set(i + Mth.nextInt(p_222506_, -10, 10), j - p_222506_.nextInt(10), k + Mth.nextInt(p_222506_, -10, 10));
+            BlockState blockstate = p_222504_.getBlockState(blockpos$mutableblockpos);
+            if (!blockstate.isCollisionShapeFullBlock(p_222504_, blockpos$mutableblockpos)) {
+                p_222504_.addParticle(
+                        ParticleTypes.SPORE_BLOSSOM_AIR,
+                        (double)blockpos$mutableblockpos.getX() + p_222506_.nextDouble(),
+                        (double)blockpos$mutableblockpos.getY() + p_222506_.nextDouble(),
+                        (double)blockpos$mutableblockpos.getZ() + p_222506_.nextDouble(),
+                        0.0,
+                        0.0,
+                        0.0
+                );
             }
         }
     }
 
-    @Override
-    public boolean isPickable() {
-        return true;
-    }
-
-    @Override
-    public InteractionResult interact(Player player, InteractionHand hand) {
-        if (level().isClientSide) return InteractionResult.sidedSuccess(level().isClientSide);
-        Entity caster = getOwner();
-        if (caster == null || !caster.is(player) || isEmpowered()
-                || !SpellUtil.getSkillHolder(player).hasSkill(SBSkills.REBIRTH)) return InteractionResult.PASS;
-
-        ItemStack item = player.getItemInHand(hand);
-        if (!item.is(SBItems.HOLY_SHARD.get())) return InteractionResult.PASS;
-
-        setEmpowered(true);
-        item.shrink(1);
-        return InteractionResult.CONSUME;
+    public HealingBlossom(EntityType<?> entityType, Level level) {
+        super(entityType, level);
     }
 
     public void teleportToAroundBlockPos(BlockPos pos) {
@@ -82,7 +83,6 @@ public class HealingBlossom extends SpellEntity<HealingBlossomSpell> {
                 }
             }
         }
-
     }
 
     private boolean maybeTeleportTo(int x, int y, int z) {
@@ -103,9 +103,9 @@ public class HealingBlossom extends SpellEntity<HealingBlossomSpell> {
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "bloomController", 0, this::bloomController));
-        controllers.add(new AnimationController<>(this, "actionController", 0, this::actionController));
+        controllers.add(new AnimationController<>(this, "actionController", 0, this::actionController)
+                .triggerableAnim("attack", RawAnimation.begin().thenPlay("attack")));
         controllers.add(new AnimationController<>(this, "rebirthController", 20, this::rebirthController));
-        controllers.add(new AnimationController<>(this, "attackController", 0, this::attackController));
     }
 
     protected <T extends GeoAnimatable> PlayState bloomController(AnimationState<T> data) {
@@ -134,21 +134,6 @@ public class HealingBlossom extends SpellEntity<HealingBlossomSpell> {
         } else return PlayState.STOP;
 
         return PlayState.CONTINUE;
-    }
-
-    protected <T extends GeoAnimatable> PlayState attackController(AnimationState<T> data) {
-        if (canAttack())
-            data.setAnimation(RawAnimation.begin().thenLoop("attack"));
-        else return PlayState.STOP;
-
-        return PlayState.CONTINUE;
-    }
-
-    public boolean canAttack() {
-        if (isSlowBlooming() || isFastBlooming()) return false;
-        Entity owner = getOwner();
-        if (!(owner instanceof LivingEntity)) return false;
-        return SpellUtil.getSkillHolder((LivingEntity) owner).hasSkill(SBSkills.THORNY_VINES);
     }
 
     public boolean isFastBlooming() {
