@@ -37,13 +37,8 @@ public class HealingBlossomSpell extends AnimatedSpell {
     private static Builder<HealingBlossomSpell> createHealingBlossomSpell() {
         return createSimpleSpellBuilder(HealingBlossomSpell.class)
                 .manaCost(30).castTime(20)
-                .duration(context -> {
-                    //TODO: Move this to new addition duration modifiers
-                    int duration = 400;
-                    if (context.getSkills().hasSkill(SBSkills.BLOOM)) duration -= 200;
-                    if (context.getSkills().hasSkill(SBSkills.ETERNAL_SPRING)) duration += 100;
-                    return duration;
-                }).castCondition((context, spell) -> spell.hasValidSpawnPos(5))
+                .duration(context -> 400)
+                .castCondition((context, spell) -> spell.hasValidSpawnPos(5))
                 .fullRecast();
     }
 

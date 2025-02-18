@@ -186,8 +186,8 @@ public class SBSkills {
     //Healing Blossom
     public static final Holder<Skill> HEALING_BLOSSOM = registerSkill("healing_blossom");
     public static final Holder<Skill> THORNY_VINES = registerSkill("thorny_vines", -75, 50, preReqs(HEALING_BLOSSOM));
-    public static final Holder<Skill> BLOOM = registerSkill("bloom", -25, 50, preReqs(HEALING_BLOSSOM));
-    public static final Holder<Skill> ETERNAL_SPRING = registerSkill("eternal_spring", -25, 100, preReqs(BLOOM));
+    public static final Holder<Skill> BLOOM = registerModifierSkill("bloom", -25, 50, preReqs(HEALING_BLOSSOM), SpellModifier.BLOOM);
+    public static final Holder<Skill> ETERNAL_SPRING = registerModifierSkill("eternal_spring", -25, 100, preReqs(BLOOM), SpellModifier.ETERNAL_SPRING);
     public static final Holder<Skill> FLOWER_FIELD = registerSkill("flower_field", 25, 50, preReqs(HEALING_BLOSSOM));
     public static final Holder<Skill> FLOURISHING_GROWTH = registerSkill("flourishing_growth", 25, 100, preReqs(FLOWER_FIELD));
     public static final Holder<Skill> HEALING_WINDS = registerSkill("healing_winds", 25, 150, preReqs(FLOURISHING_GROWTH));
