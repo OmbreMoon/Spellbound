@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.init;
 
+import com.mojang.serialization.Codec;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
@@ -23,8 +24,6 @@ public class SBSkills {
     public static final ResourceKey<Registry<Skill>> SKILL_REGISTRY_KEY = ResourceKey.createRegistryKey(CommonClass.customLocation("skill"));
     public static final Registry<Skill> REGISTRY = new RegistryBuilder<>(SKILL_REGISTRY_KEY).sync(true).create();
     public static final DeferredRegister<Skill> SKILLS = DeferredRegister.create(REGISTRY, Constants.MOD_ID);
-
-    public static final Holder<Skill> TEST_SKILL = registerSkill("test");
 
     //Volcano
     public static final Holder<Skill> VOLCANO = registerSkill("volcano");

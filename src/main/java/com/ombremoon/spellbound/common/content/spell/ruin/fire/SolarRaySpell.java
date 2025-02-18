@@ -60,7 +60,7 @@ public class SolarRaySpell extends ChanneledSpell {
             .sizeAndOffset(3, 0, 1.5F, 0)
             .noDuration(entity -> false)
             .onBoxTick((entity, boxInstance) -> {
-                Vec3 vec3 = boxInstance.getWorldCenter();
+                Vec3 vec3 = boxInstance.getCenter();
                 if (entity.level().isClientSide) {
                     double x = vec3.x;
                     double y = vec3.y;
@@ -200,6 +200,7 @@ public class SolarRaySpell extends ChanneledSpell {
         float range = isExtended ? 7.7F : 3.85F;
         return OBBSentinelBox.Builder.of(isExtended ? name + "_extended" : name)
                 .sizeAndOffset(0.75F, 0.75F, range, 0.0F, 1.7F, range)
+                .moverType(SentinelBox.MoverType.HEAD_NO_X)
                 .noDuration(entity -> false)
                 .activeTicks((entity, integer) -> integer % 10 == 1)
                 .attackCondition((entity, livingEntity) -> !entity.isAlliedTo(livingEntity) || !livingEntity.hasEffect(SBEffects.COUNTER_MAGIC) || (livingEntity instanceof OwnableEntity ownable && ownable.getOwner() != entity))
@@ -285,6 +286,7 @@ public class SolarRaySpell extends ChanneledSpell {
         String newName = isExtended ? name + "_extended" : name;
         return OBBSentinelBox.Builder.of(newName)
                 .sizeAndOffset(2, 0, 2, 9.2F)
+                .moverType(SentinelBox.MoverType.HEAD_NO_X)
                 .noDuration(entity -> false)
                 .activeTicks((entity, integer) -> integer % 60 == 0)
                 .attackCondition((entity, livingEntity) -> !entity.isAlliedTo(livingEntity) || !livingEntity.hasEffect(SBEffects.COUNTER_MAGIC) || (livingEntity instanceof OwnableEntity ownable && ownable.getOwner() != entity))
@@ -295,7 +297,7 @@ public class SolarRaySpell extends ChanneledSpell {
                     var skills = SpellUtil.getSkillHolder(livingEntity);
                     if (!level.isClientSide) {
                         if (skills.hasSkill(SBSkills.SOLAR_BORE.value())) {
-                            Vec3 vec3 = instance.getWorldCenter();
+                            Vec3 vec3 = instance.getCenter();
                             if (instance.tickCount % 20 == 0)
                                 level.explode(livingEntity, Explosion.getDefaultDamageSource(level, livingEntity), null, vec3.x(), vec3.y(), vec3.z(), 4.0F, true, Level.ExplosionInteraction.TNT);
                         }

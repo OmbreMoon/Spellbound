@@ -43,7 +43,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
                     if (context.getSkills().hasSkill(SBSkills.BLOOM)) duration -= 200;
                     if (context.getSkills().hasSkill(SBSkills.ETERNAL_SPRING)) duration += 100;
                     return duration;
-                }).castCondition((context, spell) -> spell.getSpawnPos(5) != null)
+                }).castCondition((context, spell) -> spell.hasValidSpawnPos(5))
                 .fullRecast();
     }
 

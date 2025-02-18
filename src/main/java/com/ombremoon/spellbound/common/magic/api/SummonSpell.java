@@ -33,7 +33,7 @@ public abstract class SummonSpell extends AnimatedSpell {
 
     @SuppressWarnings("unchecked")
     public static <T extends SummonSpell> Builder<T> createSummonBuilder(Class<T> spellClass) {
-        return (Builder<T>) new Builder<>().castCondition((context, spell) -> spell.getSpawnPos(spell.spawnRange) != null);
+        return (Builder<T>) new Builder<>().castCondition((context, spell) -> spell.hasValidSpawnPos(spell.spawnRange));
     }
 
     public SummonSpell(SpellType<?> spellType, Builder<?> builder) {

@@ -14,7 +14,11 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class PortalMap<T extends PortalEntity> extends Int2ObjectOpenHashMap<PortalInfo> {
+public class PortalMap<T extends PortalEntity<?>> extends Int2ObjectOpenHashMap<PortalInfo> {
+
+    public void createOrShiftPortal(T portal, int spawnTicks) {
+        this.createOrShiftPortal(portal, 2, spawnTicks, spawnedPortal -> {});
+    }
 
     public void createOrShiftPortal(T portal, int maxPortals, int spawnTicks) {
         this.createOrShiftPortal(portal, maxPortals, spawnTicks, spawnedPortal -> {});

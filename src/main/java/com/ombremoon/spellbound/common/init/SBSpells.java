@@ -3,7 +3,6 @@ package com.ombremoon.spellbound.common.init;
 import com.ombremoon.spellbound.common.content.spell.divine.HealingBlossomSpell;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;
-import com.ombremoon.spellbound.common.content.spell.TestSpell;
 import com.ombremoon.spellbound.common.content.spell.deception.PurgeMagicSpell;
 import com.ombremoon.spellbound.common.content.spell.deception.ShadowbondSpell;
 import com.ombremoon.spellbound.common.content.spell.divine.HealingTouchSpell;
@@ -33,8 +32,6 @@ public class SBSpells {
     public static final ResourceKey<Registry<SpellType<?>>> SPELL_TYPE_REGISTRY_KEY = ResourceKey.createRegistryKey(CommonClass.customLocation("spell_type"));
     public static final Registry<SpellType<?>> REGISTRY = new RegistryBuilder<>(SPELL_TYPE_REGISTRY_KEY).sync(true).create();
     public static final DeferredRegister<SpellType<?>> SPELL_TYPES = DeferredRegister.create(REGISTRY, Constants.MOD_ID);
-
-    public static final Supplier<SpellType<TestSpell>> TEST_SPELL = registerSpell("test_spell", fireRuinBuilder("test_spell", TestSpell::new));
 
     //Ruin
     public static final Supplier<SpellType<SolarRaySpell>> SOLAR_RAY = registerSpell("solar_ray", fireRuinBuilder("solar_ray", SolarRaySpell::new)

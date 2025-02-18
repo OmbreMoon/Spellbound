@@ -261,7 +261,7 @@ public class StormRiftSpell extends AnimatedSpell {
                                     stormCloud,
                                     stormCloud.getOnPos(),
                                     SoundEvents.LIGHTNING_BOLT_THUNDER,
-                                    SoundSource.WEATHER,
+                                    SoundSource.NEUTRAL,
                                     10000.0F,
                                     0.8F + stormCloud.getRandom().nextFloat() * 0.2F
                             );
@@ -269,7 +269,7 @@ public class StormRiftSpell extends AnimatedSpell {
                                     stormCloud,
                                     stormCloud.getOnPos(),
                                     SoundEvents.LIGHTNING_BOLT_IMPACT,
-                                    SoundSource.WEATHER,
+                                    SoundSource.NEUTRAL,
                                     2.0F,
                                     0.5F + stormCloud.getRandom().nextFloat() * 0.2F
                             );

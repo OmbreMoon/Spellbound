@@ -203,7 +203,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Returns the resource location of the current spells's spells type.
+     * Returns the resource location of the current spell's spell type.
      * @return The spells type's resource location
      */
     public ResourceLocation location() {
@@ -557,7 +557,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         if (checkForCounterMagic(targetEntity))
             return false;
 
-        boolean flag = targetEntity.hurt(BoxUtil.sentinelDamageSource(ownerEntity.level(), damageType, ownerEntity), getModifier(ModifierType.POTENCY, ownerEntity) * hurtAmount);
+        boolean flag = targetEntity.hurt(BoxUtil.damageSource(ownerEntity.level(), damageType, ownerEntity), getModifier(ModifierType.POTENCY, ownerEntity) * hurtAmount);
         if (flag) {
             //BUILD UP EFFECTS
             targetEntity.setLastHurtByMob(ownerEntity);
@@ -766,6 +766,15 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         if (hitResult.getDirection() == Direction.DOWN) return null;
 
         return hitResult.getBlockPos().above();
+    }
+
+    /**
+     * Checks if the spawn position in a given range is a valid block
+     * @param range The spawn range
+     * @return Whether the spawn pos is null
+     */
+    protected boolean hasValidSpawnPos(double range) {
+        return this.getSpawnPos(range) != null;
     }
 
     /**

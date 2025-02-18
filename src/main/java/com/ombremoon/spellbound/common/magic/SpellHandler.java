@@ -190,7 +190,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * @param spellType
      */
     public void learnSpell(SpellType<?> spellType) {
-        if (this.spellSet.isEmpty() || this.selectedSpell == null || this.selectedSpell == SBSpells.TEST_SPELL.get()) this.selectedSpell = spellType;
+        if (this.spellSet.isEmpty() || this.selectedSpell == null) this.selectedSpell = spellType;
         this.spellSet.add(spellType);
         if (this.equippedSpellSet.size() < 10)
             this.equippedSpellSet.add(spellType);
@@ -610,10 +610,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
             this.channelling = nbt.getBoolean("Channeling");
         }
         if (nbt.contains("SelectedSpell", 8)) {
-            SpellType<?> spellType = AbstractSpell.getSpellByName(SpellUtil.getSpellId(nbt, "SelectedSpell"));
-            this.selectedSpell = spellType != null ? spellType : SBSpells.TEST_SPELL.get();
-        } else {
-            this.selectedSpell = SBSpells.TEST_SPELL.get();
+            this.selectedSpell = AbstractSpell.getSpellByName(SpellUtil.getSpellId(nbt, "SelectedSpell"));
         }
         if (nbt.contains("Spells", 9)) {
             ListTag spellList = nbt.getList("Spells", 10);
