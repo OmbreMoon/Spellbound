@@ -28,7 +28,7 @@ public class MysticArmorSpell extends AnimatedSpell {
 
     private static Builder<MysticArmorSpell> createMysticArmorBuilder() {
         return createSimpleSpellBuilder(MysticArmorSpell.class)
-                .duration(context -> 1200).fullRecast();
+                .duration(1200).fullRecast();
     }
 
     public MysticArmorSpell() {

@@ -13,7 +13,7 @@ public class SpiritTotemSpell extends SummonSpell {
     public static Builder<SpiritTotemSpell> createSpiritTotemBuilder() {
         return createSummonBuilder(SpiritTotemSpell.class)
                 .manaCost(50)
-                .duration(context -> 600);
+                .duration(600);
     }
 
     public SpiritTotemSpell() {

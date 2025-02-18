@@ -30,7 +30,7 @@ public class CobbledHideSpell extends AnimatedSpell {
         return createSimpleSpellBuilder(CobbledHideSpell.class)
                 .manaCost(30)
                 .castTime(20)
-                .duration(context -> 1200);
+                .duration(1200);
     }
 
     public CobbledHideSpell(SpellType<?> spellType) {

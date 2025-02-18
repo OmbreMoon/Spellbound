@@ -34,7 +34,7 @@ public class ShadowGateSpell extends AnimatedSpell {
     private static Builder<ShadowGateSpell> createShadowGateBuilder() {
         return createSimpleSpellBuilder(ShadowGateSpell.class)
                 .manaCost(30).castTime(20)
-                .duration(context -> 1200)
+                .duration(1200)
                 .castCondition((context, spell) -> {
                     var skills = context.getSkills();
                     int activePortals = spell.portalMap.size();

@@ -27,11 +27,7 @@ import java.util.List;
 public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
     private static Builder<PurgeMagicSpell> createPurgeMagicBuilder() {
         return createSimpleSpellBuilder(PurgeMagicSpell.class)
-                .duration(context -> {
-                    int flag = context.getFlag();
-                    if (flag == 1) return 200;
-                    return 10;
-                })
+                .duration(10)
                 .castCondition((context, purgeMagicSpell) -> {
                     if (context.getFlag() == 0)
                         return context.getTarget() instanceof LivingEntity;
@@ -126,5 +122,11 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
     @Override
     protected void onSpellStop(SpellContext context) {
 
+    }
+
+    @Override
+    protected int getDuration(SpellContext context) {
+        int flag = context.getFlag();
+        return flag == 1 ? 200 : super.getDuration(context);
     }
 }

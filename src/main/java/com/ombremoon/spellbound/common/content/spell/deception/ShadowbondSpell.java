@@ -33,7 +33,7 @@ public class ShadowbondSpell extends AnimatedSpell {
     private static final SpellDataKey<Boolean> EARLY_END = SyncedSpellData.registerDataKey(ShadowbondSpell.class, SBDataTypes.BOOLEAN.get());
     public static Builder<ShadowbondSpell> createShadowbondBuilder() {
         return createSimpleSpellBuilder(ShadowbondSpell.class)
-                .duration(context -> 300)
+                .duration(300)
                 .castCondition((context, spell) -> {
                     if (context.isRecast()) {
                         if (spell.canReverse) {

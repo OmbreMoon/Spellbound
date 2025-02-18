@@ -31,7 +31,7 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
 
     public static Builder<ThunderousHoovesSpell> createThunderousHoovesBuilder() {
         return createSimpleSpellBuilder(ThunderousHoovesSpell.class)
-                .duration(context -> 600).fullRecast();
+                .duration(600).fullRecast();
     }
 
     private int initialFoodLevel;

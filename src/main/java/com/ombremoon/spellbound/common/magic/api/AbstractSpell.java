@@ -86,7 +86,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     protected static final SpellDataKey<BlockPos> CAST_POS = SyncedSpellData.registerDataKey(AbstractSpell.class, SBDataTypes.BLOCK_POS.get());
     private final SpellType<?> spellType;
     private final int manaCost;
-    private final Function<SpellContext, Integer> duration;
+    private final int duration;
     private final float xpModifier;
     private final int castTime;
     private final BiPredicate<SpellContext, AbstractSpell> castPredicate;
@@ -171,7 +171,11 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @return The spells duration
      */
     public int getDuration() {
-        return (int) Math.floor(this.duration.apply(this.context) * getModifier(ModifierType.DURATION));
+        return (int) Math.floor(this.getDuration(this.context) * getModifier(ModifierType.DURATION));
+    }
+
+    protected int getDuration(SpellContext context) {
+        return this.duration;
     }
 
     public float getCastChance() {
@@ -308,7 +312,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * Returns the {@link SpellContext} for the spell
      * @return The casting specific spells context
      */
-    public @Nullable SpellContext getContext() {
+    public final @Nullable SpellContext getContext() {
         return this.context;
     }
 
@@ -1149,7 +1153,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param <T> Type extends AbstractSpell to give access to private fields in a static context
      */
     public static class Builder<T extends AbstractSpell> {
-        protected Function<SpellContext, Integer> duration = context -> 10;
+        protected int duration = 10;
         protected int manaCost;
         protected int castTime = 1;
         protected float xpModifier = 0.5F;
@@ -1176,7 +1180,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
          * @param duration The duration
          * @return The spells builder
          */
-        public Builder<T> duration(Function<SpellContext, Integer> duration) {
+        public Builder<T> duration(int duration) {
             this.duration = duration;
             return this;
         }

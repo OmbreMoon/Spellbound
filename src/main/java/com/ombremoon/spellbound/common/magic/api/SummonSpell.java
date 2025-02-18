@@ -165,7 +165,7 @@ public abstract class SummonSpell extends AnimatedSpell {
             return this;
         }
 
-        public Builder<T> duration(Function<SpellContext, Integer> duration) {
+        public Builder<T> duration(int duration) {
             this.duration = duration;
             return this;
         }

@@ -37,7 +37,7 @@ public class StormRiftSpell extends AnimatedSpell {
     public static Builder<StormRiftSpell> createStormRiftBuilder() {
         return createSimpleSpellBuilder(StormRiftSpell.class)
                 .manaCost(20)
-                .duration(context -> 400)
+                .duration(400)
                 .castCondition((context, spell) -> {
                     var skills = context.getSkills();
                     Entity entity = context.getTarget();

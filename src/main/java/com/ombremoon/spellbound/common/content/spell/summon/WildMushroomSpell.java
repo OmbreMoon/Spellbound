@@ -26,7 +26,7 @@ public class WildMushroomSpell extends SummonSpell {
 
     public static Builder<WildMushroomSpell> createMushroomBuilder() {
         return createSummonBuilder(WildMushroomSpell.class)
-                .duration(context -> 180)
+                .duration(180)
                 .manaCost(20);
     }
 

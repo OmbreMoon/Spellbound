@@ -25,7 +25,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
     private static final SpellDataKey<Integer> DISCHARGE_TICK = SyncedSpellData.registerDataKey(ElectricChargeSpell.class, SBDataTypes.INT.get());
     public static Builder<ElectricChargeSpell> createElectricChargeBuilder() {
         return createSimpleSpellBuilder(ElectricChargeSpell.class)
-                .duration(context -> 200)
+                .duration(200)
                 .castType(CastType.CHARGING)
                 .castCondition((context, spell) -> {
                     Entity entity = context.getTarget();
