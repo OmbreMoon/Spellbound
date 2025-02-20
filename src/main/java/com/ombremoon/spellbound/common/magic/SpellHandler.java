@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.magic;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import com.ombremoon.spellbound.client.gui.WorkbenchScreen;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.util.EffectManager;
 import com.ombremoon.spellbound.common.init.SBAttributes;
@@ -22,11 +23,13 @@ import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -51,7 +54,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     private PlayerDivineActions divineActions;
     protected boolean castMode;
     protected Set<SpellType<?>> spellSet = new ObjectOpenHashSet<>();
-    public Set<SpellType<?>> equippedSpellSet = new ObjectOpenHashSet<>(/*10*/);
+    public Set<SpellType<?>> equippedSpellSet = new ObjectOpenHashSet<>();
     protected Multimap<SpellType<?>, AbstractSpell> activeSpells = ArrayListMultimap.create();
     protected SpellType<?> selectedSpell;
     protected AbstractSpell currentlyCastingSpell;
@@ -72,7 +75,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * Syncs spells handler data from the server to the client.
      */
     public void sync() {
-        if (this.caster instanceof Player player)
+        if (this.caster instanceof Player player && !player.level().isClientSide)
             PayloadHandler.syncSpellsToClient(player);
     }
 

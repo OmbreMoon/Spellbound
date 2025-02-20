@@ -18,10 +18,13 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.Arrays;
 import java.util.List;
 
+@OnlyIn(Dist.CLIENT)
 public class SpellSelectScreen extends Screen {
     private static final int RADIAL_WIDTH = 80;
     private static final int RADIAL_HEIGHT = RADIAL_WIDTH;

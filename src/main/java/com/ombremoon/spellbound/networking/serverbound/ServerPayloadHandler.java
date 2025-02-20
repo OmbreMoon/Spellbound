@@ -14,10 +14,13 @@ public class ServerPayloadHandler {
     }
 
     public static void handleNetworkCastSpell(final CastSpellPayload payload, final IPayloadContext context) {
-        var handler = SpellUtil.getSpellHandler(context.player());
-        AbstractSpell spell = handler.getCurrentlyCastSpell();
-        spell.initSpell(context.player(), context.player().level(), context.player().getOnPos());
-        handler.setCurrentlyCastingSpell(null);
+        var level = context.player().level();
+        if (!level.isClientSide) {
+            var handler = SpellUtil.getSpellHandler(context.player());
+            AbstractSpell spell = handler.getCurrentlyCastSpell();
+            spell.initSpell(context.player(), level, context.player().getOnPos());
+            handler.setCurrentlyCastingSpell(null);
+        }
     }
 
     public static void handleNetworkSetSpell(final SetSpellPayload payload, final IPayloadContext context) {

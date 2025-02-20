@@ -45,7 +45,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
     }
 
     public void resetSpellXP(SpellType<?> spellType) {
-        spellXp.put(spellType, 0f);
+        spellXp.put(spellType, 0F);
     }
 
     public int getPathLevel(SpellPath path) {
@@ -254,7 +254,6 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
                 SpellModifier modifier = SpellModifier.getTypeFromLocation(ResourceLocation.tryParse(nbt.getString("Modifier")));
                 if (modifier != null)
                     this.permanentModifiers.add(modifier);
-
             }
         }
     }

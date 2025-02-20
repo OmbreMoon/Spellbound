@@ -876,9 +876,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     protected void playAnimation(Player player, String animationName) {
-        var animation = (ModifierLayer<IAnimation>) PlayerAnimationAccess.getPlayerAssociatedData((AbstractClientPlayer) player).get(CommonClass.customLocation("animation"));
-        if (animation != null)
-            animation.setAnimation(new KeyframeAnimationPlayer((KeyframeAnimation) PlayerAnimationRegistry.getAnimation(CommonClass.customLocation(animationName))));
+        PayloadHandler.playAnimation(player, animationName);
     }
 
     protected void stopAnimation(Player player) {
@@ -886,7 +884,6 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         if (animation == null) return;
 
         ((KeyframeAnimationPlayer)animation.getAnimation()).stop();
-
     }
 
     /**
@@ -993,11 +990,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     public void initSpell(LivingEntity caster, Level level, BlockPos blockPos) {
-        initSpell(caster, level, blockPos, false);
-    }
-
-    public void initSpell(LivingEntity caster, Level level, BlockPos blockPos, boolean forceReset) {
-        initSpell(caster, level, blockPos, this.getTargetEntity(caster, 10), forceReset);
+        initSpell(caster, level, blockPos, this.getTargetEntity(caster, 10));
     }
 
     /**
@@ -1007,7 +1000,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param blockPos The block position the caster is in when the cast timer ends
      * @param target The target entity of the caster
      */
-    public void initSpell(LivingEntity caster, Level level, BlockPos blockPos, @Nullable Entity target, boolean forceReset) {
+    public void initSpell(LivingEntity caster, Level level, BlockPos blockPos, @Nullable Entity target) {
         if (!level.isClientSide) {
             this.level = level;
             this.caster = caster;

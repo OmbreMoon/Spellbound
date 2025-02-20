@@ -23,12 +23,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+@OnlyIn(Dist.CLIENT)
 public class WorkbenchScreen extends Screen {
     public static final ResourceLocation TEXTURE = CommonClass.customLocation("textures/gui/arcane_gui.png");
     private static final ResourceLocation PATH = CommonClass.customLocation("textures/gui/arcane_gui_text.png");

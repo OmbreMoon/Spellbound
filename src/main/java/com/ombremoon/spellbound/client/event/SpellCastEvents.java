@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.client.event;
 
+import com.ombremoon.spellbound.client.gui.WorkbenchScreen;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.util.EffectManager;
@@ -8,6 +9,7 @@ import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -113,5 +115,9 @@ public class SpellCastEvents {
         if (!SpellUtil.canCastSpell(player, spell)) return;
 
         PayloadHandler.castSpell();
+    }
+
+    public static void openWorkbench() {
+        Minecraft.getInstance().setScreen(new WorkbenchScreen(Component.translatable("screen.spellbound.workbench")));
     }
 }

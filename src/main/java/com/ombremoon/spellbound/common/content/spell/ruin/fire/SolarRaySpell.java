@@ -48,9 +48,11 @@ public class SolarRaySpell extends ChanneledSpell {
         if (entity instanceof LivingEntity living) {
             var handler = SpellUtil.getSpellHandler(living);
             SolarRaySpell spell = handler.getSpell(SBSpells.SOLAR_RAY.get());
-            damage = spell.potency(damage);
-            if (spell.checkForCounterMagic(livingEntity))
-                damage = 0;
+            if (spell != null) {
+                damage = spell.potency(damage);
+                if (spell.checkForCounterMagic(livingEntity))
+                    damage = 0;
+            }
         }
         return damage;
     };
@@ -91,7 +93,8 @@ public class SolarRaySpell extends ChanneledSpell {
     private final Map<LivingEntity, Integer> heatTracker = new Object2IntOpenHashMap<>();
 
     public static Builder<SolarRaySpell> createSolarRayBuilder() {
-        return createChannelledSpellBuilder(SolarRaySpell.class).castTime(18).castAnimation(context -> "solar_ray1");
+        return createChannelledSpellBuilder(SolarRaySpell.class).castTime(18).castAnimation(context -> "shamon");
+//        return createChannelledSpellBuilder(SolarRaySpell.class).castTime(18).castAnimation(context -> "solar_ray1");
     }
 
     public SolarRaySpell() {
@@ -267,15 +270,17 @@ public class SolarRaySpell extends ChanneledSpell {
                         var handler = SpellUtil.getSpellHandler(livingEntity);
                         var skills = SpellUtil.getSkillHolder(livingEntity);
                         SolarRaySpell spell = handler.getSpell(SBSpells.SOLAR_RAY.get());
-                        damage = spell.potency(damage);
-                        int startTick = spell.heatTracker.computeIfAbsent(living, target -> 0);
-                        int bonus = startTick > 0 && living.tickCount >= startTick + 60 ? 2 : 1;
-                        damage *= bonus;
-                        if (skills.hasSkill(SBSkills.POWER_OF_THE_SUN.value()) && livingEntity.level().isDay())
-                            damage *= 1.5F;
+                        if (spell != null) {
+                            damage = spell.potency(damage);
+                            int startTick = spell.heatTracker.computeIfAbsent(living, target -> 0);
+                            int bonus = startTick > 0 && living.tickCount >= startTick + 60 ? 2 : 1;
+                            damage *= bonus;
+                            if (skills.hasSkill(SBSkills.POWER_OF_THE_SUN.value()) && livingEntity.level().isDay())
+                                damage *= 1.5F;
 
-                        if (spell.checkForCounterMagic(living))
-                            damage = 0;
+                            if (spell.checkForCounterMagic(living))
+                                damage = 0;
+                        }
                     }
                     return damage;
                 }).build();

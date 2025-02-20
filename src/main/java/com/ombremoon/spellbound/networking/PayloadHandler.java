@@ -16,10 +16,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.HandlerThread;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import java.util.List;
@@ -72,6 +75,9 @@ public class PayloadHandler {
         PacketDistributor.sendToServer(new UnlockSkillPayload(skill));
     }
 
+    public static void playAnimation(Player player, String animation) {
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(animation));
+    }
     public static void updateSpells(Player player, boolean isRecast, int castId, boolean forceReset) {
         PacketDistributor.sendToPlayer((ServerPlayer) player, new UpdateSpellsPayload(isRecast, castId, forceReset));
     }
@@ -143,7 +149,78 @@ public class PayloadHandler {
 
     @SubscribeEvent
     public static void register(final RegisterPayloadHandlersEvent event) {
-        final PayloadRegistrar registrar = event.registrar("1");
+        final PayloadRegistrar registrar = event.registrar(Constants.MOD_ID).optional();
+        registrar.playToClient(
+                PlayAnimationPayload.TYPE,
+                PlayAnimationPayload.STREAM_CODEC,
+                ClientPayloadHandler::handlePlayAnimation
+        );
+        registrar.playToClient(
+                EndSpellPayload.TYPE,
+                EndSpellPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleEndSpell
+        );
+        registrar.playToClient(
+                UpdateSpellsPayload.TYPE,
+                UpdateSpellsPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleClientUpdateSpells
+        );
+        registrar.playToClient(
+                SyncSpellPayload.TYPE,
+                SyncSpellPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleClientSpellSync
+        );
+        registrar.playToClient(
+                SyncSkillPayload.TYPE,
+                SyncSkillPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleClientSkillSync
+        );
+        registrar.playToClient(
+                SetSpellDataPayload.TYPE,
+                SetSpellDataPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleClientSetSpellData
+        );
+        registrar.playToClient(
+                ClientSyncManaPayload.TYPE,
+                ClientSyncManaPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleClientManaSync
+        );
+        registrar.playToClient(
+                OpenWorkbenchPayload.TYPE,
+                OpenWorkbenchPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleClientOpenWorkbenchScreen
+        );
+        registrar.playToClient(
+                UpdateTreePayload.TYPE,
+                UpdateTreePayload.STREAM_CODEC,
+                ClientPayloadHandler::handleClientUpdateTree
+        );
+        registrar.playToClient(
+                SetRotationPayload.TYPE,
+                SetRotationPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleClientSetRotation
+        );
+        registrar.playToClient(
+                RemoveGlowEffectPayload.TYPE,
+                RemoveGlowEffectPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleRemoveGlowEffect
+        );
+        registrar.playToClient(
+                AddGlowEffectPayload.TYPE,
+                AddGlowEffectPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleAddGlowEffect
+        );
+        registrar.playToClient(
+                ChangeHailLevelPayload.TYPE,
+                ChangeHailLevelPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleChangeHailLevel
+        );
+        registrar.playToClient(
+                UpdateDimensionsPayload.TYPE,
+                UpdateDimensionsPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleUpdateDimensions
+        );
+
         registrar.playToServer(
                 SwitchModePayload.TYPE,
                 SwitchModePayload.STREAM_CODEC,
@@ -198,72 +275,6 @@ public class PayloadHandler {
                 UnlockSkillPayload.TYPE,
                 UnlockSkillPayload.STREAM_CODEC,
                 ServerPayloadHandler::handleNetworkUnlockSKill
-        );
-
-        registrar.playToClient(
-                EndSpellPayload.TYPE,
-                EndSpellPayload.STREAM_CODEC,
-                ClientPayloadHandler::handleEndSpell
-        );
-        registrar.playToClient(
-                UpdateSpellsPayload.TYPE,
-                UpdateSpellsPayload.STREAM_CODEC,
-                ClientPayloadHandler::handleClientUpdateSpells
-        );
-        registrar.playToClient(
-                SyncSpellPayload.TYPE,
-                SyncSpellPayload.STREAM_CODEC,
-                ClientPayloadHandler::handleClientSpellSync
-        );
-        registrar.playToClient(
-                SyncSkillPayload.TYPE,
-                SyncSkillPayload.STREAM_CODEC,
-                ClientPayloadHandler::handleClientSkillSync
-        );
-        registrar.playToClient(
-                SetSpellDataPayload.TYPE,
-                SetSpellDataPayload.STREAM_CODEC,
-                ClientPayloadHandler::handleClientSetSpellData
-        );
-        registrar.playToClient(
-                OpenWorkbenchPayload.TYPE,
-                OpenWorkbenchPayload.STREAM_CODEC,
-                ClientPayloadHandler::handleClientOpenWorkbenchScreen
-        );
-        registrar.playToClient(
-                ClientSyncManaPayload.TYPE,
-                ClientSyncManaPayload.STREAM_CODEC,
-                ClientPayloadHandler::handleClientManaSync
-        );
-        registrar.playToClient(
-                UpdateTreePayload.TYPE,
-                UpdateTreePayload.STREAM_CODEC,
-                ClientPayloadHandler::handleClientUpdateTree
-        );
-        registrar.playToClient(
-                SetRotationPayload.TYPE,
-                SetRotationPayload.STREAM_CODEC,
-                ClientPayloadHandler::handleClientSetRotation
-        );
-        registrar.playToClient(
-                RemoveGlowEffectPayload.TYPE,
-                RemoveGlowEffectPayload.STREAM_CODEC,
-                ClientPayloadHandler::handleRemoveGlowEffect
-        );
-        registrar.playToClient(
-                AddGlowEffectPayload.TYPE,
-                AddGlowEffectPayload.STREAM_CODEC,
-                ClientPayloadHandler::handleAddGlowEffect
-        );
-        registrar.playToClient(
-                ChangeHailLevelPayload.TYPE,
-                ChangeHailLevelPayload.STREAM_CODEC,
-                ClientPayloadHandler::handleChangeHailLevel
-        );
-        registrar.playToClient(
-                UpdateDimensionsPayload.TYPE,
-                UpdateDimensionsPayload.STREAM_CODEC,
-                ClientPayloadHandler::handleUpdateDimensions
         );
     }
 }
