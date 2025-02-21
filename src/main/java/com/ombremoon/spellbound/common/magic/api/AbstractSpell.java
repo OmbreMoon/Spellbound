@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.common.magic.api;
 
 import com.ombremoon.sentinellib.api.BoxUtil;
+import com.ombremoon.spellbound.client.AnimationHelper;
 import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;
@@ -876,14 +877,17 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     protected void playAnimation(Player player, String animationName) {
-        PayloadHandler.playAnimation(player, animationName);
+//        PayloadHandler.playAnimation(player, animationName);
+        AnimationHelper.playAnimation(player, animationName);
     }
 
     protected void stopAnimation(Player player) {
         var animation = (ModifierLayer<IAnimation>) PlayerAnimationAccess.getPlayerAssociatedData((AbstractClientPlayer) player).get(CommonClass.customLocation("animation"));
         if (animation == null) return;
 
-        ((KeyframeAnimationPlayer)animation.getAnimation()).stop();
+        var layer = ((KeyframeAnimationPlayer)animation.getAnimation());
+        if (layer != null)
+            layer.stop();
     }
 
     /**
