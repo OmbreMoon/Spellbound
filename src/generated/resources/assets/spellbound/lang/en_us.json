@@ -215,5 +215,6 @@
   "spells.spellbound.thunderous_hooves": "Thunderous Hooves",
   "spells.spellbound.volcano": "Volcano",
   "spells.spellbound.wild_mushroom": "Wild Mushroom",
-  "tooltip.spellbound.holdshift": "Hold shift for more information."
+  "tooltip.spellbound.holdshift": "Hold shift for more information.",
+  "skill.description.spellbound.implosion": "Recast while targeting a portal with a storm shard to detonate the portal, applying Stormstrike to anyone in the area."
 }
