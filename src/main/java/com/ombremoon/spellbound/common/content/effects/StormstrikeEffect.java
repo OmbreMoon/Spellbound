@@ -44,13 +44,16 @@ public class StormstrikeEffect extends SBEffect {
     public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
         int ownerId = livingEntity.getData(SBData.STORMSTRIKE_OWNER);
         Entity entity = livingEntity.level().getEntity(ownerId);
-        float damage = 3F;
+        float damage = 2F;
         if (entity instanceof LivingEntity owner) {
             var skills = SpellUtil.getSkillHolder(owner);
             StormstrikeSpell spell = SBSpells.STORMSTRIKE.get().createSpell();
 
             if (skills.hasSkill(SBSkills.SHOCK_FACTOR.value()))
-                damage += (float) (livingEntity.getData(SBData.MANA) * 0.05F);
+                damage += (float) (livingEntity.getData(SBData.MANA) * 0.01F);
+
+            if (skills.hasSkill(SBSkills.PURGE.value()) && SpellUtil.isSummon(livingEntity) && !SpellUtil.isSummonOf(livingEntity, owner))
+                damage += (float) (livingEntity.getData(SBData.MANA) * 0.1F);
 
             if (skills.hasSkill(SBSkills.DISCHARGE.value())) {
                 ItemStack itemStack = livingEntity.getItemBySlot(EquipmentSlot.MAINHAND);

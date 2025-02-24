@@ -11,7 +11,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
- * The main class most spells will extend from. Main utility is to handle spells casting animations.
+ * The main class most spells will extend from. Primary utility is to handle spells casting animations.
  */
 public abstract class AnimatedSpell extends AbstractSpell {
     private final Function<SpellContext, String> castAnimation;
@@ -29,7 +29,7 @@ public abstract class AnimatedSpell extends AbstractSpell {
     public void onCastStart(SpellContext context) {
         super.onCastStart(context);
         String animation = this.castAnimation.apply(context);
-        if (context.getLevel().isClientSide && !animation.isEmpty() && context.getSpellHandler().castTick == 1 && context.getCaster() instanceof Player player)
+        if (!context.getLevel().isClientSide && !animation.isEmpty() && context.getCaster() instanceof Player player)
             playAnimation(player, animation);
 
     }

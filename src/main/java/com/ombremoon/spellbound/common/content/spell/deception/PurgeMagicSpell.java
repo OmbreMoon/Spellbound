@@ -48,7 +48,7 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
         if (flag == 1) {
             caster.addEffect(new MobEffectInstance(SBEffects.COUNTER_MAGIC, 200, 0, false ,false));
             if (skills.hasSkill(SBSkills.CLEANSE.value()))
-                caster.getActiveEffects().stream().filter(instance -> instance.getEffect().value().getCategory() == MobEffectCategory.HARMFUL).forEach(instance -> caster.removeEffect(instance.getEffect()));
+                cleanseCaster();
 
             if (skills.hasSkill(SBSkills.AVERSION.value()))
                 log("BACKFIRE - INTERRUPT A SPELL");

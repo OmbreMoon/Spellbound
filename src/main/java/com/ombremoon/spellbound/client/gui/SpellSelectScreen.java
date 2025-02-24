@@ -52,8 +52,8 @@ public class SpellSelectScreen extends Screen {
             }
         };
 
-        for (int i = 0; i < handler.equippedSpellSet.size(); i++) {
-            spellItems[i] = new SpellRadialMenuItem(radialMenu, handler.equippedSpellSet.stream().toList().get(i)) {
+        for (int i = 0; i < handler.getEquippedSpells().size(); i++) {
+            spellItems[i] = new SpellRadialMenuItem(radialMenu, handler.getEquippedSpells().stream().toList().get(i)) {
                 @Override
                 public boolean onClick() {
                     if (handler.getSelectedSpell() == this.getSpellType() && !(this.getSpellType().getRootSkill() instanceof RadialSkill))
@@ -80,7 +80,7 @@ public class SpellSelectScreen extends Screen {
         this.x = (float) this.width / 2;
         this.y = (float) this.height / 2;
         if (this.items.isEmpty()) {
-            this.items.addAll(Arrays.asList(spellItems).subList(0, handler.equippedSpellSet.size()));
+            this.items.addAll(Arrays.asList(spellItems).subList(0, handler.getEquippedSpells().size()));
         }
     }
 

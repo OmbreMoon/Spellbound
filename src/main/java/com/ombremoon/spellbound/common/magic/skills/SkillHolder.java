@@ -75,6 +75,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
         this.unlockedSkills.put(spellType, new HashSet<>() {{
             add(spellType.getRootSkill());
         }});
+        this.resetSpellXP(spellType);
         for (Skill skill : spellType.getSkills()) {
             if (skill instanceof ModifierSkill modifierSkill) {
                 var modifiers = modifierSkill.getModifiers();
@@ -84,16 +85,18 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
     }
 
     public void unlockSkill(Skill skill) {
-        Set<Skill> unlocked = unlockedSkills.get(skill.getSpell());
-        if (unlocked == null) unlocked = new HashSet<>();
-        unlocked.add(skill);
-        unlockedSkills.put(skill.getSpell(), unlocked);
+        Set<Skill> unlocked = this.unlockedSkills.get(skill.getSpell());
+        if (unlocked == null)
+            unlocked = new HashSet<>();
 
-        if (caster instanceof Player player)
+        unlocked.add(skill);
+        this.unlockedSkills.put(skill.getSpell(), unlocked);
+
+        if (this.caster instanceof Player player)
             skill.onSkillUnlock(player);
 
         if (skill instanceof ModifierSkill modifierSkill)
-            permanentModifiers.addAll(modifierSkill.getModifiers());
+            this.permanentModifiers.addAll(modifierSkill.getModifiers());
     }
 
     public boolean canUnlockSkill(Skill skill) {

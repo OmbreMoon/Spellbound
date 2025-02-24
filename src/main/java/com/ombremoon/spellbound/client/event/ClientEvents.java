@@ -40,6 +40,7 @@ public class ClientEvents {
         public static void onKeyRegister(RegisterKeyMappingsEvent event) {
             event.register(KeyBinds.SWITCH_MODE_BINDING);
             event.register(KeyBinds.SELECT_SPELL_BINDING);
+            event.register(KeyBinds.CYCLE_SPELL_BINDING);
         }
 
         @SubscribeEvent
@@ -96,12 +97,18 @@ public class ClientEvents {
                     player.displayClientMessage(Component.literal("Switched to " + (handler.inCastMode() ? "Cast mode" : "Normal mode")), true);
                     PayloadHandler.switchMode();
                 }
-                if (KeyBinds.SELECT_SPELL_BINDING.consumeClick()) {
-                    Screen screen = minecraft.screen;
-                    if (handler.inCastMode() && !handler.equippedSpellSet.isEmpty()) {
-                        minecraft.setScreen(new SpellSelectScreen());
-                    } else {
-                        minecraft.setScreen(screen);
+                if (handler.inCastMode()) {
+                    if (KeyBinds.SELECT_SPELL_BINDING.consumeClick()) {
+                        Screen screen = minecraft.screen;
+                        if (!handler.getEquippedSpells().isEmpty()) {
+                            minecraft.setScreen(new SpellSelectScreen());
+                        } else {
+                            minecraft.setScreen(screen);
+                        }
+                    }
+                    if (KeyBinds.CYCLE_SPELL_BINDING.consumeClick()) {
+                        SpellUtil.cycle(handler, handler.getSelectedSpell());
+                        PayloadHandler.setSpell(handler.getSelectedSpell());
                     }
                 }
             }

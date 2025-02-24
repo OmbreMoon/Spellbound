@@ -135,8 +135,8 @@ public class ShadowGateSpell extends AnimatedSpell {
                                 }
 
                                 if (skills.hasSkill(SBSkills.BAIT_AND_SWITCH.value()) && !entity.isAlliedTo(caster)) {
-                                    entity.hurt(level.damageSources().magic(), 10);
-                                    SpellUtil.getSpellHandler(entity).consumeMana(10);
+                                    this.hurt(entity, level.damageSources().magic(), 5);
+                                    SpellUtil.getSpellHandler(entity).consumeMana(5);
                                 }
 
                                 if (skills.hasSkill(SBSkills.GRAVITY_SHIFT.value())) {

@@ -184,7 +184,7 @@ public class ShadowbondSpell extends AnimatedSpell {
                     SBSkills.BLINK.value(),
                     BuffCategory.BENEFICIAL,
                     SkillBuff.ATTRIBUTE_MODIFIER,
-                    new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(CommonClass.customLocation("shadow_step"), 1.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                    new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(CommonClass.customLocation("shadow_step"), 1.3F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
                     100);
 
         if (skills.hasSkill(SBSkills.SNEAK_ATTACK.value())) {

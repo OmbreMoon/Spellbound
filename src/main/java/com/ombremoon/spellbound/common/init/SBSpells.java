@@ -1,25 +1,26 @@
 package com.ombremoon.spellbound.common.init;
 
-import com.ombremoon.spellbound.common.content.spell.divine.HealingBlossomSpell;
-import com.ombremoon.spellbound.main.CommonClass;
-import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.content.spell.deception.PurgeMagicSpell;
 import com.ombremoon.spellbound.common.content.spell.deception.ShadowbondSpell;
+import com.ombremoon.spellbound.common.content.spell.divine.HealingBlossomSpell;
 import com.ombremoon.spellbound.common.content.spell.divine.HealingTouchSpell;
+import com.ombremoon.spellbound.common.content.spell.ruin.air.CycloneSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.VolcanoSpell;
-import com.ombremoon.spellbound.common.content.spell.ruin.air.CycloneSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.ElectricChargeSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.StormRiftSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.StormstrikeSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.SpiritTotemSpell;
+import com.ombremoon.spellbound.common.content.spell.summon.SummonUndeadSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.WildMushroomSpell;
 import com.ombremoon.spellbound.common.content.spell.transfiguration.MysticArmorSpell;
 import com.ombremoon.spellbound.common.content.spell.transfiguration.ShadowGateSpell;
-import com.ombremoon.spellbound.common.content.spell.transfiguration.ThunderousHoovesSpell;
-import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
+import com.ombremoon.spellbound.common.content.spell.transfiguration.StrideSpell;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
+import com.ombremoon.spellbound.main.CommonClass;
+import com.ombremoon.spellbound.main.Constants;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.bus.api.IEventBus;
@@ -64,8 +65,8 @@ public class SBSpells {
             .skills(SBSkills.SHADOW_GATE, SBSkills.REACH, SBSkills.BLINK, SBSkills.SHADOW_ESCAPE,
                     SBSkills.OPEN_INVITATION, SBSkills.QUICK_RECHARGE, SBSkills.UNWANTED_GUESTS, SBSkills.BAIT_AND_SWITCH,
                     SBSkills.DARKNESS_PREVAILS, SBSkills.GRAVITY_SHIFT, SBSkills.DUAL_DESTINATION));
-    public static final Supplier<SpellType<ThunderousHoovesSpell>> THUNDEROUS_HOOVES = registerSpell("thunderous_hooves", trasnfigurationBuilder("thunderous_hooves", ThunderousHoovesSpell::new)
-            .skills(SBSkills.THUNDEROUS_HOOVES, SBSkills.QUICK_SPRINT, SBSkills.GALLOPING_STRIDE,
+    public static final Supplier<SpellType<StrideSpell>> STRIDE = registerSpell("stride", trasnfigurationBuilder("stride", StrideSpell::new)
+            .skills(SBSkills.STRIDE, SBSkills.QUICK_SPRINT, SBSkills.GALLOPING_STRIDE,
                     SBSkills.RIDERS_RESILIENCE, SBSkills.FLEETFOOTED, SBSkills.SUREFOOTED, SBSkills.AQUA_TREAD,
                     SBSkills.ENDURANCE, SBSkills.MOMENTUM, SBSkills.STAMPEDE, SBSkills.MARATHON));
     public static final Supplier<SpellType<MysticArmorSpell>> MYSTIC_ARMOR = registerSpell("mystic_armor", trasnfigurationBuilder("mystic_armor", MysticArmorSpell::new)
@@ -74,7 +75,8 @@ public class SBSpells {
                     SBSkills.CRYSTALLINE_ARMOR, SBSkills.ELDRITCH_INTERVENTION, SBSkills.SUBLIME_BEACON, SBSkills.SOUL_RECHARGE));
 
     //Summons
-//    public static final Supplier<SpellType<SummonUndeadSpell>> SUMMON_UNDEAD = registerSpell("summon_undead", summonBuilder("summon_undead", SummonUndeadSpell::new));
+    public static final Supplier<SpellType<SummonUndeadSpell>> SUMMON_UNDEAD = registerSpell("summon_undead", summonBuilder("summon_undead", SummonUndeadSpell::new)
+            .skills(SBSkills.SUMMON_UNDEAD));
     public static final Supplier<SpellType<WildMushroomSpell>> WILD_MUSHROOM = registerSpell("wild_mushroom", summonBuilder("wild_mushroom", WildMushroomSpell::new)
             .skills(SBSkills.WILD_MUSHROOM, SBSkills.VILE_INFLUENCE, SBSkills.HASTENED_GROWTH, SBSkills.ENVENOM,
                     SBSkills.DECOMPOSE, SBSkills.NATURES_DOMINANCE, SBSkills.POISON_ESSENCE,

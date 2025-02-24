@@ -1,13 +1,10 @@
 package com.ombremoon.spellbound.common.content.spell.ruin.shock;
 
-import com.ombremoon.sentinellib.api.BoxUtil;
 import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
 import com.ombremoon.spellbound.common.content.entity.spell.StormstrikeBolt;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
-import com.ombremoon.spellbound.common.magic.api.buff.ModifierType;
-import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
@@ -18,7 +15,8 @@ import net.minecraft.world.phys.EntityHitResult;
 
 public class StormstrikeSpell extends AnimatedSpell {
     public static Builder<StormstrikeSpell> createStormstrikeBuilder() {
-        return createSimpleSpellBuilder(StormstrikeSpell.class).manaCost(20);
+        return createSimpleSpellBuilder(StormstrikeSpell.class)
+                .castTime(20).manaCost(60);
     }
 
     public StormstrikeSpell() {
@@ -62,7 +60,7 @@ public class StormstrikeSpell extends AnimatedSpell {
 
                 if (entity instanceof LivingEntity livingEntity) {
                     livingEntity.setData(SBData.STORMSTRIKE_OWNER.get(), caster.getId());
-                    livingEntity.addEffect(new MobEffectInstance(SBEffects.STORMSTRIKE, 120, 0, false, false));
+                    livingEntity.addEffect(new MobEffectInstance(SBEffects.STORMSTRIKE, 60, 0, false, false));
                 }
 
                 bolt.discard();
@@ -94,7 +92,7 @@ public class StormstrikeSpell extends AnimatedSpell {
                 if (entity instanceof LivingEntity target && !target.is(caster) && !target.isAlliedTo(caster) && !checkForCounterMagic(target)) {
                     if (inWater && target.isInWaterOrBubble()) {
                         target.setData(SBData.STORMSTRIKE_OWNER.get(), caster.getId());
-                        target.addEffect(new MobEffectInstance(SBEffects.STORMSTRIKE, 120, 0, false, false));
+                        target.addEffect(new MobEffectInstance(SBEffects.STORMSTRIKE, 60, 0, false, false));
                     }
 
                     if (inWater && !target.isInWaterOrBubble()) return;

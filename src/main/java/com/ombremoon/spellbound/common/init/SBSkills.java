@@ -1,6 +1,5 @@
 package com.ombremoon.spellbound.common.init;
 
-import com.mojang.serialization.Codec;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
@@ -116,9 +115,9 @@ public class SBSkills {
     public static final Holder<Skill> GRAVITY_SHIFT = registerSkill("gravity_shift", -25, 150, preReqs(DARKNESS_PREVAILS));
     public static final Holder<Skill> DUAL_DESTINATION = registerSkill("dual_destination", 25, 150, preReqs(DARKNESS_PREVAILS));
 
-    //Thunderous Hooves
-    public static final Holder<Skill> THUNDEROUS_HOOVES = registerSkill("thunderous_hooves");
-    public static final Holder<Skill> QUICK_SPRINT = registerSkill("quick_sprint", 0, 50, preReqs(THUNDEROUS_HOOVES));
+    //Stride
+    public static final Holder<Skill> STRIDE = registerSkill("stride");
+    public static final Holder<Skill> QUICK_SPRINT = registerSkill("quick_sprint", 0, 50, preReqs(STRIDE));
     public static final Holder<Skill> GALLOPING_STRIDE = registerSkill("galloping_stride", 0, 100, preReqs(QUICK_SPRINT));
     public static final Holder<Skill> FLEETFOOTED = registerSkill("fleetfooted", -50, 150, preReqs(GALLOPING_STRIDE));
     public static final Holder<Skill> RIDERS_RESILIENCE = registerSkill("riders_resilience", -75, 200, preReqs(FLEETFOOTED));
@@ -186,7 +185,7 @@ public class SBSkills {
     //Healing Blossom
     public static final Holder<Skill> HEALING_BLOSSOM = registerSkill("healing_blossom");
     public static final Holder<Skill> THORNY_VINES = registerSkill("thorny_vines", -75, 50, preReqs(HEALING_BLOSSOM));
-    public static final Holder<Skill> BLOOM = registerModifierSkill("bloom", -25, 50, preReqs(HEALING_BLOSSOM), SpellModifier.BLOOM);
+    public static final Holder<Skill> BLOOM = registerSkill("bloom", -25, 50, preReqs(HEALING_BLOSSOM));
     public static final Holder<Skill> ETERNAL_SPRING = registerModifierSkill("eternal_spring", -25, 100, preReqs(BLOOM), SpellModifier.ETERNAL_SPRING);
     public static final Holder<Skill> FLOWER_FIELD = registerSkill("flower_field", 25, 50, preReqs(HEALING_BLOSSOM));
     public static final Holder<Skill> FLOURISHING_GROWTH = registerSkill("flourishing_growth", 25, 100, preReqs(FLOWER_FIELD));
@@ -221,6 +220,8 @@ public class SBSkills {
     public static Holder<Skill> MAGIC_POISONING = registerSkill("magic_poisoning", 75, 100, preReqs(DOMINANT_MAGIC));
     public static Holder<Skill> NULLIFICATION = registerSkill("nullification", 75, 150, preReqs(MAGIC_POISONING));
     public static Holder<Skill> EXPUNGE = registerSkill("expunge", 0, 200, preReqs(AVERSION, UNFOCUSED, NULLIFICATION));
+
+    public static Holder<Skill> SUMMON_UNDEAD = registerSkill("summon_undead");
 
     //Totem Spirit
     //TODO: Tree

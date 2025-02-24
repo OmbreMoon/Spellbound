@@ -35,7 +35,7 @@ public class SpellType<S extends AbstractSpell> {
         this.factory = factory;
         this.resourceLocation = resourceLocation;
 
-//        if (this.getRootSkill() == null) throw new IllegalStateException(this + " does not contain a root skill");
+        if (this.getRootSkill() == null) throw new IllegalStateException(this + " does not contain a root skill");
     }
 
     public ResourceLocation location() {
@@ -55,7 +55,7 @@ public class SpellType<S extends AbstractSpell> {
     }
 
     public List<Skill> getSkills() {
-        return availableSkills.stream().map(Holder::value).collect(Collectors.toList());
+        return this.availableSkills.stream().map(Holder::value).collect(Collectors.toList());
     }
 
     public S createSpell() {
@@ -77,11 +77,11 @@ public class SpellType<S extends AbstractSpell> {
     }
 
     public static class Builder<T extends AbstractSpell>{
-        private ResourceLocation resourceLocation;
-        private SpellFactory<T> factory;
+        private final ResourceLocation resourceLocation;
+        private final SpellFactory<T> factory;
         private SpellPath path;
         private SpellPath subPath;
-        private Set<Holder<Skill>> availableSkills = new ObjectOpenHashSet<>();
+        private final Set<Holder<Skill>> availableSkills = new ObjectOpenHashSet<>();
 
         public Builder(String resourceLocation, SpellFactory<T> factory) {
             this.resourceLocation = CommonClass.customLocation(resourceLocation);

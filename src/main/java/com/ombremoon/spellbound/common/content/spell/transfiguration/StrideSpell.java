@@ -22,15 +22,15 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
-public class ThunderousHoovesSpell extends AnimatedSpell {
+public class StrideSpell extends AnimatedSpell {
     protected static final ResourceLocation THUNDEROUS_HOOVES = CommonClass.customLocation("thunderous_hooves");
     protected static final ResourceLocation QUICK_SPRINT = CommonClass.customLocation("quick_sprint");
     protected static final ResourceLocation SUREFOOTED = CommonClass.customLocation("surefooted");
     protected static final ResourceLocation FLEETFOOTED = CommonClass.customLocation("fleetfooted");
     protected static final ResourceLocation MOMENTUM = CommonClass.customLocation("momentum");
 
-    public static Builder<ThunderousHoovesSpell> createThunderousHoovesBuilder() {
-        return createSimpleSpellBuilder(ThunderousHoovesSpell.class)
+    public static Builder<StrideSpell> createStrideBuilder() {
+        return createSimpleSpellBuilder(StrideSpell.class)
                 .duration(600).fullRecast();
     }
 
@@ -39,8 +39,8 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
     private int movementTicks;
     private Entity mount;
 
-    public ThunderousHoovesSpell() {
-        super(SBSpells.THUNDEROUS_HOOVES.get(), createThunderousHoovesBuilder());
+    public StrideSpell() {
+        super(SBSpells.STRIDE.get(), createStrideBuilder());
     }
 
     @Override
@@ -122,7 +122,7 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
                     if (!isCaster(living) && !living.isAlliedTo(caster) && (caster.isSprinting() || flag && !living.is(caster.getVehicle()))) {
                         living.knockback(0.4, caster.getX() - living.getX(), caster.getZ() - living.getZ());
                         living.hurtMarked = true;
-                        living.hurt(level.damageSources().mobAttack(caster), 2.5F);
+                        this.hurt(living, level.damageSources().mobAttack(caster), 1.5F);
                     }
                 }
             }
@@ -138,7 +138,7 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
                                     SBSkills.MOMENTUM.value(),
                                     BuffCategory.BENEFICIAL,
                                     SkillBuff.ATTRIBUTE_MODIFIER,
-                                    new ModifierData(Attributes.ATTACK_SPEED, new AttributeModifier(MOMENTUM, 1 + (0.2 * this.movementTicks / 20), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                                    new ModifierData(Attributes.ATTACK_SPEED, new AttributeModifier(MOMENTUM, Math.min(1 + (0.04 * this.movementTicks / 20), 1.2), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
                                     100);
                     } else {
                         this.movementTicks = 0;
@@ -155,6 +155,7 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
     protected void onSpellStop(SpellContext context) {
         LivingEntity caster = context.getCaster();
         removeMovementBenefits(caster);
+        removeSkillBuff(caster, SBSkills.MOMENTUM.value());
         if (this.mount != null)
             removeMovementBenefits(this.mount);
     }
@@ -163,7 +164,7 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
         if (entity instanceof LivingEntity livingEntity) {
             addSkillBuff(
                     livingEntity,
-                    SBSkills.THUNDEROUS_HOOVES.value(),
+                    SBSkills.STRIDE.value(),
                     BuffCategory.BENEFICIAL,
                     SkillBuff.ATTRIBUTE_MODIFIER,
                     new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(THUNDEROUS_HOOVES, skills.hasSkill(SBSkills.GALLOPING_STRIDE.value()) ? 1.5 : 1.25, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)));
@@ -187,7 +188,7 @@ public class ThunderousHoovesSpell extends AnimatedSpell {
 
     private void removeMovementBenefits(Entity entity) {
         if (entity instanceof LivingEntity livingEntity) {
-            removeSkillBuff(livingEntity, SBSkills.THUNDEROUS_HOOVES.value());
+            removeSkillBuff(livingEntity, SBSkills.STRIDE.value());
             removeSkillBuff(livingEntity, SBSkills.QUICK_SPRINT.value());
             removeSkillBuff(livingEntity, SBSkills.SUREFOOTED.value());
         }

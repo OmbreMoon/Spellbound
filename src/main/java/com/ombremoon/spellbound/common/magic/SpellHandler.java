@@ -2,12 +2,8 @@ package com.ombremoon.spellbound.common.magic;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import com.ombremoon.spellbound.client.gui.WorkbenchScreen;
-import com.ombremoon.spellbound.main.Constants;
-import com.ombremoon.spellbound.util.EffectManager;
 import com.ombremoon.spellbound.common.init.SBAttributes;
 import com.ombremoon.spellbound.common.init.SBData;
-import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.acquisition.divine.PlayerDivineActions;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
@@ -17,19 +13,19 @@ import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.PayloadHandler;
+import com.ombremoon.spellbound.util.EffectManager;
 import com.ombremoon.spellbound.util.Loggable;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -53,11 +49,11 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     private UpgradeTree upgradeTree;
     private PlayerDivineActions divineActions;
     protected boolean castMode;
-    protected Set<SpellType<?>> spellSet = new ObjectOpenHashSet<>();
-    public Set<SpellType<?>> equippedSpellSet = new ObjectOpenHashSet<>();
-    protected Multimap<SpellType<?>, AbstractSpell> activeSpells = ArrayListMultimap.create();
-    protected SpellType<?> selectedSpell;
-    protected AbstractSpell currentlyCastingSpell;
+    private Set<SpellType<?>> spellSet = new ObjectOpenHashSet<>();
+    private Set<SpellType<?>> equippedSpellSet = new ObjectOpenHashSet<>();
+    private final Multimap<SpellType<?>, AbstractSpell> activeSpells = ArrayListMultimap.create();
+    private SpellType<?> selectedSpell;
+    private AbstractSpell currentlyCastingSpell;
     private final Map<SpellType<?>, Integer> spellFlags = new Object2IntOpenHashMap<>();
     private final Map<SkillBuff<?>, Integer> skillBuffs = new Object2IntOpenHashMap<>();
     private final Set<Integer> glowEntities = new IntOpenHashSet();
@@ -188,6 +184,10 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
         return this.spellSet;
     }
 
+    public Set<SpellType<?>> getEquippedSpells() {
+        return this.equippedSpellSet;
+    }
+
     /**
      * Adds a spells to the player's spells set. This also adds data to both the {@link SkillHolder} and {@link UpgradeTree}.
      * @param spellType
@@ -270,14 +270,8 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * Replaces an {@link AbstractSpell} in the active spells map. This is only called is the spells has {@link AbstractSpell#fullRecast} checked in the builder method. Recast spells will all call {@link AbstractSpell#endSpell()} unless they have {@link AbstractSpell#skipEndOnRecast(SpellContext)} ()} checked in the spells builder.
      * @param spell
      */
-    public void recastSpell(AbstractSpell spell, SpellContext context) {
-        /*if (!caster.level().isClientSide) {
-            if (this.activeSpells.containsKey(spell.getSpellType()))
-                this.activeSpells.get(spell.getSpellType()).stream().filter(abstractSpell -> !abstractSpell.skipEndOnRecast(context)).forEach(AbstractSpell::endSpell);
-        }
-*/
+    public void recastSpell(AbstractSpell spell) {
         this.activeSpells.replaceValues(spell.getSpellType(), List.of(spell));
-        log(this.activeSpells);
     }
 
     /**
@@ -366,7 +360,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
 
     public void addSkillBuff(SkillBuff<?> skillBuff, int ticks) {
         for (SkillBuff<?> buff : this.skillBuffs.keySet()) {
-            if (buff.is(skillBuff))
+            if (buff.equals(skillBuff))
                 return;
         }
 

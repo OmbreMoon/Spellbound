@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.ombremoon.spellbound.common.events.EventFactory;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.tree.SkillNode;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.ints.IntIntMutablePair;
@@ -46,9 +47,10 @@ public class UpgradeWidget {
         this.x = skillNode.skill().getX();
         this.y = -skillNode.skill().getY();
         int j = 29 + minecraft.font.width(this.title);
+        Constants.LOG.debug("{}", skillNode.skill().getDescription().getContents());
         this.description = Language.getInstance()
                 .getVisualOrder(
-                        this.findOptimalLines(ComponentUtils.mergeStyles(skillNode.skill().getDescription(), Style.EMPTY.withColor(getSkill().getSpell().getPath().getColor())), j)
+                        this.findOptimalLines(ComponentUtils.mergeStyles(skillNode.skill().getDescription(), Style.EMPTY.withColor(getSkill().getSpell().getPath().getColor())), 120)
                 );
 
         for (FormattedCharSequence formattedcharsequence : this.description) {
@@ -119,8 +121,6 @@ public class UpgradeWidget {
     }
 
     public void draw(GuiGraphics guiGraphics, int x, int y) {
-        var holder = SpellUtil.getSkillHolder(this.minecraft.player);
-        Type type = holder.hasSkill(this.skillNode.skill()) ? Type.UNLOCKED : Type.LOCKED;
         guiGraphics.blit(WorkbenchScreen.TEXTURE, x + this.x, y + this.y, 39 ,226, 30, 30);
         ResourceLocation sprite = this.skillNode.skill().getTexture();
         guiGraphics.blit(sprite, x + this.x + 3, y + this.y + 3, 0, 0, 24, 24, 24, 24);

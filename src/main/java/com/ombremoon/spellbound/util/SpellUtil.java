@@ -59,7 +59,7 @@ public class SpellUtil {
     }
 
     public static <T extends SpellType<?>> void cycle(SpellHandler handler, T activeSpell) {
-        var spellType = findNextSpellInList(handler.getSpellList(), activeSpell);
+        var spellType = findNextSpellInList(handler.getEquippedSpells(), activeSpell);
         if (spellType != activeSpell) {
             handler.setSelectedSpell(spellType);
         }
@@ -144,6 +144,15 @@ public class SpellUtil {
     public static Set<Integer> getAllSummonIds(@NotNull LivingEntity caster) {
         SpellHandler handler = SpellUtil.getSpellHandler(caster);
         return handler.getSummons();
+    }
+
+    /**
+     * Checks if a given entity is a summon.
+     * @param summon The summon to check the owner of
+     * @return true if owner, false if no owner/not the owner
+     */
+    public static boolean isSummon(@NotNull Entity summon) {
+        return getOwner(summon) != null;
     }
 
     /**

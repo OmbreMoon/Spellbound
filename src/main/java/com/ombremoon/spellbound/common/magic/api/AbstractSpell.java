@@ -1,15 +1,12 @@
 package com.ombremoon.spellbound.common.magic.api;
 
 import com.ombremoon.sentinellib.api.BoxUtil;
-import com.ombremoon.spellbound.client.AnimationHelper;
-import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
-import com.ombremoon.spellbound.main.CommonClass;
-import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.client.CameraEngine;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
 import com.ombremoon.spellbound.client.renderer.layer.SpellLayerModel;
 import com.ombremoon.spellbound.client.renderer.layer.SpellLayerRenderer;
+import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
 import com.ombremoon.spellbound.common.events.EventFactory;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
@@ -21,15 +18,14 @@ import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataHolder;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.Loggable;
 import com.ombremoon.spellbound.util.SpellUtil;
 import dev.kosmx.playerAnim.api.layered.IAnimation;
 import dev.kosmx.playerAnim.api.layered.KeyframeAnimationPlayer;
 import dev.kosmx.playerAnim.api.layered.ModifierLayer;
-import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
-import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
 import net.minecraft.Util;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
@@ -73,7 +69,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -382,7 +377,6 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         if (init) {
             this.startSpell();
         } else if (!isInactive) {
-//            log(getSpellType().location());
             if (this.shouldTickSpellEffect(this.context)) {
                 this.onSpellTick(this.context);
             }
@@ -424,7 +418,6 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param context The spells context
      */
     protected void onSpellTick(SpellContext context) {
-        log(castId);
     }
 
     /**
@@ -468,7 +461,6 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
             if (this.spellData.isDirty() || castTime % this.updateInterval == 0)
                 this.sendDirtySpellData();
         }
-        Constants.LOG.info("{}", castTime);
     }
 
     /**
@@ -793,7 +785,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Checks whether the entity is the caster of this spells.
+     * Checks whether the entity is the caster of this spell.
      * @param entity The entity
      * @return If the living entity is the caster
      */
@@ -876,9 +868,13 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
             CameraEngine.getOrAssignEngine(player).shakeScreen(player.getRandom().nextInt(), duration, intensity, maxOffset, freq);
     }
 
+    /**
+     * Plays an animation for the player. Must be called server-side for all players to see the animation
+     * @param player The player performing the animation
+     * @param animationName The animation path location
+     */
     protected void playAnimation(Player player, String animationName) {
-//        PayloadHandler.playAnimation(player, animationName);
-        AnimationHelper.playAnimation(player, animationName);
+        PayloadHandler.playAnimation(player, animationName);
     }
 
     protected void stopAnimation(Player player) {
@@ -1106,7 +1102,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     private void activateSpell() {
         var handler = this.context.getSpellHandler();
         if (this.fullRecast && this.isRecast) {
-            handler.recastSpell(this, this.context);
+            handler.recastSpell(this);
         } else {
             handler.activateSpell(this);
         }
