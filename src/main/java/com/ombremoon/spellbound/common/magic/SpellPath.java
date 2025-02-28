@@ -4,13 +4,13 @@ import net.minecraft.util.StringRepresentable;
 
 public enum SpellPath implements StringRepresentable {
     RUIN(0x7C0A02, false, "ruin"),
-    TRANSFIGURATION(0x1E4620, false, "transfiguration"),
+    TRANSFIGURATION(0x32CD32, false, "transfiguration"),
     SUMMONS(0x000080, false, "summons"),
     DIVINE(0xD4AF37, false, "divine"),
     DECEPTION(0x541675, false, "deception"),
-    FIRE(0x541675, true, "fire"),
-    FROST(0x541675, true, "frost"),
-    SHOCK(0x541675, true, "shock");
+    FIRE(0xD73502, true, "fire"),
+    FROST(0x4F9CC8, true, "frost"),
+    SHOCK(0x9543C9, true, "shock");
 
     private final int color;
     private final boolean isSubPath;

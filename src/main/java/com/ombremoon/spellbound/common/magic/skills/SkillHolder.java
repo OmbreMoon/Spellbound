@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.magic.skills;
 
+import com.ombremoon.spellbound.common.events.custom.SpellLevelUpEvent;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
@@ -9,6 +10,7 @@ import com.ombremoon.spellbound.main.ConfigHandler;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.Holder;
@@ -18,6 +20,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
 import java.util.HashSet;
@@ -30,6 +33,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
     private LivingEntity caster;
     protected final Map<SpellPath, Float> pathXp = new Object2FloatOpenHashMap<>();
     protected final Map<SpellType<?>, Float> spellXp = new Object2FloatOpenHashMap<>();
+    protected final Map<SpellType<?>, Integer> skillPoints = new Object2IntOpenHashMap<>();
     public final Map<SpellType<?>, Set<Skill>> unlockedSkills = new Object2ObjectOpenHashMap<>();
     private final Set<SpellModifier> permanentModifiers = new ObjectOpenHashSet<>();
     private final Set<SpellModifier> timedModifiers = new ObjectOpenHashSet<>();
@@ -67,8 +71,19 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
     }
 
     public void awardSpellXp(SpellType<?> spellType, float xp) {
-        spellXp.put(spellType, Math.min(getSpellXp(spellType) + xp, MAX_SPELL_LEVEL * 100));
-        pathXp.put(spellType.getPath(), getPathXp(spellType.getPath()) + (xp / 2));
+        int level = this.getSpellLevel(spellType);
+        this.spellXp.put(spellType, Math.min(getSpellXp(spellType) + xp, getXPGoal(MAX_SPELL_LEVEL)));
+        this.pathXp.put(spellType.getPath(), getPathXp(spellType.getPath()) + (xp / 2));
+        int newLevel = this.getSpellLevel(spellType);
+        if (newLevel > level && newLevel > 0) {
+            NeoForge.EVENT_BUS.post(new SpellLevelUpEvent(this.caster, spellType, newLevel));
+            this.skillPoints.put(spellType, this.getSkillPoints(spellType) + (newLevel - level));
+        }
+        sync();
+    }
+
+    public int getSkillPoints(SpellType<?> spellType) {
+        return this.skillPoints.getOrDefault(spellType, 0);
     }
 
     public <T extends AbstractSpell> void resetSkills(SpellType<T> spellType) {
@@ -85,7 +100,8 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
     }
 
     public void unlockSkill(Skill skill) {
-        Set<Skill> unlocked = this.unlockedSkills.get(skill.getSpell());
+        SpellType<?> spellType = skill.getSpell();
+        Set<Skill> unlocked = this.unlockedSkills.get(spellType);
         if (unlocked == null)
             unlocked = new HashSet<>();
 
@@ -97,6 +113,8 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
 
         if (skill instanceof ModifierSkill modifierSkill)
             this.permanentModifiers.addAll(modifierSkill.getModifiers());
+
+        this.skillPoints.put(spellType, skill.isRoot() ? 0 : this.getSkillPoints(spellType) - 1);
     }
 
     public boolean canUnlockSkill(Skill skill) {
@@ -108,6 +126,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
         if (unlocked == null) return false;
         if (unlocked.size() > MAX_SPELL_LEVEL) return false;
         if (!skill.canUnlockSkill((Player) this.caster, this)) return false;
+        if (this.getSkillPoints(spellType) <= 0) return false;
 
         if (!REQUIRES_PREREQS) return true;
 
@@ -130,6 +149,10 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
 
     public boolean hasSkillReady(Skill skill) {
         return hasSkill(skill) && !cooldowns.isOnCooldown(skill);
+    }
+
+    public boolean hasSkillReady(Holder<Skill> skill) {
+        return hasSkillReady(skill.value());
     }
 
     public void addModifierWithExpiry(SpellModifier spellModifier) {
@@ -169,6 +192,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
         CompoundTag tag = new CompoundTag();
         ListTag pathxpTag = new ListTag();
         ListTag spellXpTag = new ListTag();
+        ListTag skillPointTag = new ListTag();
         ListTag skillsTag = new ListTag();
         ListTag modifierList = new ListTag();
 
@@ -177,10 +201,23 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
                 this.spellXp.remove(null);
                 continue;
             }
+
             CompoundTag newTag = new CompoundTag();
             newTag.putString("Spell", spellType.location().toString());
             newTag.putFloat("Xp", this.spellXp.get(spellType));
             spellXpTag.add(newTag);
+        }
+
+        for (SpellType<?> spellType : this.skillPoints.keySet()) {
+            if (spellType == null) {
+                this.skillPoints.remove(null);
+                continue;
+            }
+
+            CompoundTag newTag = new CompoundTag();
+            newTag.putString("Spell", spellType.location().toString());
+            newTag.putFloat("Points", this.skillPoints.get(spellType));
+            skillPointTag.add(newTag);
         }
 
         for (SpellType<?> spellType : unlockedSkills.keySet()) {
@@ -217,6 +254,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
         }
         tag.put("PathXp", pathxpTag);
         tag.put("SpellXp", spellXpTag);
+        tag.put("SkillPoints", skillPointTag);
         tag.put("Skills", skillsTag);
         tag.put("Modifiers", modifierList);
         return tag;
@@ -226,6 +264,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag compoundTag) {
         ListTag pathTag = compoundTag.getList("PathXp", 10);
         ListTag spellTag = compoundTag.getList("SpellXp", 10);
+        ListTag skillPointTag = compoundTag.getList("SkillPoints", 10);
         ListTag skillTag = compoundTag.getList("Skills", 10);
 
         for (int i = 0; i < pathTag.size(); i++) {
@@ -236,6 +275,11 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
         for (int i = 0; i < spellTag.size(); i++) {
             CompoundTag tag = spellTag.getCompound(i);
             this.spellXp.put(SBSpells.REGISTRY.get(ResourceLocation.tryParse(tag.getString("Spell"))), tag.getFloat("Xp"));
+        }
+
+        for (int i = 0; i < skillPointTag.size(); i++) {
+            CompoundTag tag = skillPointTag.getCompound(i);
+            this.skillPoints.put(SBSpells.REGISTRY.get(ResourceLocation.tryParse(tag.getString("Spell"))), tag.getInt("Points"));
         }
 
         for (int i = 0; i < skillTag.size(); i++) {

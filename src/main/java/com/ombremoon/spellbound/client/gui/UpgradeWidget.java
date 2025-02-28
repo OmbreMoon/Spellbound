@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.ombremoon.spellbound.common.events.EventFactory;
+import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.tree.SkillNode;
 import com.ombremoon.spellbound.main.Constants;
@@ -38,6 +39,7 @@ public class UpgradeWidget {
     private final List<UpgradeWidget> children = new ObjectArrayList<>();
     private final int x;
     private final int y;
+    private final int color;
 
     public UpgradeWidget(UpgradeWindow window, Minecraft minecraft, SkillNode skillNode) {
         this.window = window;
@@ -47,10 +49,11 @@ public class UpgradeWidget {
         this.x = skillNode.skill().getX();
         this.y = -skillNode.skill().getY();
         int j = 29 + minecraft.font.width(this.title);
-        Constants.LOG.debug("{}", skillNode.skill().getDescription().getContents());
+        SpellPath path = getSkill().getSpell().getSubPath() != null ? getSkill().getSpell().getSubPath() : getSkill().getSpell().getPath();
+        this.color = path.getColor();
         this.description = Language.getInstance()
                 .getVisualOrder(
-                        this.findOptimalLines(ComponentUtils.mergeStyles(skillNode.skill().getDescription(), Style.EMPTY.withColor(getSkill().getSpell().getPath().getColor())), 120)
+                        this.findOptimalLines(ComponentUtils.mergeStyles(skillNode.skill().getDescription(), Style.EMPTY.withColor(this.color)), 120)
                 );
 
         for (FormattedCharSequence formattedcharsequence : this.description) {

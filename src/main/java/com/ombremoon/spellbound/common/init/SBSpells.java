@@ -36,7 +36,7 @@ public class SBSpells {
 
     //Ruin
     public static final Supplier<SpellType<SolarRaySpell>> SOLAR_RAY = registerSpell("solar_ray", fireRuinBuilder("solar_ray", SolarRaySpell::new)
-            .skills(SBSkills.SOLAR_RAY, SBSkills.SUNSHINE, SBSkills.RADIANCE, SBSkills.HEALING_LIGHT,
+            .skills(SBSkills.SOLAR_RAY, SBSkills.SUNSHINE, SBSkills.OVERPOWER, SBSkills.HEALING_LIGHT,
                     SBSkills.CONCENTRATED_HEAT, SBSkills.OVERHEAT, SBSkills.SOLAR_BURST,
                     SBSkills.SOLAR_BORE, SBSkills.BLINDING_LIGHT, SBSkills.AFTERGLOW, SBSkills.POWER_OF_THE_SUN));
     public static final Supplier<SpellType<VolcanoSpell>> VOLCANO = registerSpell("volcano", fireRuinBuilder("volcano", VolcanoSpell::new)
@@ -48,7 +48,7 @@ public class SBSpells {
                     SBSkills.SHOCK_FACTOR, SBSkills.PURGE, SBSkills.REFRACTION, SBSkills.CHARGED_ATMOSPHERE,
                     SBSkills.PULSATION, SBSkills.DISCHARGE, SBSkills.STORM_SHARD, SBSkills.SUPERCHARGE));
     public static final Supplier<SpellType<ElectricChargeSpell>> ELECTRIC_CHARGE = registerSpell("electric_charge", shockRuinBuilder("electric_charge", ElectricChargeSpell::new)
-            .skills(SBSkills.ELECTRIC_CHARGE, SBSkills.ELECTRIFICATION, SBSkills.SUPERCONDUCTOR, SBSkills.CYCLONIC_FURY,
+            .skills(SBSkills.ELECTRIC_CHARGE, SBSkills.ELECTRIFICATION, SBSkills.SUPERCONDUCTOR, SBSkills.STORM_CHARGE,
                     SBSkills.OSCILLATION, SBSkills.HIGH_VOLTAGE, SBSkills.UNLEASHED_STORM, SBSkills.STORM_SURGE,
                     SBSkills.CHAIN_REACTION, SBSkills.AMPLIFY, SBSkills.ALTERNATING_CURRENT));
     public static final Supplier<SpellType<StormRiftSpell>> STORM_RIFT = registerSpell("storm_rift", shockRuinBuilder("storm_rift", StormRiftSpell::new)
@@ -80,10 +80,10 @@ public class SBSpells {
     public static final Supplier<SpellType<WildMushroomSpell>> WILD_MUSHROOM = registerSpell("wild_mushroom", summonBuilder("wild_mushroom", WildMushroomSpell::new)
             .skills(SBSkills.WILD_MUSHROOM, SBSkills.VILE_INFLUENCE, SBSkills.HASTENED_GROWTH, SBSkills.ENVENOM,
                     SBSkills.DECOMPOSE, SBSkills.NATURES_DOMINANCE, SBSkills.POISON_ESSENCE,
-                    SBSkills.CIRCLE_OF_LIFE, SBSkills.CATALEPSY, SBSkills.RECYCLED, SBSkills.SYNTHESIS));
+                    SBSkills.CIRCLE_OF_LIFE, SBSkills.CATALEPSY, SBSkills.FUNGAL_HARVEST, SBSkills.SYNTHESIS));
     public static final Supplier<SpellType<SpiritTotemSpell>> SPIRIT_TOTEM = registerSpell("conjure_spirit_totem", summonBuilder("conjure_spirit_totem", SpiritTotemSpell::new)
-            .skills(SBSkills.CONJURE_SPIRIT_TOTEM, SBSkills.CATS_AGILITY, SBSkills.FERAL_FURY,
-                    SBSkills.PRIMAL_RESILIENCE, SBSkills.TOTEMIC_BOND, SBSkills.STEALTH_TACTIC, SBSkills.SAVAGE_LEAP,
+            .skills(SBSkills.SUMMON_CAT_SPIRIT, SBSkills.CATS_AGILITY, SBSkills.FERAL_FURY,
+                    SBSkills.PRIMAL_RESILIENCE, SBSkills.TOTEMIC_BOND, SBSkills.STEALTH_TACTICS, SBSkills.SAVAGE_LEAP,
                     SBSkills.TOTEMIC_ARMOR, SBSkills.WARRIORS_ROAR, SBSkills.TWIN_SPIRITS, SBSkills.NINE_LIVES));
 
     //Divine

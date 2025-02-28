@@ -7,6 +7,7 @@ import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedDat
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
+import com.ombremoon.spellbound.networking.serverbound.ChargeOrChannelPayload;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceKey;
@@ -33,6 +34,11 @@ public class ClientPayloadHandler {
             if (spell != null)
                 spell.endSpell();
         });
+    }
+
+    public static void handleClientChargeOrChannel(final ChargeOrChannelPayload payload, final IPayloadContext context) {
+        var handler = SpellUtil.getSpellHandler(context.player());
+        handler.setChargingOrChannelling(payload.isChargingOrChannelling());
     }
 
     public static void handleClientUpdateSpells(UpdateSpellsPayload payload, IPayloadContext context) {

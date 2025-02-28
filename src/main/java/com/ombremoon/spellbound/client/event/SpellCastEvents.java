@@ -75,11 +75,13 @@ public class SpellCastEvents {
         boolean flag = KeyBinds.getSpellCastMapping().isDown();
         if (flag) {
             int castTime = spell.getCastTime();
-            if (handler.castTick >= castTime && !handler.isChannelling()) {
-                if (spell.getCastType() == AbstractSpell.CastType.INSTANT) KeyBinds.getSpellCastMapping().setDown(false);
+            if (handler.castTick >= castTime && !handler.isChargingOrChannelling()) {
+                if (spell.getCastType() == AbstractSpell.CastType.INSTANT)
+                    KeyBinds.getSpellCastMapping().setDown(false);
+
                 castSpell(player, spell);
                 handler.castTick = 0;
-            } else if (!handler.isChannelling()){
+            } else if (!handler.isChargingOrChannelling()){
                 handler.castTick++;
                 if (handler.castTick > 1) {
                     spell.whenCasting(spellContext, handler.castTick);
@@ -93,13 +95,10 @@ public class SpellCastEvents {
             handler.castTick = 0;
             spell.onCastReset(spellContext);
             PayloadHandler.castReset(spellType, isRecast);
-        } else if (handler.isChannelling()) {
-            handler.setChannelling(false);
-            PayloadHandler.stopChannel();
+        } else if (handler.isChargingOrChannelling()) {
+            handler.setChargingOrChannelling(false);
+            PayloadHandler.setChargeOrChannel(false);
         }
-
-        handler.castKeyDown = flag;
-        PayloadHandler.setCastKey(flag);
     }
 
     private static boolean isAbleToSpellCast() {

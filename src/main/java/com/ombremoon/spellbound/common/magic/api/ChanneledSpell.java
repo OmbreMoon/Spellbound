@@ -30,7 +30,7 @@ public abstract class ChanneledSpell extends AnimatedSpell {
     protected void onSpellStart(SpellContext context) {
         LivingEntity caster = context.getCaster();
         var handler = SpellUtil.getSpellHandler(caster);
-        handler.setChannelling(true);
+        handler.setChargingOrChannelling(true);
 
         if (context.getLevel().isClientSide) {
             //Play Channel Anim
@@ -42,7 +42,7 @@ public abstract class ChanneledSpell extends AnimatedSpell {
         super.onSpellTick(context);
         LivingEntity caster = context.getCaster();
         var handler = SpellUtil.getSpellHandler(caster);
-        if ((this.ticks % 20 == 0 && !handler.consumeMana(this.manaTickCost, true)) || !handler.isChannelling()) {
+        if ((this.ticks % 20 == 0 && !handler.consumeMana(this.manaTickCost, true)) || !handler.isChargingOrChannelling()) {
             this.endSpell();
         }
     }
@@ -51,7 +51,7 @@ public abstract class ChanneledSpell extends AnimatedSpell {
     protected void onSpellStop(SpellContext context) {
         LivingEntity caster = context.getCaster();
         var handler = SpellUtil.getSpellHandler(caster);
-        handler.setChannelling(false);
+        handler.setChargingOrChannelling(false);
         //Stop Channel Anim
     }
 

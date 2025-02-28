@@ -72,8 +72,10 @@ public class StormstrikeEffect extends SBEffect {
             if (spell.hurt(owner, livingEntity, SBDamageTypes.RUIN_SHOCK, damage)) {
                 livingEntity.setData(SBData.STORMSTRIKE_FLAG, false);
                 if (livingEntity.isDeadOrDying()) {
-                    if (skills.hasSkill(SBSkills.STORM_SHARD.value()) && owner instanceof Player player)
+                    if (skills.hasSkillReady(SBSkills.STORM_SHARD) && owner instanceof Player player) {
                         player.addItem(new ItemStack(SBItems.STORM_SHARD.get()));
+                        skills.getCooldowns().addCooldown(SBSkills.STORM_SHARD.value(), 600);
+                    }
 
                     if (skills.hasSkill(SBSkills.SUPERCHARGE.value()))
                         spell.addSkillBuff(

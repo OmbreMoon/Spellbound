@@ -8,6 +8,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -34,12 +35,15 @@ public class PortalMap<T extends PortalEntity<?>> extends Int2ObjectOpenHashMap<
         portal.setStartTick(spawnTicks);
     }
 
-    public boolean attemptTeleport(LivingEntity entity, T portal) {
-        if (entity != null && !portal.isOnCooldown(entity)) {
-            T adjacentRift = this.getAdjacentPortal(portal, portal.level());
-            if (adjacentRift != null) {
-                Vec3 position = adjacentRift.position();
+    public boolean attemptTeleport(Entity entity, T portal) {
+        T adjacentRift = this.getAdjacentPortal(portal, portal.level());
+        if (adjacentRift != null) {
+            Vec3 position = adjacentRift.position();
+            if (!portal.isOnCooldown(entity)) {
                 adjacentRift.addCooldown(entity);
+                if (entity instanceof Projectile)
+                    position = position.add(0, 1, 0);
+
                 entity.teleportTo(position.x, position.y, position.z);
                 if (entity instanceof Player teleportedPlayer)
                     PayloadHandler.setRotation(teleportedPlayer, teleportedPlayer.getXRot(), adjacentRift.getYRot());

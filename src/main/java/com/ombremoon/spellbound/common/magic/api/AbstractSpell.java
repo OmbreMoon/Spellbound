@@ -835,8 +835,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param skill The skill to go on cooldown
      * @param ticks The amount of ticks the cooldown will last
      */
-    protected void addCooldown(Skill skill, int ticks) {
-        this.context.getSkills().getCooldowns().addCooldown(skill, ticks);
+    protected void addCooldown(Holder<Skill> skill, int ticks) {
+        this.context.getSkills().getCooldowns().addCooldown(skill.value(), ticks);
     }
 
     protected void shakeScreen(Player player) {
@@ -1049,7 +1049,9 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
             if (caster instanceof Player player) {
                 PayloadHandler.updateSpells(player, this.isRecast, this.castId, false);
-                awardXp(this.manaCost * this.xpModifier);
+//                if (this.getPath() != SpellPath.RUIN)
+                    awardXp(this.manaCost * this.xpModifier);
+
                 player.awardStat(SBStats.SPELLS_CAST.get());
             }
 

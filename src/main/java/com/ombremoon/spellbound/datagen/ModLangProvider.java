@@ -88,6 +88,18 @@ public class ModLangProvider extends LanguageProvider {
     }
 
     protected void skillDescriptions() {
+        addSkillTooltip(SBSkills.SOLAR_RAY, "Fire a thin beam of light that deals 5 fire damage per second.");
+        addSkillTooltip(SBSkills.SUNSHINE, "Doubles the range of Solar Ray.");
+        addSkillTooltip(SBSkills.HEALING_LIGHT, "Allies hit by the ray are healed for 2 health per second.");
+        addSkillTooltip(SBSkills.OVERPOWER, "Gain the ability to slowly move while casting Solar Ray.");
+        addSkillTooltip(SBSkills.CONCENTRATED_HEAT, "After 5 seconds of hitting the same target, the damage doubles.");
+        addSkillTooltip(SBSkills.OVERHEAT, "After using Solar Ray for 5 seconds, the caster emits intense heat, dealing 3 fire damage per seconds to nearby enemies.");
+        addSkillTooltip(SBSkills.SOLAR_BURST, "Every 3 seconds, both ends of the beam release a small solar burst that deals an additional 3 fire damage around both areas.");
+        addSkillTooltip(SBSkills.SOLAR_BORE, "The end of the Solar Ray opposite of the caster explodes once per second, setting the ground ablaze.");
+        addSkillTooltip(SBSkills.BLINDING_LIGHT, "Enemies hit by the beam are blinded for 3 seconds.");
+        addSkillTooltip(SBSkills.AFTERGLOW, "Enemies hit are marked with a glow for 5 seconds. While marked, they take 20% extra fire damage.");
+        addSkillTooltip(SBSkills.POWER_OF_THE_SUN, "Solar Ray deals 50% more damage during the day.");
+
         addSkillTooltip(SBSkills.VOLCANO, "Create a volcanic eruption that spits out 8 lava bombs per second for 10 seconds.");
         addSkillTooltip(SBSkills.INFERNO_CORE, "After the eruption ends, the volcano drops a Smoldering Shard.");
         addSkillTooltip(SBSkills.EXPLOSIVE_BARRAGE, "Each lava bomb explodes on impact.");
@@ -100,10 +112,22 @@ public class ModLangProvider extends LanguageProvider {
         addSkillTooltip(SBSkills.PURGE, "Deals extra damage to summoned targets, equal to 10% of the caster's current mana.");
         addSkillTooltip(SBSkills.REFRACTION, "When the target takes damage from your shock-based Ruin spells while affected with Stormstrike, restores 15 mana back to the caster.");
         addSkillTooltip(SBSkills.PULSATION, "Chance to paralyze the target for 1 second each damage tick.");
-        addSkillTooltip(SBSkills.STORM_SHARD, "If the target dies while affected by Stormstrike, the caster is awarded a Storm Shard.");
+        addSkillTooltip(SBSkills.STORM_SHARD, "If the target dies while affected by Stormstrike, the caster is awarded a Storm Shard. 30 sec. cooldown.");
         addSkillTooltip(SBSkills.CHARGED_ATMOSPHERE, "Decreases shock-based Ruin spells' mana costs by 25% for 8 seconds.");
         addSkillTooltip(SBSkills.DISCHARGE, "Chance to disarm the target each damage tick.");
         addSkillTooltip(SBSkills.SUPERCHARGE, "If the target dies while affected by Stormstrike, increases the damage of shock-based Ruin spells by 50% for 10 seconds.");
+
+        addSkillTooltip(SBSkills.ELECTRIC_CHARGE, "Sneakily apply an electric charge to the target. Recast to discharge.");
+        addSkillTooltip(SBSkills.ELECTRIFICATION, "Applies Stormstrike on discharge.");
+        addSkillTooltip(SBSkills.SUPERCONDUCTOR, "Decreases target's shock resistance by 33% for 10 seconds on discharge.");
+        addSkillTooltip(SBSkills.STORM_CHARGE, "If killed by Electric Charge, the enemy drops a storm shard. 30 sec. cooldown.");
+        addSkillTooltip(SBSkills.OSCILLATION, "Increases the discharge damage by 5% for each storm shard in the caster's inventory. All shards are destroyed on discharge.");
+        addSkillTooltip(SBSkills.HIGH_VOLTAGE, "Recast with a storm shard to stun the target for 2 seconds. Enemies that come in range of the target are also stunned. 30 sec. cooldown.");
+        addSkillTooltip(SBSkills.UNLEASHED_STORM, "If killed by Electric Charge, the target will explode dealing half the base shock damage.");
+        addSkillTooltip(SBSkills.STORM_SURGE, "If killed by Electric Charge, 10 to 20 mana is restored to the caster.");
+        addSkillTooltip(SBSkills.CHAIN_REACTION, "The discharge applies Electric Charge to all nearby enemies, including the caster. The secondary charge is discharged immediately.");
+        addSkillTooltip(SBSkills.AMPLIFY, "Electric Charge can be held for 3 seconds to increase the damage up to 100%.");
+        addSkillTooltip(SBSkills.ALTERNATING_CURRENT, "The discharge has a small chance to instantly kill the target. Does not work on target with more than twice the caster's current health. On failure, the caster takes damage equal to 5% of their max health.");
 
         addSkillTooltip(SBSkills.STORM_RIFT, "Creates a storm portal for 20 seconds. If two portals are active, those approaching either get warped across and take 5 shock damage to health and mana.");
         addSkillTooltip(SBSkills.STORM_FURY, "The vortex doubles in size and damage.");
@@ -116,6 +140,18 @@ public class ModLangProvider extends LanguageProvider {
         addSkillTooltip(SBSkills.STORM_CALLER, "Generate a cloud above both portals that discharge lightning periodically dealing for 5 shock damage.");
         addSkillTooltip(SBSkills.IMPLOSION, "Recast while targeting a portal with a storm shard to detonate the portal, applying Stormstrike to anyone in the area.");
         addSkillTooltip(SBSkills.ORBITAL_SHELL, "Recast while targeting a portal with a shard to mark a portal. Marked portals will move in a 3-block radius circle centered around the origin.");
+
+        addSkillTooltip(SBSkills.CYCLONE, "Fire a tornado that blows away enemies with a 5-block radius for 10 seconds.");
+        addSkillTooltip(SBSkills.WHIRLING_TEMPEST, "The tornado now pulls enemies towards the center before launching them.");
+        addSkillTooltip(SBSkills.FALLING_DEBRIS, "Cyclone occasionally picks up blocks, dealing damage on impact.");
+        addSkillTooltip(SBSkills.VORTEX, "Cyclones can combine to increase the size and push/pull range. Can stack up to 3 times.");
+        addSkillTooltip(SBSkills.MAELSTROM, "Increases the max stack size of Cyclone from 3 to 6.");
+        addSkillTooltip(SBSkills.HURRICANE, "Increases the push/pull force.");
+        addSkillTooltip(SBSkills.EYE_OF_THE_STORM, "Caster can ride the Cyclone. Grants Slow Falling on dismount.");
+        addSkillTooltip(SBSkills.GALE_FORCE, "The cyclones moves faster and last 5 seconds longer.");
+        addSkillTooltip(SBSkills.FROSTFRONT, "Enemies caught take 4 frost damage per second and are have their movement speed slowed by 50%.");
+        addSkillTooltip(SBSkills.STATIC_CHARGE, "Enemies caught take 4 shock damage per second");
+        addSkillTooltip(SBSkills.HAILSTORM, "Casting Cyclone triggers a hailstorm (requires both Static Charge and Frostfront).");
 
         addSkillTooltip(SBSkills.STRIDE, "Movement speed is increased by 25% for 30 seconds.");
         addSkillTooltip(SBSkills.QUICK_SPRINT, "For the first 10 seconds, movement speed is increased by an additional 15%.");
@@ -141,6 +177,54 @@ public class ModLangProvider extends LanguageProvider {
         addSkillTooltip(SBSkills.GRAVITY_SHIFT, "Exiting the portal launches entities in the air, applying slow falling to the caster and allies, if applicable.");
         addSkillTooltip(SBSkills.DUAL_DESTINATION, "Can now deploy an additional portal. Order of travel goes by order placed.");
 
+        addSkillTooltip(SBSkills.MYSTIC_ARMOR, "Reduces incoming spell damage by 15% for 60 seconds (+3% per level on the Transfiguration Path, up to 30% max).");
+        addSkillTooltip(SBSkills.FORESIGHT, "Decreases mana cost by 15%.");
+        addSkillTooltip(SBSkills.ARCANE_VENGEANCE, "Increases attack damage by 15% for 10 seconds after you block an attack.");
+        addSkillTooltip(SBSkills.EQUILIBRIUM, "When you get hit, deals damage equal to 10% of your total health back to the attacker.");
+        addSkillTooltip(SBSkills.PLANAR_DEFLECTION, "Deflects 30% of melee damage taken back to the attacker.");
+        addSkillTooltip(SBSkills.PURSUIT, "Movement speed is increased by 15%.");
+        addSkillTooltip(SBSkills.COMBAT_PERCEPTION, "Chance to dodge a melee attack.");
+        addSkillTooltip(SBSkills.CRYSTALLINE_ARMOR, "Increase armor points by 25%.");
+        addSkillTooltip(SBSkills.ELDRITCH_INTERVENTION, "Restores caster's health to 50% if it drops below 20%. 2 min. cooldown.");
+        addSkillTooltip(SBSkills.SUBLIME_BEACON, "Restores health equal to 25% of your armor points every 3 seconds.");
+        addSkillTooltip(SBSkills.SOUL_RECHARGE, "Restores you to full health if your health drops below 10%, consuming a filled soul shard in the caster's inventory. 3 min. cooldown.");
+
+        addSkillTooltip(SBSkills.WILD_MUSHROOM, "Plants a wild mushroom at the target location, expelling poisonous spores every 3 seconds, damaging all nearby enemies.");
+        addSkillTooltip(SBSkills.VILE_INFLUENCE, "Increases the spore radius.");
+        addSkillTooltip(SBSkills.HASTENED_GROWTH, "Decreases the explosion interval by 1 second.");
+        addSkillTooltip(SBSkills.ENVENOM, "Spores now poison targets for 4 seconds.");
+        addSkillTooltip(SBSkills.DECOMPOSE, "Spores deal extra damage, scaling with the caster's current mana, to poisoned or diseased enemies.");
+        addSkillTooltip(SBSkills.NATURES_DOMINANCE, "Each active mushroom increases the spell's damage by 10%.");
+        addSkillTooltip(SBSkills.FUNGAL_HARVEST, "When 3 mushrooms are active, gain increased mana regeneration.");
+        addSkillTooltip(SBSkills.POISON_ESSENCE, "If a target dies to a mushroom, the spell deals 25% more damage for 10 seconds.");
+        addSkillTooltip(SBSkills.SYNTHESIS, "If a target dies to a mushroom, the casting cost of the spell is decreased by 100% for 5 seconds.");
+        addSkillTooltip(SBSkills.CIRCLE_OF_LIFE, "When the spell ends, restores 7 - 15 mana back to the caster.");
+        addSkillTooltip(SBSkills.CATALEPSY, "Getting hit by the same mushroom twice petrifies the target for 4 seconds.");
+
+        addSkillTooltip(SBSkills.SUMMON_CAT_SPIRIT, "Summons a totem spirit for 60 seconds. It changes between warrior form (fighting stance) and cat form (healing stance).");
+        addSkillTooltip(SBSkills.CATS_AGILITY, "In cat form, the spirit gains increased movement speed.");
+        addSkillTooltip(SBSkills.FERAL_FURY, "In cat form, the spirit gains increase attack damage and speed.");
+        addSkillTooltip(SBSkills.PRIMAL_RESILIENCE, "In cat form, the spirit's regenerate +5% of its max health.");
+        addSkillTooltip(SBSkills.TOTEMIC_BOND, "The caster receives a portion of the spirit's healing while in cat form.");
+        addSkillTooltip(SBSkills.STEALTH_TACTICS, "In cat form, the spirit will turn invisible for 7 seconds if its health drops below 25%. 1 min. cooldown.");
+        addSkillTooltip(SBSkills.SAVAGE_LEAP, "In warrior form, the spirit can perform a leap forward, knocking back all enemies.");
+        addSkillTooltip(SBSkills.TOTEMIC_ARMOR, "In warrior form, the spirit receives an armor buff that reduces physical damage by 25%.");
+        addSkillTooltip(SBSkills.WARRIORS_ROAR, "In warrior form, the spirit can let out a roar that increases ally attack damage by 15% for 10 seconds.");
+        addSkillTooltip(SBSkills.TWIN_SPIRITS, "The caster gains the ability to summon a second spirit, allowing for two spirits to fight simultaneously - one in warrior form, the other in cat form.");
+        addSkillTooltip(SBSkills.NINE_LIVES, "If the spirit is killed, it will instantly revive with 50% health (only once per summoning).");
+
+        addSkillTooltip(SBSkills.HEALING_TOUCH, "Heals the caster 3 health per second for 10 seconds.");
+        addSkillTooltip(SBSkills.BLASPHEMY, "When the caster is hit, applies Disease to the attacker for 3 seconds. 5 sec. cooldown");
+        addSkillTooltip(SBSkills.CONVALESCENCE, "Restores 1 health when the caster attack a target affected by poison or disease.");
+        addSkillTooltip(SBSkills.DIVINE_BALANCE, "Increases the duration of the spell by 100% and the mana cost by 50%.");
+        addSkillTooltip(SBSkills.NATURES_TOUCH, "Instantly restores 4 health to the caster.");
+        addSkillTooltip(SBSkills.CLEANSING_TOUCH, "Removes a random negative effect from the caster.");
+        addSkillTooltip(SBSkills.ACCELERATED_GROWTH, "Each tick restores hunger equal to 2% of the caster's max mana.");
+        addSkillTooltip(SBSkills.HEALING_STREAM, "Each tick restores extra health equal to 2% of the caster's max mana.");
+        addSkillTooltip(SBSkills.TRANQUILITY_OF_WATER, "Each tick restores 2 points of mana to the caster");
+        addSkillTooltip(SBSkills.OVERGROWTH, "While at full health, each tick applies a stack of Overgrowth (up to a max of 5 stacks.) When hit, Overgrowth restores 4 health, consuming 1 stack.");
+        addSkillTooltip(SBSkills.OAK_BLESSING, "Increases armor by 15% for 10 seconds if the caster's health drops below 30% while Healing Touch is active. 30 sec. cooldown.");
+
         addSkillTooltip(SBSkills.HEALING_BLOSSOM, "Plants a divine blossom. The blossom blooms 10 seconds after casting and last 10 seconds. The blossom heals the caster 2 health per seconds when within 5 blocks.");
         addSkillTooltip(SBSkills.THORNY_VINES, "Enemies within the range of the blossom take 4 damage per second.");
         addSkillTooltip(SBSkills.BLOOM, "The blossom now activates immediately after casting.");
@@ -164,6 +248,18 @@ public class ModLangProvider extends LanguageProvider {
         addSkillTooltip(SBSkills.REVERSAL, "After the swap, the caster can recast with a fool's shard within 5 seconds to swap back with the target.");
         addSkillTooltip(SBSkills.LIVING_SHADOW, "After the swap, the caster remains invisible for another 5 seconds and leaves behind a decoy for 10 seconds.");
         addSkillTooltip(SBSkills.SHADOW_CHAIN, "The spell can now affect an additional target. Swapping order is in the order of targets affected.");
+
+        addSkillTooltip(SBSkills.PURGE_MAGIC, "Stops all of the targets active spells.");
+        addSkillTooltip(SBSkills.RADIO_WAVES, "Purge Magic is now cast in an AoE.");
+        addSkillTooltip(SBSkills.COUNTER_MAGIC, "(Choice) Gain a magic shield that negates any spell cast on the caster for 10 seconds.");
+        addSkillTooltip(SBSkills.CLEANSE, "Removes all harmful effects.");
+        addSkillTooltip(SBSkills.AVERSION, "Counter Magic reflects 100% of the spell damage back to the attacker.");
+        addSkillTooltip(SBSkills.DOMINANT_MAGIC, "Silence the target for 10 seconds.");
+        addSkillTooltip(SBSkills.RESIDUAL_DISRUPTION, "Targets hit with Purge Magic have a 50% chance to fail spells cast within the next 5 seconds.");
+        addSkillTooltip(SBSkills.UNFOCUSED, "Reduces the target's spell power by 10% for 20 seconds.");
+        addSkillTooltip(SBSkills.MAGIC_POISONING, "Mana is reduced by 20 points for each active spell purged.");
+        addSkillTooltip(SBSkills.NULLIFICATION, "Removes a random enchantment from the target's armor or weapon.");
+        addSkillTooltip(SBSkills.EXPUNGE, "Cast with a fool's shard to remove a spell from the target's knowledge. Can only be used once a day.");
     }
 
     protected void addSkillTooltip(Holder<Skill> skill, String description) {

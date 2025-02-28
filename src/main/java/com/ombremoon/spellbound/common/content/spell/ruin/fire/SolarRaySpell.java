@@ -44,7 +44,7 @@ public class SolarRaySpell extends ChanneledSpell {
     protected static final SpellDataKey<Integer> SOLAR_RAY_ID = SyncedSpellData.registerDataKey(SolarRaySpell.class, SBDataTypes.INT.get());
     private static final List<SentinelBox> BOXES = new ObjectArrayList<>();
     private static final BiFunction<Entity, LivingEntity, Float> POTENCY = (entity, livingEntity) -> {
-        float damage = 5F;
+        float damage = 3F;
         if (entity instanceof LivingEntity living) {
             var handler = SpellUtil.getSpellHandler(living);
             SolarRaySpell spell = handler.getSpell(SBSpells.SOLAR_RAY.get());
@@ -226,7 +226,7 @@ public class SolarRaySpell extends ChanneledSpell {
                             return;
                         }
 
-                        if (skills.hasSkill(SBSkills.RADIANCE.value())) {
+                        if (skills.hasSkill(SBSkills.OVERPOWER.value())) {
                             var targetHandler = SpellUtil.getSpellHandler(livingEntity);
                             targetHandler.consumeMana(5, true);
                         }

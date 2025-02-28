@@ -110,7 +110,7 @@ public class ShadowGateSpell extends AnimatedSpell {
 
                                 if (skills.hasSkillReady(SBSkills.QUICK_RECHARGE.value())) {
                                     context.getSpellHandler().awardMana(20);
-                                    addCooldown(SBSkills.QUICK_RECHARGE.value(), 200);
+                                    addCooldown(SBSkills.QUICK_RECHARGE, 200);
                                 }
 
                                 if (skills.hasSkill(SBSkills.SHADOW_ESCAPE.value()) && isCaster(entity) && caster.getHealth() < caster.getMaxHealth() * 0.5F && !caster.hasEffect(MobEffects.INVISIBILITY))

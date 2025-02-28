@@ -16,13 +16,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.registration.HandlerThread;
+import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import java.util.List;
@@ -37,6 +35,10 @@ public class PayloadHandler {
 
     public static void setSpell(SpellType<?> spellType) {
         PacketDistributor.sendToServer(new SetSpellPayload(spellType));
+    }
+
+    public static void equipSpell(SpellType<?> spellType, boolean equip) {
+        PacketDistributor.sendToServer(new EquipSpellPayload(spellType, equip));
     }
 
     public static void castSpell() {
@@ -63,12 +65,8 @@ public class PayloadHandler {
         PacketDistributor.sendToServer(new UpdateFlagPayload(spellType, flag));
     }
 
-    public static void setCastKey(boolean isDown) {
-        PacketDistributor.sendToServer(new SetCastKeyPayload(isDown));
-    }
-
-    public static void stopChannel() {
-        PacketDistributor.sendToServer(new StopChannelPayload());
+    public static void setChargeOrChannel(boolean isChargingOrChanneling) {
+        PacketDistributor.sendToServer(new ChargeOrChannelPayload(isChargingOrChanneling));
     }
 
     public static void unlockSkill(Skill skill) {
@@ -237,6 +235,11 @@ public class PayloadHandler {
                 ServerPayloadHandler::handleNetworkSetSpell
         );
         registrar.playToServer(
+                EquipSpellPayload.TYPE,
+                EquipSpellPayload.STREAM_CODEC,
+                ServerPayloadHandler::handleNetworkEquipSpell
+        );
+        registrar.playToServer(
                 SetCastingSpellPayload.TYPE,
                 SetCastingSpellPayload.STREAM_CODEC,
                 ServerPayloadHandler::handleNetworkSetCastSpell
@@ -262,19 +265,18 @@ public class PayloadHandler {
                 ServerPayloadHandler::handleNetworkUpdateFlag
         );
         registrar.playToServer(
-                SetCastKeyPayload.TYPE,
-                SetCastKeyPayload.STREAM_CODEC,
-                ServerPayloadHandler::handleNetworkSetCastKey
-        );
-        registrar.playToServer(
-                StopChannelPayload.TYPE,
-                StopChannelPayload.STREAM_CODEC,
-                ServerPayloadHandler::handleNetworkStopChannel
-        );
-        registrar.playToServer(
                 UnlockSkillPayload.TYPE,
                 UnlockSkillPayload.STREAM_CODEC,
                 ServerPayloadHandler::handleNetworkUnlockSKill
+        );
+
+        registrar.playBidirectional(
+                ChargeOrChannelPayload.TYPE,
+                ChargeOrChannelPayload.STREAM_CODEC,
+                new DirectionalPayloadHandler<>(
+                        ClientPayloadHandler::handleClientChargeOrChannel,
+                        ServerPayloadHandler::handleNetworkChargeOrChannel
+                )
         );
     }
 }

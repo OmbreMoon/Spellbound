@@ -63,7 +63,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     public int castTick;
     private boolean channelling;
     private int stationaryTicks;
-    public boolean castKeyDown;
     private float zoomModifier = 1.0F;
     private boolean initialized;
 
@@ -182,6 +181,14 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      */
     public Set<SpellType<?>> getSpellList() {
         return this.spellSet;
+    }
+
+    public void equipSpell(SpellType<?> spellType) {
+        this.equippedSpellSet.add(spellType);
+    }
+
+    public void unequipSpell(SpellType<?> spellType) {
+        this.equippedSpellSet.remove(spellType);
     }
 
     public Set<SpellType<?>> getEquippedSpells() {
@@ -339,7 +346,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     public void setSelectedSpell(SpellType<?> selectedSpell) {
         this.selectedSpell = selectedSpell;
         this.currentlyCastingSpell = null;
-        Constants.LOG.debug("Selected spells: {}", selectedSpell != null ? selectedSpell.createSpell().getName().getString() : null);
     }
 
     /**
@@ -445,7 +451,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * @see ChanneledSpell
      * @return Whether the player is channeling a spells
      */
-    public boolean isChannelling() {
+    public boolean isChargingOrChannelling() {
         return this.channelling;
     }
 
@@ -453,7 +459,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * Sets whether the player is channeling a spells.
      * @param channelling If a spells is being channeled
      */
-    public void setChannelling(boolean channelling) {
+    public void setChargingOrChannelling(boolean channelling) {
         this.channelling = channelling;
     }
 

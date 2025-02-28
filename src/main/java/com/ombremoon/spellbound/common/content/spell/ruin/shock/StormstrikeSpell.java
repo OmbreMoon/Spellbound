@@ -61,9 +61,8 @@ public class StormstrikeSpell extends AnimatedSpell {
                 if (entity instanceof LivingEntity livingEntity) {
                     livingEntity.setData(SBData.STORMSTRIKE_OWNER.get(), caster.getId());
                     livingEntity.addEffect(new MobEffectInstance(SBEffects.STORMSTRIKE, 60, 0, false, false));
+                    bolt.discard();
                 }
-
-                bolt.discard();
             }
         }
     }

@@ -190,9 +190,9 @@ public class TotemSpiritEntity extends SmartSpellEntity<SpiritTotemSpell> {
             }
         }
 
-        if (isCatForm() && skills.hasSkillReady(SBSkills.STEALTH_TACTIC.value()) && getHealth() < getMaxHealth() * 0.25f) {
+        if (isCatForm() && skills.hasSkillReady(SBSkills.STEALTH_TACTICS.value()) && getHealth() < getMaxHealth() * 0.25f) {
             this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 200)); //10 seconds
-            skills.getCooldowns().addCooldown(SBSkills.STEALTH_TACTIC.value(), 800);//40 seconds
+            skills.getCooldowns().addCooldown(SBSkills.STEALTH_TACTICS.value(), 800);//40 seconds
         }
     }
 

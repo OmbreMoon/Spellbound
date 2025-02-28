@@ -20,6 +20,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
@@ -49,9 +50,6 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
             caster.addEffect(new MobEffectInstance(SBEffects.COUNTER_MAGIC, 200, 0, false ,false));
             if (skills.hasSkill(SBSkills.CLEANSE.value()))
                 cleanseCaster();
-
-            if (skills.hasSkill(SBSkills.AVERSION.value()))
-                log("BACKFIRE - INTERRUPT A SPELL");
         } else {
             List<LivingEntity> targets = new ObjectArrayList<>();
             if (skills.hasSkill(SBSkills.RADIO_WAVES.value())) {
@@ -79,7 +77,7 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
                             BuffCategory.HARMFUL,
                             SkillBuff.SPELL_MODIFIER,
                             SpellModifier.RESIDUAL_DISRUPTION,
-                            -1
+                            100
                     );
                 }
 
@@ -99,9 +97,10 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
                 if (skills.hasSkill(SBSkills.NULLIFICATION.value())) {
                     List<ItemStack> itemSlots = new ObjectArrayList<>();
                     target.getAllSlots().forEach(itemSlots::add);
-                    int randSlot = target.getRandom().nextInt(0, itemSlots.size());
-                    ItemStack stack = itemSlots.get(randSlot);
-                    if (stack.isEnchanted()) {
+                    itemSlots = itemSlots.stream().filter(ItemStack::isEnchanted).toList();
+                    if (!itemSlots.isEmpty()) {
+                        int randSlot = target.getRandom().nextInt(0, itemSlots.size());
+                        ItemStack stack = itemSlots.get(randSlot);
                         var enchantments = stack.getAllEnchantments(target.registryAccess().lookupOrThrow(Registries.ENCHANTMENT)).keySet().stream().toList();
                         int randEnchant = target.getRandom().nextInt(0, enchantments.size());
                         stack.enchant(enchantments.get(randEnchant), 0);
@@ -112,7 +111,7 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
                     int randSpell = target.getRandom().nextInt(0, targetHandler.getSpellList().size());
                     SpellType<?> spellType = targetHandler.getSpellList().stream().toList().get(randSpell);
                     targetHandler.removeSpell(spellType);
-                    addCooldown(SBSkills.EXPUNGE.value(), 24000);
+                    addCooldown(SBSkills.EXPUNGE, 24000);
                     context.useCatalyst(SBItems.FOOL_SHARD.get());
                 }
             }
