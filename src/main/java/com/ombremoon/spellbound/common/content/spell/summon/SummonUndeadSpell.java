@@ -1,3 +1,4 @@
+/*
 package com.ombremoon.spellbound.common.content.spell.summon;
 
 import com.ombremoon.spellbound.common.init.SBSpells;
@@ -29,3 +30,4 @@ public class SummonUndeadSpell extends SummonSpell {
         }
     }
 }
+*/

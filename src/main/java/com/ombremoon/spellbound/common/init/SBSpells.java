@@ -11,7 +11,6 @@ import com.ombremoon.spellbound.common.content.spell.ruin.shock.ElectricChargeSp
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.StormRiftSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.StormstrikeSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.SpiritTotemSpell;
-import com.ombremoon.spellbound.common.content.spell.summon.SummonUndeadSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.WildMushroomSpell;
 import com.ombremoon.spellbound.common.content.spell.transfiguration.MysticArmorSpell;
 import com.ombremoon.spellbound.common.content.spell.transfiguration.ShadowGateSpell;
@@ -75,8 +74,8 @@ public class SBSpells {
                     SBSkills.CRYSTALLINE_ARMOR, SBSkills.ELDRITCH_INTERVENTION, SBSkills.SUBLIME_BEACON, SBSkills.SOUL_RECHARGE));
 
     //Summons
-    public static final Supplier<SpellType<SummonUndeadSpell>> SUMMON_UNDEAD = registerSpell("summon_undead", summonBuilder("summon_undead", SummonUndeadSpell::new)
-            .skills(SBSkills.SUMMON_UNDEAD));
+//    public static final Supplier<SpellType<SummonUndeadSpell>> SUMMON_UNDEAD = registerSpell("summon_undead", summonBuilder("summon_undead", SummonUndeadSpell::new)
+//            .skills(SBSkills.SUMMON_UNDEAD));
     public static final Supplier<SpellType<WildMushroomSpell>> WILD_MUSHROOM = registerSpell("wild_mushroom", summonBuilder("wild_mushroom", WildMushroomSpell::new)
             .skills(SBSkills.WILD_MUSHROOM, SBSkills.VILE_INFLUENCE, SBSkills.HASTENED_GROWTH, SBSkills.ENVENOM,
                     SBSkills.DECOMPOSE, SBSkills.NATURES_DOMINANCE, SBSkills.POISON_ESSENCE,

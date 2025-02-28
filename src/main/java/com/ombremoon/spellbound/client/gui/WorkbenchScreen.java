@@ -11,6 +11,7 @@ import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.tree.SkillNode;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.RenderUtil;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -115,20 +116,20 @@ public class WorkbenchScreen extends Screen {
             }
         }
 
-        if (this.pageIndex == 5) {
-            if (isHovering(62, -30, 30, 30, mouseX, mouseY) && this.pageIndex != 5) {
-                this.pageIndex = 5;
-                this.selectedIndex = -1;
-                this.scrollOffs = 0;
-                this.scrollIndex = 0;
-                this.windowIndex = 0;
-                this.spellList = this.spellHandler.getSpellList().stream().filter(spellType -> !this.spellHandler.getEquippedSpells().contains(spellType)).toList();
-                this.selectedSpell = this.spellList.isEmpty() ? null : this.spellList.get(0);
-                this.selectedTree = null;
-                this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-                return true;
-            }
+        if (isHovering(62, -30, 30, 30, mouseX, mouseY) && this.pageIndex != 5) {
+            this.pageIndex = 5;
+            this.selectedIndex = -1;
+            this.scrollOffs = 0;
+            this.scrollIndex = 0;
+            this.windowIndex = 0;
+            this.spellList = this.spellHandler.getSpellList().stream().filter(spellType -> !this.spellHandler.getEquippedSpells().contains(spellType)).toList();
+            this.selectedSpell = this.spellList.isEmpty() ? null : this.spellList.get(0);
+            this.selectedTree = null;
+            this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            return true;
+        }
 
+        if (this.pageIndex == 5) {
             for (int i = 0; i < 4; i++) {
                 if (isHovering(95, 13 + (i * 32), 137, 32, mouseX, mouseY)) {
                     if (this.equippedSpellList.size() > i + windowIndex) {

@@ -184,11 +184,21 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     }
 
     public void equipSpell(SpellType<?> spellType) {
+        if (this.equippedSpellSet.isEmpty())
+            this.selectedSpell = spellType;
+
         this.equippedSpellSet.add(spellType);
     }
 
     public void unequipSpell(SpellType<?> spellType) {
         this.equippedSpellSet.remove(spellType);
+        if (this.selectedSpell == spellType) {
+            if (this.equippedSpellSet.isEmpty()) {
+                this.selectedSpell = null;
+            } /*else {
+                this.selectedSpell = this.equippedSpellSet.iterator().next();
+            }*/
+        }
     }
 
     public Set<SpellType<?>> getEquippedSpells() {
@@ -336,7 +346,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * @return The selected spells
      */
     public SpellType<?> getSelectedSpell() {
-        return this.selectedSpell != null ? this.selectedSpell : !getSpellList().isEmpty() && getSpellList().iterator().hasNext() ? getSpellList().iterator().next() : null;
+        return this.selectedSpell;
     }
 
     /**
