@@ -171,16 +171,16 @@ public class SBSkills {
     //Healing Touch
     //TODO: Tree
     public static final Holder<Skill> HEALING_TOUCH = registerSkill("healing_touch");
-    public static final Holder<Skill> DIVINE_BALANCE = registerModifierSkill("divine_balance", 0, 50, preReqs(HEALING_TOUCH), SpellModifier.DIVINE_BALANCE_DURATION, SpellModifier.DIVINE_BALANCE_MANA);
-    public static final Holder<Skill> HEALING_STREAM = registerSkill("healing_stream", 0, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> ACCELERATED_GROWTH = registerSkill("accelerated_growth", 0, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> TRANQUILITY_OF_WATER = registerSkill("tranquility_of_water", 0, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> NATURES_TOUCH = registerSkill("natures_touch", 0, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> CLEANSING_TOUCH = registerSkill("cleansing_touch", 0, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> OVERGROWTH = registerSkill("overgrowth", 0, 50, preReqs(HEALING_TOUCH));
     public static final Holder<Skill> BLASPHEMY = registerSkill("blasphemy", -50, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> CONVALESCENCE = registerSkill("convalescence", -50, 100, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> OAK_BLESSING = registerSkill("oak_blessing", 0, 50, preReqs(HEALING_STREAM));
+    public static final Holder<Skill> CONVALESCENCE = registerSkill("convalescence", -50, 100, preReqs(BLASPHEMY));
+    public static final Holder<Skill> DIVINE_BALANCE = registerModifierSkill("divine_balance", 0, 50, preReqs(HEALING_TOUCH), SpellModifier.DIVINE_BALANCE_DURATION, SpellModifier.DIVINE_BALANCE_MANA);
+    public static final Holder<Skill> NATURES_TOUCH = registerSkill("natures_touch", 0, 100, preReqs(DIVINE_BALANCE));
+    public static final Holder<Skill> CLEANSING_TOUCH = registerSkill("cleansing_touch", 0, 150, preReqs(NATURES_TOUCH));
+    public static final Holder<Skill> ACCELERATED_GROWTH = registerSkill("accelerated_growth", 50, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> HEALING_STREAM = registerSkill("healing_stream", 50, 100, preReqs(ACCELERATED_GROWTH));
+    public static final Holder<Skill> TRANQUILITY_OF_WATER = registerSkill("tranquility_of_water", 50, 150, preReqs(HEALING_STREAM));
+    public static final Holder<Skill> OVERGROWTH = registerSkill("overgrowth", 0, 200, preReqs(TRANQUILITY_OF_WATER, CLEANSING_TOUCH));
+    public static final Holder<Skill> OAK_BLESSING = registerSkill("oak_blessing", 50, 200, preReqs(TRANQUILITY_OF_WATER, CLEANSING_TOUCH));
 
     //Healing Blossom
     public static final Holder<Skill> HEALING_BLOSSOM = registerSkill("healing_blossom");
