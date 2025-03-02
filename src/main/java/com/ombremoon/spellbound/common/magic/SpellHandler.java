@@ -13,6 +13,7 @@ import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
+import com.ombremoon.spellbound.main.ConfigHandler;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.EffectManager;
@@ -187,7 +188,8 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
         if (this.equippedSpellSet.isEmpty())
             this.selectedSpell = spellType;
 
-        this.equippedSpellSet.add(spellType);
+        if (this.equippedSpellSet.size() < ConfigHandler.COMMON.maxSpellListSize.get())
+            this.equippedSpellSet.add(spellType);
     }
 
     public void unequipSpell(SpellType<?> spellType) {
@@ -195,9 +197,9 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
         if (this.selectedSpell == spellType) {
             if (this.equippedSpellSet.isEmpty()) {
                 this.selectedSpell = null;
-            } /*else {
+            } else {
                 this.selectedSpell = this.equippedSpellSet.iterator().next();
-            }*/
+            }
         }
     }
 
@@ -229,9 +231,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * @param spellType The spells to be removed
      */
     public void removeSpell(SpellType<?> spellType) {
-        if (this.selectedSpell == spellType)
-            this.selectedSpell = null;
-
+        this.unequipSpell(spellType);
         this.skillHolder.resetSkills(spellType);
         var locations = spellType.getSkills().stream().map(Skill::location).collect(Collectors.toSet());
         this.spellSet.remove(spellType);

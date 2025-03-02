@@ -23,7 +23,7 @@ public class CycloneSpell extends AnimatedSpell {
     private static Builder<CycloneSpell> createCycloneBuilder() {
         return createSimpleSpellBuilder(CycloneSpell.class)
                 .duration(600)
-                .castCondition((context, cycloneSpell) -> cycloneSpell.hasValidSpawnPos(100));
+                .castCondition((context, cycloneSpell) -> cycloneSpell.hasValidSpawnPos(100) && !context.hasActiveSpells(6));
     }
 
     public CycloneSpell() {

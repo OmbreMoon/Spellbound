@@ -11,6 +11,7 @@ public class ConfigHandler {
 
     public static class Common {
         public final ModConfigSpec.IntValue maxSpellLevel;
+        public final ModConfigSpec.IntValue maxSpellListSize;
         public final ModConfigSpec.BooleanValue skillRequiresPrereqs;
 
         Common(ModConfigSpec.Builder builder) {
@@ -18,6 +19,11 @@ public class ConfigHandler {
                     .comment("The maximum number of levels any spell can obtain.")
                     .translation("spellbound.config.maxSpellLevel")
                     .defineInRange("maxSpellLevel", 5, 1, 10);
+
+            maxSpellListSize = builder
+                    .comment("The maximum number of spells the player can hold at a time.")
+                    .translation("spellbound.config.maxSpellListSize")
+                    .defineInRange("maxSpellLevel", 10, 1, 10);
 
             skillRequiresPrereqs = builder
                     .comment("Set this to false if any skill can be unlocked without unlocking the necessary prerequisites.")

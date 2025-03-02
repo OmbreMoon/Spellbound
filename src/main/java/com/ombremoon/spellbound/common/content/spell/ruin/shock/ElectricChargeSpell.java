@@ -89,7 +89,6 @@ public class ElectricChargeSpell extends AnimatedSpell {
         Level level = context.getLevel();
         var handler = context.getSpellHandler();
         var skills = context.getSkills();
-        log(handler.getEquippedSpells());
         boolean hasShard = context.hasCatalyst(SBItems.STORM_SHARD.get());
         if (skills.hasSkill(SBSkills.AMPLIFY.value())) {
             if ((context.isRecast() && context.getTarget() == null) || this.discharged) {
