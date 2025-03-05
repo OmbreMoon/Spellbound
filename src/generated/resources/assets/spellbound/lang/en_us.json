@@ -134,7 +134,7 @@
   "skill.description.spellbound.shadow_escape": "When the caster enters the portal below 50% health, they gain invisibility for 10 seconds after exiting.",
   "skill.description.spellbound.shadow_gate": "Deploy 2 shadow portals (must be in a low light level), allowing passage in both directions with 50 blocks.",
   "skill.description.spellbound.shadow_step": "After the swap, the caster's movement speed is increased by 30% for 5 seconds",
-  "skill.description.spellbound.shadowbond": "Caster and target gain invisibility for 10 seconds. When the invisibility is broken,the caster and target swap places.",
+  "skill.description.spellbound.shadowbond": "Caster and target gain invisibility for 10 seconds. When the invisibility is broken, the caster and target swap places.",
   "skill.description.spellbound.shock_factor": "Deals extra damage equal to 1% of your current mana each damage tick.",
   "skill.description.spellbound.silent_exchange": "After the swap, the target is Silenced for 5 seconds.",
   "skill.description.spellbound.snare": "After the swap, the target is rooted.",

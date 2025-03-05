@@ -21,9 +21,10 @@ public class SBEffects {
 
     //TODO: Make status effects do stuff
     //Status
-    public static final Holder<MobEffect> INFLAMED = EFFECTS.register("inflamed", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
+    public static final Holder<MobEffect> COMBUST = EFFECTS.register("combust", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
     public static final Holder<MobEffect> FROZEN = EFFECTS.register("frozen", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
-    public static final Holder<MobEffect> SHOCKED = EFFECTS.register("shocked", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
+    public static final Holder<MobEffect> WET = EFFECTS.register("wet", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
+    public static final Holder<MobEffect> DISCHARGE = EFFECTS.register("discharge", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
     public static final Holder<MobEffect> POISON = EFFECTS.register("poison", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
     public static final Holder<MobEffect> WIND = EFFECTS.register("wind", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
     public static final Holder<MobEffect> EARTH = EFFECTS.register("earth", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));

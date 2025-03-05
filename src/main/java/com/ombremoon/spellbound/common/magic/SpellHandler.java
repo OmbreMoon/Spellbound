@@ -29,6 +29,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -177,7 +178,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * @param mana The amount of mana received
      */
     public void awardMana(float mana) {
-        this.caster.setData(SBData.MANA, Math.min(caster.getData(SBData.MANA) + mana, this.getMaxMana()));
+        this.caster.setData(SBData.MANA, Mth.clamp(caster.getData(SBData.MANA) + mana, 0, this.getMaxMana()));
         if (this.caster instanceof Player player)
             PayloadHandler.syncMana(player);
     }

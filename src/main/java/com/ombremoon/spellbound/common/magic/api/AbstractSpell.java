@@ -82,6 +82,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     protected static final SpellDataKey<BlockPos> CAST_POS = SyncedSpellData.registerDataKey(AbstractSpell.class, SBDataTypes.BLOCK_POS.get());
     protected static final float SPELL_LEVEL_DAMAGE_MODIFIER = 0.25F;
     protected static final float PATH_LEVEL_DAMAGE_MODIFIER = 0.5F;
+    protected static final float MANA_COST_MODIFIER = 0.15F;
     protected static final float HURT_XP_MODIFIER = 0.01F;
     private final SpellType<?> spellType;
     private final SpellMastery spellMastery;
@@ -170,7 +171,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @return The mana cost
      */
     public float getManaCost(LivingEntity caster) {
-        return this.manaCost * getModifier(ModifierType.MANA, caster);
+        var skills = SpellUtil.getSkillHolder(caster);
+        return (this.manaCost * (1 + MANA_COST_MODIFIER * (skills.getSpellLevel(getSpellType()) - 1))) * getModifier(ModifierType.MANA, caster);
     }
 
     /**
@@ -434,6 +436,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      */
     protected void onSpellTick(SpellContext context) {
 //        endSpell();
+        log(getManaCost());
     }
 
     /**
@@ -559,7 +562,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Hurts the target entity, taking spells potency into account. Suitable for modded damage types.
+     * Hurts the target entity, taking spell level, potency, and magic resistance into account. Suitable for modded damage types.
      * @param ownerEntity The damage causing entity
      * @param targetEntity The hurt entity
      * @param damageType The damage type
@@ -573,9 +576,9 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         float damageAfterResistance = this.getDamageAfterResistances(ownerEntity, targetEntity, hurtAmount);
         boolean flag = targetEntity.hurt(BoxUtil.damageSource(ownerEntity.level(), damageType, ownerEntity), damageAfterResistance);
         if (flag) {
-            this.incrementEffect(targetEntity, damageAfterResistance);
             targetEntity.setLastHurtByMob(ownerEntity);
-            awardXp(this.calculateHurtXP(damageAfterResistance));
+            this.incrementEffect(targetEntity, damageType, damageAfterResistance);
+            this.awardXp(this.calculateHurtXP(damageAfterResistance));
         }
         return flag;
     }
@@ -588,6 +591,12 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         return hurt(this.caster, targetEntity, source.typeHolder().getKey(), hurtAmount);
     }
 
+    /**
+     * Hurts the target entity. Should only be used for Ruin sub-path spells. Will fail otherwise. The damage type is determined by the sub-path of the spell.
+     * @param targetEntity The hurt entity
+     * @param hurtAmount The amount of damage the entity takes
+     * @return Whether the entity takes damage or not
+     */
     public boolean hurt(LivingEntity targetEntity, float hurtAmount) {
         SpellPath subPath = this.getSubPath();
         if (subPath == null)
@@ -600,10 +609,21 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         return hurt(targetEntity, effect.getDamageType(), hurtAmount);
     }
 
+    /**
+     * Hurts the target entity by the pre-defined base damage of the spell. Should only be used for Ruin sub-path spells. Will fail otherwise. The damage type is determined by the sub-path of the spell.
+     * @param targetEntity The hurt entity
+     * @return Whether the entity takes damage or not
+     */
     public boolean hurt(LivingEntity targetEntity) {
         return hurt(targetEntity, this.baseDamage);
     }
 
+    /**
+     * Calculates damage based on spell level, path level, and potency
+     * @param ownerEntity The damage causing entity
+     * @param amount The damage amount
+     * @return The damage taking all modifiers into account
+     */
     public float getModifiedDamage(LivingEntity ownerEntity, float amount) {
         var skills = SpellUtil.getSkillHolder(ownerEntity);
         SpellPath path = this.getPath() == SpellPath.RUIN ? this.getSubPath() : this.getPath();
@@ -616,19 +636,36 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         return this.getModifiedDamage(this.caster, this.baseDamage);
     }
 
+    /**
+     * Calculates the final damage dealt after taking spell level, path level, potency, and magic resistance into account
+     * @param ownerEntity The damage causing entity
+     * @param targetEntity The hurt entity
+     * @param damageAmount The damage amount
+     * @return The total damage taken
+     */
     private float getDamageAfterResistances(LivingEntity ownerEntity, LivingEntity targetEntity, float damageAmount) {
         var effect = SpellUtil.getSpellEffects(targetEntity);
         return (float) (this.getModifiedDamage(ownerEntity, damageAmount) * (1.0F - effect.getMagicResistance()));
     }
 
+    /**
+     * Calculates the amount of XP gained from hurting an entity
+     * @param amount The damage amount
+     * @return The modified xp value
+     */
     private float calculateHurtXP(float amount) {
         return amount * xpModifier * (1.0F + HURT_XP_MODIFIER * (this.getManaCost() / this.manaCost));
     }
 
-    public void incrementEffect(LivingEntity targetEntity, float amount) {
+    /**
+     * Increments the effect build up for ruin spells (or other registered damage types)
+     * @param targetEntity The hurt entity
+     * @param damageType The damage type
+     * @param amount The amount of damage dealt
+     */
+    public void incrementEffect(LivingEntity targetEntity, ResourceKey<DamageType> damageType, float amount) {
         var effects = SpellUtil.getSpellEffects(targetEntity);
-        SpellPath path = this.getPath() == SpellPath.RUIN ? this.getSubPath() : this.getPath();
-        effects.increment(path, amount);
+        effects.incrementRuinEffects(damageType, amount);
     }
 
     public boolean drainMana(LivingEntity targetEntity, float amount) {
@@ -1117,6 +1154,15 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         }
     }
 
+    /**
+     * Initializes spells data on the client. Will reset if cast condition failed on the server.
+     * @param caster The casting living entity
+     * @param level The current level
+     * @param blockPos The block position the caster is in when the cast timer ends
+     * @param isRecast Whether the spell was already active upon casting
+     * @param castId The specific numeric id for the spell instance
+     * @param forceReset Whether the spell failed casting on the server
+     */
     public void clientInitSpell(LivingEntity caster, Level level, BlockPos blockPos, boolean isRecast, int castId, boolean forceReset) {
         this.level = level;
         this.caster = caster;
@@ -1137,6 +1183,13 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         this.init = true;
     }
 
+    /**
+     * Initializes spells data before activation. Will not activate the spell.
+     * @param caster The casting living entity
+     * @param level The current level
+     * @param blockPos The block position the caster is in when the cast timer ends
+     * @param target The target entity of the caster
+     */
     protected void initNoCast(LivingEntity caster, Level level, BlockPos blockPos, Entity target) {
         this.caster = caster;
         this.level = level;

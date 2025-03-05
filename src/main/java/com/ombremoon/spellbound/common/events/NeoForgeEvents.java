@@ -27,6 +27,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
@@ -145,9 +146,10 @@ public class NeoForgeEvents {
             if (entity instanceof Player player) {
                 if (player.tickCount % 20 == 0) {
                     double mana = player.getData(SBData.MANA);
-                    if (mana < player.getAttribute(SBAttributes.MAX_MANA).getValue()) {
+                    double maxMana = player.getAttribute(SBAttributes.MAX_MANA).getValue();
+                    if (mana < maxMana) {
                         double regen = player.getAttribute(SBAttributes.MANA_REGEN).getValue();
-                        player.setData(SBData.MANA, mana + regen);
+                        player.setData(SBData.MANA, Mth.clamp(mana + regen, 0, maxMana));
                     }
                 }
             }
