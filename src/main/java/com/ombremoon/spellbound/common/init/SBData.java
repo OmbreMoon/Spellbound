@@ -31,7 +31,7 @@ public class SBData {
     public static final Supplier<AttachmentType<SkillHolder>> SKILL_HOLDER = ATTACHMENT_TYPES.register(
             "skill_handler", () -> AttachmentType.serializable(SkillHolder::new).copyOnDeath().build());
     public static final Supplier<AttachmentType<EffectManager>> STATUS_EFFECTS = ATTACHMENT_TYPES.register(
-            "effect_handler", () -> AttachmentType.builder(EffectManager::new).build());
+            "effect_handler", () -> AttachmentType.serializable(EffectManager::new).build());
 
     //Mana
     public static final Supplier<AttachmentType<Double>> MANA = ATTACHMENT_TYPES.register(
