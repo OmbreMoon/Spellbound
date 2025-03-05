@@ -103,7 +103,7 @@ public record ActionRewards(int experience, int judgement, List<ResourceLocation
         BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
         for (int i = x - 15; i <= x + 15; i++) {
             for (int j = y - 7; j <= y + 7; j++) {
-                for (int k = x - 15; k <= z + 15; k++) {
+                for (int k = z - 15; k <= z + 15; k++) {
                     mutableBlockPos.set(i, j, k);
                     BlockState blockState = player.level().getBlockState(mutableBlockPos);
                     if (blockState.is(SBBlocks.DIVINE_SHRINE.get()))

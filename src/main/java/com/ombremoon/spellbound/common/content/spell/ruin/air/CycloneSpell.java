@@ -43,7 +43,7 @@ public class CycloneSpell extends AnimatedSpell {
 
             if (context.getSkills().hasSkill(SBSkills.HAILSTORM.value())) {
                 HailstormSavedData data = ((HailstormSavedData) HailstormSavedData.get(level));
-//                data.toggleHailing((ServerLevel) level, this.getDuration());
+                data.toggleHailing((ServerLevel) level, this.getDuration());
             }
         }
     }

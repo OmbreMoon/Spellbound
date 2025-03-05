@@ -4,11 +4,12 @@ import com.mojang.serialization.Codec;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
-import com.ombremoon.spellbound.util.EffectManager;
+import com.ombremoon.spellbound.common.magic.EffectManager;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -30,7 +31,7 @@ public class SBData {
     public static final Supplier<AttachmentType<SkillHolder>> SKILL_HOLDER = ATTACHMENT_TYPES.register(
             "skill_handler", () -> AttachmentType.serializable(SkillHolder::new).copyOnDeath().build());
     public static final Supplier<AttachmentType<EffectManager>> STATUS_EFFECTS = ATTACHMENT_TYPES.register(
-            "effect_handler", () -> AttachmentType.serializable(EffectManager::new).build());
+            "effect_handler", () -> AttachmentType.builder(EffectManager::new).build());
 
     //Mana
     public static final Supplier<AttachmentType<Double>> MANA = ATTACHMENT_TYPES.register(
@@ -49,6 +50,10 @@ public class SBData {
     //Spell Data
     public static final Supplier<AttachmentType<Integer>> SPELL_ID = ATTACHMENT_TYPES.register(
             "spell_id", () -> AttachmentType.builder(() -> 0).build());
+    public static final Supplier<AttachmentType<Integer>> FEAR_TICK = ATTACHMENT_TYPES.register(
+            "fear_tick", () -> AttachmentType.builder(() -> 0).build());
+    public static final Supplier<AttachmentType<Vec3>> FEAR_SOURCE = ATTACHMENT_TYPES.register(
+            "fear_source", () -> AttachmentType.builder(() -> Vec3.ZERO).build());
     public static final Supplier<AttachmentType<Integer>> HEAT_TICK = ATTACHMENT_TYPES.register(
             "heat_tick", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
     public static final Supplier<AttachmentType<Boolean>> FORCE_WARP = ATTACHMENT_TYPES.register(

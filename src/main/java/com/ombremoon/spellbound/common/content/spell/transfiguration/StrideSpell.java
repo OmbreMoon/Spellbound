@@ -31,6 +31,7 @@ public class StrideSpell extends AnimatedSpell {
 
     public static Builder<StrideSpell> createStrideBuilder() {
         return createSimpleSpellBuilder(StrideSpell.class)
+                .hasLayer()
                 .duration(600).fullRecast();
     }
 

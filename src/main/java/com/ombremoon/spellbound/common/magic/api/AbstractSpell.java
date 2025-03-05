@@ -9,6 +9,7 @@ import com.ombremoon.spellbound.client.renderer.layer.SpellLayerRenderer;
 import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
 import com.ombremoon.spellbound.common.events.EventFactory;
 import com.ombremoon.spellbound.common.init.*;
+import com.ombremoon.spellbound.common.magic.EffectManager;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.SpellType;
@@ -294,7 +295,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * Returns the sub path of the spells if present.
      * @return The spells sub path
      */
-    public @Nullable SpellPath getSubPath() {
+    public SpellPath getSubPath() {
         if (this.spellType.getPath() != SpellPath.RUIN)
             throw new IllegalStateException("Tried to get a sub-path from invalid path: " + this.spellType.getPath().getSerializedName() + ". Only the ruin path can contain sub-paths");
 
@@ -418,6 +419,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param context The spells context
      */
     protected void onSpellTick(SpellContext context) {
+//        endSpell();
     }
 
     /**
@@ -554,13 +556,12 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         if (checkForCounterMagic(targetEntity))
             return false;
 
-        boolean flag = targetEntity.hurt(BoxUtil.damageSource(ownerEntity.level(), damageType, ownerEntity), getModifier(ModifierType.POTENCY, ownerEntity) * hurtAmount);
+        float damageAfterResistance = this.getDamageAfterResistance(ownerEntity, targetEntity, hurtAmount);
+        boolean flag = targetEntity.hurt(BoxUtil.damageSource(ownerEntity.level(), damageType, ownerEntity), damageAfterResistance);
         if (flag) {
-            //BUILD UP EFFECTS
+            this.incrementEffect(targetEntity, damageAfterResistance);
             targetEntity.setLastHurtByMob(ownerEntity);
-            //Results in null error for stormstrike since skill holder isn't initialized. Find alternative.
-
-            //awardXp(hurtAmount * xpModifier);
+            awardXp(this.calculateHurtXP(damageAfterResistance));
         }
         return flag;
     }
@@ -571,6 +572,22 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
     public boolean hurt(LivingEntity targetEntity, DamageSource source, float hurtAmount) {
         return hurt(this.caster, targetEntity, source.typeHolder().getKey(), hurtAmount);
+    }
+
+    private float getDamageAfterResistance(LivingEntity ownerEntity, LivingEntity targetEntity, float damageAmount) {
+        var effect = SpellUtil.getSpellEffects(targetEntity);
+        float modifierDamage = getModifier(ModifierType.POTENCY, ownerEntity) * damageAmount;
+        return (float) (modifierDamage * (1.0F - effect.getMagicResistance()));
+    }
+
+    private float calculateHurtXP(float amount) {
+        return (float) (amount * xpModifier * (1 + 0.01 * (this.getManaCost() / this.manaCost)));
+    }
+
+    public void incrementEffect(LivingEntity targetEntity, float amount) {
+        var effects = SpellUtil.getSpellEffects(targetEntity);
+        SpellPath path = this.getPath() == SpellPath.RUIN ? this.getSubPath() : this.getPath();
+        effects.increment(path, amount);
     }
 
     public boolean drainMana(LivingEntity targetEntity, float amount) {
@@ -1049,9 +1066,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
             if (caster instanceof Player player) {
                 PayloadHandler.updateSpells(player, this.isRecast, this.castId, false);
-//                if (this.getPath() != SpellPath.RUIN)
-                    awardXp(this.manaCost * this.xpModifier);
-
+                awardXp(this.manaCost * this.xpModifier);
                 player.awardStat(SBStats.SPELLS_CAST.get());
             }
 
@@ -1151,7 +1166,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         protected int duration = 10;
         protected int manaCost;
         protected int castTime = 1;
-        protected float xpModifier = 0.5F;
+        protected float xpModifier = 0.08F;
         protected BiPredicate<SpellContext, T> castPredicate = (context, abstractSpell) -> true;
         protected CastType castType = CastType.INSTANT;
         protected SoundEvent castSound;

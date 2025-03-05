@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.common.content.spell.divine;
 
 import com.ombremoon.spellbound.main.CommonClass;
-import com.ombremoon.spellbound.util.EffectManager;
+import com.ombremoon.spellbound.common.magic.EffectManager;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
@@ -11,7 +11,6 @@ import com.ombremoon.spellbound.common.magic.api.buff.events.DamageEvent;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -85,7 +84,6 @@ public class HealingTouchSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStop(SpellContext context) {
-        context.getCaster().removeEffect(SBEffects.HEALING_TOUCH);
     }
 
     @Override
@@ -106,7 +104,7 @@ public class HealingTouchSpell extends AnimatedSpell {
         }
         if (skills.hasSkillReady(SBSkills.BLASPHEMY.value())) {
             EffectManager status = event.getEntity().getData(SBData.STATUS_EFFECTS);
-            status.increment(EffectManager.Effect.DISEASE, 100);
+//            status.increment(EffectManager.Effect.DISEASE, 100);
             addCooldown(SBSkills.BLASPHEMY, 100);
         }
         if (skills.hasSkillReady(SBSkills.OAK_BLESSING.value())) {

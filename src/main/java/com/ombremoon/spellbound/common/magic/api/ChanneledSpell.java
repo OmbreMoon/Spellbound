@@ -117,5 +117,10 @@ public abstract class ChanneledSpell extends AnimatedSpell {
             this.updateInterval = updateInterval;
             return this;
         }
+
+        public Builder<T> hasLayer() {
+            this.hasLayer = true;
+            return this;
+        }
     }
 }

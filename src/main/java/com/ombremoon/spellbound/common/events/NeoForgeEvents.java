@@ -4,15 +4,22 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.ombremoon.sentinellib.common.event.RegisterPlayerSentinelBoxEvent;
 import com.ombremoon.spellbound.common.content.commands.LearnSkillsCommand;
 import com.ombremoon.spellbound.common.content.commands.LearnSpellCommand;
+import com.ombremoon.spellbound.common.content.entity.spell.Hail;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
 import com.ombremoon.spellbound.common.content.world.dimension.DimensionCreator;
+import com.ombremoon.spellbound.common.content.world.effects.SBEffectInstance;
+import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormData;
+import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
+import com.ombremoon.spellbound.common.events.custom.MobEffectEvent;
+import com.ombremoon.spellbound.common.events.custom.TickChunkEvent;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
+import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
 import com.ombremoon.spellbound.common.magic.api.buff.events.*;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.PayloadHandler;
-import com.ombremoon.spellbound.util.EffectManager;
+import com.ombremoon.spellbound.common.magic.EffectManager;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -20,11 +27,18 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.storage.ServerLevelData;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -142,22 +156,41 @@ public class NeoForgeEvents {
     }
 
     @SubscribeEvent
+    public static void onEffectRemoved(MobEffectEvent.Remove event) {
+        LivingEntity livingEntity = event.getEntity();
+        if (event.getEffect().is(SBEffects.FEAR)) {
+            var skills = SpellUtil.getSkillHolder(livingEntity);
+            skills.removeModifier(SpellModifier.FEAR);
+            livingEntity.setData(SBData.FEAR_TICK, 0);
+            livingEntity.setData(SBData.FEAR_SOURCE, Vec3.ZERO);
+            if (livingEntity instanceof ServerPlayer player)
+                PayloadHandler.removeFearEffect(player);
+        }
+
+        if (event.getEffectInstance() instanceof SBEffectInstance effectInstance && effectInstance.willGlow()) {
+            LivingEntity entity = effectInstance.getCauseEntity();
+            if (entity instanceof ServerPlayer player)
+                PayloadHandler.removeGlowEffect(player, livingEntity.getId());
+        }
+    }
+
+    @SubscribeEvent
     public static void onLevelLoad(LevelEvent.Load event) {
-//        HailstormData data = HailstormSavedData.get(event.getLevel());
-//        data.prepareHail();
+        HailstormData data = HailstormSavedData.get(event.getLevel());
+        data.prepareHail();
     }
 
     @SubscribeEvent
     public static void onLevelTick(LevelTickEvent.Pre event) {
-       /* Level level = event.getLevel();
+        Level level = event.getLevel();
         HailstormData data = HailstormSavedData.get(level);
         if (level.dimension() == Level.OVERWORLD) {
             if (!level.isClientSide) {
                 ServerLevel serverLevel = (ServerLevel) level;
                 HailstormSavedData savedData = (HailstormSavedData) data;
                 if (level.getGameRules().getBoolean(GameRules.RULE_WEATHER_CYCLE)) {
-                    int i = ((ServerLevelData)level.getLevelData()).getClearWeatherTime();
-                    int j = ((ServerLevelData)level.getLevelData()).getRainTime();
+                    int i = ((ServerLevelData) level.getLevelData()).getClearWeatherTime();
+                    int j = ((ServerLevelData) level.getLevelData()).getRainTime();
                     int k = savedData.getHailTime();
                     boolean flag = savedData.isHailing();
                     if (i > 0) {
@@ -180,7 +213,6 @@ public class NeoForgeEvents {
                 }
 
                 savedData.tickHailLevel(serverLevel);
-
                 int sleepTime = level.getGameRules().getInt(GameRules.RULE_PLAYERS_SLEEPING_PERCENTAGE);
                 if (serverLevel.sleepStatus.areEnoughSleeping(sleepTime) && serverLevel.sleepStatus.areEnoughDeepSleeping(sleepTime, serverLevel.players())) {
                     if (serverLevel.getGameRules().getBoolean(GameRules.RULE_WEATHER_CYCLE) && savedData.isHailing()) {
@@ -188,50 +220,41 @@ public class NeoForgeEvents {
                         savedData.setHailing(false);
                     }
                 }
+            }
+        }
+    }
 
-                savedData.setDirty();
-
-                ServerChunkCache chunkCache = ((ServerChunkCache)level.getChunkSource());
-                List<ServerChunkCache.ChunkAndHolder> list = Lists.newArrayListWithCapacity(chunkCache.chunkMap.size());
-
-                for (ChunkHolder chunkholder : chunkCache.chunkMap.getChunks()) {
-                    LevelChunk levelchunk = chunkholder.getTickingChunk();
-                    if (levelchunk != null) {
-                        list.add(new ServerChunkCache.ChunkAndHolder(levelchunk, chunkholder));
+    @SubscribeEvent
+    public static void onChunkTick(TickChunkEvent.Pre event) {
+        LevelChunk chunk = event.getChunk();
+        Level level = chunk.getLevel();
+        if (level instanceof ServerLevel serverLevel) {
+            ChunkPos chunkpos = chunk.getPos();
+            HailstormSavedData data = (HailstormSavedData) HailstormSavedData.get(serverLevel);
+            boolean flag = data.isHailing();
+            int i = chunkpos.getMinBlockX();
+            int j = chunkpos.getMinBlockZ();
+            BlockPos blockpos = data.findLightningTargetAround(serverLevel, serverLevel.getBlockRandomPos(i, 0, j, 15));
+            if (flag) {
+                if (data.isHailingAt(serverLevel, blockpos) && data.chunkHasCyclone(serverLevel, blockpos)) {
+                    if (serverLevel.random.nextInt(100) == 0) {
+                        LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(serverLevel);
+                        if (lightningbolt != null) {
+                            lightningbolt.moveTo(Vec3.atBottomCenterOf(blockpos));
+                            serverLevel.addFreshEntity(lightningbolt);
+                        }
                     }
-                }
 
-                for (ServerChunkCache.ChunkAndHolder serverchunkcache$chunkandholder : list) {
-                    LevelChunk levelchunk1 = serverchunkcache$chunkandholder.chunk();
-                    ChunkPos chunkpos = levelchunk1.getPos();
-                    if (chunkCache.level.shouldTickBlocksAt(chunkpos.toLong())) {
-                        boolean flag = data.isHailing();
-                        int i = chunkpos.getMinBlockX();
-                        int j = chunkpos.getMinBlockZ();
-                        BlockPos blockpos = savedData.findLightningTargetAround(serverLevel, level.getBlockRandomPos(i, 0, j, 15));
-                        if (flag) {
-                            if (savedData.isHailingAt(level, blockpos) && savedData.chunkHasCyclone(serverLevel, blockpos)) {
-                                if (level.random.nextInt(100) == 0) {
-                                    LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(level);
-                                    if (lightningbolt != null) {
-                                        lightningbolt.moveTo(Vec3.atBottomCenterOf(blockpos));
-                                        level.addFreshEntity(lightningbolt);
-                                    }
-                                }
-
-                                if (level.random.nextInt(100) == 0) {
-                                    Hail hail = SBEntities.HAIL.get().create(level);
-                                    if (hail != null) {
-                                        hail.moveTo(Vec3.atBottomCenterOf(blockpos.atY(level.getMaxBuildHeight())));
-                                        level.addFreshEntity(hail);
-                                    }
-                                }
-                            }
+                    if (serverLevel.random.nextInt(100) == 0) {
+                        Hail hail = SBEntities.HAIL.get().create(serverLevel);
+                        if (hail != null) {
+                            hail.moveTo(Vec3.atBottomCenterOf(blockpos.atY(serverLevel.getMaxBuildHeight())));
+                            serverLevel.addFreshEntity(hail);
                         }
                     }
                 }
             }
-        }*/
+        }
     }
 
     @SubscribeEvent
@@ -301,9 +324,13 @@ public class NeoForgeEvents {
 
     @SubscribeEvent
     public static void onLivingDamage(LivingDamageEvent.Pre event) {
-        if (event.getEntity().level().isClientSide) return;
+        LivingEntity livingEntity = event.getEntity();
+        if (livingEntity.level().isClientSide) return;
 
-        SpellUtil.getSpellHandler(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.PRE_DAMAGE, new DamageEvent.Pre(event.getEntity(), event));
+        SpellUtil.getSpellHandler(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.PRE_DAMAGE, new DamageEvent.Pre(livingEntity, event));
+
+        if (livingEntity.hasEffect(SBEffects.SLEEP))
+            livingEntity.removeEffect(SBEffects.SLEEP);
     }
 
     @SubscribeEvent

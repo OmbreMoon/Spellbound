@@ -1,7 +1,8 @@
-package com.ombremoon.spellbound.util;
+package com.ombremoon.spellbound.common.magic;
 
 import com.ombremoon.spellbound.common.init.SBAttributes;
 import com.ombremoon.spellbound.common.init.SBEffects;
+import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -22,14 +23,26 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
     private float judgement;
 
     /**
+     * Initialises the effect handler
+     * @param self the entity to attach the effect handler to
+     */
+    public void init(LivingEntity self) {
+        this.livingEntity = self;
+    }
+
+    /**
+     * Checks if the effect handler has been initialised
+     * @return true if initialised, false otherwise
+     */
+    public boolean isInitialised() { return livingEntity != null; }
+
+    /**
      * Checks if the entity is rooted (cant move)
      * @param entity The entity to check if rooted
      * @return true if they are rooted (cant move), false otherwise
      */
     public static boolean isRooted(LivingEntity entity) {
-        return entity.hasEffect(SBEffects.ROOTED)
-                || isStunned(entity)
-                || SpellUtil.getSpellHandler(entity).isStationary();
+        return entity.hasEffect(SBEffects.ROOTED);
     }
 
     /**
@@ -52,36 +65,45 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
                 || entity.hasEffect(SBEffects.CATALEPSY);
     }
 
-    /**
-     * Initialises the effect handler
-     * @param self the entity to attach the effect handler to
-     */
-    public void init(LivingEntity self) {
-        this.livingEntity = self;
+    public double getMagicResistance() {
+        return this.livingEntity.getAttribute(SBAttributes.MAGIC_RESIST) != null ? this.livingEntity.getAttributeValue(SBAttributes.MAGIC_RESIST) : 0;
     }
 
     /**
-     * Checks if the effect handler has been initialised
-     * @return true if initialised, false otherwise
-     */
-    public boolean isInitialised() { return livingEntity != null; }
-
-    /**
      * Increments a given status effect by a set amount, will apply the effect upon reaching 100
-     * @param effect The status effect to add buildup to
+     * @param path The path the status effect belongs to
      * @param amount amount to increase the build up by
      */
-    public void increment(Effect effect, float amount) {
-        Float progress = buildUp.get(effect);
-        float postResistAmount = amount * (1F - effect.getEntityResistance(livingEntity) / 100F);
-        if (progress == null) progress = postResistAmount;
-        else progress = Math.clamp(progress + postResistAmount, 0, 100);
+    public void increment(SpellPath path, float amount) {
+        if (path.isSubPath()) {
+            Effect effect = path.getEffect();
+            if (effect != null) {
+                Float progress = buildUp.get(effect);
+                float buildUpAmount = this.calculateBuildUp(path, effect, amount);
+                if (progress == null) progress = buildUpAmount;
+                else progress = Math.clamp(progress + buildUpAmount, 0, 100);
 
-        buildUp.put(effect, progress);
-        if (progress >= 100) {
-            tryApplyEffect(effect);
-            this.buildUp.put(effect, 0F);
+                buildUp.put(effect, progress);
+                if (progress >= 100) {
+                    tryApplyEffect(effect);
+                    this.buildUp.put(effect, 0F);
+                }
+            }
+        } else if (path == SpellPath.DECEPTION) {
+            incrementHysteria(amount);
         }
+    }
+
+    private float calculateBuildUp(SpellPath path, Effect effect, float amount) {
+        var skills = SpellUtil.getSkillHolder(this.livingEntity);
+        float resistance = 1.0F - effect.getEntityResistance(this.livingEntity);
+        float pathAmount = 1.0F + (0.01F * skills.getPathLevel(path));
+        float ruinPathAmount = 1.0F + (0.01F * skills.getPathLevel(SpellPath.RUIN));
+        return amount * resistance * 0.2F * pathAmount * ruinPathAmount;
+    }
+
+    private void incrementHysteria(float amount) {
+
     }
 
     public float getJudgement() {
@@ -123,8 +145,15 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
      */
     @ApiStatus.Internal
     public void tick(int tickCount) {
-        if (livingEntity == null) throw new RuntimeException("Status Effects not initialised.");
-        if (tickCount % 20 == 0) buildUp.replaceAll((effect, amount) -> amount > 0 ? amount - 1 : 0);
+        if (livingEntity == null)
+            throw new RuntimeException("Status Effects not initialised.");
+
+        if (tickCount % 20 == 0) {
+            this.buildUp.forEach((effect, amount) -> {
+                if (amount > 0)
+                    this.buildUp.replace(effect, amount - 1);
+            });
+        }
     }
 
     /**
@@ -132,7 +161,9 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
      * @param effect the effect that has reached 100 buildup
      */
     private void tryApplyEffect(Effect effect) {
-        if (effect.getEffect() == null) return;
+        if (effect.getEffect() == null)
+            return;
+
         livingEntity.addEffect(new MobEffectInstance(effect.getEffect(), 60));
     }
     

@@ -1,12 +1,17 @@
 package com.ombremoon.spellbound.common.init;
 
+import com.ombremoon.spellbound.common.content.world.effects.FearEffect;
+import com.ombremoon.spellbound.common.content.world.effects.SleepEffect;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;
-import com.ombremoon.spellbound.common.content.effects.SBEffect;
-import com.ombremoon.spellbound.common.content.effects.StormstrikeEffect;
+import com.ombremoon.spellbound.common.content.world.effects.SBEffect;
+import com.ombremoon.spellbound.common.content.world.effects.StormstrikeEffect;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -27,9 +32,10 @@ public class SBEffects {
     //Restricting
     public static final Holder<MobEffect> ROOTED = EFFECTS.register("rooted", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
     public static final Holder<MobEffect> STUNNED = EFFECTS.register("stunned", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
+    public static final Holder<MobEffect> SLEEP = EFFECTS.register("sleep", () -> new SleepEffect(MobEffectCategory.HARMFUL, 8889187));
     public static final Holder<MobEffect> SILENCED = EFFECTS.register("silenced", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
+    public static final Holder<MobEffect> FEAR = EFFECTS.register("fear", () -> new FearEffect(MobEffectCategory.HARMFUL, 8889187).addAttributeModifier(Attributes.ATTACK_DAMAGE, CommonClass.customLocation("fear_attack"), 0.75, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL).addAttributeModifier(Attributes.ARMOR, CommonClass.customLocation("fear_armor"), 0.75, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 
-    public static final Holder<MobEffect> HEALING_TOUCH = EFFECTS.register("healing_touch", () -> new SBEffect(MobEffectCategory.BENEFICIAL, 8889187));
     public static final Holder<MobEffect> AFTERGLOW = EFFECTS.register("afterglow", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
     public static final Holder<MobEffect> STORMSTRIKE = EFFECTS.register("stormstrike", () -> new StormstrikeEffect(MobEffectCategory.HARMFUL, 8889187));
     public static final Holder<MobEffect> CATALEPSY = EFFECTS.register("catalepsy", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));

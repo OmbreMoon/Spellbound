@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common.content.effects;
+package com.ombremoon.spellbound.common.content.world.effects;
 
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.StormstrikeSpell;
 import com.ombremoon.spellbound.common.init.*;

@@ -1,0 +1,18 @@
+{
+  "criteria": {
+    "cured_zombie": {
+      "trigger": "spellbound:cured_zombie_villager"
+    }
+  },
+  "requirements": [
+    [
+      "cured_zombie"
+    ]
+  ],
+  "rewards": {
+    "experience": 10,
+    "spells": [
+      "spellbound:solar_ray"
+    ]
+  }
+}

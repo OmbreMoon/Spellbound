@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.common.content.spell.deception;
 
 import com.ombremoon.spellbound.main.CommonClass;
-import com.ombremoon.spellbound.common.content.effects.SBEffectInstance;
+import com.ombremoon.spellbound.common.content.world.effects.SBEffectInstance;
 import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
 import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;
 import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
@@ -219,14 +219,16 @@ public class ShadowbondSpell extends AnimatedSpell {
                 if (skills.hasSkill(SBSkills.DISORIENTED.value())) {
                     living.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 100, 0, false, false));
                     addEventBuff(
-                            caster,
+                            living,
                             SBSkills.DISORIENTED.value(),
                             BuffCategory.HARMFUL,
                             SpellEventListener.Events.PRE_DAMAGE,
                             DISORIENTED,
                             pre -> pre.setNewDamage(pre.getOriginalDamage() * 0.8F),
                             100);
+
                 }
+                context.getSpellHandler().applyFear(living, 100);
             }
         }
 

@@ -198,5 +198,10 @@ public abstract class SummonSpell extends AnimatedSpell {
             this.updateInterval = updateInterval;
             return this;
         }
+
+        public Builder<T> hasLayer() {
+            this.hasLayer = true;
+            return this;
+        }
     }
 }

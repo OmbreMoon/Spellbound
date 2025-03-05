@@ -14,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -74,10 +75,10 @@ public class PayloadHandler {
     }
 
     public static void playAnimation(Player player, String animation) {
-        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(animation));
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getUUID().toString(), animation));
     }
     public static void updateSpells(Player player, boolean isRecast, int castId, boolean forceReset) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player, new UpdateSpellsPayload(isRecast, castId, forceReset));
+        PacketDistributor.sendToPlayersInDimension((ServerLevel) player.level(), new UpdateSpellsPayload(player.getUUID().toString(), isRecast, castId, forceReset));
     }
 
     public static void endSpell(Player player, SpellType<?> spellType, int castId) {
@@ -117,16 +118,20 @@ public class PayloadHandler {
         PacketDistributor.sendToPlayer((ServerPlayer) player, new UpdateTreePayload(reset, added, removed));
     }
 
-    public static void setRotation(Player player, float xRot, float yRot) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player, new SetRotationPayload(xRot, yRot));
+    public static void setRotation(Entity entity, float xRot, float yRot) {
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new SetRotationPayload(entity.getId(), xRot, yRot));
     }
 
     public static void addGlowEffect(Player player, int entityId) {
         PacketDistributor.sendToPlayer((ServerPlayer) player, new AddGlowEffectPayload(entityId));
     }
 
-    public static void removeGlowEffect(Player player, int entityId) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player, new RemoveGlowEffectPayload(entityId));
+    public static void removeGlowEffect(ServerPlayer player, int entityId) {
+        PacketDistributor.sendToPlayer(player, new RemoveGlowEffectPayload(entityId));
+    }
+
+    public static void removeFearEffect(ServerPlayer player) {
+        PacketDistributor.sendToPlayer(player, new RemoveFearEffectPayload());
     }
 
     public static void updateDimensions(MinecraftServer server, Set<ResourceKey<Level>> keys, boolean add) {
@@ -202,6 +207,11 @@ public class PayloadHandler {
                 RemoveGlowEffectPayload.TYPE,
                 RemoveGlowEffectPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleRemoveGlowEffect
+        );
+        registrar.playToClient(
+                RemoveFearEffectPayload.TYPE,
+                RemoveFearEffectPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleRemoveFearEffect
         );
         registrar.playToClient(
                 AddGlowEffectPayload.TYPE,

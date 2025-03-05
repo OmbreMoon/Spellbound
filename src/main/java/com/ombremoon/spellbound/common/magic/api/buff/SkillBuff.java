@@ -28,7 +28,7 @@ public class SkillBuff<T> {
                 if (instance != null && instance.hasModifier(modifierData.attributeModifier().id()))
                     instance.removeModifier(modifierData.attributeModifier());
             },
-            (o, o1) -> o instanceof ModifierData data && o1 instanceof ModifierData data1 && data.attribute().is(data1.attribute()));
+            (o, o1) -> o instanceof ModifierData data && o1 instanceof ModifierData data1 && data.attributeModifier().is(data1.attributeModifier().id()));
 
     public static final BuffObject<SpellModifier> SPELL_MODIFIER = new BuffObject<>(
             (livingEntity, spellModifier) -> {
@@ -81,10 +81,6 @@ public class SkillBuff<T> {
 
     public BuffObject<T> getBuffObject() {
         return this.buffObject;
-    }
-
-    public boolean is(SkillBuff<?> skillBuff) {
-        return this.skill.equals(skillBuff.skill) && this.object.equals(skillBuff.object);
     }
 
     public boolean isSkill(Skill skill) {

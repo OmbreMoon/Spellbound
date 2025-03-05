@@ -27,7 +27,7 @@ public class SBAttributes {
     public static Holder<Attribute> DISEASE_SPELL_RESIST = registerResistance("disease_spell_resistance");
 
     public static Holder<Attribute> registerResistance(String name) {
-        return register(name, 0d, -100d, 100d);
+        return register(name, 0.0, -1.0, 1.0);
     }
 
     public static Holder<Attribute> register(String name, double defaultVal, double min, double max) {

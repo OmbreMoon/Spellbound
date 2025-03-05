@@ -115,5 +115,9 @@ public abstract class AnimatedSpell extends AbstractSpell {
             this.updateInterval = updateInterval;
             return this;
         }
+        public Builder<T> hasLayer() {
+            this.hasLayer = true;
+            return this;
+        }
     }
 }

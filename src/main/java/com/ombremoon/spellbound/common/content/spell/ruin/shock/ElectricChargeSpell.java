@@ -148,10 +148,8 @@ public class ElectricChargeSpell extends AnimatedSpell {
             }
 
             if (!checkForCounterMagic(target)) {
-                if (skills.hasSkill(SBSkills.ELECTRIFICATION.value())) {
-                    target.setData(SBData.STORMSTRIKE_OWNER, caster.getId());
-                    target.addEffect(new MobEffectInstance(SBEffects.STORMSTRIKE, 60, 0, false, false));
-                }
+                if (skills.hasSkill(SBSkills.ELECTRIFICATION.value()))
+                    handler.applyStormStrike(target, 60);
 
                 if (skills.hasSkill(SBSkills.HIGH_VOLTAGE.value()) && hasShard) {
                     MobEffectInstance mobEffectInstance = new MobEffectInstance(SBEffects.STUNNED, 60, 0, false, false);
