@@ -16,7 +16,7 @@ import com.ombremoon.spellbound.common.content.spell.transfiguration.MysticArmor
 import com.ombremoon.spellbound.common.content.spell.transfiguration.ShadowGateSpell;
 import com.ombremoon.spellbound.common.content.spell.transfiguration.StrideSpell;
 import com.ombremoon.spellbound.common.magic.SpellPath;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;

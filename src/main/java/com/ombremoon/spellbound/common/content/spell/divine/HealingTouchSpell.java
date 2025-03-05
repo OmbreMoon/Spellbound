@@ -28,7 +28,7 @@ public class HealingTouchSpell extends AnimatedSpell {
 
     private static Builder<HealingTouchSpell> createHealingSpell() {
         return createSimpleSpellBuilder(HealingTouchSpell.class)
-                .manaCost(50)
+                .manaCost(6)
                 .duration(200)
                 .fullRecast();
     }

@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.content.spell.summon;
 
+import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.entity.spell.WildMushroom;
 import com.ombremoon.spellbound.common.init.*;
@@ -26,8 +27,9 @@ public class WildMushroomSpell extends SummonSpell {
 
     public static Builder<WildMushroomSpell> createMushroomBuilder() {
         return createSummonBuilder(WildMushroomSpell.class)
+                .mastery(SpellMastery.ADEPT)
                 .duration(180)
-                .manaCost(20);
+                .manaCost(15);
     }
 
     public WildMushroomSpell() {

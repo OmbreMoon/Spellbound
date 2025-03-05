@@ -9,10 +9,9 @@ import com.ombremoon.spellbound.client.renderer.layer.SpellLayerRenderer;
 import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
 import com.ombremoon.spellbound.common.events.EventFactory;
 import com.ombremoon.spellbound.common.init.*;
-import com.ombremoon.spellbound.common.magic.EffectManager;
 import com.ombremoon.spellbound.common.magic.SpellContext;
+import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.common.magic.SpellPath;
-import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.api.buff.*;
 import com.ombremoon.spellbound.common.magic.api.buff.events.SpellEvent;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
@@ -81,9 +80,14 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public static final DataTicket<AbstractSpell> DATA_TICKET = new DataTicket<>("abstract_spell", AbstractSpell.class);
     protected static final SpellDataKey<BlockPos> CAST_POS = SyncedSpellData.registerDataKey(AbstractSpell.class, SBDataTypes.BLOCK_POS.get());
+    protected static final float SPELL_LEVEL_DAMAGE_MODIFIER = 0.25F;
+    protected static final float PATH_LEVEL_DAMAGE_MODIFIER = 0.5F;
+    protected static final float HURT_XP_MODIFIER = 0.01F;
     private final SpellType<?> spellType;
+    private final SpellMastery spellMastery;
     private final int manaCost;
     private final int duration;
+    private final int baseDamage;
     private final float xpModifier;
     private final int castTime;
     private final BiPredicate<SpellContext, AbstractSpell> castPredicate;
@@ -125,8 +129,10 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
     public AbstractSpell(SpellType<?> spellType, Builder<? extends AbstractSpell> builder) {
         this.spellType = spellType;
+        this.spellMastery = builder.spellMastery;
         this.manaCost = builder.manaCost;
         this.duration = builder.duration;
+        this.baseDamage = builder.baseDamage;
         this.xpModifier = builder.xpModifier;
         this.castTime = builder.castTime;
         this.castPredicate = (BiPredicate<SpellContext, AbstractSpell>) builder.castPredicate;
@@ -148,6 +154,10 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      */
     public SpellType<?> getSpellType() {
         return this.spellType;
+    }
+
+    public SpellMastery getSpellMastery() {
+        return this.spellMastery;
     }
 
     public float getManaCost() {
@@ -173,6 +183,10 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
     protected int getDuration(SpellContext context) {
         return this.duration;
+    }
+
+    public int getBaseDamage() {
+        return this.baseDamage;
     }
 
     public float getCastChance() {
@@ -552,11 +566,11 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param hurtAmount The amount of damage the entity takes
      * @return Whether the entity takes damage or not
      */
-    public boolean hurt(LivingEntity ownerEntity, LivingEntity targetEntity, ResourceKey<DamageType> damageType, float hurtAmount) {
+    private boolean hurt(LivingEntity ownerEntity, LivingEntity targetEntity, ResourceKey<DamageType> damageType, float hurtAmount) {
         if (checkForCounterMagic(targetEntity))
             return false;
 
-        float damageAfterResistance = this.getDamageAfterResistance(ownerEntity, targetEntity, hurtAmount);
+        float damageAfterResistance = this.getDamageAfterResistances(ownerEntity, targetEntity, hurtAmount);
         boolean flag = targetEntity.hurt(BoxUtil.damageSource(ownerEntity.level(), damageType, ownerEntity), damageAfterResistance);
         if (flag) {
             this.incrementEffect(targetEntity, damageAfterResistance);
@@ -574,14 +588,41 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         return hurt(this.caster, targetEntity, source.typeHolder().getKey(), hurtAmount);
     }
 
-    private float getDamageAfterResistance(LivingEntity ownerEntity, LivingEntity targetEntity, float damageAmount) {
+    public boolean hurt(LivingEntity targetEntity, float hurtAmount) {
+        SpellPath subPath = this.getSubPath();
+        if (subPath == null)
+            return false;
+
+        var effect = subPath.getEffect();
+        if (effect == null)
+            return false;
+
+        return hurt(targetEntity, effect.getDamageType(), hurtAmount);
+    }
+
+    public boolean hurt(LivingEntity targetEntity) {
+        return hurt(targetEntity, this.baseDamage);
+    }
+
+    public float getModifiedDamage(LivingEntity ownerEntity, float amount) {
+        var skills = SpellUtil.getSkillHolder(ownerEntity);
+        SpellPath path = this.getPath() == SpellPath.RUIN ? this.getSubPath() : this.getPath();
+        float levelDamage = amount * (1.0F + SPELL_LEVEL_DAMAGE_MODIFIER * (skills.getSpellLevel(getSpellType()) - 1));
+        levelDamage *= 1 + PATH_LEVEL_DAMAGE_MODIFIER * ((float) skills.getPathLevel(path) / 100);
+        return getModifier(ModifierType.POTENCY, ownerEntity) * levelDamage;
+    }
+
+    public float getModifiedDamage() {
+        return this.getModifiedDamage(this.caster, this.baseDamage);
+    }
+
+    private float getDamageAfterResistances(LivingEntity ownerEntity, LivingEntity targetEntity, float damageAmount) {
         var effect = SpellUtil.getSpellEffects(targetEntity);
-        float modifierDamage = getModifier(ModifierType.POTENCY, ownerEntity) * damageAmount;
-        return (float) (modifierDamage * (1.0F - effect.getMagicResistance()));
+        return (float) (this.getModifiedDamage(ownerEntity, damageAmount) * (1.0F - effect.getMagicResistance()));
     }
 
     private float calculateHurtXP(float amount) {
-        return (float) (amount * xpModifier * (1 + 0.01 * (this.getManaCost() / this.manaCost)));
+        return amount * xpModifier * (1.0F + HURT_XP_MODIFIER * (this.getManaCost() / this.manaCost));
     }
 
     public void incrementEffect(LivingEntity targetEntity, float amount) {
@@ -912,6 +953,10 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         return this.level.clip(setupRayTraceContext(this.caster, range, ClipContext.Fluid.NONE));
     }
 
+    protected @Nullable Entity getTargetEntity() {
+        return getTargetEntity(SpellUtil.getCastRange(this.caster));
+    }
+
     protected @Nullable Entity getTargetEntity(double range) {
         return getTargetEntity(this.caster, range);
     }
@@ -1006,8 +1051,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         return this.hasLayer;
     }
 
-    public void initSpell(LivingEntity caster, Level level, BlockPos blockPos) {
-        initSpell(caster, level, blockPos, this.getTargetEntity(caster, 10));
+    public void initSpell(LivingEntity caster) {
+        initSpell(caster, caster.level(), caster.getOnPos(), this.getTargetEntity(caster, SpellUtil.getCastRange(caster)));
     }
 
     /**
@@ -1019,15 +1064,9 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      */
     public void initSpell(LivingEntity caster, Level level, BlockPos blockPos, @Nullable Entity target) {
         if (!level.isClientSide) {
-            this.level = level;
-            this.caster = caster;
-            this.blockPos = blockPos;
+            this.initNoCast(caster, level, blockPos, target);
 
             var handler = SpellUtil.getSpellHandler(caster);
-            var list = handler.getActiveSpells(getSpellType());
-            if (!list.isEmpty()) this.isRecast = true;
-            this.context = new SpellContext(this.getSpellType(), this.caster, this.level, this.blockPos, target, this.isRecast);
-
             boolean incrementId = true;
             if (this.isRecast) {
                 AbstractSpell prevSpell;
@@ -1084,7 +1123,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         this.blockPos = blockPos;
 
         this.isRecast = isRecast;
-        this.context = new SpellContext(this.getSpellType(), this.caster, this.level, this.blockPos, this.getTargetEntity(caster, 10), this.isRecast);
+        this.context = new SpellContext(this.getSpellType(), this.caster, this.level, this.blockPos, this.getTargetEntity(), this.isRecast);
 
         if (forceReset) {
             onCastReset(this.context);
@@ -1096,6 +1135,21 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         EventFactory.onSpellCast(caster, this, this.context);
 
         this.init = true;
+    }
+
+    protected void initNoCast(LivingEntity caster, Level level, BlockPos blockPos, Entity target) {
+        this.caster = caster;
+        this.level = level;
+        this.blockPos = blockPos;
+
+        var handler = SpellUtil.getSpellHandler(caster);
+        var list = handler.getActiveSpells(getSpellType());
+        if (!list.isEmpty()) this.isRecast = true;
+        this.context = new SpellContext(this.getSpellType(), this.caster, this.level, this.blockPos, target, this.isRecast);
+    }
+
+    protected void initNoCast(LivingEntity caster) {
+        this.initNoCast(caster, caster.level(), caster.getOnPos(), this.getTargetEntity(caster, SpellUtil.getCastRange(caster)));
     }
 
     /**
@@ -1163,8 +1217,10 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param <T> Type extends AbstractSpell to give access to private fields in a static context
      */
     public static class Builder<T extends AbstractSpell> {
+        protected SpellMastery spellMastery = SpellMastery.NOVICE;
         protected int duration = 10;
         protected int manaCost;
+        protected int baseDamage;
         protected int castTime = 1;
         protected float xpModifier = 0.08F;
         protected BiPredicate<SpellContext, T> castPredicate = (context, abstractSpell) -> true;
@@ -1174,6 +1230,16 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         protected Predicate<SpellContext> skipEndOnRecast = context -> false;
         protected boolean hasLayer;
         protected int updateInterval = 3;
+
+        /**
+         * Sets the mastery level of the spells.
+         * @param mastery The mana cost
+         * @return The spells builder
+         */
+        public Builder<T> mastery(SpellMastery mastery) {
+            this.spellMastery = mastery;
+            return this;
+        }
 
         /**
          * Sets the mana cost of the spells.
@@ -1196,7 +1262,17 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         }
 
         /**
-         * Sets the amount of xp scaled from the spells's mana cost gained by the caster.
+         * Sets the base damage of the spell (if applicable).
+         * @param baseDamage The duration
+         * @return The spells builder
+         */
+        public Builder<T> baseDamage(int baseDamage) {
+            this.baseDamage = baseDamage;
+            return this;
+        }
+
+        /**
+         * Sets the amount of xp scaled from the spell's mana cost gained by the caster.
          * @param modifier The scaling amount
          * @return The spells builder
          */

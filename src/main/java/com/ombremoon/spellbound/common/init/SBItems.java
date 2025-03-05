@@ -4,7 +4,7 @@ import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.content.item.DebugItem;
 import com.ombremoon.spellbound.common.content.item.ManaTearItem;
 import com.ombremoon.spellbound.common.content.item.SpellTomeItem;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;

@@ -1,10 +1,10 @@
 package com.ombremoon.spellbound.common.magic.api;
 
 import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
+import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.entity.SmartSpellEntity;
 import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.buff.events.ChangeTargetEvent;
 import com.ombremoon.spellbound.common.magic.api.buff.events.DamageEvent;
@@ -130,8 +130,23 @@ public abstract class SummonSpell extends AnimatedSpell {
     public static class Builder<T extends SummonSpell> extends AnimatedSpell.Builder<T> {
         private double spawnRange = 5;
 
+        public Builder<T> mastery(SpellMastery mastery) {
+            this.spellMastery = mastery;
+            return this;
+        }
+
         public Builder<T> manaCost(int manaCost) {
             this.manaCost = manaCost;
+            return this;
+        }
+
+        public Builder<T> duration(int duration) {
+            this.duration = duration;
+            return this;
+        }
+
+        public Builder<T> baseDamage(int baseDamage) {
+            this.baseDamage = baseDamage;
             return this;
         }
 
@@ -162,11 +177,6 @@ public abstract class SummonSpell extends AnimatedSpell {
 
         public Builder<T> additionalCondition(BiPredicate<SpellContext, T> castCondition) {
             this.castPredicate = this.castPredicate.and(castCondition);
-            return this;
-        }
-
-        public Builder<T> duration(int duration) {
-            this.duration = duration;
             return this;
         }
 

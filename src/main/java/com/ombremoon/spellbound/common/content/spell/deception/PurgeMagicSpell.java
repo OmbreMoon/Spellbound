@@ -5,7 +5,8 @@ import com.ombremoon.spellbound.common.init.SBItems;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.SpellMastery;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.api.RadialSpell;
@@ -15,12 +16,10 @@ import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
@@ -28,12 +27,15 @@ import java.util.List;
 public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
     private static Builder<PurgeMagicSpell> createPurgeMagicBuilder() {
         return createSimpleSpellBuilder(PurgeMagicSpell.class)
+                .mastery(SpellMastery.ADEPT)
                 .duration(10)
+                .manaCost(12)
                 .castCondition((context, purgeMagicSpell) -> {
                     if (context.getFlag() == 0)
                         return context.getTarget() instanceof LivingEntity;
                     return true;
-                }).fullRecast();
+                })
+                .fullRecast();
     }
 
     public PurgeMagicSpell() {

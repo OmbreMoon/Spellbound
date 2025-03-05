@@ -31,8 +31,10 @@ public class StrideSpell extends AnimatedSpell {
 
     public static Builder<StrideSpell> createStrideBuilder() {
         return createSimpleSpellBuilder(StrideSpell.class)
+                .duration(600)
+                .manaCost(9)
                 .hasLayer()
-                .duration(600).fullRecast();
+                .fullRecast();
     }
 
     private int initialFoodLevel;

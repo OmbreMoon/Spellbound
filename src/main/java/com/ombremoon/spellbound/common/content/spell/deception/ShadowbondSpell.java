@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.content.spell.deception;
 
+import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.world.effects.SBEffectInstance;
 import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
@@ -33,7 +34,9 @@ public class ShadowbondSpell extends AnimatedSpell {
     private static final SpellDataKey<Boolean> EARLY_END = SyncedSpellData.registerDataKey(ShadowbondSpell.class, SBDataTypes.BOOLEAN.get());
     public static Builder<ShadowbondSpell> createShadowbondBuilder() {
         return createSimpleSpellBuilder(ShadowbondSpell.class)
+                .mastery(SpellMastery.ADEPT)
                 .duration(300)
+                .manaCost(15)
                 .castCondition((context, spell) -> {
                     if (context.isRecast()) {
                         if (spell.canReverse) {

@@ -7,6 +7,7 @@ import com.ombremoon.spellbound.common.init.SBEntities;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellContext;
+import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
@@ -22,7 +23,9 @@ public class CycloneSpell extends AnimatedSpell {
 
     private static Builder<CycloneSpell> createCycloneBuilder() {
         return createSimpleSpellBuilder(CycloneSpell.class)
+                .mastery(SpellMastery.MASTER)
                 .duration(600)
+                .manaCost(35)
                 .castCondition((context, cycloneSpell) -> cycloneSpell.hasValidSpawnPos(100) && !context.hasActiveSpells(6));
     }
 

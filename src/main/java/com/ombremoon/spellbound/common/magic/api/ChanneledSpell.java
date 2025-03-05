@@ -2,7 +2,7 @@ package com.ombremoon.spellbound.common.magic.api;
 
 import com.ombremoon.spellbound.common.events.EventFactory;
 import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.LivingEntity;
@@ -63,13 +63,23 @@ public abstract class ChanneledSpell extends AnimatedSpell {
             this.castType = CastType.CHANNEL;
         }
 
+        public Builder<T> mastery(SpellMastery mastery) {
+            this.spellMastery = mastery;
+            return this;
+        }
+
         public Builder<T> manaCost(int manaCost) {
             this.manaCost = manaCost;
             return this;
         }
 
-        public Builder<T> setManaTickCost(int fpTickCost) {
+        public Builder<T> manaTickCost(int fpTickCost) {
             this.manaTickCost = fpTickCost;
+            return this;
+        }
+
+        public Builder<T> baseDamage(int baseDamage) {
+            this.baseDamage = baseDamage;
             return this;
         }
 

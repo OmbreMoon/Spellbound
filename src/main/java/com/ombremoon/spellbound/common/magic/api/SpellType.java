@@ -1,12 +1,13 @@
-package com.ombremoon.spellbound.common.magic;
+package com.ombremoon.spellbound.common.magic.api;
 
+import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.init.SBSpells;
-import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,6 +61,12 @@ public class SpellType<S extends AbstractSpell> {
 
     public S createSpell() {
         return this.factory.create();
+    }
+
+    public S createSpellWithData(LivingEntity caster) {
+        S spell = createSpell();
+        spell.initNoCast(caster);
+        return spell;
     }
 
     public interface SpellFactory<S extends AbstractSpell> {

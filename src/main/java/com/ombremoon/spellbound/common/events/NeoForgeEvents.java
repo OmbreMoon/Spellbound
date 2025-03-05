@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.ombremoon.sentinellib.common.event.RegisterPlayerSentinelBoxEvent;
 import com.ombremoon.spellbound.common.content.commands.LearnSkillsCommand;
 import com.ombremoon.spellbound.common.content.commands.LearnSpellCommand;
+import com.ombremoon.spellbound.common.content.commands.SpellboundCommand;
 import com.ombremoon.spellbound.common.content.entity.spell.Hail;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
 import com.ombremoon.spellbound.common.content.world.dimension.DimensionCreator;
@@ -66,6 +67,7 @@ public class NeoForgeEvents {
 
         new LearnSkillsCommand(dispatcher, context);
         new LearnSpellCommand(dispatcher, context);
+        new SpellboundCommand(dispatcher, context);
 
         ConfigCommand.register(dispatcher);
     }

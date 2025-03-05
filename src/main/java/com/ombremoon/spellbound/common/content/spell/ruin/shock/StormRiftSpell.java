@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.content.spell.ruin.shock;
 
 import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
 import com.ombremoon.spellbound.common.content.entity.spell.StormBolt;
+import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.entity.spell.StormCloud;
 import com.ombremoon.spellbound.common.content.entity.spell.StormRift;
@@ -37,8 +38,10 @@ import java.util.List;
 public class StormRiftSpell extends AnimatedSpell {
     public static Builder<StormRiftSpell> createStormRiftBuilder() {
         return createSimpleSpellBuilder(StormRiftSpell.class)
-                .manaCost(20)
+                .mastery(SpellMastery.MASTER)
+                .manaCost(30)
                 .duration(400)
+                .baseDamage(8)
                 .castCondition((context, spell) -> {
                     var skills = context.getSkills();
                     Entity entity = context.getTarget();
@@ -142,7 +145,7 @@ public class StormRiftSpell extends AnimatedSpell {
 
                                 if (entity instanceof LivingEntity livingEntity) {
                                     stormRift.addCooldown(livingEntity);
-                                    this.hurt(livingEntity, SBDamageTypes.RUIN_SHOCK, damage);
+                                    this.hurt(livingEntity, damage);
                                     this.drainMana(livingEntity, damage);
                                     if (skills.hasSkill(SBSkills.EVENT_HORIZON))
                                         this.quicklyPullTargets(level, stormRift, caster, livingEntity);
@@ -188,8 +191,8 @@ public class StormRiftSpell extends AnimatedSpell {
                                     BlockPos blockpos = new BlockPos(i1, j1, k1);
                                     if (level.getBlockState(blockpos).isAir()) {
                                         livingEntity.teleportTo(blockpos.getX(), blockpos.getY(), blockpos.getZ());
-                                        this.hurt(livingEntity, SBDamageTypes.RUIN_SHOCK, damage);
-                                        this.drainMana(livingEntity, damage);
+                                        this.hurt(livingEntity, damage);
+                                        this.drainMana(livingEntity, 15);
                                         break;
                                     }
                                 }

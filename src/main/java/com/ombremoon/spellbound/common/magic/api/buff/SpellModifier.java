@@ -3,7 +3,7 @@ package com.ombremoon.spellbound.common.magic.api.buff;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellPath;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.ModifierSkill;
 import net.minecraft.resources.ResourceLocation;
 

@@ -1,11 +1,14 @@
 package com.ombremoon.spellbound.common.magic;
 
 import com.ombremoon.spellbound.common.init.SBAttributes;
+import com.ombremoon.spellbound.common.init.SBDamageTypes;
 import com.ombremoon.spellbound.common.init.SBEffects;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
@@ -187,20 +190,20 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
     }
 
     public enum Effect {
-        FIRE(SBEffects.INFLAMED, SBAttributes.FIRE_SPELL_RESIST),
-        FROST(SBEffects.FROZEN, SBAttributes.FROST_SPELL_RESIST),
-        SHOCK(SBEffects.SHOCKED, SBAttributes.SHOCK_SPELL_RESIST),
-        WIND(SBEffects.WIND, SBAttributes.WIND_SPELL_RESIST),
-        EARTH(SBEffects.EARTH, SBAttributes.EARTH_SPELL_RESIST),
-        POISON(SBEffects.POISON, SBAttributes.POISON_SPELL_RESIST),
-        DISEASE(SBEffects.DISEASE, SBAttributes.DISEASE_SPELL_RESIST);
+        FIRE(SBEffects.INFLAMED, SBAttributes.FIRE_SPELL_RESIST, SBDamageTypes.RUIN_FIRE),
+        FROST(SBEffects.FROZEN, SBAttributes.FROST_SPELL_RESIST, SBDamageTypes.RUIN_FROST),
+        SHOCK(SBEffects.SHOCKED, SBAttributes.SHOCK_SPELL_RESIST, SBDamageTypes.RUIN_SHOCK),
+        WIND(SBEffects.WIND, SBAttributes.WIND_SPELL_RESIST, SBDamageTypes.RUIN_FIRE),
+        EARTH(SBEffects.EARTH, SBAttributes.EARTH_SPELL_RESIST, SBDamageTypes.RUIN_FIRE);
 
         private final Holder<MobEffect> mobEffect;
         private final Holder<Attribute> resistance;
+        private final ResourceKey<DamageType> damageType;
 
-        Effect(Holder<MobEffect> mobEffect, Holder<Attribute> resistance) {
+        Effect(Holder<MobEffect> mobEffect, Holder<Attribute> resistance, ResourceKey<DamageType> damageType) {
             this.mobEffect = mobEffect;
             this.resistance = resistance;
+            this.damageType = damageType;
         }
 
         /**
@@ -208,7 +211,7 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
          * @return The MobEffect applied when buildup is 100
          */
         public Holder<MobEffect> getEffect() {
-            return mobEffect;
+            return this.mobEffect;
         }
 
         /**
@@ -216,7 +219,11 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
          * @return the attribute used in buildup calculations
          */
         public Holder<Attribute> getResistance() {
-            return resistance;
+            return this.resistance;
+        }
+
+        public ResourceKey<DamageType> getDamageType() {
+            return this.damageType;
         }
 
         /**

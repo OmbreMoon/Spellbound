@@ -7,7 +7,9 @@ import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 public class VolcanoSpell extends AnimatedSpell {
 
     private static Builder<VolcanoSpell> createVolcanoBuilder() {
-        return createSimpleSpellBuilder(VolcanoSpell.class).castTime(20);
+        return createSimpleSpellBuilder(VolcanoSpell.class)
+                .manaCost(50)
+                .castTime(20);
     }
 
     public VolcanoSpell() {

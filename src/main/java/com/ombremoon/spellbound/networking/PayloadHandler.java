@@ -2,7 +2,7 @@ package com.ombremoon.spellbound.networking;
 
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.init.SBData;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import com.ombremoon.spellbound.networking.clientbound.*;
