@@ -3,7 +3,7 @@ package com.ombremoon.spellbound.common.magic.api.buff;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellPath;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.ModifierSkill;
 import net.minecraft.resources.ResourceLocation;
 
@@ -23,6 +23,7 @@ import java.util.function.Predicate;
 public record SpellModifier(ResourceLocation id, ModifierType modifierType, Predicate<SpellType<?>> spellPredicate, float modifier, Operation operation) {
     private static final Map<ResourceLocation, SpellModifier> MODIFIER_REGISTRY = new HashMap<>();
 
+    public static final SpellModifier FEAR = registerModifier("fear", ModifierType.POTENCY, spellType -> true, 0.75F);
     public static final SpellModifier UNWANTED_GUESTS = registerModifier("unwanted_guests", ModifierType.POTENCY, spellType -> true, 0.9F);
     public static final SpellModifier REPRISAL = registerModifier("reprisal", ModifierType.POTENCY, spellType -> spellType.getPath() == SpellPath.DIVINE, 1.5F);
     public static final SpellModifier AFTERGLOW = registerModifier("afterglow", ModifierType.POTENCY, spell -> spell.getPath() == SpellPath.RUIN && spell.getSubPath() == SpellPath.FIRE, 1.2F);

@@ -18,7 +18,7 @@ public class ServerPayloadHandler {
         if (!level.isClientSide) {
             var handler = SpellUtil.getSpellHandler(context.player());
             AbstractSpell spell = handler.getCurrentlyCastSpell();
-            spell.initSpell(context.player(), level, context.player().getOnPos());
+            spell.initSpell(context.player());
             handler.setCurrentlyCastingSpell(null);
         }
     }

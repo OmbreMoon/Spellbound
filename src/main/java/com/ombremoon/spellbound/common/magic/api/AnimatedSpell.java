@@ -2,7 +2,7 @@ package com.ombremoon.spellbound.common.magic.api;
 
 import com.ombremoon.spellbound.common.events.EventFactory;
 import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.SpellMastery;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.player.Player;
 
@@ -47,8 +47,23 @@ public abstract class AnimatedSpell extends AbstractSpell {
         protected Function<SpellContext, String> castAnimation = context -> "";
         protected Function<SpellContext, String> failAnimation = context -> "";
 
+        public Builder<T> mastery(SpellMastery mastery) {
+            this.spellMastery = mastery;
+            return this;
+        }
+
         public Builder<T> manaCost(int manaCost) {
             this.manaCost = manaCost;
+            return this;
+        }
+
+        public Builder<T> duration(int duration) {
+            this.duration = duration;
+            return this;
+        }
+
+        public Builder<T> baseDamage(int baseDamage) {
+            this.baseDamage = baseDamage;
             return this;
         }
 
@@ -82,11 +97,6 @@ public abstract class AnimatedSpell extends AbstractSpell {
             return this;
         }
 
-        public Builder<T> duration(int duration) {
-            this.duration = duration;
-            return this;
-        }
-
         public Builder<T> castType(CastType castType) {
             this.castType = castType;
             return this;
@@ -113,6 +123,10 @@ public abstract class AnimatedSpell extends AbstractSpell {
 
         public Builder<T> updateInterval(int updateInterval) {
             this.updateInterval = updateInterval;
+            return this;
+        }
+        public Builder<T> hasLayer() {
+            this.hasLayer = true;
             return this;
         }
     }

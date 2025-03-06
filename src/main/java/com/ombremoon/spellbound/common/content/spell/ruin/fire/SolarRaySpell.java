@@ -4,10 +4,11 @@ import com.ombremoon.sentinellib.api.box.AABBSentinelBox;
 import com.ombremoon.sentinellib.api.box.OBBSentinelBox;
 import com.ombremoon.sentinellib.api.box.SentinelBox;
 import com.ombremoon.sentinellib.common.ISentinel;
-import com.ombremoon.spellbound.common.content.effects.SBEffectInstance;
+import com.ombremoon.spellbound.common.content.world.effects.SBEffectInstance;
 import com.ombremoon.spellbound.common.content.entity.spell.SolarRay;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
+import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
 import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
@@ -93,8 +94,12 @@ public class SolarRaySpell extends ChanneledSpell {
     private final Map<LivingEntity, Integer> heatTracker = new Object2IntOpenHashMap<>();
 
     public static Builder<SolarRaySpell> createSolarRayBuilder() {
-        return createChannelledSpellBuilder(SolarRaySpell.class).castTime(18).castAnimation(context -> "shamon");
-//        return createChannelledSpellBuilder(SolarRaySpell.class).castTime(18).castAnimation(context -> "solar_ray1");
+        return createChannelledSpellBuilder(SolarRaySpell.class)
+                .mastery(SpellMastery.EXPERT)
+                .manaCost(25)
+                .manaTickCost(10)
+                .castTime(18)
+                .castAnimation(context -> "shamon");
     }
 
     public SolarRaySpell() {
@@ -265,7 +270,7 @@ public class SolarRaySpell extends ChanneledSpell {
                     }
                 })
                 .typeDamage(SBDamageTypes.RUIN_FIRE, (entity, living) -> {
-                    float damage = 5F;
+                    float damage = 3F;
                     if (entity instanceof LivingEntity livingEntity) {
                         var handler = SpellUtil.getSpellHandler(livingEntity);
                         var skills = SpellUtil.getSkillHolder(livingEntity);

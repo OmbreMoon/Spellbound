@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common.content.effects;
+package com.ombremoon.spellbound.common.content.world.effects;
 
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import net.minecraft.core.Holder;
@@ -48,12 +48,6 @@ public class SBEffectInstance extends MobEffectInstance {
 
     public boolean willGlow() {
         return this.willGlow;
-    }
-
-    @Override
-    public boolean tick(LivingEntity entity, Runnable onExpirationRunnable) {
-//        Constants.LOG.info("{}", this.getDuration());
-        return super.tick(entity, onExpirationRunnable);
     }
 
     @Override

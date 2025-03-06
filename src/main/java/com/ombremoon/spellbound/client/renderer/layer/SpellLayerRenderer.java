@@ -2,8 +2,9 @@ package com.ombremoon.spellbound.client.renderer.layer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.ombremoon.spellbound.main.CommonClass;
+import com.ombremoon.spellbound.client.event.ClientEventFactory;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
+import com.ombremoon.spellbound.main.CommonClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -38,6 +39,7 @@ public class SpellLayerRenderer<T extends AbstractSpell> extends HumanoidModel i
 
     protected Matrix4f entityRenderTranslations = new Matrix4f();
     protected Matrix4f modelRenderTranslations = new Matrix4f();
+
     protected BakedGeoModel lastModel = null;
     protected GeoBone head = null;
     protected GeoBone body = null;
@@ -50,6 +52,12 @@ public class SpellLayerRenderer<T extends AbstractSpell> extends HumanoidModel i
     protected GeoBone leftBoot = null;
 
     protected LivingEntity currentEntity = null;
+    protected MultiBufferSource bufferSource = null;
+    protected float partialTick;
+    protected float limbSwing;
+    protected float limbSwingAmount;
+    protected float netHeadYaw;
+    protected float headPitch;
 
     public SpellLayerRenderer(GeoModel<T> model) {
         super(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER_INNER_ARMOR));
@@ -74,6 +82,11 @@ public class SpellLayerRenderer<T extends AbstractSpell> extends HumanoidModel i
     @Override
     public long getInstanceId(T animatable) {
         return animatable.hashCode();
+    }
+
+    @Override
+    public @Nullable RenderType getRenderType(T animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+        return RenderType.itemEntityTranslucentCull(texture);
     }
 
     @Override
@@ -149,6 +162,24 @@ public class SpellLayerRenderer<T extends AbstractSpell> extends HumanoidModel i
     }
 
     @Override
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
+        Minecraft mc = Minecraft.getInstance();
+        MultiBufferSource bufferSource =  mc.levelRenderer.renderBuffers.bufferSource();
+
+        if (mc.levelRenderer.shouldShowEntityOutlines() && mc.shouldEntityAppearGlowing(this.currentEntity))
+            bufferSource =  mc.levelRenderer.renderBuffers.outlineBufferSource();
+
+        float partialTick = mc.getTimer().getGameTimeDeltaPartialTick(true);
+        RenderType renderType = getRenderType(this.animatable, getTextureLocation(this.animatable), bufferSource, partialTick);
+        buffer = bufferSource.getBuffer(renderType);
+
+        defaultRender(poseStack, this.animatable, bufferSource, null, buffer,
+                0, partialTick, packedLight);
+
+        this.animatable = null;
+    }
+
+    @Override
     public void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
         poseStack.pushPose();
         poseStack.translate(0, 24 / 16f, 0);
@@ -176,10 +207,17 @@ public class SpellLayerRenderer<T extends AbstractSpell> extends HumanoidModel i
         poseStack.popPose();
     }
 
-    public void doSpellPostRenderCleanup() {
+    @Override
+    public void doPostRenderCleanup() {
         this.baseModel = null;
         this.currentEntity = null;
         this.animatable = null;
+        this.bufferSource = null;
+        this.partialTick = 0;
+        this.limbSwing = 0;
+        this.limbSwingAmount = 0;
+        this.netHeadYaw = 0;
+        this.headPitch = 0;
     }
 
     @Override
@@ -211,13 +249,20 @@ public class SpellLayerRenderer<T extends AbstractSpell> extends HumanoidModel i
         this.vfx = getVFXBone(model);
     }
 
-    public void prepForRender(@Nullable LivingEntity entity, AbstractSpell spell, @Nullable HumanoidModel<?> baseModel) {
+    public void prepForRender(@Nullable LivingEntity entity, AbstractSpell spell, @Nullable HumanoidModel<?> baseModel, MultiBufferSource bufferSource,
+                              float partialTick, float limbSwing, float limbSwingAmount, float netHeadYaw, float headPitch) {
         if (entity == null|| baseModel == null)
             return;
 
         this.baseModel = baseModel;
         this.currentEntity = entity;
-        this.animatable = (T)spell;
+        this.animatable = (T) spell;
+        this.bufferSource = bufferSource;
+        this.partialTick = partialTick;
+        this.limbSwing = limbSwing;
+        this.limbSwingAmount = limbSwingAmount;
+        this.netHeadYaw = netHeadYaw;
+        this.headPitch = headPitch;
     }
 
     protected void applyBaseModel(HumanoidModel<?> baseModel) {
@@ -319,16 +364,16 @@ public class SpellLayerRenderer<T extends AbstractSpell> extends HumanoidModel i
 
     @Override
     public void fireCompileRenderLayersEvent() {
-
+        ClientEventFactory.fireSpellLayerCompileRenderLayers(this);
     }
 
     @Override
     public boolean firePreRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-        return false;
+        return ClientEventFactory.fireSpellLayerPreRender(this, poseStack, model, bufferSource, partialTick, packedLight);
     }
 
     @Override
     public void firePostRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-
+        ClientEventFactory.fireSpellLayerPostRender(this, poseStack, model, bufferSource, partialTick, packedLight);
     }
 }

@@ -1,12 +1,16 @@
 package com.ombremoon.spellbound.client;
 
+import com.ombremoon.spellbound.common.init.SBEffects;
 import com.ombremoon.spellbound.main.Constants;
+import com.ombremoon.spellbound.util.SpellUtil;
 import com.ombremoon.spellbound.util.math.NoiseGenerator;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Camera;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -128,6 +132,15 @@ public class CameraEngine {
                 event.setPitch((float) (event.getPitch() + d0));
                 event.setRoll((float) (event.getRoll() + d1));
                 event.setYaw((float) (event.getYaw() + d2));
+            }
+        }
+
+        if (camera.getEntity() instanceof LivingEntity living) {
+            var handler = SpellUtil.getSpellHandler(living);
+            if (handler.isFeared()) {
+                Vec3 vec3 = living.getDeltaMovement();
+                float yaw = Mth.wrapDegrees((float) (Mth.atan2(vec3.z, vec3.x) * 180.0F / (float) Math.PI) - 90.0F);
+                event.setYaw(yaw);
             }
         }
     }

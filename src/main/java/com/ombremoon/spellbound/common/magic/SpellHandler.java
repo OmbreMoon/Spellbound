@@ -4,9 +4,11 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.ombremoon.spellbound.common.init.SBAttributes;
 import com.ombremoon.spellbound.common.init.SBData;
+import com.ombremoon.spellbound.common.init.SBEffects;
 import com.ombremoon.spellbound.common.magic.acquisition.divine.PlayerDivineActions;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
@@ -16,7 +18,6 @@ import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
 import com.ombremoon.spellbound.main.ConfigHandler;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.PayloadHandler;
-import com.ombremoon.spellbound.util.EffectManager;
 import com.ombremoon.spellbound.util.Loggable;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
@@ -28,6 +29,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
@@ -136,6 +139,10 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
         this.skillHolder.getCooldowns().tick();
     }
 
+    public double getMaxMana() {
+        return this.caster.getAttribute(SBAttributes.MAX_MANA) != null ? this.caster.getAttribute(SBAttributes.MAX_MANA).getValue() : 0;
+    }
+
     /**
      * Consumes a specified amount of mana from the player.
      * @param amount The amount of mana consumed
@@ -171,7 +178,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * @param mana The amount of mana received
      */
     public void awardMana(float mana) {
-        this.caster.setData(SBData.MANA, Math.min(caster.getData(SBData.MANA) + mana, this.caster.getAttribute(SBAttributes.MAX_MANA).getValue()));
+        this.caster.setData(SBData.MANA, Mth.clamp(caster.getData(SBData.MANA) + mana, 0, this.getMaxMana()));
         if (this.caster instanceof Player player)
             PayloadHandler.syncMana(player);
     }
@@ -188,6 +195,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
         if (this.equippedSpellSet.isEmpty())
             this.selectedSpell = spellType;
 
+        log(ConfigHandler.COMMON.maxSpellListSize.get());
         if (this.equippedSpellSet.size() < ConfigHandler.COMMON.maxSpellListSize.get())
             this.equippedSpellSet.add(spellType);
     }
@@ -424,12 +432,26 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
             PayloadHandler.updateFlag(spellType, flag);
     }
 
+    public void applyFear(LivingEntity target, int ticks) {
+        target.setData(SBData.FEAR_SOURCE, this.caster.position());
+        target.addEffect(new MobEffectInstance(SBEffects.FEAR, ticks, 0, false, false));
+    }
+
+    public void applyStormStrike(LivingEntity target, int ticks) {
+        target.setData(SBData.STORMSTRIKE_OWNER.get(), this.caster.getId());
+        target.addEffect(new MobEffectInstance(SBEffects.STORMSTRIKE, ticks, 0, false, false));
+    }
+
     /**
      * Checks whether the player should remain stationary. That is to say all player movement inputs will be disregarded.
      * @return If the player is supposed to be stationary
      */
     public boolean isStationary() {
-        return this.stationaryTicks > 0;
+        return this.stationaryTicks > 0 || this.caster.hasEffect(SBEffects.ROOTED) || this.caster.hasEffect(SBEffects.STUNNED) || this.caster.hasEffect(SBEffects.SLEEP) || this.isFeared();
+    }
+
+    public boolean isFeared() {
+        return this.caster.hasEffect(SBEffects.FEAR) && this.caster.getData(SBData.FEAR_TICK) < 40;
     }
 
     /**

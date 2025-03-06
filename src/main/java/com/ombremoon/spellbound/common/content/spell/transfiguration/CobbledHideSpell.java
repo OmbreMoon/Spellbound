@@ -7,7 +7,7 @@ import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;

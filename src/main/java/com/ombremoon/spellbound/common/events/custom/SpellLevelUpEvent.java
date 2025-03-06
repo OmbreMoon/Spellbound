@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.events.custom;
 
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
 

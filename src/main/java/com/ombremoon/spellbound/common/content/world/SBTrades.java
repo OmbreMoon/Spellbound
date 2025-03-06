@@ -6,7 +6,7 @@ import com.ombremoon.spellbound.common.content.entity.SBMerchantType;
 import com.ombremoon.spellbound.common.content.item.SpellTomeItem;
 import com.ombremoon.spellbound.common.init.SBBlocks;
 import com.ombremoon.spellbound.common.init.SBSpells;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.Util;

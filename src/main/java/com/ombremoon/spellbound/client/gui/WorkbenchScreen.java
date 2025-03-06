@@ -7,15 +7,14 @@ import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.SpellPath;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.tree.SkillNode;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
-import com.ombremoon.spellbound.main.Constants;
+import com.ombremoon.spellbound.main.ConfigHandler;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.RenderUtil;
 import com.ombremoon.spellbound.util.SpellUtil;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -136,6 +135,7 @@ public class WorkbenchScreen extends Screen {
                         SpellType<?> spellType = this.equippedSpellList.get(i + windowIndex);
                         if (spellType != null) {
                             this.spellHandler.unequipSpell(spellType);
+                            this.selectedIndex = -1;
                             this.spellList = this.spellHandler.getSpellList().stream().filter(spell -> !this.spellHandler.getEquippedSpells().contains(spell)).toList();
                             this.equippedSpellList = this.spellHandler.getEquippedSpells().stream().toList();
                             PayloadHandler.equipSpell(spellType, false);
@@ -158,6 +158,7 @@ public class WorkbenchScreen extends Screen {
                         if (this.skillHolder.canUnlockSkill(skill)) {
                             this.skillHolder.unlockSkill(skill);
                             PayloadHandler.unlockSkill(skill);
+                            return true;
                         }
                     }
                 }
@@ -371,7 +372,7 @@ public class WorkbenchScreen extends Screen {
     }
 
     private void handleSpellSwap(SpellType<?> spellType) {
-        if (this.spellHandler.getEquippedSpells().size() < 10) {
+        if (this.spellHandler.getEquippedSpells().size() < ConfigHandler.COMMON.maxSpellListSize.get()) {
             this.spellHandler.equipSpell(spellType);
             this.spellList = this.spellHandler.getSpellList().stream().filter(spell -> !this.spellHandler.getEquippedSpells().contains(spell)).toList();
             this.equippedSpellList = this.spellHandler.getEquippedSpells().stream().toList();
@@ -424,9 +425,5 @@ public class WorkbenchScreen extends Screen {
             if (pos > thresh && pos <= nextThresh)
                 this.windowIndex = l;
         }
-    }
-
-    private boolean canScroll() {
-        return this.spellList.size() > 4;
     }
 }

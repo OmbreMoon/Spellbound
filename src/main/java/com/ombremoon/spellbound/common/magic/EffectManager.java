@@ -1,10 +1,14 @@
-package com.ombremoon.spellbound.util;
+package com.ombremoon.spellbound.common.magic;
 
 import com.ombremoon.spellbound.common.init.SBAttributes;
+import com.ombremoon.spellbound.common.init.SBDamageTypes;
 import com.ombremoon.spellbound.common.init.SBEffects;
+import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,9 +21,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EffectManager implements INBTSerializable<CompoundTag> {
+    protected static final float PATH_BUILD_UP_MODIFIER = 0.01F;
     private LivingEntity livingEntity;
     private final Map<Effect, Float> buildUp = new HashMap<>();
     private float judgement;
+
+    /**
+     * Initialises the effect handler
+     * @param self the entity to attach the effect handler to
+     */
+    public void init(LivingEntity self) {
+        this.livingEntity = self;
+    }
+
+    /**
+     * Checks if the effect handler has been initialised
+     * @return true if initialised, false otherwise
+     */
+    public boolean isInitialised() { return livingEntity != null; }
 
     /**
      * Checks if the entity is rooted (cant move)
@@ -27,9 +46,7 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
      * @return true if they are rooted (cant move), false otherwise
      */
     public static boolean isRooted(LivingEntity entity) {
-        return entity.hasEffect(SBEffects.ROOTED)
-                || isStunned(entity)
-                || SpellUtil.getSpellHandler(entity).isStationary();
+        return entity.hasEffect(SBEffects.ROOTED);
     }
 
     /**
@@ -52,36 +69,41 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
                 || entity.hasEffect(SBEffects.CATALEPSY);
     }
 
-    /**
-     * Initialises the effect handler
-     * @param self the entity to attach the effect handler to
-     */
-    public void init(LivingEntity self) {
-        this.livingEntity = self;
+    public double getMagicResistance() {
+        return this.livingEntity.getAttribute(SBAttributes.MAGIC_RESIST) != null ? this.livingEntity.getAttributeValue(SBAttributes.MAGIC_RESIST) : 0;
     }
 
     /**
-     * Checks if the effect handler has been initialised
-     * @return true if initialised, false otherwise
-     */
-    public boolean isInitialised() { return livingEntity != null; }
-
-    /**
      * Increments a given status effect by a set amount, will apply the effect upon reaching 100
-     * @param effect The status effect to add buildup to
+     * @param damageType The type of damage applied to the buildup
      * @param amount amount to increase the build up by
      */
-    public void increment(Effect effect, float amount) {
-        Float progress = buildUp.get(effect);
-        float postResistAmount = amount * (1F - effect.getEntityResistance(livingEntity) / 100F);
-        if (progress == null) progress = postResistAmount;
-        else progress = Math.clamp(progress + postResistAmount, 0, 100);
+    public void incrementRuinEffects(ResourceKey<DamageType> damageType, float amount) {
+        Effect effect = this.getEffectFromDamageType(damageType);
+        if (effect != null) {
+            Float progress = buildUp.get(effect);
+            float buildUpAmount = this.calculateBuildUp(effect, amount);
+            if (progress == null) progress = buildUpAmount;
+            else progress = Math.clamp(progress + buildUpAmount, 0, 100);
 
-        buildUp.put(effect, progress);
-        if (progress >= 100) {
-            tryApplyEffect(effect);
-            this.buildUp.put(effect, 0F);
+            buildUp.put(effect, progress);
+            if (progress >= 100) {
+                tryApplyEffect(effect);
+                this.buildUp.put(effect, 0F);
+            }
         }
+    }
+
+    private float calculateBuildUp(Effect effect, float amount) {
+        var skills = SpellUtil.getSkillHolder(this.livingEntity);
+        float resistance = 1.0F - effect.getEntityResistance(this.livingEntity);
+        float pathAmount = 1.0F + (PATH_BUILD_UP_MODIFIER * skills.getPathLevel(effect.getPath()));
+        float ruinPathAmount = 1.0F + (PATH_BUILD_UP_MODIFIER * skills.getPathLevel(SpellPath.RUIN));
+        return amount * resistance * 0.2F * pathAmount * ruinPathAmount;
+    }
+
+    private void incrementHysteria(float amount) {
+
     }
 
     public float getJudgement() {
@@ -123,8 +145,15 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
      */
     @ApiStatus.Internal
     public void tick(int tickCount) {
-        if (livingEntity == null) throw new RuntimeException("Status Effects not initialised.");
-        if (tickCount % 20 == 0) buildUp.replaceAll((effect, amount) -> amount > 0 ? amount - 1 : 0);
+        if (livingEntity == null)
+            throw new RuntimeException("Status Effects not initialised.");
+
+        if (tickCount % 20 == 0) {
+            this.buildUp.forEach((effect, amount) -> {
+                if (amount > 0)
+                    this.buildUp.replace(effect, amount - 1);
+            });
+        }
     }
 
     /**
@@ -132,10 +161,31 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
      * @param effect the effect that has reached 100 buildup
      */
     private void tryApplyEffect(Effect effect) {
-        if (effect.getEffect() == null) return;
+        if (effect.getEffect() == null)
+            return;
+
         livingEntity.addEffect(new MobEffectInstance(effect.getEffect(), 60));
     }
-    
+
+    public Effect getEffectFromDamageType(ResourceKey<DamageType> damageType) {
+        if (damageType == SBDamageTypes.RUIN_FIRE) {
+            return Effect.FIRE;
+        } else if (damageType == SBDamageTypes.RUIN_SHOCK) {
+            return Effect.SHOCK;
+        } else if (damageType == SBDamageTypes.RUIN_FROST) {
+            return Effect.FROST;
+        } else if (damageType == SBDamageTypes.RUIN_WATER) {
+            return Effect.WATER;
+        } else if (damageType == SBDamageTypes.RUIN_EARTH) {
+            return Effect.EARTH;
+        } else if (damageType == SBDamageTypes.RUIN_AIR) {
+            return Effect.AIR;
+        } else {
+            //ADD DAMAGE BUILD UP EVENT
+            return null;
+        }
+    }
+
     @Override
     public @UnknownNullability CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
@@ -156,20 +206,27 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
     }
 
     public enum Effect {
-        FIRE(SBEffects.INFLAMED, SBAttributes.FIRE_SPELL_RESIST),
-        FROST(SBEffects.FROZEN, SBAttributes.FROST_SPELL_RESIST),
-        SHOCK(SBEffects.SHOCKED, SBAttributes.SHOCK_SPELL_RESIST),
-        WIND(SBEffects.WIND, SBAttributes.WIND_SPELL_RESIST),
-        EARTH(SBEffects.EARTH, SBAttributes.EARTH_SPELL_RESIST),
-        POISON(SBEffects.POISON, SBAttributes.POISON_SPELL_RESIST),
-        DISEASE(SBEffects.DISEASE, SBAttributes.DISEASE_SPELL_RESIST);
+        FIRE(SpellPath.FIRE, SBEffects.COMBUST, SBAttributes.FIRE_SPELL_RESIST, SBDamageTypes.RUIN_FIRE),
+        FROST(SpellPath.FROST, SBEffects.FROZEN, SBAttributes.FROST_SPELL_RESIST, SBDamageTypes.RUIN_FROST),
+        WATER(SpellPath.WATER, SBEffects.WET, SBAttributes.WATER_SPELL_RESIST, SBDamageTypes.RUIN_WATER),
+        SHOCK(SpellPath.SHOCK, SBEffects.DISCHARGE, SBAttributes.SHOCK_SPELL_RESIST, SBDamageTypes.RUIN_SHOCK),
+        AIR(SpellPath.AIR, SBEffects.WIND, SBAttributes.WIND_SPELL_RESIST, SBDamageTypes.RUIN_FIRE),
+        EARTH(SpellPath.EARTH, SBEffects.EARTH, SBAttributes.EARTH_SPELL_RESIST, SBDamageTypes.RUIN_FIRE);
 
+        private final SpellPath path;
         private final Holder<MobEffect> mobEffect;
         private final Holder<Attribute> resistance;
+        private final ResourceKey<DamageType> damageType;
 
-        Effect(Holder<MobEffect> mobEffect, Holder<Attribute> resistance) {
+        Effect(SpellPath path, Holder<MobEffect> mobEffect, Holder<Attribute> resistance, ResourceKey<DamageType> damageType) {
+            this.path = path;
             this.mobEffect = mobEffect;
             this.resistance = resistance;
+            this.damageType = damageType;
+        }
+
+        public SpellPath getPath() {
+            return this.path;
         }
 
         /**
@@ -177,7 +234,7 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
          * @return The MobEffect applied when buildup is 100
          */
         public Holder<MobEffect> getEffect() {
-            return mobEffect;
+            return this.mobEffect;
         }
 
         /**
@@ -185,7 +242,11 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
          * @return the attribute used in buildup calculations
          */
         public Holder<Attribute> getResistance() {
-            return resistance;
+            return this.resistance;
+        }
+
+        public ResourceKey<DamageType> getDamageType() {
+            return this.damageType;
         }
 
         /**

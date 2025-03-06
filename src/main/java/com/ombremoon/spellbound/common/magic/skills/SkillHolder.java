@@ -5,10 +5,10 @@ import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
 import com.ombremoon.spellbound.common.magic.SpellPath;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.main.ConfigHandler;
-import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.PayloadHandler;
+import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -18,6 +18,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.NeoForge;
@@ -72,18 +73,28 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
 
     public void awardSpellXp(SpellType<?> spellType, float xp) {
         int level = this.getSpellLevel(spellType);
+        SpellPath path = spellType.getPath();
         this.spellXp.put(spellType, Math.min(getSpellXp(spellType) + xp, getXPGoal(MAX_SPELL_LEVEL)));
-        this.pathXp.put(spellType.getPath(), getPathXp(spellType.getPath()) + (xp / 2));
+        this.pathXp.put(path, getPathXp(path) + (xp / 2));
+
+        SpellPath subPath = spellType.getSubPath();
+        if (subPath != null)
+            this.pathXp.put(subPath, getPathXp(subPath) + (xp / 2));
+
         int newLevel = this.getSpellLevel(spellType);
         if (newLevel > level && newLevel > 0) {
             NeoForge.EVENT_BUS.post(new SpellLevelUpEvent(this.caster, spellType, newLevel));
-            this.skillPoints.put(spellType, this.getSkillPoints(spellType) + (newLevel - level));
+            this.awardSkillPoints(spellType, this.getSkillPoints(spellType) + (newLevel - level));
         }
         sync();
     }
 
     public int getSkillPoints(SpellType<?> spellType) {
         return this.skillPoints.getOrDefault(spellType, 0);
+    }
+
+    public void awardSkillPoints(SpellType<?> spellType, int points) {
+        this.skillPoints.put(spellType, Mth.clamp(this.getSkillPoints(spellType) + points, 0, + 11 - this.unlockedSkills.get(spellType).size()));
     }
 
     public <T extends AbstractSpell> void resetSkills(SpellType<T> spellType) {
@@ -202,8 +213,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
                 continue;
             }
 
-            CompoundTag newTag = new CompoundTag();
-            newTag.putString("Spell", spellType.location().toString());
+            CompoundTag newTag = SpellUtil.storeSpell(spellType);
             newTag.putFloat("Xp", this.spellXp.get(spellType));
             spellXpTag.add(newTag);
         }
@@ -214,8 +224,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
                 continue;
             }
 
-            CompoundTag newTag = new CompoundTag();
-            newTag.putString("Spell", spellType.location().toString());
+            CompoundTag newTag = SpellUtil.storeSpell(spellType);
             newTag.putFloat("Points", this.skillPoints.get(spellType));
             skillPointTag.add(newTag);
         }
@@ -225,8 +234,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
                 this.unlockedSkills.remove(null);
                 continue;
             }
-            CompoundTag newTag = new CompoundTag();
-            newTag.putString("Spell", spellType.location().toString());
+            CompoundTag newTag = SpellUtil.storeSpell(spellType);
             ListTag savedSkills = new ListTag();
             for (Skill skill : unlockedSkills.get(spellType)) {
                 if (skill == null) continue;

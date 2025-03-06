@@ -27,7 +27,7 @@ public class DebugItem extends Item implements Loggable {
 
     private void ombreDebug(Level level, Player player, InteractionHand usedHand, SpellHandler spellHandler, SkillHolder skillHolder) {
         if (!level.isClientSide) {
-            skillHolder.awardSpellXp(SBSpells.ELECTRIC_CHARGE.get(), 1500);
+            skillHolder.awardSpellXp(SBSpells.STRIDE.get(), 1500);
         } else {
         }
     }

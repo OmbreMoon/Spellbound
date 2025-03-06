@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.common.content.spell.divine;
 import com.ombremoon.spellbound.common.content.entity.spell.HealingBlossom;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
+import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
 import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;
@@ -36,8 +37,10 @@ public class HealingBlossomSpell extends AnimatedSpell {
 
     private static Builder<HealingBlossomSpell> createHealingBlossomSpell() {
         return createSimpleSpellBuilder(HealingBlossomSpell.class)
-                .manaCost(30).castTime(20)
+                .mastery(SpellMastery.EXPERT)
+                .manaCost(25)
                 .duration(400)
+                .castTime(20)
                 .castCondition((context, spell) -> spell.hasValidSpawnPos(5))
                 .fullRecast();
     }

@@ -5,7 +5,7 @@ import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.init.SBItems;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.init.SBSpells;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import net.minecraft.core.Holder;
 import net.minecraft.data.PackOutput;
@@ -237,7 +237,7 @@ public class ModLangProvider extends LanguageProvider {
         addSkillTooltip(SBSkills.VERDANT_RENEWAL, "Cleanses all negative effects from the caster");
         addSkillTooltip(SBSkills.REBIRTH, "Mark a blossom with a holy shard. If the caster takes fatal damage near the blossom, half of their health is automatically restored.");
 
-        addSkillTooltip(SBSkills.SHADOWBOND, "Caster and target gain invisibility for 10 seconds. When the invisibility is broken,the caster and target swap places.");
+        addSkillTooltip(SBSkills.SHADOWBOND, "Caster and target gain invisibility for 10 seconds. When the invisibility is broken, the caster and target swap places.");
         addSkillTooltip(SBSkills.EVERLASTING_BOND, "Increases the duration of invisibility to 20 seconds.");
         addSkillTooltip(SBSkills.SHADOW_STEP, "After the swap, the caster's movement speed is increased by 30% for 5 seconds");
         addSkillTooltip(SBSkills.SNEAK_ATTACK, "After the swap, the caster's first attack within 5 seconds deals 50% more damage.");

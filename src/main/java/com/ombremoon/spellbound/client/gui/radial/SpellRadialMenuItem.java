@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.client.gui.radial;
 
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;

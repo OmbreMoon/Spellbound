@@ -2,7 +2,7 @@ package com.ombremoon.spellbound.networking.clientbound;
 
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.init.SBSpells;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;

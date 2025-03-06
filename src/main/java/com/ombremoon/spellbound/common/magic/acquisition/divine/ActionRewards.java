@@ -6,7 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.ombremoon.spellbound.common.content.item.SpellTomeItem;
 import com.ombremoon.spellbound.common.init.SBBlocks;
 import com.ombremoon.spellbound.common.init.SBSpells;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -103,7 +103,7 @@ public record ActionRewards(int experience, int judgement, List<ResourceLocation
         BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
         for (int i = x - 15; i <= x + 15; i++) {
             for (int j = y - 7; j <= y + 7; j++) {
-                for (int k = x - 15; k <= z + 15; k++) {
+                for (int k = z - 15; k <= z + 15; k++) {
                     mutableBlockPos.set(i, j, k);
                     BlockState blockState = player.level().getBlockState(mutableBlockPos);
                     if (blockState.is(SBBlocks.DIVINE_SHRINE.get()))

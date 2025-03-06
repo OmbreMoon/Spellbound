@@ -1,12 +1,10 @@
 package com.ombremoon.spellbound.client.renderer.layer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -26,15 +24,13 @@ public class GenericSpellLayer<T extends LivingEntity, M extends HumanoidModel<T
         var handler = SpellUtil.getSpellHandler(livingEntity);
         for (AbstractSpell spell : handler.getActiveSpells()) {
             if (spell.hasLayer())
-                renderSpellLayer(poseStack, bufferSource, livingEntity, spell, packedLight);
+                renderSpellLayer(poseStack, bufferSource, livingEntity, spell, packedLight, limbSwing, limbSwingAmount, partialTick, ageInTicks, netHeadYaw, headPitch);
         }
     }
 
-    private void renderSpellLayer(PoseStack poseStack, MultiBufferSource bufferSource, T livingEntity, AbstractSpell spell, int packedLight) {
+    private void renderSpellLayer(PoseStack poseStack, MultiBufferSource bufferSource, T livingEntity, AbstractSpell spell, int packedLight, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
         this.getParentModel().copyPropertiesTo(spellLayer);
-        this.spellLayer.prepForRender(livingEntity, spell, this.getParentModel());
-        VertexConsumer consumer = bufferSource.getBuffer(RenderType.armorCutoutNoCull(spellLayer.getTextureLocation(spell)));
-        this.spellLayer.renderToBuffer(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY, Color.WHITE.argbInt());
-        this.spellLayer.doSpellPostRenderCleanup();
+        this.spellLayer.prepForRender(livingEntity, spell, this.getParentModel(), bufferSource, partialTick, limbSwing, limbSwingAmount, netHeadYaw, headPitch);
+        this.spellLayer.renderToBuffer(poseStack, null, packedLight, OverlayTexture.NO_OVERLAY, Color.WHITE.argbInt());
     }
 }

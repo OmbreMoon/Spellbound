@@ -12,6 +12,10 @@ public class SBAttributes {
     public static final DeferredRegister<Attribute> ATTRIBUTES = DeferredRegister
             .create(Registries.ATTRIBUTE, Constants.MOD_ID);
 
+    //Casting
+    public static Holder<Attribute> CAST_RANGE = register("cast_range", 10.0, 0.0, 100.0);
+    public static Holder<Attribute> CAST_SPEED = register("cast_speed", 1.0, 0.0, 2.0);
+
     //Mana
     public static Holder<Attribute> MANA_REGEN = register("mana_regen", 1d, 0d, 100d);
     public static Holder<Attribute> MAX_MANA = register("max_mana", 100d, 100d, 5000d);
@@ -20,6 +24,7 @@ public class SBAttributes {
     public static Holder<Attribute> MAGIC_RESIST = registerResistance("magic_resistance");
     public static Holder<Attribute> FIRE_SPELL_RESIST = registerResistance("fire_spell_resistance");
     public static Holder<Attribute> FROST_SPELL_RESIST = registerResistance("frost_spell_resistance");
+    public static Holder<Attribute> WATER_SPELL_RESIST = registerResistance("water_spell_resistance");
     public static Holder<Attribute> SHOCK_SPELL_RESIST = registerResistance("shock_spell_resistance");
     public static Holder<Attribute> WIND_SPELL_RESIST = registerResistance("wind_spell_resistance");
     public static Holder<Attribute> EARTH_SPELL_RESIST = registerResistance("earth_spell_resistance");
@@ -27,7 +32,7 @@ public class SBAttributes {
     public static Holder<Attribute> DISEASE_SPELL_RESIST = registerResistance("disease_spell_resistance");
 
     public static Holder<Attribute> registerResistance(String name) {
-        return register(name, 0d, -100d, 100d);
+        return register(name, 0.0, -1.0, 1.0);
     }
 
     public static Holder<Attribute> register(String name, double defaultVal, double min, double max) {

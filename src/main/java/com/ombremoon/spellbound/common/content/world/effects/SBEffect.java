@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common.content.effects;
+package com.ombremoon.spellbound.common.content.world.effects;
 
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;

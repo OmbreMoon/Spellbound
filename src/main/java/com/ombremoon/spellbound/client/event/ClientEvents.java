@@ -1,23 +1,25 @@
 package com.ombremoon.spellbound.client.event;
 
-import com.ombremoon.spellbound.main.CommonClass;
-import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.gui.CastModeOverlay;
 import com.ombremoon.spellbound.client.gui.SpellSelectScreen;
 import com.ombremoon.spellbound.client.renderer.blockentity.SummonPortalRenderer;
 import com.ombremoon.spellbound.client.renderer.entity.*;
-import com.ombremoon.spellbound.client.renderer.spell.*;
 import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
+import com.ombremoon.spellbound.client.renderer.spell.EmissiveSpellProjectileRenderer;
+import com.ombremoon.spellbound.client.renderer.spell.EmissiveSpellRenderer;
+import com.ombremoon.spellbound.client.renderer.spell.GenericLivingEntityRenderer;
+import com.ombremoon.spellbound.client.renderer.spell.GenericSpellRenderer;
 import com.ombremoon.spellbound.client.shader.SBShaders;
 import com.ombremoon.spellbound.common.content.world.hailstorm.ClientHailstormData;
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
 import com.ombremoon.spellbound.common.init.SBBlockEntities;
-import com.ombremoon.spellbound.common.magic.SpellHandler;
-import com.ombremoon.spellbound.common.init.SBEffects;
 import com.ombremoon.spellbound.common.init.SBEntities;
+import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.buff.events.MouseInputEvent;
+import com.ombremoon.spellbound.main.CommonClass;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
@@ -131,7 +133,7 @@ public class ClientEvents {
         @SubscribeEvent
         public static void onMovementInput(MovementInputUpdateEvent event) {
             var handler = SpellUtil.getSpellHandler(event.getEntity());
-            if (event.getEntity().hasEffect(SBEffects.ROOTED) || event.getEntity().hasEffect(SBEffects.STUNNED) || handler.isStationary()) {
+            if (handler.isStationary()) {
                 event.getInput().leftImpulse = 0;
                 event.getInput().forwardImpulse = 0;
                 event.getInput().jumping = false;

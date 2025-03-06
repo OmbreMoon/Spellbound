@@ -6,11 +6,12 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-public record PlayAnimationPayload(String animation) implements CustomPacketPayload {
+public record PlayAnimationPayload(String playerId, String animation) implements CustomPacketPayload {
     public static final Type<PlayAnimationPayload> TYPE =
             new Type<>(CommonClass.customLocation("play_animation"));
 
     public static final StreamCodec<ByteBuf, PlayAnimationPayload> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8, PlayAnimationPayload::playerId,
             ByteBufCodecs.STRING_UTF8, PlayAnimationPayload::animation,
             PlayAnimationPayload::new);
 

@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.content.spell.transfiguration;
 
+import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.init.SBItems;
 import com.ombremoon.spellbound.common.init.SBSkills;
@@ -28,7 +29,10 @@ public class MysticArmorSpell extends AnimatedSpell {
 
     private static Builder<MysticArmorSpell> createMysticArmorBuilder() {
         return createSimpleSpellBuilder(MysticArmorSpell.class)
-                .duration(1200).fullRecast();
+                .mastery(SpellMastery.ADEPT)
+                .duration(1200)
+                .manaCost(12)
+                .fullRecast();
     }
 
     public MysticArmorSpell() {

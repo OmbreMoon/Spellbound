@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.content.spell.transfiguration;
 
+import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.entity.spell.ShadowGate;
 import com.ombremoon.spellbound.common.init.SBEntities;
@@ -33,8 +34,10 @@ import java.util.List;
 public class ShadowGateSpell extends AnimatedSpell {
     private static Builder<ShadowGateSpell> createShadowGateBuilder() {
         return createSimpleSpellBuilder(ShadowGateSpell.class)
-                .manaCost(30).castTime(20)
+                .mastery(SpellMastery.ADEPT)
+                .manaCost(15)
                 .duration(1200)
+                .castTime(20)
                 .castCondition((context, spell) -> {
                     var skills = context.getSkills();
                     int activePortals = spell.portalMap.size();

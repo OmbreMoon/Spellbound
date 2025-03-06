@@ -1,9 +1,10 @@
 package com.ombremoon.spellbound.client.event;
 
 import com.ombremoon.spellbound.client.gui.WorkbenchScreen;
+import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.client.KeyBinds;
-import com.ombremoon.spellbound.util.EffectManager;
+import com.ombremoon.spellbound.common.magic.EffectManager;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.networking.PayloadHandler;
@@ -72,6 +73,10 @@ public class SpellCastEvents {
             PayloadHandler.setCastingSpell(spellType, isRecast);
         }
 
+        if (!SpellUtil.canCastSpell(player, spell)) {
+            resetCast(handler, spell, spellContext, isRecast);
+        }
+
         boolean flag = KeyBinds.getSpellCastMapping().isDown();
         if (flag) {
             int castTime = spell.getCastTime();
@@ -79,7 +84,7 @@ public class SpellCastEvents {
                 if (spell.getCastType() == AbstractSpell.CastType.INSTANT)
                     KeyBinds.getSpellCastMapping().setDown(false);
 
-                castSpell(player, spell);
+                castSpell(player);
                 handler.castTick = 0;
             } else if (!handler.isChargingOrChannelling()){
                 handler.castTick++;
@@ -92,13 +97,17 @@ public class SpellCastEvents {
                 }
             }
         } else if (!KeyBinds.getSpellCastMapping().isDown() && handler.castTick > 0) {
-            handler.castTick = 0;
-            spell.onCastReset(spellContext);
-            PayloadHandler.castReset(spellType, isRecast);
+            resetCast(handler, spell, spellContext, isRecast);
         } else if (handler.isChargingOrChannelling()) {
             handler.setChargingOrChannelling(false);
             PayloadHandler.setChargeOrChannel(false);
         }
+    }
+
+    private static void resetCast(SpellHandler handler, AbstractSpell spell, SpellContext spellContext, boolean isRecast) {
+        handler.castTick = 0;
+        spell.onCastReset(spellContext);
+        PayloadHandler.castReset(spell.getSpellType(), isRecast);
     }
 
     private static boolean isAbleToSpellCast() {
@@ -109,10 +118,8 @@ public class SpellCastEvents {
         return minecraft.isWindowActive();
     }
 
-    public static void castSpell(Player player, AbstractSpell spell) {
+    public static void castSpell(Player player) {
         if (player.isSpectator()) return;
-        if (!SpellUtil.canCastSpell(player, spell)) return;
-
         PayloadHandler.castSpell();
     }
 

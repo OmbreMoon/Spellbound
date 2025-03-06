@@ -7,23 +7,28 @@ import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedDat
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
 import com.ombremoon.spellbound.networking.serverbound.ChargeOrChannelPayload;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class ClientPayloadHandler {
 
     public static void handlePlayAnimation(PlayAnimationPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
-            AnimationHelper.playAnimation(context.player(), payload.animation());
+            Player player = context.player().level().getPlayerByUUID(UUID.fromString(payload.playerId()));
+            if (player != null)
+                AnimationHelper.playAnimation(player, payload.animation());
         });
     }
 
@@ -45,10 +50,13 @@ public class ClientPayloadHandler {
         context.enqueueWork(() -> {
             var level = context.player().level();
 
-            var handler = SpellUtil.getSpellHandler(context.player());
-            AbstractSpell spell = handler.getCurrentlyCastSpell();
-            spell.clientInitSpell(context.player(), level, context.player().getOnPos(), payload.isRecast(), payload.castId(), payload.forceReset());
-            handler.setCurrentlyCastingSpell(null);
+            Player player = level.getPlayerByUUID(UUID.fromString(payload.playerId()));
+            if (player != null) {
+                var handler = SpellUtil.getSpellHandler(player);
+                AbstractSpell spell = handler.getCurrentlyCastSpell();
+                spell.clientInitSpell(player, level,player.getOnPos(), payload.isRecast(), payload.castId(), payload.forceReset());
+                handler.setCurrentlyCastingSpell(null);
+            }
         });
     }
 
@@ -98,8 +106,13 @@ public class ClientPayloadHandler {
 
     public static void handleClientSetRotation(SetRotationPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
-            context.player().setXRot(payload.xRot());
-            context.player().setYRot(payload.yRot());
+            Entity entity = context.player().level().getEntity(payload.entityId());
+            if (entity != null) {
+                entity.setXRot(payload.xRot());
+                entity.setYRot(payload.yRot());
+                entity.setYHeadRot(payload.yRot());
+                entity.setYBodyRot(payload.yRot());
+            }
         });
     }
 
@@ -120,6 +133,15 @@ public class ClientPayloadHandler {
             Entity entity = level.getEntity(payload.entityId());
             if (entity instanceof LivingEntity livingEntity)
                 handler.removeGlowEffect(livingEntity);
+        });
+    }
+
+    public static void handleRemoveFearEffect(RemoveFearEffectPayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            var player = context.player();
+            var skills = SpellUtil.getSkillHolder(player);
+            player.setData(SBData.FEAR_TICK, 0);
+            skills.removeModifier(SpellModifier.FEAR);
         });
     }
 

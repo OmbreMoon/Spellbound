@@ -5,7 +5,7 @@ import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.init.SBSpells;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.commands.CommandBuildContext;

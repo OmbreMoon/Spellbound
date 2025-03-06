@@ -23,7 +23,7 @@ public class ConfigHandler {
             maxSpellListSize = builder
                     .comment("The maximum number of spells the player can hold at a time.")
                     .translation("spellbound.config.maxSpellListSize")
-                    .defineInRange("maxSpellLevel", 10, 1, 10);
+                    .defineInRange("maxSpellListSize", 10, 1, 10);
 
             skillRequiresPrereqs = builder
                     .comment("Set this to false if any skill can be unlocked without unlocking the necessary prerequisites.")
