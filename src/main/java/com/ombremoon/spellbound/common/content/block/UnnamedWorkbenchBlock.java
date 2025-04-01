@@ -15,6 +15,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.*;
@@ -23,6 +24,10 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
 
@@ -136,4 +141,72 @@ public class UnnamedWorkbenchBlock extends HorizontalDirectionalBlock {
             return this.name;
         }
     }
+
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+       return switch (state.getValue(UnnamedWorkbenchBlock.FACING)){
+           case DOWN, UP -> Shapes.block();
+           case NORTH -> switch (state.getValue(UnnamedWorkbenchBlock.PART)){
+               case LEFT -> makeShapeWest();
+               case RIGHT -> makeShapeWest().move(0,0,1);
+               case TOP_LEFT -> makeShapeWest().move(0,-1,0);
+               case TOP_RIGHT -> makeShapeWest().move(0,-1,1);
+           };
+           case SOUTH -> switch (state.getValue(UnnamedWorkbenchBlock.PART)){
+               case LEFT -> makeShapeEast();
+               case RIGHT -> makeShapeEast().move(0,0,-1);
+               case TOP_LEFT -> makeShapeEast().move(0,-1,0);
+               case TOP_RIGHT -> makeShapeEast().move(0,-1,-1);
+           };
+           case WEST -> switch (state.getValue(UnnamedWorkbenchBlock.PART)){
+               case LEFT -> makeShapeNorth();
+               case RIGHT -> makeShapeNorth().move(1,0,0);
+               case TOP_LEFT -> makeShapeNorth().move(0,-1,0);
+               case TOP_RIGHT -> makeShapeNorth().move(1,-1,0);
+           };
+           case EAST -> switch (state.getValue(UnnamedWorkbenchBlock.PART)){
+               case LEFT -> makeShapeSouth();
+               case RIGHT -> makeShapeSouth().move(-1,0,0);
+               case TOP_LEFT -> makeShapeSouth().move(0,-1,0);
+               case TOP_RIGHT -> makeShapeSouth().move(-1,-1,0);
+           };
+       };
+    }
+
+    public VoxelShape makeShapeNorth(){
+        VoxelShape shape = Shapes.empty();
+        shape = Shapes.join(shape, Shapes.box(-1, 0, 0, 1, 0.875, 1), BooleanOp.OR);
+        shape = Shapes.join(shape, Shapes.box(-1, 0.875, 0.875, 1, 1.75, 1), BooleanOp.OR);
+        shape = Shapes.join(shape, Shapes.box(-0.8125, 0, 0, 0.8125, 0.625, 0.8125), BooleanOp.ONLY_FIRST);
+
+        return shape;
+    }
+
+    public VoxelShape makeShapeEast(){
+        VoxelShape shape = Shapes.empty();
+        shape = Shapes.join(shape, Shapes.box(0, 0, 0, 1, 0.875, 2), BooleanOp.OR);
+        shape = Shapes.join(shape, Shapes.box(0.875, 0.875, 0, 1, 1.75, 2), BooleanOp.OR);
+        shape = Shapes.join(shape, Shapes.box(0, 0, 0.1875, 0.8125, 0.625, 1.8125), BooleanOp.ONLY_FIRST);
+
+        return shape;
+    }
+
+    public VoxelShape makeShapeSouth(){
+        VoxelShape shape = Shapes.empty();
+        shape = Shapes.join(shape, Shapes.box(0, 0, 0, 2, 0.875, 1), BooleanOp.OR);
+        shape = Shapes.join(shape, Shapes.box(0, 0.875, 0, 2, 1.75, 0.125), BooleanOp.OR);
+        shape = Shapes.join(shape, Shapes.box(0.1875, 0, 0.1875, 1.8125, 0.625, 1), BooleanOp.ONLY_FIRST);
+
+        return shape;
+    }
+
+
+    public VoxelShape makeShapeWest(){
+        VoxelShape shape = Shapes.empty();
+        shape = Shapes.join(shape, Shapes.box(0, 0, -1, 1, 0.875, 1), BooleanOp.OR);
+        shape = Shapes.join(shape, Shapes.box(0, 0.875, -1, 0.125, 1.75, 1), BooleanOp.OR);
+        shape = Shapes.join(shape, Shapes.box(0.1875, 0, -0.8125, 1, 0.625, 0.8125), BooleanOp.ONLY_FIRST);
+
+        return shape;
+    }
+
 }
