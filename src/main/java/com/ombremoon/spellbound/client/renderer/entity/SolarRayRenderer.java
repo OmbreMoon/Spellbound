@@ -8,6 +8,8 @@ import com.ombremoon.spellbound.client.model.entity.SolarRayModel;
 import com.ombremoon.spellbound.client.renderer.SBRenderTypes;
 import com.ombremoon.spellbound.common.content.entity.spell.SolarRay;
 import com.ombremoon.spellbound.main.Constants;
+import net.minecraft.client.CameraType;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -15,6 +17,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
@@ -40,6 +43,10 @@ public class SolarRayRenderer extends GeoEntityRenderer<SolarRay> {
 //                bufferSource.getBuffer(RenderType.itemEntityTranslucentCull(getTextureLocation(animatable))));
 //        Constants.LOG.debug("{}", );
 //        Constants.LOG.debug("{}", );
+        Entity owner = animatable.getOwner();
+        if (Minecraft.getInstance().player.is(owner) && Minecraft.getInstance().options.getCameraType() == CameraType.THIRD_PERSON_FRONT)
+            return;
+
         super.defaultRender(poseStack, animatable, bufferSource, renderType, buffer, yaw, partialTick, packedLight);
     }
 

@@ -99,7 +99,7 @@ public class SolarRaySpell extends ChanneledSpell {
                 .manaCost(40)
                 .manaTickCost(10)
                 .castTime(18)
-                .castAnimation(context -> "shamon");
+                .castAnimation(context -> "solar_ray1");
     }
 
     public SolarRaySpell() {
