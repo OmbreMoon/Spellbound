@@ -5,6 +5,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.npc.Villager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,6 +17,8 @@ public class ServerPlayerMixin {
     private int hasOneHeartTick;
     private int undeadKilled = 0;
     private int undeadKillTick;
+    private int villagersKilled = 0;
+    private int villagerKillTick;
 
     @Inject(method = "awardKillScore", at = @At(value = "INVOKE", target = "Lnet/minecraft/advancements/critereon/KilledTrigger;trigger(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/damagesource/DamageSource;)V"))
     private void awardKillScore(Entity killed, int scoreValue, DamageSource damageSource, CallbackInfo info) {
@@ -31,6 +34,19 @@ public class ServerPlayerMixin {
         if (self().tickCount > this.undeadKillTick + 200) {
             this.undeadKilled = 1;
             this.undeadKillTick = self().tickCount;
+        }
+
+        if (killed instanceof Villager) {
+            this.villagersKilled++;
+            this.villagerKillTick = self().tickCount;
+        }
+
+        if (this.villagersKilled > 0)
+            SBTriggers.KILL_VILLAGER.get().trigger(self(), killed, damageSource, this.villagersKilled);
+
+        if (self().tickCount > this.villagerKillTick + 200) {
+            this.villagersKilled = 1;
+            this.villagerKillTick = self().tickCount;
         }
     }
 

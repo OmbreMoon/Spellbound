@@ -25,7 +25,7 @@ public class CycloneSpell extends AnimatedSpell {
         return createSimpleSpellBuilder(CycloneSpell.class)
                 .mastery(SpellMastery.MASTER)
                 .duration(600)
-                .manaCost(35)
+                .manaCost(95)
                 .castCondition((context, cycloneSpell) -> cycloneSpell.hasValidSpawnPos(100) && !context.hasActiveSpells(6));
     }
 

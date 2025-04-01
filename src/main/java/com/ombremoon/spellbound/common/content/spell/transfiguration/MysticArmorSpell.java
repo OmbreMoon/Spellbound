@@ -31,7 +31,7 @@ public class MysticArmorSpell extends AnimatedSpell {
         return createSimpleSpellBuilder(MysticArmorSpell.class)
                 .mastery(SpellMastery.ADEPT)
                 .duration(1200)
-                .manaCost(12)
+                .manaCost(28)
                 .fullRecast();
     }
 

@@ -78,7 +78,7 @@ public class PayloadHandler {
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getUUID().toString(), animation));
     }
     public static void updateSpells(Player player, boolean isRecast, int castId, boolean forceReset) {
-        PacketDistributor.sendToPlayersInDimension((ServerLevel) player.level(), new UpdateSpellsPayload(player.getUUID().toString(), isRecast, castId, forceReset));
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new UpdateSpellsPayload(player.getUUID().toString(), isRecast, castId, forceReset));
     }
 
     public static void endSpell(Player player, SpellType<?> spellType, int castId) {
@@ -86,28 +86,19 @@ public class PayloadHandler {
     }
 
     public static void syncSpellsToClient(Player player) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player,
-                new SyncSpellPayload(
-                        SpellUtil.getSpellHandler(player)
-                                .serializeNBT(player.level().registryAccess())
-                ));
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncSpellPayload(SpellUtil.getSpellHandler(player).serializeNBT(player.level().registryAccess())));
     }
 
     public static void syncSkillsToClient(Player player) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player,
-                new SyncSkillPayload(
-                        SpellUtil.getSkillHolder(player)
-                                .serializeNBT(player.level().registryAccess())
-                ));
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncSkillPayload(SpellUtil.getSkillHolder(player).serializeNBT(player.level().registryAccess())));
     }
 
     public static void setSpellData(Player player, SpellType<?> spellType, int id, List<SyncedSpellData.DataValue<?>> packedItems) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player, new SetSpellDataPayload(spellType, id, packedItems));
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new SetSpellDataPayload(spellType, id, packedItems));
     }
 
     public static void syncMana(Player player) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player,
-                new ClientSyncManaPayload(player.getData(SBData.MANA)));
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new ClientSyncManaPayload(player.getData(SBData.MANA)));
     }
 
     public static void openWorkbenchScreen(Player player) {

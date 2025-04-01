@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common.content.entity.spell;
+package com.ombremoon.spellbound.common.content.entity;
 
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
@@ -25,8 +25,6 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 public abstract class SBLivingEntity extends PathfinderMob implements SmartBrainOwner<SBLivingEntity>, GeoEntity, Loggable {
     private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(SBLivingEntity.class, EntityDataSerializers.INT);
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    protected SpellHandler handler;
-    protected SkillHolder skills;
 
     protected SBLivingEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);

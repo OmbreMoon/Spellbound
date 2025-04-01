@@ -2,7 +2,7 @@ package com.ombremoon.spellbound.common.content.entity.living;
 
 import com.mojang.datafixers.util.Pair;
 import com.ombremoon.spellbound.common.content.entity.behavior.target.ExtendedInvalidateAttackTarget;
-import com.ombremoon.spellbound.common.content.entity.spell.SBLivingEntity;
+import com.ombremoon.spellbound.common.content.entity.SBLivingEntity;
 import com.ombremoon.spellbound.common.init.SBBlocks;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;

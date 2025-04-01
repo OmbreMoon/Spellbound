@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.content.item;
 
+import com.ombremoon.spellbound.client.shader.SBShaders;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
@@ -27,8 +28,9 @@ public class DebugItem extends Item implements Loggable {
 
     private void ombreDebug(Level level, Player player, InteractionHand usedHand, SpellHandler spellHandler, SkillHolder skillHolder) {
         if (!level.isClientSide) {
-            skillHolder.awardSpellXp(SBSpells.STRIDE.get(), 1500);
+//            skillHolder.awardSpellXp(SBSpells.STRIDE.get(), 1500);
         } else {
+            SBShaders.HEAT_DISTORTION_SHADER.toggleShader();
         }
     }
 }

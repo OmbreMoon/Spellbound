@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.client.renderer.spell;
+package com.ombremoon.spellbound.client.renderer.types;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;

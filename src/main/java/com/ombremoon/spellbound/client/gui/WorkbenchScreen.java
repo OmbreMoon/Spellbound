@@ -12,6 +12,7 @@ import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.tree.SkillNode;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
 import com.ombremoon.spellbound.main.ConfigHandler;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.RenderUtil;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -19,6 +20,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -27,6 +29,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -45,6 +48,7 @@ public class WorkbenchScreen extends Screen {
     private SpellHandler spellHandler;
     private SkillHolder skillHolder;
     private List<SpellType<?>> spellList;
+    private SpellPath spellPath;
     private List<SpellType<?>> equippedSpellList;
     private UpgradeTree upgradeTree;
     private final Map<SpellType<?>, UpgradeWindow> spellTrees = Maps.newLinkedHashMap();
@@ -74,6 +78,7 @@ public class WorkbenchScreen extends Screen {
         this.skillHolder = SpellUtil.getSkillHolder(this.player);
         this.spellList = this.spellHandler.getSpellList().stream().filter(spellType -> spellType.getPath().ordinal() == pageIndex).toList();
         this.equippedSpellList = this.spellHandler.getEquippedSpells().stream().toList();
+        this.spellPath = SpellPath.RUIN;
         this.initSpellTrees();
         if (!this.spellList.isEmpty()) {
             this.selectedSpell = this.spellList.get(0);
@@ -88,7 +93,7 @@ public class WorkbenchScreen extends Screen {
                 this.selectedIndex = i;
                 if (this.spellList.size() > i + scrollIndex) {
                     this.selectedSpell = this.spellList.get(i + scrollIndex);
-                    if (this.pageIndex != 5) {
+                    if (this.pageIndex != -1) {
                         if (this.selectedTree != null) this.selectedTree.centered = false;
                         this.selectedTree = this.spellTrees.get(this.selectedSpell);
                     } else {
@@ -102,6 +107,7 @@ public class WorkbenchScreen extends Screen {
         for (int i = 0; i < 5; i++) {
             if (isHovering(92 + (i * 30), -30, 30, 30, mouseX, mouseY) && i != pageIndex) {
                 this.pageIndex = i;
+                this.spellPath = SpellPath.values()[this.pageIndex];
                 this.selectedIndex = -1;
                 this.scrollOffs = 0;
                 this.scrollIndex = 0;
@@ -115,8 +121,8 @@ public class WorkbenchScreen extends Screen {
             }
         }
 
-        if (isHovering(62, -30, 30, 30, mouseX, mouseY) && this.pageIndex != 5) {
-            this.pageIndex = 5;
+        if (isHovering(0, -26, 30, 28, mouseX, mouseY) && this.pageIndex != -1) {
+            this.pageIndex = -1;
             this.selectedIndex = -1;
             this.scrollOffs = 0;
             this.scrollIndex = 0;
@@ -128,7 +134,7 @@ public class WorkbenchScreen extends Screen {
             return true;
         }
 
-        if (this.pageIndex == 5) {
+        if (this.pageIndex == -1) {
             for (int i = 0; i < 4; i++) {
                 if (isHovering(95, 13 + (i * 32), 137, 32, mouseX, mouseY)) {
                     if (this.equippedSpellList.size() > i + windowIndex) {
@@ -185,7 +191,7 @@ public class WorkbenchScreen extends Screen {
             this.scrollSpells(this.scrollOffs);
             this.selectedIndex = -1;
             return true;
-        } else if (this.scrollingWindow && this.pageIndex == 5) {
+        } else if (this.scrollingWindow && this.pageIndex == -1) {
             int i = this.topPos + 18;
             int j = i + 88;
             this.windowOffs = ((float)mouseY - (float)i - 7.5F) / ((float)(j - i) - 15.0F);
@@ -263,7 +269,7 @@ public class WorkbenchScreen extends Screen {
         guiGraphics.drawCenteredString(this.font, this.selectedSpell != null ? this.selectedSpell.createSpell().getName() : Component.empty(), xPos + 75, yPos + 148, textColor);
         guiGraphics.drawCenteredString(this.font, this.selectedSpell != null ? Component.literal(String.valueOf(skillHolder.getSkillPoints(selectedSpell))) : Component.empty(), xPos + 14, yPos + 149, textColor);
         guiGraphics.blit(TEXTURE, xPos + 5, (int) (yPos + 29 + (89 * scrollOffs)), scrollTexture, 172, 12, 15);
-        guiGraphics.blit(PATH, xPos + 4, yPos + 4, 0, 1 + (SpellPath.values()[pageIndex].ordinal() * 20), 84, 18, 84, 100);
+        guiGraphics.blit(PATH, xPos + 4, yPos + 4, 0, 1 + (this.spellPath.ordinal() * 20), 84, 18, 84, 100);
 
         renderScaledXPBars(guiGraphics, skillHolder, xPos, yPos, textColor);
         renderTabs(guiGraphics, this.leftPos, this.topPos, mouseX, mouseY);
@@ -271,9 +277,9 @@ public class WorkbenchScreen extends Screen {
 
     private void renderWindow(GuiGraphics guiGraphics, int xPos, int yPos, int mouseX, int mouseY) {
         UpgradeWindow window = this.selectedTree;
-        if (window == null && this.pageIndex != 5) {
+        if (window == null && this.pageIndex != -1) {
             guiGraphics.fill(xPos + 98, yPos + 16, xPos + 98 + 149, yPos + 16 + 115, -16777216);
-        } else if (this.pageIndex == 5) {
+        } else if (this.pageIndex == -1) {
             renderSpellSelectPage(guiGraphics, xPos + 95, yPos + 13, mouseX, mouseY);
         } else {
             window.drawContents(guiGraphics, xPos + 98, yPos + 16);
@@ -287,14 +293,15 @@ public class WorkbenchScreen extends Screen {
             if (!this.equippedSpellList.isEmpty() && this.equippedSpellList.size() > i + windowIndex) {
                 var spellType = this.equippedSpellList.get(i + windowIndex);
                 if (spellType != null) {
-                    guiGraphics.blit(EQUIP_PAGE, xPos + 2, yPos + 2 + (i * 28), 0, 154, 135, 30);
-                    guiGraphics.blit(spellType.getRootSkill().getTexture(), xPos + 5, yPos + 5 + (i * 28), 0, 0, 24, 24, 24, 24);
+                    int confirm = isHovering(95, 13 + (i * 29), 137, 30, mouseX, mouseY) ? 184 : 154;
+                    guiGraphics.blit(EQUIP_PAGE, xPos + 2, yPos + 2 + (i * 29), 0,confirm, 135, 30);
+                    guiGraphics.blit(spellType.getRootSkill().getTexture(), xPos + 5, yPos + 5 + (i * 29), 0, 0, 24, 24, 24, 24);
                     Component component = spellType.createSpell().getName();
-                    guiGraphics.drawString(this.font, component, xPos + 33, yPos + 6 + (i * 28), -1);
-                    guiGraphics.drawString(this.font, Component.literal("Lvl " + this.skillHolder.getSpellLevel(spellType)), xPos + 33, yPos + 19 + (i * 28), -1);
+                    guiGraphics.drawString(this.font, component, xPos + 33, yPos + 6 + (i * 29), -1);
+                    guiGraphics.drawString(this.font, Component.literal("Lvl " + this.skillHolder.getSpellLevel(spellType)), xPos + 33, yPos + 19 + (i * 29), -1);
                 }
             } else {
-                guiGraphics.blit(EQUIP_PAGE, xPos + 2, yPos + 2 + (i * 28), 0, 124, 135, 30);
+                guiGraphics.blit(EQUIP_PAGE, xPos + 2, yPos + 2 + (i * 29), 0, 124, 135, 30);
             }
         }
 
@@ -315,6 +322,12 @@ public class WorkbenchScreen extends Screen {
         if (isHovering(4, 142, 20, 20, mouseX, mouseY)) {
             guiGraphics.renderTooltip(minecraft.font, Component.literal("The amount of skill points for the selected spell."), mouseX, mouseY);
         }
+
+        if (isHovering(101, 5, 144, 5, mouseX, mouseY)) {
+            int level = this.skillHolder.getPathLevel(this.spellPath);
+            Component component = Component.translatable("spellbound.path." + this.spellPath.getSerializedName()).append(" ").append(Component.translatable("spellbound.path.level")).append(": " + level);
+            guiGraphics.renderTooltip(minecraft.font, component, mouseX, mouseY);
+        }
     }
 
     private void renderTabs(GuiGraphics guiGraphics, int xPos, int yPos, int mouseX, int mouseY) {
@@ -326,17 +339,19 @@ public class WorkbenchScreen extends Screen {
                 guiGraphics.blit(CommonClass.customLocation("textures/gui/paths/" + SpellPath.values()[i].name().toLowerCase(Locale.ROOT) + ".png"), xPos + 95 + (i * 30), yPos - 25, 0, 0, 24, 24, 24, 24);
             }
         }
-        guiGraphics.blit(TEXTURE, xPos + 62, yPos - 26, 0, 198, 30, 26);
-        guiGraphics.blit(EQUIP_TAB, xPos + 65, yPos - 23, 0, 0, 24, 24, 24, 24);
-        if (isHovering(62, -30, 30, 26, mouseX, mouseY) || this.pageIndex == 5) {
-            guiGraphics.blit(TEXTURE, xPos + 62, yPos - 28, 0, 224, 30, 32);
-            guiGraphics.blit(EQUIP_TAB, xPos + 65, yPos - 25, 0, 0, 24, 24, 24, 24);
-        }
+
+        boolean flag = isHovering(3, -26, 30, 28, mouseX, mouseY) || this.pageIndex == -1;
+        int tabY = flag ? 29 : 26;
+        int bookY = flag ? 26 : 23;
+        int uOffset = flag ? 39 : 69;
+        int vHeight = flag ? 33 : 28;
+        guiGraphics.blit(TEXTURE, xPos, yPos - tabY, uOffset, 192, 30, vHeight);
+        guiGraphics.blit(EQUIP_TAB, xPos + 3, yPos - bookY, 0, 0, 24, 24, 24, 24);
     }
 
     private void renderScaledXPBars(GuiGraphics guiGraphics, SkillHolder skillHolder, int xPos, int yPos, int textColor) {
-        float pathXP = skillHolder.getPathXp(SpellPath.values()[this.pageIndex]);
-        int pathLevel = skillHolder.getPathLevel(SpellPath.values()[this.pageIndex]);
+        float pathXP = skillHolder.getPathXp(this.spellPath);
+        int pathLevel = skillHolder.getPathLevel(this.spellPath);
         if (pathXP > 0) {
             int xpGoal = skillHolder.getXPGoal(pathLevel + 1);
             int scale = RenderUtil.getScaledRender(pathXP - (100 * pathLevel), xpGoal - (100 * pathLevel), 141);

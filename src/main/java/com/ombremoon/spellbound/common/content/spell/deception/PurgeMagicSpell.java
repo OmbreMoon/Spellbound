@@ -29,7 +29,7 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
         return createSimpleSpellBuilder(PurgeMagicSpell.class)
                 .mastery(SpellMastery.ADEPT)
                 .duration(10)
-                .manaCost(12)
+                .manaCost(27)
                 .castCondition((context, purgeMagicSpell) -> {
                     if (context.getFlag() == 0)
                         return context.getTarget() instanceof LivingEntity;

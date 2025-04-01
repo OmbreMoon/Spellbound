@@ -155,7 +155,7 @@ public class NeoForgeEvents {
             }
 
             if (entity.hasEffect(SBEffects.STUNNED) || entity.hasEffect(SBEffects.ROOTED))
-                entity.setDeltaMovement(0, 0, 0);
+                entity.setDeltaMovement(0, -entity.getGravity(), 0);
         }
     }
 

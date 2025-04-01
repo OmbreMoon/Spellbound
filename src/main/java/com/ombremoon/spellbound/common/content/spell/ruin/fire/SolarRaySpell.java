@@ -96,7 +96,7 @@ public class SolarRaySpell extends ChanneledSpell {
     public static Builder<SolarRaySpell> createSolarRayBuilder() {
         return createChannelledSpellBuilder(SolarRaySpell.class)
                 .mastery(SpellMastery.EXPERT)
-                .manaCost(25)
+                .manaCost(40)
                 .manaTickCost(10)
                 .castTime(18)
                 .castAnimation(context -> "shamon");

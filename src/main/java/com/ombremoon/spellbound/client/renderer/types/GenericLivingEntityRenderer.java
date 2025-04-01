@@ -1,8 +1,7 @@
-package com.ombremoon.spellbound.client.renderer.spell;
+package com.ombremoon.spellbound.client.renderer.types;
 
 import com.ombremoon.spellbound.client.model.LivingModel;
-import com.ombremoon.spellbound.common.content.entity.SmartSpellEntity;
-import com.ombremoon.spellbound.common.content.entity.spell.SBLivingEntity;
+import com.ombremoon.spellbound.common.content.entity.SBLivingEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;

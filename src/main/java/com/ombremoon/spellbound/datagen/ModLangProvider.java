@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.datagen;
 
 import com.google.common.collect.ImmutableMap;
+import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.init.SBItems;
 import com.ombremoon.spellbound.common.init.SBSkills;
@@ -43,6 +44,7 @@ public class ModLangProvider extends LanguageProvider {
 //        EntityInit.ENTITIES.getEntries().forEach(this::entityLang);
 //        StatusEffectInit.STATUS_EFFECTS.getEntries().forEach(this::effectLang);
 
+        pathLang();
         manualEntries();
     }
 
@@ -54,6 +56,12 @@ public class ModLangProvider extends LanguageProvider {
 
     protected void spellLang(DeferredHolder<SpellType<?>, ? extends SpellType<?>> entry) {
         add(entry.get().createSpell().getNameId(), checkReplace(entry));
+    }
+
+    protected void pathLang() {
+        for (SpellPath path : SpellPath.values()) {
+            add("spellbound.path." + path.getSerializedName(), checkReplace(path.getSerializedName()));
+        }
     }
 
     protected void skillLang(DeferredHolder<Skill, ? extends Skill> entry) {
@@ -78,6 +86,8 @@ public class ModLangProvider extends LanguageProvider {
         add("chat.spelltome.nospell", "This spells tome is blank.");
         add("chat.spelltome.spellunlocked", "Spell unlocked: %1$s");
         add("tooltip.spellbound.holdshift", "Hold shift for more information.");
+
+        add("spellbound.path.level", "Lvl");
 
         add("command.spellbound.spellunknown", "You don't know the spells %1$s.");
         add("command.spellbound.spellforgot", "%1$s has been forgotten successfully.");
@@ -189,7 +199,7 @@ public class ModLangProvider extends LanguageProvider {
         addSkillTooltip(SBSkills.SUBLIME_BEACON, "Restores health equal to 25% of your armor points every 3 seconds.");
         addSkillTooltip(SBSkills.SOUL_RECHARGE, "Restores you to full health if your health drops below 10%, consuming a filled soul shard in the caster's inventory. 3 min. cooldown.");
 
-        addSkillTooltip(SBSkills.WILD_MUSHROOM, "Plants a wild mushroom at the target location, expelling poisonous spores every 3 seconds, damaging all nearby enemies.");
+        addSkillTooltip(SBSkills.WILD_MUSHROOM, "Plants a wild mushroom at the target location, expelling poisonous spores every 3 seconds, dealing 2 damage to all nearby enemies.");
         addSkillTooltip(SBSkills.VILE_INFLUENCE, "Increases the spore radius.");
         addSkillTooltip(SBSkills.HASTENED_GROWTH, "Decreases the explosion interval by 1 second.");
         addSkillTooltip(SBSkills.ENVENOM, "Spores now poison targets for 4 seconds.");
@@ -213,7 +223,7 @@ public class ModLangProvider extends LanguageProvider {
         addSkillTooltip(SBSkills.TWIN_SPIRITS, "The caster gains the ability to summon a second spirit, allowing for two spirits to fight simultaneously - one in warrior form, the other in cat form.");
         addSkillTooltip(SBSkills.NINE_LIVES, "If the spirit is killed, it will instantly revive with 50% health (only once per summoning).");
 
-        addSkillTooltip(SBSkills.HEALING_TOUCH, "Heals the caster 3 health per second for 10 seconds.");
+        addSkillTooltip(SBSkills.HEALING_TOUCH, "Heals the caster 3 health per second for 5 seconds.");
         addSkillTooltip(SBSkills.BLASPHEMY, "When the caster is hit, applies Disease to the attacker for 3 seconds. 5 sec. cooldown");
         addSkillTooltip(SBSkills.CONVALESCENCE, "Restores 1 health when the caster attack a target affected by poison or disease.");
         addSkillTooltip(SBSkills.DIVINE_BALANCE, "Increases the duration of the spell by 100% and the mana cost by 50%.");

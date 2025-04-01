@@ -29,7 +29,7 @@ public class WildMushroomSpell extends SummonSpell {
         return createSummonBuilder(WildMushroomSpell.class)
                 .mastery(SpellMastery.ADEPT)
                 .duration(180)
-                .manaCost(15);
+                .manaCost(30);
     }
 
     public WildMushroomSpell() {

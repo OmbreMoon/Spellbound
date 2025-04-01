@@ -39,7 +39,7 @@ public class StormRiftSpell extends AnimatedSpell {
     public static Builder<StormRiftSpell> createStormRiftBuilder() {
         return createSimpleSpellBuilder(StormRiftSpell.class)
                 .mastery(SpellMastery.MASTER)
-                .manaCost(30)
+                .manaCost(50)
                 .duration(400)
                 .baseDamage(8)
                 .castCondition((context, spell) -> {
@@ -150,7 +150,7 @@ public class StormRiftSpell extends AnimatedSpell {
                                     if (skills.hasSkill(SBSkills.EVENT_HORIZON))
                                         this.quicklyPullTargets(level, stormRift, caster, livingEntity);
 
-                                    if (skills.hasSkill(SBSkills.FORCED_WARP) && !stormRift.isOnCooldown(livingEntity))
+                                    if (skills.hasSkill(SBSkills.FORCED_WARP))
                                         this.throwTarget(level, livingEntity);
 
                                     if (skills.hasSkill(SBSkills.MOTION_SICKNESS)) {
@@ -320,9 +320,9 @@ public class StormRiftSpell extends AnimatedSpell {
                 List<LivingEntity> pullList = level.getEntitiesOfClass(LivingEntity.class, stormRift.getBoundingBox().inflate(range), EntitySelector.NO_CREATIVE_OR_SPECTATOR.and(entity -> entity instanceof LivingEntity livingEntity && !checkForCounterMagic(livingEntity) && !isCaster(livingEntity) && !livingEntity.isAlliedTo(caster)));
                 for (LivingEntity livingEntity : pullList) {
                     if (!stormRift.isOnCooldown(livingEntity)) {
-                        float strength = 0.02F;
+                        float strength = 0.03F;
                         if (skills.hasSkill(SBSkills.MAGNETIC_FIELD)) {
-                            strength = 0.04F;
+                            strength = 0.06F;
                             this.addSkillBuff(
                                     livingEntity,
                                     SBSkills.MAGNETIC_FIELD.value(),

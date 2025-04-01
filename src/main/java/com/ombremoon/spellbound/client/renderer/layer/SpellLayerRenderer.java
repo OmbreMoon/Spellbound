@@ -194,7 +194,7 @@ public class SpellLayerRenderer<T extends AbstractSpell> extends HumanoidModel i
             animationState.setData(AbstractSpell.DATA_TICKET, this.animatable);
             animationState.setData(DataTickets.ENTITY, this.currentEntity);
             currentModel.addAdditionalStateData(animatable, instanceId, animationState::setData);
-            currentModel.setCustomAnimations(animatable, instanceId, animationState);
+            currentModel.handleAnimations(animatable, instanceId, animationState, partialTick);
         }
 
         this.modelRenderTranslations = new Matrix4f(poseStack.last().pose());

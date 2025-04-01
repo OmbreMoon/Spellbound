@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.ombremoon.sentinellib.api.Easing;
 import com.ombremoon.spellbound.main.Constants;
-import com.ombremoon.spellbound.client.renderer.spell.EmissiveOutlineSpellRenderer;
+import com.ombremoon.spellbound.client.renderer.types.EmissiveOutlineSpellRenderer;
 import com.ombremoon.spellbound.common.content.entity.spell.StormRift;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 

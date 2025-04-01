@@ -124,7 +124,9 @@ public class UpgradeWidget {
     }
 
     public void draw(GuiGraphics guiGraphics, int x, int y) {
-        guiGraphics.blit(WorkbenchScreen.TEXTURE, x + this.x, y + this.y, 39 ,226, 30, 30);
+        var holder = SpellUtil.getSkillHolder(this.minecraft.player);
+        boolean flag2 = holder.hasSkill(getSkill());
+        guiGraphics.blit(WorkbenchScreen.TEXTURE, x + this.x, y + this.y, flag2 ? 70 : 39 ,226, 30, 30);
         ResourceLocation sprite = this.skillNode.skill().getTexture();
         guiGraphics.blit(sprite, x + this.x + 3, y + this.y + 3, 0, 0, 24, 24, 24, 24);
 
@@ -149,7 +151,8 @@ public class UpgradeWidget {
         boolean flag = width + x + this.x + this.width + 30 >= this.window.getScreen().width;
         boolean flag1 = 115 - y - this.y - 30 <= 6 + this.description.size() * 9;
         var holder = SpellUtil.getSkillHolder(this.minecraft.player);
-        ResourceLocation box = holder.hasSkill(getSkill()) ? UNLOCKED : LOCKED;
+        boolean flag2 = holder.hasSkill(getSkill());
+        ResourceLocation box = flag2 ? UNLOCKED : LOCKED;
 
         int i = this.width;
         RenderSystem.enableBlend();
@@ -171,7 +174,7 @@ public class UpgradeWidget {
         }
 
         guiGraphics.blitSprite(box, 200, 26, 200 - i, 0, k, j, i, 26);
-        guiGraphics.blit(WorkbenchScreen.TEXTURE, x + this.x, y + this.y, 39 ,226, 30, 30);
+        guiGraphics.blit(WorkbenchScreen.TEXTURE, x + this.x, y + this.y, flag2 ? 70 : 39 ,226, 30, 30);
         if (flag) {
             guiGraphics.drawString(this.minecraft.font, this.title, k + 5, y + this.y + 9, -1);
         } else {

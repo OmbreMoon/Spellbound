@@ -14,7 +14,7 @@ public class SpiritTotemSpell extends SummonSpell {
     public static Builder<SpiritTotemSpell> createSpiritTotemBuilder() {
         return createSummonBuilder(SpiritTotemSpell.class)
                 .mastery(SpellMastery.ADEPT)
-                .manaCost(20)
+                .manaCost(32)
                 .duration(600);
     }
 

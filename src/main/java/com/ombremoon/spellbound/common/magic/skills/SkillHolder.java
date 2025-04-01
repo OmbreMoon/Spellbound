@@ -75,11 +75,14 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
         int level = this.getSpellLevel(spellType);
         SpellPath path = spellType.getPath();
         this.spellXp.put(spellType, Math.min(getSpellXp(spellType) + xp, getXPGoal(MAX_SPELL_LEVEL)));
-        this.pathXp.put(path, getPathXp(path) + (xp / 2));
 
         SpellPath subPath = spellType.getSubPath();
-        if (subPath != null)
-            this.pathXp.put(subPath, getPathXp(subPath) + (xp / 2));
+        if (subPath != null) {
+            this.pathXp.put(path, getPathXp(subPath) + (xp * 0.3F));
+            this.pathXp.put(subPath, getPathXp(subPath) + (xp * 0.2F));
+        } else {
+            this.pathXp.put(path, getPathXp(path) + (xp * 0.5F));
+        }
 
         int newLevel = this.getSpellLevel(spellType);
         if (newLevel > level && newLevel > 0) {
@@ -135,7 +138,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
 
         Set<Skill> unlocked = unlockedSkills.get(spellType);
         if (unlocked == null) return false;
-        if (unlocked.size() > MAX_SPELL_LEVEL) return false;
+//        if (unlocked.size() > MAX_SPELL_LEVEL + 1) return false;
         if (!skill.canUnlockSkill((Player) this.caster, this)) return false;
         if (this.getSkillPoints(spellType) <= 0) return false;
 

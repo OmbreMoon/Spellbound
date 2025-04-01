@@ -8,7 +8,7 @@ public class VolcanoSpell extends AnimatedSpell {
 
     private static Builder<VolcanoSpell> createVolcanoBuilder() {
         return createSimpleSpellBuilder(VolcanoSpell.class)
-                .manaCost(50)
+                .manaCost(100)
                 .castTime(20);
     }
 

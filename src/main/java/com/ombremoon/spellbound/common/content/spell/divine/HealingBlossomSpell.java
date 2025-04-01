@@ -38,7 +38,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
     private static Builder<HealingBlossomSpell> createHealingBlossomSpell() {
         return createSimpleSpellBuilder(HealingBlossomSpell.class)
                 .mastery(SpellMastery.EXPERT)
-                .manaCost(25)
+                .manaCost(45)
                 .duration(400)
                 .castTime(20)
                 .castCondition((context, spell) -> spell.hasValidSpawnPos(5))
@@ -115,7 +115,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
             return;
         }
 
-        float healingAmount = 2f;
+        float healingAmount = 3.0F;
         for (LivingEntity entity : effectedEntities) {
             if (entity.is(caster)) {
                 if (skills.hasSkill(SBSkills.VERDANT_RENEWAL)) this.cleanseCaster();
@@ -125,12 +125,12 @@ public class HealingBlossomSpell extends AnimatedSpell {
                     float overflowHp = (currentHp + healingAmount) - maxHp;
 
                     if (overflowHp > 0) {
-                        context.getSpellHandler().awardMana(overflowHp * 5f);
+                        context.getSpellHandler().awardMana(overflowHp * 5.0F);
                     }
                 }
-                caster.heal(healingAmount);
+                this.heal(caster, healingAmount);
             } else if (entity instanceof Player && skills.hasSkill(SBSkills.FLOWER_FIELD)) {
-                entity.heal(healingAmount/2f);
+                this.heal(entity, healingAmount / 2.0F);
             }
         }
     }

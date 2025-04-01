@@ -9,6 +9,7 @@ import net.minecraft.world.entity.LivingEntity;
 
 import java.util.function.BiPredicate;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public abstract class ChanneledSpell extends AnimatedSpell {
     protected int manaTickCost;
@@ -130,6 +131,16 @@ public abstract class ChanneledSpell extends AnimatedSpell {
 
         public Builder<T> hasLayer() {
             this.hasLayer = true;
+            return this;
+        }
+
+        public Builder<T> negativeScaling(Predicate<SpellContext> negativeScaling) {
+            this.negativeScaling = negativeScaling;
+            return this;
+        }
+
+        public Builder<T> negativeScaling() {
+            this.negativeScaling = context -> true;
             return this;
         }
     }

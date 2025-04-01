@@ -17,7 +17,7 @@ import net.minecraft.world.phys.EntityHitResult;
 public class StormstrikeSpell extends AnimatedSpell {
     public static Builder<StormstrikeSpell> createStormstrikeBuilder() {
         return createSimpleSpellBuilder(StormstrikeSpell.class)
-                .manaCost(8)
+                .manaCost(10)
                 .baseDamage(2)
                 .castTime(15);
     }

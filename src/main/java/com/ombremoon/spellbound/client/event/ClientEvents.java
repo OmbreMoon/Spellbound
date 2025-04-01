@@ -6,10 +6,10 @@ import com.ombremoon.spellbound.client.gui.SpellSelectScreen;
 import com.ombremoon.spellbound.client.renderer.blockentity.SummonPortalRenderer;
 import com.ombremoon.spellbound.client.renderer.entity.*;
 import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
-import com.ombremoon.spellbound.client.renderer.spell.EmissiveSpellProjectileRenderer;
-import com.ombremoon.spellbound.client.renderer.spell.EmissiveSpellRenderer;
-import com.ombremoon.spellbound.client.renderer.spell.GenericLivingEntityRenderer;
-import com.ombremoon.spellbound.client.renderer.spell.GenericSpellRenderer;
+import com.ombremoon.spellbound.client.renderer.types.EmissiveSpellProjectileRenderer;
+import com.ombremoon.spellbound.client.renderer.types.EmissiveSpellRenderer;
+import com.ombremoon.spellbound.client.renderer.types.GenericLivingEntityRenderer;
+import com.ombremoon.spellbound.client.renderer.types.GenericSpellRenderer;
 import com.ombremoon.spellbound.client.shader.SBShaders;
 import com.ombremoon.spellbound.common.content.world.hailstorm.ClientHailstormData;
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
@@ -47,6 +47,8 @@ public class ClientEvents {
 
         @SubscribeEvent
         public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
+            event.registerEntityRenderer(SBEntities.SPELL_BROKER.get(), PlaceholderRenderer::new);
+
             event.registerEntityRenderer(SBEntities.MUSHROOM.get(), GenericSpellRenderer::new);
             event.registerEntityRenderer(SBEntities.SHADOW_GATE.get(), ShadowGateRenderer::new);
             event.registerEntityRenderer(SBEntities.SOLAR_RAY.get(), SolarRayRenderer::new);
@@ -58,10 +60,10 @@ public class ClientEvents {
             event.registerEntityRenderer(SBEntities.HAIL.get(), HailRenderer::new);
             event.registerEntityRenderer(SBEntities.HEALING_BLOSSOM.get(), EmissiveSpellRenderer::new);
 
-            event.registerEntityRenderer(SBEntities.LIVING_SHADOW.get(), LivingShadowRenderer::new);
             event.registerEntityRenderer(SBEntities.VALKYR.get(), GenericLivingEntityRenderer::new);
 
-            event.registerEntityRenderer(SBEntities.SPELL_BROKER.get(), PlaceholderRenderer::new);
+            event.registerEntityRenderer(SBEntities.LIVING_SHADOW.get(), LivingShadowRenderer::new);
+            event.registerEntityRenderer(SBEntities.DUNGEON_SHADOW.get(), GenericLivingEntityRenderer::new);
 
             event.registerBlockEntityRenderer(SBBlockEntities.SUMMON_PORTAL.get(), SummonPortalRenderer::new);
         }

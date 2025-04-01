@@ -22,9 +22,12 @@ import java.util.Map;
 
 public class EffectManager implements INBTSerializable<CompoundTag> {
     protected static final float PATH_BUILD_UP_MODIFIER = 0.01F;
+    protected static final float JUDGEMENT_MODIFIER = 0.5F;
+    public static final int MAX_JUDGEMENT = 100;
+    public static final int MIN_JUDGEMENT = -100;
     private LivingEntity livingEntity;
     private final Map<Effect, Float> buildUp = new HashMap<>();
-    private float judgement;
+    private int judgement;
 
     /**
      * Initialises the effect handler
@@ -106,12 +109,17 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
 
     }
 
-    public float getJudgement() {
+    public int getJudgement() {
         return this.judgement;
     }
 
-    public void giveJudgement(float amount) {
-        this.judgement = Math.clamp(this.judgement + amount, -200, 200);
+    public void giveJudgement(int amount) {
+        this.judgement = Math.clamp(this.judgement + amount, MIN_JUDGEMENT, MAX_JUDGEMENT);
+    }
+
+    public float getJudgementFactor(boolean isNegative) {
+        int threshold = isNegative ? MIN_JUDGEMENT : MAX_JUDGEMENT;
+        return Math.max(0, 1 + JUDGEMENT_MODIFIER * judgement / threshold);
     }
 
     /**

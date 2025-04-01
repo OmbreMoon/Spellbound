@@ -35,7 +35,7 @@ public class ShadowGateSpell extends AnimatedSpell {
     private static Builder<ShadowGateSpell> createShadowGateBuilder() {
         return createSimpleSpellBuilder(ShadowGateSpell.class)
                 .mastery(SpellMastery.ADEPT)
-                .manaCost(15)
+                .manaCost(25)
                 .duration(1200)
                 .castTime(20)
                 .castCondition((context, spell) -> {

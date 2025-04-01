@@ -195,7 +195,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
         if (this.equippedSpellSet.isEmpty())
             this.selectedSpell = spellType;
 
-        log(ConfigHandler.COMMON.maxSpellListSize.get());
         if (this.equippedSpellSet.size() < ConfigHandler.COMMON.maxSpellListSize.get())
             this.equippedSpellSet.add(spellType);
     }

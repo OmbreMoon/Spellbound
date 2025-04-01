@@ -28,8 +28,8 @@ public class HealingTouchSpell extends AnimatedSpell {
 
     private static Builder<HealingTouchSpell> createHealingSpell() {
         return createSimpleSpellBuilder(HealingTouchSpell.class)
-                .manaCost(6)
-                .duration(200)
+                .manaCost(15)
+                .duration(100)
                 .fullRecast();
     }
 
@@ -60,11 +60,11 @@ public class HealingTouchSpell extends AnimatedSpell {
         LivingEntity caster = context.getCaster();
         double maxMana = caster.getAttribute(SBAttributes.MAX_MANA).getValue();
 
-        float heal = 3;
+        float heal = 2;
         if (skills.hasSkill(SBSkills.HEALING_STREAM.value()))
             heal += (float) maxMana * 0.02f;
 
-        caster.heal(heal);
+        this.heal(caster, heal);
 
         if (skills.hasSkill(SBSkills.ACCELERATED_GROWTH.value()) && caster instanceof Player player) {
             player.getFoodData().eat((int) (maxMana * 0.02d), 1f);

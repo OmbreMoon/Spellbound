@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.client.renderer.spell;
+package com.ombremoon.spellbound.client.renderer.types;
 
 import com.ombremoon.spellbound.common.content.entity.SpellProjectile;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;

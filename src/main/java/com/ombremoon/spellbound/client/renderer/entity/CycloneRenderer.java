@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.ombremoon.spellbound.client.renderer.spell.OutlineSpellRenderer;
+import com.ombremoon.spellbound.client.renderer.types.OutlineSpellRenderer;
 import com.ombremoon.spellbound.common.content.entity.spell.Cyclone;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 

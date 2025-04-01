@@ -129,5 +129,15 @@ public abstract class AnimatedSpell extends AbstractSpell {
             this.hasLayer = true;
             return this;
         }
+
+        public Builder<T> negativeScaling(Predicate<SpellContext> negativeScaling) {
+            this.negativeScaling = negativeScaling;
+            return this;
+        }
+
+        public Builder<T> negativeScaling() {
+            this.negativeScaling = context -> true;
+            return this;
+        }
     }
 }

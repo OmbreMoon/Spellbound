@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.content.entity.living;
 
-import com.ombremoon.spellbound.common.content.entity.spell.SBLivingEntity;
+import com.ombremoon.spellbound.common.content.entity.SBLivingEntity;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.entity.SmartSpellEntity;
 import com.ombremoon.spellbound.common.content.entity.behavior.ApplySurroundingEffectBehavior;

@@ -36,7 +36,7 @@ public class ShadowbondSpell extends AnimatedSpell {
         return createSimpleSpellBuilder(ShadowbondSpell.class)
                 .mastery(SpellMastery.ADEPT)
                 .duration(300)
-                .manaCost(15)
+                .manaCost(35)
                 .castCondition((context, spell) -> {
                     if (context.isRecast()) {
                         if (spell.canReverse) {

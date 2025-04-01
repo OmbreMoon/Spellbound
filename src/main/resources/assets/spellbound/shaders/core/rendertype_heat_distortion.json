@@ -1,6 +1,6 @@
 {
-  "vertex": "spellbound:rendertype_bloom",
-  "fragment": "spellbound:rendertype_bloom",
+  "vertex": "spellbound:rendertype_heat_distortion",
+  "fragment": "spellbound:rendertype_heat_distortion",
   "samplers": [
     { "name": "Sampler0" }
   ],

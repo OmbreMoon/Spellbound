@@ -40,5 +40,12 @@ public class ModDivineActionProvider extends DivineActionProvider {
                         CuredZombieVillagerTrigger.TriggerInstance.curedZombieVillager())
                 .rewards(ActionRewards.Builder.spell(SBSpells.SOLAR_RAY/*BLESSING*/.get()).addExperience(10))
                 .save(writer, CommonClass.customLocation("cured_zombie"));
+        DivineAction.Builder.divineAction()
+                .addCriterion("kill_villager",
+                        KillActionTrigger.Instance.playerKilledVillager(
+                                EntityPredicate.Builder.entity().of(EntityTypeTags.UNDEAD),
+                                MinMaxBounds.Ints.exactly(5)))
+                .rewards(ActionRewards.Builder.spell(SBSpells.STORM_RIFT/*SIPHON*/.get()).addExperience(20))
+                .save(writer, CommonClass.customLocation("kill_villager"));
     }
 }
