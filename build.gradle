@@ -128,7 +128,8 @@ dependencies {
     implementation "dev.kosmx.player-anim:player-animation-lib-forge:${player_anim}"
     implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
     implementation "net.tslat.smartbrainlib:SmartBrainLib-neoforge-${project.minecraft_version}:${project.sbl_version}"
-    implementation("local:sentinellib:1.1.6")
+    implementation("local:sentinellib:1.2.0-test")
+//    implementation("local:sentinellib:1.1.6")
 }
 
 tasks.named('jarJar') {

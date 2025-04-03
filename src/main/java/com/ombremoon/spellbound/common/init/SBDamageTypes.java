@@ -10,7 +10,10 @@ public interface SBDamageTypes {
     ResourceKey<DamageType> SB_GENERIC = register("sb_generic");
     ResourceKey<DamageType> RUIN_FIRE = register("ruin_fire");
     ResourceKey<DamageType> RUIN_FROST = register("ruin_frost");
+    ResourceKey<DamageType> RUIN_WATER = register("ruin_water");
     ResourceKey<DamageType> RUIN_SHOCK = register("ruin_shock");
+    ResourceKey<DamageType> RUIN_EARTH = register("ruin_earth");
+    ResourceKey<DamageType> RUIN_AIR = register("ruin_air");
     ResourceKey<DamageType> DISEASE = register("disease");
 
     private static ResourceKey<DamageType> register(String name) {
@@ -21,7 +24,10 @@ public interface SBDamageTypes {
         context.register(SB_GENERIC, new DamageType("sb_generic", 0.1F));
         context.register(RUIN_FIRE, new DamageType("ruin_fire", 0.1F));
         context.register(RUIN_FROST, new DamageType("ruin_frost", 0.1F));
+        context.register(RUIN_WATER, new DamageType("ruin_water", 0.1F));
         context.register(RUIN_SHOCK, new DamageType("ruin_shock", 0.1F));
+        context.register(RUIN_EARTH, new DamageType("ruin_earth", 0.1F));
+        context.register(RUIN_AIR, new DamageType("ruin_air", 0.1F));
         context.register(DISEASE, new DamageType("disease", 0.1F));
     }
 }

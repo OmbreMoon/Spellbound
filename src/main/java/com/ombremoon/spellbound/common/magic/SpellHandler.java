@@ -2,20 +2,21 @@ package com.ombremoon.spellbound.common.magic;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import com.ombremoon.spellbound.main.Constants;
-import com.ombremoon.spellbound.util.EffectManager;
 import com.ombremoon.spellbound.common.init.SBAttributes;
 import com.ombremoon.spellbound.common.init.SBData;
-import com.ombremoon.spellbound.common.init.SBSpells;
+import com.ombremoon.spellbound.common.init.SBEffects;
 import com.ombremoon.spellbound.common.magic.acquisition.divine.PlayerDivineActions;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
+import com.ombremoon.spellbound.main.ConfigHandler;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.Loggable;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -28,6 +29,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
@@ -50,11 +53,11 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     private UpgradeTree upgradeTree;
     private PlayerDivineActions divineActions;
     protected boolean castMode;
-    protected Set<SpellType<?>> spellSet = new ObjectOpenHashSet<>();
-    public Set<SpellType<?>> equippedSpellSet = new ObjectOpenHashSet<>(/*10*/);
-    protected Multimap<SpellType<?>, AbstractSpell> activeSpells = ArrayListMultimap.create();
-    protected SpellType<?> selectedSpell;
-    protected AbstractSpell currentlyCastingSpell;
+    private Set<SpellType<?>> spellSet = new ObjectOpenHashSet<>();
+    private Set<SpellType<?>> equippedSpellSet = new ObjectOpenHashSet<>();
+    private final Multimap<SpellType<?>, AbstractSpell> activeSpells = ArrayListMultimap.create();
+    private SpellType<?> selectedSpell;
+    private AbstractSpell currentlyCastingSpell;
     private final Map<SpellType<?>, Integer> spellFlags = new Object2IntOpenHashMap<>();
     private final Map<SkillBuff<?>, Integer> skillBuffs = new Object2IntOpenHashMap<>();
     private final Set<Integer> glowEntities = new IntOpenHashSet();
@@ -64,7 +67,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     public int castTick;
     private boolean channelling;
     private int stationaryTicks;
-    public boolean castKeyDown;
     private float zoomModifier = 1.0F;
     private boolean initialized;
 
@@ -72,7 +74,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * Syncs spells handler data from the server to the client.
      */
     public void sync() {
-        if (this.caster instanceof Player player)
+        if (this.caster instanceof Player player && !player.level().isClientSide)
             PayloadHandler.syncSpellsToClient(player);
     }
 
@@ -137,6 +139,10 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
         this.skillHolder.getCooldowns().tick();
     }
 
+    public double getMaxMana() {
+        return this.caster.getAttribute(SBAttributes.MAX_MANA) != null ? this.caster.getAttribute(SBAttributes.MAX_MANA).getValue() : 0;
+    }
+
     /**
      * Consumes a specified amount of mana from the player.
      * @param amount The amount of mana consumed
@@ -172,7 +178,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * @param mana The amount of mana received
      */
     public void awardMana(float mana) {
-        this.caster.setData(SBData.MANA, Math.min(caster.getData(SBData.MANA) + mana, this.caster.getAttribute(SBAttributes.MAX_MANA).getValue()));
+        this.caster.setData(SBData.MANA, Mth.clamp(caster.getData(SBData.MANA) + mana, 0, this.getMaxMana()));
         if (this.caster instanceof Player player)
             PayloadHandler.syncMana(player);
     }
@@ -185,12 +191,35 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
         return this.spellSet;
     }
 
+    public void equipSpell(SpellType<?> spellType) {
+        if (this.equippedSpellSet.isEmpty())
+            this.selectedSpell = spellType;
+
+        if (this.equippedSpellSet.size() < ConfigHandler.COMMON.maxSpellListSize.get())
+            this.equippedSpellSet.add(spellType);
+    }
+
+    public void unequipSpell(SpellType<?> spellType) {
+        this.equippedSpellSet.remove(spellType);
+        if (this.selectedSpell == spellType) {
+            if (this.equippedSpellSet.isEmpty()) {
+                this.selectedSpell = null;
+            } else {
+                this.selectedSpell = this.equippedSpellSet.iterator().next();
+            }
+        }
+    }
+
+    public Set<SpellType<?>> getEquippedSpells() {
+        return this.equippedSpellSet;
+    }
+
     /**
      * Adds a spells to the player's spells set. This also adds data to both the {@link SkillHolder} and {@link UpgradeTree}.
      * @param spellType
      */
     public void learnSpell(SpellType<?> spellType) {
-        if (this.spellSet.isEmpty() || this.selectedSpell == null || this.selectedSpell == SBSpells.TEST_SPELL.get()) this.selectedSpell = spellType;
+        if (this.spellSet.isEmpty() || this.selectedSpell == null) this.selectedSpell = spellType;
         this.spellSet.add(spellType);
         if (this.equippedSpellSet.size() < 10)
             this.equippedSpellSet.add(spellType);
@@ -209,9 +238,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * @param spellType The spells to be removed
      */
     public void removeSpell(SpellType<?> spellType) {
-        if (this.selectedSpell == spellType)
-            this.selectedSpell = null;
-
+        this.unequipSpell(spellType);
         this.skillHolder.resetSkills(spellType);
         var locations = spellType.getSkills().stream().map(Skill::location).collect(Collectors.toSet());
         this.spellSet.remove(spellType);
@@ -267,14 +294,8 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * Replaces an {@link AbstractSpell} in the active spells map. This is only called is the spells has {@link AbstractSpell#fullRecast} checked in the builder method. Recast spells will all call {@link AbstractSpell#endSpell()} unless they have {@link AbstractSpell#skipEndOnRecast(SpellContext)} ()} checked in the spells builder.
      * @param spell
      */
-    public void recastSpell(AbstractSpell spell, SpellContext context) {
-        /*if (!caster.level().isClientSide) {
-            if (this.activeSpells.containsKey(spell.getSpellType()))
-                this.activeSpells.get(spell.getSpellType()).stream().filter(abstractSpell -> !abstractSpell.skipEndOnRecast(context)).forEach(AbstractSpell::endSpell);
-        }
-*/
+    public void recastSpell(AbstractSpell spell) {
         this.activeSpells.replaceValues(spell.getSpellType(), List.of(spell));
-        log(this.activeSpells);
     }
 
     /**
@@ -332,7 +353,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * @return The selected spells
      */
     public SpellType<?> getSelectedSpell() {
-        return this.selectedSpell != null ? this.selectedSpell : !getSpellList().isEmpty() && getSpellList().iterator().hasNext() ? getSpellList().iterator().next() : null;
+        return this.selectedSpell;
     }
 
     /**
@@ -342,7 +363,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     public void setSelectedSpell(SpellType<?> selectedSpell) {
         this.selectedSpell = selectedSpell;
         this.currentlyCastingSpell = null;
-        Constants.LOG.debug("Selected spells: {}", selectedSpell != null ? selectedSpell.createSpell().getName().getString() : null);
     }
 
     /**
@@ -363,7 +383,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
 
     public void addSkillBuff(SkillBuff<?> skillBuff, int ticks) {
         for (SkillBuff<?> buff : this.skillBuffs.keySet()) {
-            if (buff.is(skillBuff))
+            if (buff.equals(skillBuff))
                 return;
         }
 
@@ -411,12 +431,26 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
             PayloadHandler.updateFlag(spellType, flag);
     }
 
+    public void applyFear(LivingEntity target, int ticks) {
+        target.setData(SBData.FEAR_SOURCE, this.caster.position());
+        target.addEffect(new MobEffectInstance(SBEffects.FEAR, ticks, 0, false, false));
+    }
+
+    public void applyStormStrike(LivingEntity target, int ticks) {
+        target.setData(SBData.STORMSTRIKE_OWNER.get(), this.caster.getId());
+        target.addEffect(new MobEffectInstance(SBEffects.STORMSTRIKE, ticks, 0, false, false));
+    }
+
     /**
      * Checks whether the player should remain stationary. That is to say all player movement inputs will be disregarded.
      * @return If the player is supposed to be stationary
      */
     public boolean isStationary() {
-        return this.stationaryTicks > 0;
+        return this.stationaryTicks > 0 || this.caster.hasEffect(SBEffects.ROOTED) || this.caster.hasEffect(SBEffects.STUNNED) || this.caster.hasEffect(SBEffects.SLEEP) || this.isFeared();
+    }
+
+    public boolean isFeared() {
+        return this.caster.hasEffect(SBEffects.FEAR) && this.caster.getData(SBData.FEAR_TICK) < 40;
     }
 
     /**
@@ -448,7 +482,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * @see ChanneledSpell
      * @return Whether the player is channeling a spells
      */
-    public boolean isChannelling() {
+    public boolean isChargingOrChannelling() {
         return this.channelling;
     }
 
@@ -456,7 +490,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * Sets whether the player is channeling a spells.
      * @param channelling If a spells is being channeled
      */
-    public void setChannelling(boolean channelling) {
+    public void setChargingOrChannelling(boolean channelling) {
         this.channelling = channelling;
     }
 
@@ -610,10 +644,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
             this.channelling = nbt.getBoolean("Channeling");
         }
         if (nbt.contains("SelectedSpell", 8)) {
-            SpellType<?> spellType = AbstractSpell.getSpellByName(SpellUtil.getSpellId(nbt, "SelectedSpell"));
-            this.selectedSpell = spellType != null ? spellType : SBSpells.TEST_SPELL.get();
-        } else {
-            this.selectedSpell = SBSpells.TEST_SPELL.get();
+            this.selectedSpell = AbstractSpell.getSpellByName(SpellUtil.getSpellId(nbt, "SelectedSpell"));
         }
         if (nbt.contains("Spells", 9)) {
             ListTag spellList = nbt.getList("Spells", 10);

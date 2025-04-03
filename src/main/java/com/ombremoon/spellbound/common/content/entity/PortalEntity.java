@@ -2,15 +2,14 @@ package com.ombremoon.spellbound.common.content.entity;
 
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
 import java.util.Map;
-import java.util.UUID;
 
 public abstract class PortalEntity<T extends AbstractSpell> extends SpellEntity<T> {
-    private final Map<UUID, Integer> portalCooldown = new Object2IntOpenHashMap<>();
+    private final Map<Integer, Integer> portalCooldown = new Object2IntOpenHashMap<>();
 
     public PortalEntity(EntityType<?> entityType, Level level) {
         super(entityType, level);
@@ -24,11 +23,11 @@ public abstract class PortalEntity<T extends AbstractSpell> extends SpellEntity<
 
     public abstract int getPortalCooldown();
 
-    public void addCooldown(LivingEntity entity) {
-        this.portalCooldown.put(entity.getUUID(), this.tickCount + this.getPortalCooldown());
+    public void addCooldown(Entity entity) {
+        this.portalCooldown.put(entity.getId(), this.tickCount + this.getPortalCooldown());
     }
 
-    public boolean isOnCooldown(LivingEntity livingEntity) {
-        return this.portalCooldown.containsKey(livingEntity.getUUID());
+    public boolean isOnCooldown(Entity entity) {
+        return this.portalCooldown.containsKey(entity.getId());
     }
 }

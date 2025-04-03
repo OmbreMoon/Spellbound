@@ -92,9 +92,7 @@ they can interact with the world around them
 
     - Ruin: Contains subpaths, most with respective status effects that players can proc after receive a certain amount
             of damage.
-            - Subpaths:
-                - Elementalist - Fire, Water, Air, Earth, Shock
-                - Misc - Arcane, Poison, Blood, Disease
+            - Subpaths: Fire, Water/Ice, Air, Earth/Nature, Shock, Arcane
 
     - Transfiguration: Effects, entities, and layers change based on the biome
 

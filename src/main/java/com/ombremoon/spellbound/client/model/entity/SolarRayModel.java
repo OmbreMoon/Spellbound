@@ -28,13 +28,12 @@ public class SolarRayModel extends GeoModel<SolarRay> {
 
     protected String getName(SolarRay animatable) {
         String name = "solar_ray";
-        boolean isExtended = false;
         Entity owner = animatable.getOwner();
         if (owner instanceof LivingEntity living) {
             var skills = SpellUtil.getSkillHolder(living);
             if (skills.hasSkill(SBSkills.SUNSHINE.value()))
-                isExtended = true;
+                name = name + "_extended";
         }
-        return isExtended ? name + "_extended" : name;
+        return name;
     }
 }

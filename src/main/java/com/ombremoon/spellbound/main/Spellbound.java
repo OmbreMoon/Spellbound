@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.main;
 
-import com.ombremoon.spellbound.client.ClientStuff;
+import com.ombremoon.spellbound.client.shader.SBShaders;
 import com.ombremoon.spellbound.common.init.SBDataTypes;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.init.SBSpells;
@@ -22,7 +22,6 @@ import net.neoforged.neoforge.registries.NewRegistryEvent;
 
 @Mod(Constants.MOD_ID)
 public class Spellbound {
-    public static ClientStuff CLIENT;
 
     public Spellbound(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::commonSetup);
@@ -38,7 +37,6 @@ public class Spellbound {
     }
 
     private void clientSetup(final FMLClientSetupEvent event) {
-        CLIENT = new ClientStuff();
         PlayerAnimationFactory.ANIMATION_DATA_FACTORY.registerFactory(CommonClass.customLocation("animation"), 42, Spellbound::registerPlayerAnimation);
     }
 

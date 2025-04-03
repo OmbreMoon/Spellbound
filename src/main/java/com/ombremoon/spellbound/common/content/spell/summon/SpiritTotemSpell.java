@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.common.content.spell.summon;
 
 import com.ombremoon.spellbound.common.content.entity.living.TotemSpiritEntity;
+import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.SBSkills;
@@ -12,8 +13,9 @@ public class SpiritTotemSpell extends SummonSpell {
 
     public static Builder<SpiritTotemSpell> createSpiritTotemBuilder() {
         return createSummonBuilder(SpiritTotemSpell.class)
-                .manaCost(50)
-                .duration(context -> 600);
+                .mastery(SpellMastery.ADEPT)
+                .manaCost(32)
+                .duration(600);
     }
 
     public SpiritTotemSpell() {

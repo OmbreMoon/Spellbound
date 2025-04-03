@@ -1,0 +1,130 @@
+- Ruin: Fire
+
+1) Fireball
+2) Flame Jet
+3) Magma Hands
+4) Ring of Fire
+5) Detonate
+6) Phoenix Strike
+7) Manifest Fire Dragon
+8) Solar Ray
+9) Meteor
+10) Volcano
+
+- Ruin: Ice/Water
+
+11) Ice Bolt
+12) Bubble Shield
+13) Tidal Wave
+14) Hail
+15) Ice Spike
+16) Ice Skate
+17) Manifest Ice Dragon
+18) Shattering Crystal
+19) Ice Storm
+20) Frost Bomb
+
+- Ruin: Shock
+
+21) Stormstrike
+22) Electric Charge
+23) Thunderclap
+24) Electric Orb
+25) Tesla Coil
+26) Enhance
+27) Manifest Storm Dragon
+28) Storm Port
+29) Thunderstorm
+30) Storm Rift
+
+- Transfiguration
+
+31) Stride
+32) Cobbled Hide
+33) Dolphin's Fin
+34) Prepare For Adventure
+35) Locate Object
+36) Fertilize
+37) Transmute Ore
+38) Ender Chest
+39) Mystic Armor
+40) Fabricate Object
+41) Shadow Gate
+42) Drop Zone
+43) Magnetize
+44) Wildshape
+45) Terraform
+46) Anansi's Hands
+47) Manifest Evoker
+48) Telekinesis
+49) Control Weather
+50) Black Hole
+
+- Summons
+
+51) Bound Bow
+52) Summon Undead
+53) Summon Villager
+54) Summon Familiar
+55) Summon Wolf Pack
+56) Summon Elemental
+57) Summon Mount
+58) Arcane Arsenal
+59) Wild Mushroom
+60) Summon Cat Totem
+61) Vengeful Spirit
+62) Summon Spellcaster
+63) Wither Totem
+64) Summon Sculkling (Manifest Warden)
+65)
+66) Kraken's Fury
+67)
+68) Nether Gate
+69) Pillager Raid
+70) Ancient Beast
+
+- Divine
+
+71) Healing Touch
+72) Blessing
+73) Smite
+74) Siphon
+75) Mender's Bond
+76) Jeb's Lamb
+77) Sacred Ground
+78) Sap Life
+79) Eclipse
+80) Cursed Prayer
+81) Banish
+82) Plague
+83) Burial
+84) Starstorm
+85) Finger of Mercy
+86) Healing Blossom
+87) Purifying Dawn
+88) Grand Heal
+89) Circle of Death
+90) Manifest Valkyr
+
+- Deception
+
+91) Flicker
+92) Shadow Veil
+93) Cursed Rune
+94) Nightblade
+95) Backstab
+96) Trap
+97) Thieves' Gambit
+98) Thoughtsteal
+99) Shadowbond
+100) Purge Magic
+101) Doppelgänger
+102) Command Mind
+103) Mind Control
+104) Astral Projection
+105) Path of Darkness
+106) Assassin's Blade
+107) Dream Geas
+108) Phantom Shroud
+109) Hallucination
+110) Mimic

@@ -7,6 +7,7 @@ import com.ombremoon.spellbound.common.init.SBEntities;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellContext;
+import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
@@ -22,8 +23,10 @@ public class CycloneSpell extends AnimatedSpell {
 
     private static Builder<CycloneSpell> createCycloneBuilder() {
         return createSimpleSpellBuilder(CycloneSpell.class)
-                .duration(context -> 600)
-                .castCondition((context, cycloneSpell) -> cycloneSpell.getSpawnPos(100) != null);
+                .mastery(SpellMastery.MASTER)
+                .duration(600)
+                .manaCost(95)
+                .castCondition((context, cycloneSpell) -> cycloneSpell.hasValidSpawnPos(100) && !context.hasActiveSpells(6));
     }
 
     public CycloneSpell() {
@@ -43,7 +46,7 @@ public class CycloneSpell extends AnimatedSpell {
 
             if (context.getSkills().hasSkill(SBSkills.HAILSTORM.value())) {
                 HailstormSavedData data = ((HailstormSavedData) HailstormSavedData.get(level));
-//                data.toggleHailing((ServerLevel) level, this.getDuration());
+                data.toggleHailing((ServerLevel) level, this.getDuration());
             }
         }
     }

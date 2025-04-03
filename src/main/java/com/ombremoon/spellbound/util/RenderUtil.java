@@ -41,7 +41,7 @@ public class RenderUtil {
         guiGraphics.drawString(font, text, x - font.width(text) / 2, y - font.lineHeight / 2, color);
     }
 
-    public static Optional<RenderType> getExampleRenderType(RenderType renderType) {
+/*    public static Optional<RenderType> getExampleRenderType(RenderType renderType) {
         if (renderType instanceof RenderType.CompositeRenderType compositeRenderType) {
             if (compositeRenderType.state.textureState instanceof RenderStateShard.TextureStateShard shard) {
                 return compositeRenderType.state.outlineProperty == RenderType.OutlineProperty.AFFECTS_OUTLINE
@@ -50,5 +50,5 @@ public class RenderUtil {
             }
         }
         return Optional.empty();
-    }
+    }*/
 }

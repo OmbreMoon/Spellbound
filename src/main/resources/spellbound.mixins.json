@@ -5,16 +5,18 @@
   "compatibilityLevel": "JAVA_21",
   "refmap": "spellbound.refmap.json",
   "mixins": [
-    "LivingEntityMixin",
     "DuckRangedAttribute",
-    "ServerPlayerMixin"
+    "LivingEntityMixin",
+    "ServerLevelMixin",
+    "ServerPlayerMixin",
+    "ZombieVillagerMixin"
   ],
   "client": [
-    "MinecraftMixin",
+    "ClientLevelMixin",
     "EffectRenderingInventoryScreenMixin",
     "GameRendererMixin",
     "LevelRendererMixin",
-    "ClientLevelMixin"
+    "MinecraftMixin"
   ],
   "injectors": {
     "defaultRequire": 1

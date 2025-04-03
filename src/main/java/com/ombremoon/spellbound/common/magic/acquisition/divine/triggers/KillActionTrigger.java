@@ -45,6 +45,10 @@ public class KillActionTrigger extends SimpleTrigger<KillActionTrigger.Instance>
             return SBTriggers.KILL_UNDEAD.get().createCriterion(new Instance(Optional.empty(), Optional.of(EntityPredicate.wrap(entityPredicate)), Optional.empty(), numKilled));
         }
 
+        public static ActionCriterion<Instance> playerKilledVillager(EntityPredicate.Builder entityPredicate, MinMaxBounds.Ints numKilled) {
+            return SBTriggers.KILL_VILLAGER.get().createCriterion(new Instance(Optional.empty(), Optional.of(EntityPredicate.wrap(entityPredicate)), Optional.empty(), numKilled));
+        }
+
         public boolean matches(ServerPlayer player, LootContext context, DamageSource source, int numKilled) {
             if (this.killingBlow.isPresent() && !this.killingBlow.get().matches(player, source)) {
                 return false;

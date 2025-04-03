@@ -1,9 +1,9 @@
 package com.ombremoon.spellbound.common.magic.skills;
 
-import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.init.SBSkills;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.main.CommonClass;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
@@ -47,7 +47,7 @@ public class Skill {
     }
 
     public HolderSet<Skill> getPrereqs() {
-        return prerequisites;
+        return this.prerequisites;
     }
 
     protected String getOrCreateNameId() {

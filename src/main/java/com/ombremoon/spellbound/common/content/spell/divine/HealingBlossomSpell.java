@@ -19,7 +19,10 @@ import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -39,9 +42,11 @@ public class HealingBlossomSpell extends AnimatedSpell {
 
     private static Builder<HealingBlossomSpell> createHealingBlossomSpell() {
         return createSimpleSpellBuilder(HealingBlossomSpell.class)
-                .manaCost(30).castTime(20)
-                .duration(context -> 400)
-                .castCondition((context, spell) -> spell.getSpawnPos(5) != null)
+                .mastery(SpellMastery.EXPERT)
+                .manaCost(45)
+                .duration(400)
+                .castTime(20)
+                .castCondition((context, spell) -> spell.hasValidSpawnPos(5))
                 .fullRecast();
     }
 
@@ -155,12 +160,12 @@ public class HealingBlossomSpell extends AnimatedSpell {
                     float overflowHp = (currentHp + healingAmount) - maxHp;
 
                     if (overflowHp > 0) {
-                        context.getSpellHandler().awardMana(overflowHp * 5f);
+                        context.getSpellHandler().awardMana(overflowHp * 5.0F);
                     }
                 }
-                caster.heal(healingAmount);
+                this.heal(caster, healingAmount);
             } else if (entity instanceof Player && skills.hasSkill(SBSkills.FLOWER_FIELD)) {
-                entity.heal(healingAmount/2f);
+                this.heal(entity, healingAmount / 2.0F);
             }
         }
     }

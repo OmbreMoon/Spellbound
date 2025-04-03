@@ -87,6 +87,7 @@ public class HailstormSavedData extends SavedData implements HailstormData, Logg
 
     public void setHailTime(int hailTIme) {
         this.hailTime = hailTIme;
+        this.setDirty();
     }
 
     public void toggleHailing(ServerLevel level, int hailTime) {
@@ -98,7 +99,6 @@ public class HailstormSavedData extends SavedData implements HailstormData, Logg
         data.setThunderTime(0);
         data.setRaining(false);
         data.setThundering(false);
-        this.setDirty();
     }
 
     public boolean chunkHasCyclone(ServerLevel level, BlockPos pos) {
@@ -140,6 +140,8 @@ public class HailstormSavedData extends SavedData implements HailstormData, Logg
         if (this.oHailLevel != this.hailLevel)
             PayloadHandler.changeHailLevel(level, this.hailLevel);
 
+
+        this.setDirty();
     }
 
     public boolean isHailingAt(Level level, BlockPos pos) {
@@ -163,6 +165,7 @@ public class HailstormSavedData extends SavedData implements HailstormData, Logg
     @Override
     public void setHailing(boolean hailing) {
         this.isHailing = hailing;
+        this.setDirty();
     }
 
     @Override
@@ -175,6 +178,7 @@ public class HailstormSavedData extends SavedData implements HailstormData, Logg
         float f = Mth.clamp(strength, 0.0F, 1.0F);
         this.oHailLevel = f;
         this.hailLevel = f;
+        this.setDirty();
     }
 
     @Override

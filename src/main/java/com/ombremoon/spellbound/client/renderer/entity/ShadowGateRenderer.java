@@ -2,7 +2,7 @@ package com.ombremoon.spellbound.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.ombremoon.spellbound.client.renderer.spell.OutlineSpellRenderer;
+import com.ombremoon.spellbound.client.renderer.types.OutlineSpellRenderer;
 import com.ombremoon.spellbound.common.content.entity.spell.ShadowGate;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.util.SpellUtil;

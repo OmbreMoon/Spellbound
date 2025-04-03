@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.content.entity.living;
 
-import com.ombremoon.spellbound.common.content.entity.spell.SBLivingEntity;
+import com.ombremoon.spellbound.common.content.entity.SBLivingEntity;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.entity.SmartSpellEntity;
 import com.ombremoon.spellbound.common.content.entity.behavior.ApplySurroundingEffectBehavior;
@@ -190,9 +190,9 @@ public class TotemSpiritEntity extends SmartSpellEntity<SpiritTotemSpell> {
             }
         }
 
-        if (isCatForm() && skills.hasSkillReady(SBSkills.STEALTH_TACTIC.value()) && getHealth() < getMaxHealth() * 0.25f) {
+        if (isCatForm() && skills.hasSkillReady(SBSkills.STEALTH_TACTICS.value()) && getHealth() < getMaxHealth() * 0.25f) {
             this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 200)); //10 seconds
-            skills.getCooldowns().addCooldown(SBSkills.STEALTH_TACTIC.value(), 800);//40 seconds
+            skills.getCooldowns().addCooldown(SBSkills.STEALTH_TACTICS.value(), 800);//40 seconds
         }
     }
 

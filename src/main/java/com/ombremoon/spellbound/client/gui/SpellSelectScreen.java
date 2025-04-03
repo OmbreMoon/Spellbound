@@ -6,7 +6,7 @@ import com.ombremoon.spellbound.client.gui.radial.RadialMenu;
 import com.ombremoon.spellbound.client.gui.radial.RadialMenuItem;
 import com.ombremoon.spellbound.client.gui.radial.SpellRadialMenuItem;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.RadialSpell;
 import com.ombremoon.spellbound.common.magic.skills.RadialSkill;
@@ -18,10 +18,13 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.Arrays;
 import java.util.List;
 
+@OnlyIn(Dist.CLIENT)
 public class SpellSelectScreen extends Screen {
     private static final int RADIAL_WIDTH = 80;
     private static final int RADIAL_HEIGHT = RADIAL_WIDTH;
@@ -49,8 +52,8 @@ public class SpellSelectScreen extends Screen {
             }
         };
 
-        for (int i = 0; i < handler.equippedSpellSet.size(); i++) {
-            spellItems[i] = new SpellRadialMenuItem(radialMenu, handler.equippedSpellSet.stream().toList().get(i)) {
+        for (int i = 0; i < handler.getEquippedSpells().size(); i++) {
+            spellItems[i] = new SpellRadialMenuItem(radialMenu, handler.getEquippedSpells().stream().toList().get(i)) {
                 @Override
                 public boolean onClick() {
                     if (handler.getSelectedSpell() == this.getSpellType() && !(this.getSpellType().getRootSkill() instanceof RadialSkill))
@@ -77,7 +80,7 @@ public class SpellSelectScreen extends Screen {
         this.x = (float) this.width / 2;
         this.y = (float) this.height / 2;
         if (this.items.isEmpty()) {
-            this.items.addAll(Arrays.asList(spellItems).subList(0, handler.equippedSpellSet.size()));
+            this.items.addAll(Arrays.asList(spellItems).subList(0, handler.getEquippedSpells().size()));
         }
     }
 

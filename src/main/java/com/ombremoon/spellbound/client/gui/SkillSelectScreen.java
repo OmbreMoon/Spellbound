@@ -6,7 +6,7 @@ import com.ombremoon.spellbound.client.gui.radial.RadialMenu;
 import com.ombremoon.spellbound.client.gui.radial.RadialMenuItem;
 import com.ombremoon.spellbound.client.gui.radial.SkillRadialMenuItem;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.RadialSkill;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.networking.PayloadHandler;
@@ -17,9 +17,12 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.List;
 
+@OnlyIn(Dist.CLIENT)
 public class SkillSelectScreen extends Screen {
     private static final int RADIAL_WIDTH = 80;
     private static final int RADIAL_HEIGHT = RADIAL_WIDTH;

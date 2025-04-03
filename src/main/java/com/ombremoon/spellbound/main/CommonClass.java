@@ -14,6 +14,7 @@ public class CommonClass {
         SBSpells.register(modEventBus);
         SBEffects.register(modEventBus);
         SBBlockEntities.register(modEventBus);
+        SBArmorMaterials.register(modEventBus);
         SBData.register(modEventBus);
         SBStats.register(modEventBus);
         SBSkills.register(modEventBus);

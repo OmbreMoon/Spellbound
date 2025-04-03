@@ -6,10 +6,11 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-public record UpdateSpellsPayload(boolean isRecast, int castId, boolean forceReset) implements CustomPacketPayload {
+public record UpdateSpellsPayload(String playerId, boolean isRecast, int castId, boolean forceReset) implements CustomPacketPayload {
     public static final Type<UpdateSpellsPayload> TYPE = new Type<>(CommonClass.customLocation("update_spells"));
 
     public static final StreamCodec<ByteBuf, UpdateSpellsPayload> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8, UpdateSpellsPayload::playerId,
             ByteBufCodecs.BOOL, UpdateSpellsPayload::isRecast,
             ByteBufCodecs.INT, UpdateSpellsPayload::castId,
             ByteBufCodecs.BOOL, UpdateSpellsPayload::forceReset,

@@ -195,6 +195,7 @@ public class Cyclone extends SpellEntity<CycloneSpell> {
                                 if (entity instanceof LivingEntity livingEntity)
                                     livingEntity.knockback(strength, this.getX() - entity.getX(), this.getZ() - entity.getZ());
                             }
+                            entity.hurtMarked = true;
                         }
                     }
                 }
@@ -213,6 +214,7 @@ public class Cyclone extends SpellEntity<CycloneSpell> {
                                 catchDuration.remove(entity);
                                 Vec3 vec3 = new Vec3(RandomUtil.randomValueUpTo(1.0), 0.4, RandomUtil.randomValueUpTo(1.0F)).scale(1.0F + this.getStacks() * 0.5F);
                                 entity.setDeltaMovement(vec3);
+                                entity.hurtMarked = true;
                                 thrownEntities.add(entity);
                                 entity.setData(SBData.THROWN_TICK, this.tickCount + 60);
                             } else if (!caughtList.contains(entity)) {

@@ -24,8 +24,6 @@ public class SBSkills {
     public static final Registry<Skill> REGISTRY = new RegistryBuilder<>(SKILL_REGISTRY_KEY).sync(true).create();
     public static final DeferredRegister<Skill> SKILLS = DeferredRegister.create(REGISTRY, Constants.MOD_ID);
 
-    public static final Holder<Skill> TEST_SKILL = registerSkill("test");
-
     //Volcano
     public static final Holder<Skill> VOLCANO = registerSkill("volcano");
     public static final Holder<Skill> INFERNO_CORE = registerSkill("inferno_core", 0, 50, preReqs(VOLCANO));
@@ -42,8 +40,8 @@ public class SBSkills {
     //Solar Ray
     public static final Holder<Skill> SOLAR_RAY = registerSkill("solar_ray");
     public static final Holder<Skill> SUNSHINE = registerSkill("sunshine", -50, 50, preReqs(SOLAR_RAY));
-    public static final Holder<Skill> RADIANCE = registerSkill("radiance", -50, 100, preReqs(SUNSHINE));
-    public static final Holder<Skill> HEALING_LIGHT = registerSkill("healing_light", -50, 150, preReqs(RADIANCE));
+    public static final Holder<Skill> OVERPOWER = registerSkill("radiance", -50, 100, preReqs(SUNSHINE));
+    public static final Holder<Skill> HEALING_LIGHT = registerSkill("healing_light", -50, 150, preReqs(OVERPOWER));
     public static final Holder<Skill> CONCENTRATED_HEAT = registerSkill("concentrated_heat", 0, 50, preReqs(SOLAR_RAY));
     public static final Holder<Skill> OVERHEAT = registerSkill("overheat", 0, 100, preReqs(CONCENTRATED_HEAT));
     public static final Holder<Skill> SOLAR_BURST = registerSkill("solar_burst", 0, 150, preReqs(OVERHEAT));
@@ -69,9 +67,9 @@ public class SBSkills {
     public static final Holder<Skill> ELECTRIC_CHARGE = registerSkill("electric_charge");
     public static final Holder<Skill> ELECTRIFICATION = registerSkill("electrification", -25, 50, preReqs(ELECTRIC_CHARGE));
     public static final Holder<Skill> SUPERCONDUCTOR = registerSkill("superconductor", 25, 50, preReqs(ELECTRIC_CHARGE));
-    public static final Holder<Skill> CYCLONIC_FURY = registerSkill("cyclonic_fury", 50, 100, preReqs(ELECTRIFICATION, SUPERCONDUCTOR));
-    public static final Holder<Skill> OSCILLATION = registerSkill("oscillation", 50, 150, preReqs(CYCLONIC_FURY));
-    public static final Holder<Skill> HIGH_VOLTAGE = registerSkill("high_voltage", 100, 150, preReqs(CYCLONIC_FURY));
+    public static final Holder<Skill> STORM_CHARGE = registerSkill("cyclonic_fury", 50, 100, preReqs(ELECTRIFICATION, SUPERCONDUCTOR));
+    public static final Holder<Skill> OSCILLATION = registerSkill("oscillation", 50, 150, preReqs(STORM_CHARGE));
+    public static final Holder<Skill> HIGH_VOLTAGE = registerSkill("high_voltage", 100, 150, preReqs(STORM_CHARGE));
     public static final Holder<Skill> UNLEASHED_STORM = registerSkill("unleashed_storm", -50, 100, preReqs(ELECTRIFICATION, SUPERCONDUCTOR));
     public static final Holder<Skill> STORM_SURGE = registerSkill("storm_surge", 0, 100, preReqs(ELECTRIFICATION, SUPERCONDUCTOR));
     public static final Holder<Skill> CHAIN_REACTION = registerSkill("chain_reaction", -25, 150, preReqs(UNLEASHED_STORM, STORM_SURGE));
@@ -95,10 +93,10 @@ public class SBSkills {
     public static final Holder<Skill> CYCLONE = registerSkill("cyclone");
     public static final Holder<Skill> EYE_OF_THE_STORM = registerSkill("eye_of_the_storm", -50, 50, preReqs(CYCLONE));
     public static final Holder<Skill> FALLING_DEBRIS = registerSkill("falling_debris", -50, 100, preReqs(EYE_OF_THE_STORM));
-    public static final Holder<Skill> VORTEX = registerSkill("vortex", 50, 50, preReqs(CYCLONE));
-    public static final Holder<Skill> MAELSTROM = registerSkill("maelstrom", 50, 100, preReqs(VORTEX));
-    public static final Holder<Skill> HURRICANE = registerSkill("hurricane", 0, 50, preReqs(CYCLONE));
-    public static final Holder<Skill> WHIRLING_TEMPEST = registerSkill("whirling_tempest", 0, 100, preReqs(HURRICANE));
+    public static final Holder<Skill> WHIRLING_TEMPEST = registerSkill("whirling_tempest", 0, 50, preReqs(CYCLONE));
+    public static final Holder<Skill> HURRICANE = registerSkill("hurricane", 50, 50, preReqs(CYCLONE));
+    public static final Holder<Skill> MAELSTROM = registerSkill("maelstrom", 50, 100, preReqs(HURRICANE));
+    public static final Holder<Skill> VORTEX = registerSkill("vortex", 0, 100, preReqs(WHIRLING_TEMPEST));
     public static final Holder<Skill> GALE_FORCE = registerModifierSkill("gale_force", -50, 150, preReqs(WHIRLING_TEMPEST), SpellModifier.GALE_FORCE);
     public static final Holder<Skill> FROSTFRONT = registerSkill("frostfront", 0, 150, preReqs(WHIRLING_TEMPEST));
     public static final Holder<Skill> STATIC_CHARGE = registerSkill("static_charge", 50, 150, preReqs(WHIRLING_TEMPEST));
@@ -117,9 +115,9 @@ public class SBSkills {
     public static final Holder<Skill> GRAVITY_SHIFT = registerSkill("gravity_shift", -25, 150, preReqs(DARKNESS_PREVAILS));
     public static final Holder<Skill> DUAL_DESTINATION = registerSkill("dual_destination", 25, 150, preReqs(DARKNESS_PREVAILS));
 
-    //Thunderous Hooves
-    public static final Holder<Skill> THUNDEROUS_HOOVES = registerSkill("thunderous_hooves");
-    public static final Holder<Skill> QUICK_SPRINT = registerSkill("quick_sprint", 0, 50, preReqs(THUNDEROUS_HOOVES));
+    //Stride
+    public static final Holder<Skill> STRIDE = registerSkill("stride");
+    public static final Holder<Skill> QUICK_SPRINT = registerSkill("quick_sprint", 0, 50, preReqs(STRIDE));
     public static final Holder<Skill> GALLOPING_STRIDE = registerSkill("galloping_stride", 0, 100, preReqs(QUICK_SPRINT));
     public static final Holder<Skill> FLEETFOOTED = registerSkill("fleetfooted", -50, 150, preReqs(GALLOPING_STRIDE));
     public static final Holder<Skill> RIDERS_RESILIENCE = registerSkill("riders_resilience", -75, 200, preReqs(FLEETFOOTED));
@@ -167,28 +165,28 @@ public class SBSkills {
     public static final Holder<Skill> POISON_ESSENCE = registerSkill("poison_essence", 50, 150, preReqs(NATURES_DOMINANCE));
     public static final Holder<Skill> CIRCLE_OF_LIFE = registerSkill("circle_of_life", 50, 200, preReqs(POISON_ESSENCE));
     public static final Holder<Skill> CATALEPSY = registerSkill("catalepsy", 50, 250, preReqs(CIRCLE_OF_LIFE));
-    public static final Holder<Skill> RECYCLED = registerSkill("recycled", 100, 150, preReqs(NATURES_DOMINANCE));
+    public static final Holder<Skill> FUNGAL_HARVEST = registerSkill("recycled", 100, 150, preReqs(NATURES_DOMINANCE));
     public static final Holder<Skill> SYNTHESIS = registerSkill("synthesis", 100, 200, preReqs(POISON_ESSENCE));
 
     //Healing Touch
     //TODO: Tree
     public static final Holder<Skill> HEALING_TOUCH = registerSkill("healing_touch");
-    public static final Holder<Skill> DIVINE_BALANCE = registerModifierSkill("divine_balance", 0, 50, preReqs(HEALING_TOUCH), SpellModifier.DIVINE_BALANCE_DURATION, SpellModifier.DIVINE_BALANCE_MANA);
-    public static final Holder<Skill> HEALING_STREAM = registerSkill("healing_stream", 0, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> ACCELERATED_GROWTH = registerSkill("accelerated_growth", 0, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> TRANQUILITY_OF_WATER = registerSkill("tranquility_of_water", 0, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> NATURES_TOUCH = registerSkill("natures_touch", 0, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> CLEANSING_TOUCH = registerSkill("cleansing_touch", 0, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> OVERGROWTH = registerSkill("overgrowth", 0, 50, preReqs(HEALING_TOUCH));
     public static final Holder<Skill> BLASPHEMY = registerSkill("blasphemy", -50, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> CONVALESCENCE = registerSkill("convalescence", -50, 100, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> OAK_BLESSING = registerSkill("oak_blessing", 0, 50, preReqs(HEALING_STREAM));
+    public static final Holder<Skill> CONVALESCENCE = registerSkill("convalescence", -50, 100, preReqs(BLASPHEMY));
+    public static final Holder<Skill> DIVINE_BALANCE = registerModifierSkill("divine_balance", 0, 50, preReqs(HEALING_TOUCH), SpellModifier.DIVINE_BALANCE_DURATION, SpellModifier.DIVINE_BALANCE_MANA);
+    public static final Holder<Skill> NATURES_TOUCH = registerSkill("natures_touch", 0, 100, preReqs(DIVINE_BALANCE));
+    public static final Holder<Skill> CLEANSING_TOUCH = registerSkill("cleansing_touch", 0, 150, preReqs(NATURES_TOUCH));
+    public static final Holder<Skill> ACCELERATED_GROWTH = registerSkill("accelerated_growth", 50, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> HEALING_STREAM = registerSkill("healing_stream", 50, 100, preReqs(ACCELERATED_GROWTH));
+    public static final Holder<Skill> TRANQUILITY_OF_WATER = registerSkill("tranquility_of_water", 50, 150, preReqs(HEALING_STREAM));
+    public static final Holder<Skill> OVERGROWTH = registerSkill("overgrowth", 0, 200, preReqs(TRANQUILITY_OF_WATER, CLEANSING_TOUCH));
+    public static final Holder<Skill> OAK_BLESSING = registerSkill("oak_blessing", 50, 200, preReqs(TRANQUILITY_OF_WATER, CLEANSING_TOUCH));
 
     //Healing Blossom
     public static final Holder<Skill> HEALING_BLOSSOM = registerSkill("healing_blossom");
     public static final Holder<Skill> THORNY_VINES = registerSkill("thorny_vines", -75, 50, preReqs(HEALING_BLOSSOM));
-    public static final Holder<Skill> BLOOM = registerModifierSkill("bloom", -25, 50, preReqs(HEALING_BLOSSOM), SpellModifier.BLOOM);
-    public static final Holder<Skill> ETERNAL_SPRING = registerModifierSkill("eternal_spring", -25, 100, preReqs(BLOOM), SpellModifier.ETERNAL_SPRING);
+    public static final Holder<Skill> BLOOM = registerSkill("bloom", -25, 50, preReqs(HEALING_BLOSSOM));
+    public static final Holder<Skill> ETERNAL_SPRING = registerSkill("eternal_spring", -25, 100, preReqs(BLOOM));
     public static final Holder<Skill> FLOWER_FIELD = registerSkill("flower_field", 25, 50, preReqs(HEALING_BLOSSOM));
     public static final Holder<Skill> FLOURISHING_GROWTH = registerSkill("flourishing_growth", 25, 100, preReqs(FLOWER_FIELD));
     public static final Holder<Skill> HEALING_WINDS = registerSkill("healing_winds", 25, 150, preReqs(FLOURISHING_GROWTH));
@@ -223,19 +221,21 @@ public class SBSkills {
     public static Holder<Skill> NULLIFICATION = registerSkill("nullification", 75, 150, preReqs(MAGIC_POISONING));
     public static Holder<Skill> EXPUNGE = registerSkill("expunge", 0, 200, preReqs(AVERSION, UNFOCUSED, NULLIFICATION));
 
+    public static Holder<Skill> SUMMON_UNDEAD = registerSkill("summon_undead");
+
     //Totem Spirit
     //TODO: Tree
-    public static Holder<Skill> CONJURE_SPIRIT_TOTEM = registerSkill("conjure_cat_totem");
-    public static Holder<Skill> CATS_AGILITY = registerSkill("cats_agility", -50 , 50 , preReqs(CONJURE_SPIRIT_TOTEM));
-    public static Holder<Skill> FERAL_FURY = registerSkill("feral_fury", -50 , 50 , preReqs(CONJURE_SPIRIT_TOTEM));
-    public static Holder<Skill> PRIMAL_RESILIENCE = registerSkill("primal_resilience", -50 , 50 , preReqs(CONJURE_SPIRIT_TOTEM));
-    public static Holder<Skill> TOTEMIC_BOND = registerSkill("totemic_bond", -50 , 50 , preReqs(CONJURE_SPIRIT_TOTEM)); //TODO
-    public static Holder<Skill> STEALTH_TACTIC = registerSkill("stealth_tactic", -50 , 50 , preReqs(CONJURE_SPIRIT_TOTEM)); //TODO
-    public static Holder<Skill> SAVAGE_LEAP = registerSkill("savage_leap", -50 , 50 , preReqs(CONJURE_SPIRIT_TOTEM)); //TODO
-    public static Holder<Skill> TOTEMIC_ARMOR = registerSkill("totemic_armor", -50 , 50 , preReqs(CONJURE_SPIRIT_TOTEM)); //TODO
-    public static Holder<Skill> WARRIORS_ROAR = registerSkill("warriors_roar", -50 , 50 , preReqs(CONJURE_SPIRIT_TOTEM)); //TODO
-    public static Holder<Skill> TWIN_SPIRITS = registerSkill("twin_spirits", -50 , 50 , preReqs(CONJURE_SPIRIT_TOTEM)); //TODO
-    public static Holder<Skill> NINE_LIVES = registerSkill("nine_lives", -50 , 50 , preReqs(CONJURE_SPIRIT_TOTEM)); //TODO
+    public static Holder<Skill> SUMMON_CAT_SPIRIT = registerSkill("conjure_cat_totem");
+    public static Holder<Skill> CATS_AGILITY = registerSkill("cats_agility", -50 , 50 , preReqs(SUMMON_CAT_SPIRIT));
+    public static Holder<Skill> FERAL_FURY = registerSkill("feral_fury", -50 , 100 , preReqs(CATS_AGILITY));
+    public static Holder<Skill> PRIMAL_RESILIENCE = registerSkill("primal_resilience", -50 , 150 , preReqs(FERAL_FURY));
+    public static Holder<Skill> TOTEMIC_BOND = registerSkill("totemic_bond", -100 , 150 , preReqs(PRIMAL_RESILIENCE)); //TODO
+    public static Holder<Skill> STEALTH_TACTICS = registerSkill("stealth_tactic", -100 , 200 , preReqs(TOTEMIC_BOND)); //TODO
+    public static Holder<Skill> SAVAGE_LEAP = registerSkill("savage_leap", 50 , 50 , preReqs(SUMMON_CAT_SPIRIT)); //TODO
+    public static Holder<Skill> TOTEMIC_ARMOR = registerSkill("totemic_armor", 50 , 100 , preReqs(SAVAGE_LEAP)); //TODO
+    public static Holder<Skill> WARRIORS_ROAR = registerSkill("warriors_roar", 50 , 150 , preReqs(TOTEMIC_ARMOR)); //TODO
+    public static Holder<Skill> TWIN_SPIRITS = registerSkill("twin_spirits", 0 , 200 , preReqs(WARRIORS_ROAR, PRIMAL_RESILIENCE)); //TODO
+    public static Holder<Skill> NINE_LIVES = registerSkill("nine_lives", 0 , 250 , preReqs(TWIN_SPIRITS)); //TODO
 
     private static Holder<Skill> registerSkill(String name) {
         return SKILLS.register(name, () -> new Skill(CommonClass.customLocation(name)));

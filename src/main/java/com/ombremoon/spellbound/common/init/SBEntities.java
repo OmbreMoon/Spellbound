@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.init;
 
+import com.ombremoon.spellbound.common.content.entity.living.DungeonShadow;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.content.entity.living.LivingShadow;
 import com.ombremoon.spellbound.common.content.entity.living.SpellBrokerEntity;
@@ -21,6 +22,8 @@ public class SBEntities {
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister
             .create(Registries.ENTITY_TYPE, Constants.MOD_ID);
 
+    public static final Supplier<EntityType<SpellBrokerEntity>> SPELL_BROKER = registerMob("spell_broker", SpellBrokerEntity::new, MobCategory.CREATURE, 1f, 1f, 8, SpellBrokerEntity::createAttributes);
+
     public static final Supplier<EntityType<WildMushroom>> MUSHROOM = ENTITIES.register("wild_mushroom",
             () -> EntityType.Builder.of(WildMushroom::new, MobCategory.MISC).sized(0.9f, 0.9f).build("wild_mushroom"));
     public static final Supplier<EntityType<HealingBlossom>> HEALING_BLOSSOM = registerEntity("healing_blossom", HealingBlossom::new, 1f, 1f);
@@ -33,10 +36,16 @@ public class SBEntities {
     public static final Supplier<EntityType<Cyclone>> CYCLONE = registerEntity("cyclone", Cyclone::new, 3.0F, 3.0F);
     public static final Supplier<EntityType<Hail>> HAIL = registerEntity("hail", Hail::new, 3.0F, 3.0F);
 
-    public static final Supplier<EntityType<LivingShadow>> LIVING_SHADOW = registerMob("living_shadow", LivingShadow::new, MobCategory.CREATURE,0.6F, 1.95F, 8, LivingShadow::createLivingShadowAttributes, false);
-    public static final Supplier<EntityType<Valkyr>> VALKYR = registerMob("valkyr", Valkyr::new, MobCategory.CREATURE,0.6F, 1.95F, 8, Valkyr::createValkyrAttributes, false);
+    //Summon Entities
     //public static final Supplier<EntityType<TotemSpiritEntity>> TOTEM_SPIRIT = registerMob("totem_spirit", TotemSpiritEntity::new, MobCategory.CREATURE, 1f, 1f, 8, LivingShadow::createLivingShadowAttributes, false);
-    public static final Supplier<EntityType<SpellBrokerEntity>> SPELL_BROKER = registerMob("spell_broker", SpellBrokerEntity::new, MobCategory.CREATURE, 1f, 1f, 8, SpellBrokerEntity::createAttributes);
+
+    //Divine Entities
+    public static final Supplier<EntityType<Valkyr>> VALKYR = registerMob("valkyr", Valkyr::new, MobCategory.CREATURE,0.6F, 1.95F, 8, Valkyr::createValkyrAttributes, false);
+
+
+    //Deception Entities
+    public static final Supplier<EntityType<LivingShadow>> LIVING_SHADOW = registerMob("living_shadow", LivingShadow::new, MobCategory.CREATURE,0.6F, 1.95F, 8, LivingShadow::createLivingShadowAttributes, false);
+    public static final Supplier<EntityType<DungeonShadow>> DUNGEON_SHADOW = registerMob("dungeon_shadow", DungeonShadow::new, MobCategory.CREATURE,0.6F, 1.95F, 8, DungeonShadow::createDungeonShadowAttributes, false);
 
     protected static <T extends Mob> Supplier<EntityType<T>> registerMob(String name, EntityType.EntityFactory<T> factory, MobCategory category, float width, float height, int clientTrackingRange, Supplier<AttributeSupplier.Builder> attributeSupplier) {
         return registerMob(name, factory, category, true, width, height, clientTrackingRange, attributeSupplier, true);

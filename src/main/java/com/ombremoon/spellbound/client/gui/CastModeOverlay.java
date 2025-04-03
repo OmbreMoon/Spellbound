@@ -2,12 +2,11 @@ package com.ombremoon.spellbound.client.gui;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.SBAttributes;
 import com.ombremoon.spellbound.common.init.SBData;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.util.RenderUtil;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -55,7 +54,7 @@ public class CastModeOverlay implements LayeredDraw.Layer {
                 false);
 
         SpellType<?> spell = handler.getSelectedSpell();
-        if (spell == null || spell == SBSpells.TEST_SPELL.get()) return;
+        if (spell == null) return;
 
         ResourceLocation texture = spell.createSpell().getTexture();
         guiGraphics.blit(texture, x, y, 0, 0, 24, 24, 24, 24);

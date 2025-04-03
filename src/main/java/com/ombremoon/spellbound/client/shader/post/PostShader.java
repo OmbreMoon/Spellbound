@@ -1,13 +1,14 @@
 package com.ombremoon.spellbound.client.shader.post;
 
 import com.google.gson.JsonSyntaxException;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.ombremoon.spellbound.main.Constants;
-import com.ombremoon.spellbound.client.ClientStuff;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.EffectInstance;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -56,8 +57,12 @@ public abstract class PostShader {
         }
     }
 
+    @Nullable
+    public RenderTarget getShaderTarget() {
+        return null;
+    }
+
     public void initTarget() {
-        ClientStuff.getInstance().getExamples().initExampleTarget(this.postEffect.getTempTarget("final"));
     }
 
     public void resize(int width, int height) {
@@ -76,12 +81,14 @@ public abstract class PostShader {
                 prepShader(poseStack);
                 this.postEffect.process(MINECRAFT.getTimer().getGameTimeDeltaTicks());
                 LOGGER.info("{}", this.shaderLoc);
-
+                test();
                 MINECRAFT.getMainRenderTarget().bindWrite(false);
                 cleanupShader();
             }
         }
     }
+
+    public void test() {}
 
     abstract void prepShader(PoseStack poseStack);
 

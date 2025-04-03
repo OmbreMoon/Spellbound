@@ -1,23 +1,25 @@
 package com.ombremoon.spellbound.client.event;
 
-import com.ombremoon.spellbound.main.CommonClass;
-import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.gui.CastModeOverlay;
 import com.ombremoon.spellbound.client.gui.SpellSelectScreen;
 import com.ombremoon.spellbound.client.renderer.blockentity.SummonPortalRenderer;
 import com.ombremoon.spellbound.client.renderer.entity.*;
-import com.ombremoon.spellbound.client.renderer.spell.*;
 import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
+import com.ombremoon.spellbound.client.renderer.types.EmissiveSpellProjectileRenderer;
+import com.ombremoon.spellbound.client.renderer.types.EmissiveSpellRenderer;
+import com.ombremoon.spellbound.client.renderer.types.GenericLivingEntityRenderer;
+import com.ombremoon.spellbound.client.renderer.types.GenericSpellRenderer;
 import com.ombremoon.spellbound.client.shader.SBShaders;
 import com.ombremoon.spellbound.common.content.world.hailstorm.ClientHailstormData;
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
 import com.ombremoon.spellbound.common.init.SBBlockEntities;
-import com.ombremoon.spellbound.common.magic.SpellHandler;
-import com.ombremoon.spellbound.common.init.SBEffects;
 import com.ombremoon.spellbound.common.init.SBEntities;
+import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.buff.events.MouseInputEvent;
+import com.ombremoon.spellbound.main.CommonClass;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
@@ -40,10 +42,13 @@ public class ClientEvents {
         public static void onKeyRegister(RegisterKeyMappingsEvent event) {
             event.register(KeyBinds.SWITCH_MODE_BINDING);
             event.register(KeyBinds.SELECT_SPELL_BINDING);
+            event.register(KeyBinds.CYCLE_SPELL_BINDING);
         }
 
         @SubscribeEvent
         public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
+            event.registerEntityRenderer(SBEntities.SPELL_BROKER.get(), PlaceholderRenderer::new);
+
             event.registerEntityRenderer(SBEntities.MUSHROOM.get(), GenericSpellRenderer::new);
             event.registerEntityRenderer(SBEntities.SHADOW_GATE.get(), ShadowGateRenderer::new);
             event.registerEntityRenderer(SBEntities.SOLAR_RAY.get(), SolarRayRenderer::new);
@@ -55,10 +60,10 @@ public class ClientEvents {
             event.registerEntityRenderer(SBEntities.HAIL.get(), HailRenderer::new);
             event.registerEntityRenderer(SBEntities.HEALING_BLOSSOM.get(), HealingBlossomRenderer::new);
 
-            event.registerEntityRenderer(SBEntities.LIVING_SHADOW.get(), LivingShadowRenderer::new);
             event.registerEntityRenderer(SBEntities.VALKYR.get(), GenericLivingEntityRenderer::new);
 
-            event.registerEntityRenderer(SBEntities.SPELL_BROKER.get(), PlaceholderRenderer::new);
+            event.registerEntityRenderer(SBEntities.LIVING_SHADOW.get(), LivingShadowRenderer::new);
+            event.registerEntityRenderer(SBEntities.DUNGEON_SHADOW.get(), GenericLivingEntityRenderer::new);
 
             event.registerBlockEntityRenderer(SBBlockEntities.SUMMON_PORTAL.get(), SummonPortalRenderer::new);
         }
@@ -96,12 +101,18 @@ public class ClientEvents {
                     player.displayClientMessage(Component.literal("Switched to " + (handler.inCastMode() ? "Cast mode" : "Normal mode")), true);
                     PayloadHandler.switchMode();
                 }
-                if (KeyBinds.SELECT_SPELL_BINDING.consumeClick()) {
-                    Screen screen = minecraft.screen;
-                    if (handler.inCastMode() && !handler.equippedSpellSet.isEmpty()) {
-                        minecraft.setScreen(new SpellSelectScreen());
-                    } else {
-                        minecraft.setScreen(screen);
+                if (handler.inCastMode()) {
+                    if (KeyBinds.SELECT_SPELL_BINDING.consumeClick()) {
+                        Screen screen = minecraft.screen;
+                        if (!handler.getEquippedSpells().isEmpty()) {
+                            minecraft.setScreen(new SpellSelectScreen());
+                        } else {
+                            minecraft.setScreen(screen);
+                        }
+                    }
+                    if (KeyBinds.CYCLE_SPELL_BINDING.consumeClick()) {
+                        SpellUtil.cycle(handler, handler.getSelectedSpell());
+                        PayloadHandler.setSpell(handler.getSelectedSpell());
                     }
                 }
             }
@@ -124,7 +135,7 @@ public class ClientEvents {
         @SubscribeEvent
         public static void onMovementInput(MovementInputUpdateEvent event) {
             var handler = SpellUtil.getSpellHandler(event.getEntity());
-            if (event.getEntity().hasEffect(SBEffects.ROOTED) || event.getEntity().hasEffect(SBEffects.STUNNED) || handler.isStationary()) {
+            if (handler.isStationary()) {
                 event.getInput().leftImpulse = 0;
                 event.getInput().forwardImpulse = 0;
                 event.getInput().jumping = false;

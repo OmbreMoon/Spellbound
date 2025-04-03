@@ -1,10 +1,10 @@
 package com.ombremoon.spellbound.common.magic.api;
 
 import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
+import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.entity.SmartSpellEntity;
 import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.SpellType;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.buff.events.ChangeTargetEvent;
 import com.ombremoon.spellbound.common.magic.api.buff.events.DamageEvent;
@@ -33,7 +33,7 @@ public abstract class SummonSpell extends AnimatedSpell {
 
     @SuppressWarnings("unchecked")
     public static <T extends SummonSpell> Builder<T> createSummonBuilder(Class<T> spellClass) {
-        return (Builder<T>) new Builder<>().castCondition((context, spell) -> spell.getSpawnPos(spell.spawnRange) != null);
+        return (Builder<T>) new Builder<>().castCondition((context, spell) -> spell.hasValidSpawnPos(spell.spawnRange));
     }
 
     public SummonSpell(SpellType<?> spellType, Builder<?> builder) {
@@ -130,8 +130,23 @@ public abstract class SummonSpell extends AnimatedSpell {
     public static class Builder<T extends SummonSpell> extends AnimatedSpell.Builder<T> {
         private double spawnRange = 5;
 
+        public Builder<T> mastery(SpellMastery mastery) {
+            this.spellMastery = mastery;
+            return this;
+        }
+
         public Builder<T> manaCost(int manaCost) {
             this.manaCost = manaCost;
+            return this;
+        }
+
+        public Builder<T> duration(int duration) {
+            this.duration = duration;
+            return this;
+        }
+
+        public Builder<T> baseDamage(int baseDamage) {
+            this.baseDamage = baseDamage;
             return this;
         }
 
@@ -165,11 +180,6 @@ public abstract class SummonSpell extends AnimatedSpell {
             return this;
         }
 
-        public Builder<T> duration(Function<SpellContext, Integer> duration) {
-            this.duration = duration;
-            return this;
-        }
-
         public Builder<T> spawnRange(double spawnRange) {
             this.spawnRange = spawnRange;
             return this;
@@ -196,6 +206,11 @@ public abstract class SummonSpell extends AnimatedSpell {
 
         public Builder<T> updateInterval(int updateInterval) {
             this.updateInterval = updateInterval;
+            return this;
+        }
+
+        public Builder<T> hasLayer() {
+            this.hasLayer = true;
             return this;
         }
     }

@@ -1,9 +1,15 @@
 package com.ombremoon.spellbound.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.ombremoon.spellbound.common.events.EventFactory;
+import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.tree.SkillNode;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.util.SpellUtil;
+import it.unimi.dsi.fastutil.Pair;
+import it.unimi.dsi.fastutil.ints.IntIntMutablePair;
+import it.unimi.dsi.fastutil.ints.IntIntPair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.StringSplitter;
@@ -33,6 +39,7 @@ public class UpgradeWidget {
     private final List<UpgradeWidget> children = new ObjectArrayList<>();
     private final int x;
     private final int y;
+    private final int color;
 
     public UpgradeWidget(UpgradeWindow window, Minecraft minecraft, SkillNode skillNode) {
         this.window = window;
@@ -42,9 +49,11 @@ public class UpgradeWidget {
         this.x = skillNode.skill().getX();
         this.y = -skillNode.skill().getY();
         int j = 29 + minecraft.font.width(this.title);
+        SpellPath path = getSkill().getSpell().getSubPath() != null ? getSkill().getSpell().getSubPath() : getSkill().getSpell().getPath();
+        this.color = path.getColor();
         this.description = Language.getInstance()
                 .getVisualOrder(
-                        this.findOptimalLines(ComponentUtils.mergeStyles(skillNode.skill().getDescription(), Style.EMPTY.withColor(getSkill().getSpell().getPath().getColor())), j)
+                        this.findOptimalLines(ComponentUtils.mergeStyles(skillNode.skill().getDescription(), Style.EMPTY.withColor(this.color)), 120)
                 );
 
         for (FormattedCharSequence formattedcharsequence : this.description) {
@@ -116,8 +125,8 @@ public class UpgradeWidget {
 
     public void draw(GuiGraphics guiGraphics, int x, int y) {
         var holder = SpellUtil.getSkillHolder(this.minecraft.player);
-        Type type = holder.hasSkill(this.skillNode.skill()) ? Type.UNLOCKED : Type.LOCKED;
-        guiGraphics.blit(WorkbenchScreen.TEXTURE, x + this.x, y + this.y, 39 ,226, 30, 30);
+        boolean flag2 = holder.hasSkill(getSkill());
+        guiGraphics.blit(WorkbenchScreen.TEXTURE, x + this.x, y + this.y, flag2 ? 70 : 39 ,226, 30, 30);
         ResourceLocation sprite = this.skillNode.skill().getTexture();
         guiGraphics.blit(sprite, x + this.x + 3, y + this.y + 3, 0, 0, 24, 24, 24, 24);
 
@@ -142,7 +151,8 @@ public class UpgradeWidget {
         boolean flag = width + x + this.x + this.width + 30 >= this.window.getScreen().width;
         boolean flag1 = 115 - y - this.y - 30 <= 6 + this.description.size() * 9;
         var holder = SpellUtil.getSkillHolder(this.minecraft.player);
-        ResourceLocation box = holder.hasSkill(getSkill()) ? UNLOCKED : LOCKED;
+        boolean flag2 = holder.hasSkill(getSkill());
+        ResourceLocation box = flag2 ? UNLOCKED : LOCKED;
 
         int i = this.width;
         RenderSystem.enableBlend();
@@ -164,7 +174,7 @@ public class UpgradeWidget {
         }
 
         guiGraphics.blitSprite(box, 200, 26, 200 - i, 0, k, j, i, 26);
-        guiGraphics.blit(WorkbenchScreen.TEXTURE, x + this.x, y + this.y, 39 ,226, 30, 30);
+        guiGraphics.blit(WorkbenchScreen.TEXTURE, x + this.x, y + this.y, flag2 ? 70 : 39 ,226, 30, 30);
         if (flag) {
             guiGraphics.drawString(this.minecraft.font, this.title, k + 5, y + this.y + 9, -1);
         } else {

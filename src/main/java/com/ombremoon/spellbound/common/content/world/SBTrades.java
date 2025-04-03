@@ -3,32 +3,23 @@ package com.ombremoon.spellbound.common.content.world;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.ombremoon.spellbound.common.content.entity.SBMerchantType;
-import com.ombremoon.spellbound.common.content.entity.living.SBMerchant;
 import com.ombremoon.spellbound.common.content.item.SpellTomeItem;
 import com.ombremoon.spellbound.common.init.SBBlocks;
-import com.ombremoon.spellbound.common.init.SBEntities;
 import com.ombremoon.spellbound.common.init.SBSpells;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.Util;
-import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.trading.ItemCost;
-import net.minecraft.world.item.trading.Merchant;
 import net.minecraft.world.item.trading.MerchantOffer;
-import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.w3c.dom.DOMErrorHandler;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 public class SBTrades {
     public static final Map<SBMerchantType, Int2ObjectMap<MerchantOffer[]>> TRADES = Util.make(Maps.newHashMap(), map -> {
@@ -37,7 +28,7 @@ public class SBTrades {
                 spellTrade(20, Items.ECHO_SHARD, 5, SBSpells.SHADOW_GATE.get()),
                 spellTrade(20, Items.BOOK, 20, SBSpells.PURGE_MAGIC.get()),
                 spellTrade(20, Items.LAVA_BUCKET, 1, SBSpells.SOLAR_RAY.get()),
-                spellTrade(20, Items.SADDLE, 1, SBSpells.THUNDEROUS_HOOVES.get()),
+                spellTrade(20, Items.SADDLE, 1, SBSpells.STRIDE.get()),
                 spellTrade(15, Items.GOLD_BLOCK, 32, SBSpells.SPIRIT_TOTEM.get())
         }, 2, new MerchantOffer[]{
                 spellTrade(20, Items.GOLDEN_APPLE, 10, SBSpells.HEALING_TOUCH.get()),

@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.common.content.spell.divine;
 
 import com.ombremoon.spellbound.main.CommonClass;
-import com.ombremoon.spellbound.util.EffectManager;
+import com.ombremoon.spellbound.common.magic.EffectManager;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
@@ -11,7 +11,6 @@ import com.ombremoon.spellbound.common.magic.api.buff.events.DamageEvent;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -29,8 +28,8 @@ public class HealingTouchSpell extends AnimatedSpell {
 
     private static Builder<HealingTouchSpell> createHealingSpell() {
         return createSimpleSpellBuilder(HealingTouchSpell.class)
-                .manaCost(50)
-                .duration(context -> 300)
+                .manaCost(15)
+                .duration(100)
                 .fullRecast();
     }
 
@@ -45,11 +44,9 @@ public class HealingTouchSpell extends AnimatedSpell {
         if (context.isRecast() || context.getLevel().isClientSide) return;
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.POST_DAMAGE, PLAYER_DAMAGE, this::onDamagePost);
 
-        context.getCaster().addEffect(new MobEffectInstance(SBEffects.HEALING_TOUCH, getDuration()));
-
         SkillHolder skills = context.getSkills();
         this.caster = context.getCaster();
-        if (skills.hasSkill(SBSkills.NATURES_TOUCH.value())) context.getCaster().heal(2f);
+        if (skills.hasSkill(SBSkills.NATURES_TOUCH.value())) context.getCaster().heal(4f);
 
         if (skills.hasSkill(SBSkills.CLEANSING_TOUCH.value())) this.cleanseCaster(1);
 
@@ -63,23 +60,18 @@ public class HealingTouchSpell extends AnimatedSpell {
         LivingEntity caster = context.getCaster();
         double maxMana = caster.getAttribute(SBAttributes.MAX_MANA).getValue();
 
-        if (!caster.hasEffect(SBEffects.HEALING_TOUCH)) {
-            endSpell();
-            return;
-        }
-
-        float heal = 0.2f;
+        float heal = 2;
         if (skills.hasSkill(SBSkills.HEALING_STREAM.value()))
             heal += (float) maxMana * 0.02f;
 
-        caster.heal(heal);
+        this.heal(caster, heal);
 
         if (skills.hasSkill(SBSkills.ACCELERATED_GROWTH.value()) && caster instanceof Player player) {
             player.getFoodData().eat((int) (maxMana * 0.02d), 1f);
         }
 
         if (skills.hasSkill(SBSkills.TRANQUILITY_OF_WATER.value()))
-            context.getSpellHandler().awardMana(4 + (skills.getSpellLevel(getSpellType()) * 0.4f));
+            context.getSpellHandler().awardMana(2);
 
         if (skills.hasSkill(SBSkills.OVERGROWTH.value()) && overgrowthStacks < 5) overgrowthStacks++;
 
@@ -92,7 +84,6 @@ public class HealingTouchSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStop(SpellContext context) {
-        context.getCaster().removeEffect(SBEffects.HEALING_TOUCH);
     }
 
     @Override
@@ -104,17 +95,17 @@ public class HealingTouchSpell extends AnimatedSpell {
         SkillHolder skills = SpellUtil.getSkillHolder(caster);
 
         if (event.getEntity().hasEffect(SBEffects.POISON) && skills.hasSkill(SBSkills.CONVALESCENCE.value()))
-            caster.heal(0.5f);
+            caster.heal(1);
 
         if (!event.getEntity().is(caster)) return;
         if (overgrowthStacks > 0) {
-            caster.heal(2f);
+            caster.heal(4f);
             overgrowthStacks--;
         }
         if (skills.hasSkillReady(SBSkills.BLASPHEMY.value())) {
             EffectManager status = event.getEntity().getData(SBData.STATUS_EFFECTS);
-            status.increment(EffectManager.Effect.DISEASE, 100);
-            addCooldown(SBSkills.BLASPHEMY.value(), 100);
+//            status.increment(EffectManager.Effect.DISEASE, 100);
+            addCooldown(SBSkills.BLASPHEMY, 100);
         }
         if (skills.hasSkillReady(SBSkills.OAK_BLESSING.value())) {
             blessingDuration = 200;
@@ -123,7 +114,7 @@ public class HealingTouchSpell extends AnimatedSpell {
                     1.15d,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
             ));
-            addCooldown(SBSkills.OAK_BLESSING.value(), 600);
+            addCooldown(SBSkills.OAK_BLESSING, 600);
         }
     }
 

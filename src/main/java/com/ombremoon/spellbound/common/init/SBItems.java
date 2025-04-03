@@ -1,16 +1,13 @@
 package com.ombremoon.spellbound.common.init;
 
+import com.ombremoon.spellbound.common.content.item.*;
+import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.main.Constants;
-import com.ombremoon.spellbound.common.content.item.DebugItem;
-import com.ombremoon.spellbound.common.content.item.ManaTearItem;
-import com.ombremoon.spellbound.common.content.item.SpellTomeItem;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -34,6 +31,13 @@ public class SBItems {
     public static final Supplier<Item> HOLY_SHARD = registerSimpleItem("holy_shard");
     public static final Supplier<Item> FOOL_SHARD = registerSimpleItem("fool_shard");
 
+    public static final Supplier<Item> TRANSFIGURATION_STAFF = registerCatalystItem("transfiguration_staff", SpellPath.TRANSFIGURATION);
+
+    public static final Supplier<Item> TRANSFIGURER_HELMET = registerArmorItem("transfigurer_helmet", SBArmorMaterials.TRANSFIGURER, ArmorItem.Type.HELMET);
+    public static final Supplier<Item> TRANSFIGURER_CHESTPLATE = registerArmorItem("transfigurer_chestplate", SBArmorMaterials.TRANSFIGURER, ArmorItem.Type.CHESTPLATE);
+    public static final Supplier<Item> TRANSFIGURER_LEGGINGS = registerArmorItem("transfigurer_leggings", SBArmorMaterials.TRANSFIGURER, ArmorItem.Type.LEGGINGS);
+    public static final Supplier<Item> TRANSFIGURER_BOOTS = registerArmorItem("transfigurer_boots", SBArmorMaterials.TRANSFIGURER, ArmorItem.Type.BOOTS);
+
     public static final Supplier<Item> SPELL_TOME = ITEMS.register("spell_tome", () -> new SpellTomeItem(getItemProperties()));
     public static final Supplier<Item> MANA_TEAR = registerItem("mana_tear", () -> new ManaTearItem(getItemProperties()));
 
@@ -44,8 +48,7 @@ public class SBItems {
                             if (registryObject != SPELL_TOME) output.accept(new ItemStack(registryObject.get()));
                         });
                         SBSpells.SPELL_TYPES.getEntries().forEach((registryObject) -> {
-                            if (registryObject != SBSpells.TEST_SPELL)
-                                output.accept(SpellTomeItem.createWithSpell(registryObject.get()));
+                            output.accept(SpellTomeItem.createWithSpell(registryObject.get()));
                         });
                     }).title(Component.translatable("itemGroup.spellbound"))
             .build());
@@ -59,6 +62,17 @@ public class SBItems {
     public static Supplier<Item> registerSimpleItem(String name) {
         Supplier<Item> item = ITEMS.register(name, () -> new Item(getItemProperties()));
         SIMPLE_ITEM_LIST.add(item);
+        return item;
+    }
+
+    public static Supplier<Item> registerArmorItem(String name, Holder<ArmorMaterial> material, ArmorItem.Type type) {
+        Supplier<Item> item = ITEMS.register(name, () -> new MageArmorItem(material, type, getItemProperties()));
+        SIMPLE_ITEM_LIST.add(item);
+        return item;
+    }
+
+    public static Supplier<Item> registerCatalystItem(String name, SpellPath path) {
+        Supplier<Item> item = ITEMS.register(name, () -> new CatalystItem(path, getItemProperties()));
         return item;
     }
 

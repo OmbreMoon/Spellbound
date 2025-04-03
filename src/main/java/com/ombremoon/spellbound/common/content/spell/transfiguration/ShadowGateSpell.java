@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.content.spell.transfiguration;
 
+import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.entity.spell.ShadowGate;
 import com.ombremoon.spellbound.common.init.SBEntities;
@@ -33,8 +34,10 @@ import java.util.List;
 public class ShadowGateSpell extends AnimatedSpell {
     private static Builder<ShadowGateSpell> createShadowGateBuilder() {
         return createSimpleSpellBuilder(ShadowGateSpell.class)
-                .manaCost(30).castTime(20)
-                .duration(context -> 1200)
+                .mastery(SpellMastery.ADEPT)
+                .manaCost(25)
+                .duration(1200)
+                .castTime(20)
                 .castCondition((context, spell) -> {
                     var skills = context.getSkills();
                     int activePortals = spell.portalMap.size();
@@ -110,7 +113,7 @@ public class ShadowGateSpell extends AnimatedSpell {
 
                                 if (skills.hasSkillReady(SBSkills.QUICK_RECHARGE.value())) {
                                     context.getSpellHandler().awardMana(20);
-                                    addCooldown(SBSkills.QUICK_RECHARGE.value(), 200);
+                                    addCooldown(SBSkills.QUICK_RECHARGE, 200);
                                 }
 
                                 if (skills.hasSkill(SBSkills.SHADOW_ESCAPE.value()) && isCaster(entity) && caster.getHealth() < caster.getMaxHealth() * 0.5F && !caster.hasEffect(MobEffects.INVISIBILITY))
@@ -135,8 +138,8 @@ public class ShadowGateSpell extends AnimatedSpell {
                                 }
 
                                 if (skills.hasSkill(SBSkills.BAIT_AND_SWITCH.value()) && !entity.isAlliedTo(caster)) {
-                                    entity.hurt(level.damageSources().magic(), 10);
-                                    SpellUtil.getSpellHandler(entity).consumeMana(10);
+                                    this.hurt(entity, level.damageSources().magic(), 5);
+                                    SpellUtil.getSpellHandler(entity).consumeMana(5);
                                 }
 
                                 if (skills.hasSkill(SBSkills.GRAVITY_SHIFT.value())) {

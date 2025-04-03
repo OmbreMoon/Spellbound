@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.content.spell.transfiguration;
 
+import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.init.SBItems;
 import com.ombremoon.spellbound.common.init.SBSkills;
@@ -28,7 +29,10 @@ public class MysticArmorSpell extends AnimatedSpell {
 
     private static Builder<MysticArmorSpell> createMysticArmorBuilder() {
         return createSimpleSpellBuilder(MysticArmorSpell.class)
-                .duration(context -> 1200).fullRecast();
+                .mastery(SpellMastery.ADEPT)
+                .duration(1200)
+                .manaCost(28)
+                .fullRecast();
     }
 
     public MysticArmorSpell() {
@@ -58,10 +62,10 @@ public class MysticArmorSpell extends AnimatedSpell {
                         pre.setNewDamage(0);
                         caster.setHealth(caster.getMaxHealth());
                         context.useCatalyst(SBItems.SOUL_SHARD.get());
-                        addCooldown(SBSkills.SOUL_RECHARGE.value(), 3600);
+                        addCooldown(SBSkills.SOUL_RECHARGE, 3600);
                     } else if (skills.hasSkillReady(SBSkills.ELDRITCH_INTERVENTION.value()) && caster.getHealth() - pre.getNewDamage() < caster.getMaxHealth() * 0.2F) {
                         caster.heal(caster.getMaxHealth() / 2 - caster.getHealth());
-                        addCooldown(SBSkills.ELDRITCH_INTERVENTION.value(), 2400);
+                        addCooldown(SBSkills.ELDRITCH_INTERVENTION, 2400);
                     }
                 });
         addEventBuff(

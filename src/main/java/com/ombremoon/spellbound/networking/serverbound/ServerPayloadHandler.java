@@ -14,15 +14,27 @@ public class ServerPayloadHandler {
     }
 
     public static void handleNetworkCastSpell(final CastSpellPayload payload, final IPayloadContext context) {
-        var handler = SpellUtil.getSpellHandler(context.player());
-        AbstractSpell spell = handler.getCurrentlyCastSpell();
-        spell.initSpell(context.player(), context.player().level(), context.player().getOnPos());
-        handler.setCurrentlyCastingSpell(null);
+        var level = context.player().level();
+        if (!level.isClientSide) {
+            var handler = SpellUtil.getSpellHandler(context.player());
+            AbstractSpell spell = handler.getCurrentlyCastSpell();
+            spell.initSpell(context.player());
+            handler.setCurrentlyCastingSpell(null);
+        }
     }
 
     public static void handleNetworkSetSpell(final SetSpellPayload payload, final IPayloadContext context) {
         var handler = SpellUtil.getSpellHandler(context.player());
         handler.setSelectedSpell(payload.spellType());
+    }
+
+    public static void handleNetworkEquipSpell(final EquipSpellPayload payload, final IPayloadContext context) {
+        var handler = SpellUtil.getSpellHandler(context.player());
+        if (payload.equip()) {
+            handler.equipSpell(payload.spellType());
+        } else {
+            handler.unequipSpell(payload.spellType());
+        }
     }
 
     public static void handleNetworkSetCastSpell(final SetCastingSpellPayload payload, final IPayloadContext context) {
@@ -57,14 +69,9 @@ public class ServerPayloadHandler {
         handler.setFlag(payload.spellType(), payload.flag());
     }
 
-    public static void handleNetworkSetCastKey(final SetCastKeyPayload payload, final IPayloadContext context) {
+    public static void handleNetworkChargeOrChannel(final ChargeOrChannelPayload payload, final IPayloadContext context) {
         var handler = SpellUtil.getSpellHandler(context.player());
-        handler.castKeyDown = payload.isDown();
-    }
-
-    public static void handleNetworkStopChannel(final StopChannelPayload payload, final IPayloadContext context) {
-        var handler = SpellUtil.getSpellHandler(context.player());
-        handler.setChannelling(false);
+        handler.setChargingOrChannelling(payload.isChargingOrChannelling());
     }
 
     public static void handleNetworkUnlockSKill(final UnlockSkillPayload payload, final IPayloadContext context) {

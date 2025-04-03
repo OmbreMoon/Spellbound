@@ -2,7 +2,7 @@ package com.ombremoon.spellbound.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.ombremoon.sentinellib.api.Easing;
-import com.ombremoon.spellbound.client.renderer.spell.OutlineSpellRenderer;
+import com.ombremoon.spellbound.client.renderer.types.OutlineSpellRenderer;
 import com.ombremoon.spellbound.common.content.entity.spell.StormCloud;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 

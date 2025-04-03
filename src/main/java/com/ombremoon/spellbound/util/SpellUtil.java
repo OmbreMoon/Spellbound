@@ -1,9 +1,11 @@
 package com.ombremoon.spellbound.util;
 
 import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
+import com.ombremoon.spellbound.common.init.SBAttributes;
 import com.ombremoon.spellbound.common.init.SBData;
+import com.ombremoon.spellbound.common.magic.EffectManager;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
-import com.ombremoon.spellbound.common.magic.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import net.minecraft.nbt.CompoundTag;
@@ -52,6 +54,7 @@ public class SpellUtil {
     }
 
     public static boolean canCastSpell(Player player, AbstractSpell spell) {
+        if (player.getAbilities().instabuild) return true;
         if (EffectManager.isSilenced(player)) return false;
 
         var handler = getSpellHandler(player);
@@ -59,7 +62,7 @@ public class SpellUtil {
     }
 
     public static <T extends SpellType<?>> void cycle(SpellHandler handler, T activeSpell) {
-        var spellType = findNextSpellInList(handler.getSpellList(), activeSpell);
+        var spellType = findNextSpellInList(handler.getEquippedSpells(), activeSpell);
         if (spellType != activeSpell) {
             handler.setSelectedSpell(spellType);
         }
@@ -89,6 +92,14 @@ public class SpellUtil {
         entity.setData(SBData.SPELL_ID, spell.getId());
         if (entity instanceof ISpellEntity spellEntity)
             spellEntity.setSpell(spell.getSpellType(), spell.getId());
+    }
+
+    public static float getCastRange(LivingEntity caster) {
+        return caster.getAttribute(SBAttributes.CAST_RANGE) != null ? (float) caster.getAttributeValue(SBAttributes.CAST_RANGE) : 10.0F;
+    }
+
+    public static float getCastSpeed(LivingEntity caster) {
+        return caster.getAttribute(SBAttributes.CAST_SPEED) != null ? (float) caster.getAttributeValue(SBAttributes.CAST_SPEED) : 1.0F;
     }
 
     /**
@@ -144,6 +155,15 @@ public class SpellUtil {
     public static Set<Integer> getAllSummonIds(@NotNull LivingEntity caster) {
         SpellHandler handler = SpellUtil.getSpellHandler(caster);
         return handler.getSummons();
+    }
+
+    /**
+     * Checks if a given entity is a summon.
+     * @param summon The summon to check the owner of
+     * @return true if owner, false if no owner/not the owner
+     */
+    public static boolean isSummon(@NotNull Entity summon) {
+        return getOwner(summon) != null;
     }
 
     /**

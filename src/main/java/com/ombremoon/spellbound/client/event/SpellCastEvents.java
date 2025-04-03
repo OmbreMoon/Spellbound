@@ -1,13 +1,16 @@
 package com.ombremoon.spellbound.client.event;
 
+import com.ombremoon.spellbound.client.gui.WorkbenchScreen;
+import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.client.KeyBinds;
-import com.ombremoon.spellbound.util.EffectManager;
+import com.ombremoon.spellbound.common.magic.EffectManager;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -70,14 +73,20 @@ public class SpellCastEvents {
             PayloadHandler.setCastingSpell(spellType, isRecast);
         }
 
+        if (!SpellUtil.canCastSpell(player, spell)) {
+            resetCast(handler, spell, spellContext, isRecast);
+        }
+
         boolean flag = KeyBinds.getSpellCastMapping().isDown();
         if (flag) {
             int castTime = spell.getCastTime();
-            if (handler.castTick >= castTime && !handler.isChannelling()) {
-                if (spell.getCastType() == AbstractSpell.CastType.INSTANT) KeyBinds.getSpellCastMapping().setDown(false);
-                castSpell(player, spell);
+            if (handler.castTick >= castTime && !handler.isChargingOrChannelling()) {
+                if (spell.getCastType() == AbstractSpell.CastType.INSTANT)
+                    KeyBinds.getSpellCastMapping().setDown(false);
+
+                castSpell(player);
                 handler.castTick = 0;
-            } else if (!handler.isChannelling()){
+            } else if (!handler.isChargingOrChannelling()){
                 handler.castTick++;
                 if (handler.castTick > 1) {
                     spell.whenCasting(spellContext, handler.castTick);
@@ -88,16 +97,17 @@ public class SpellCastEvents {
                 }
             }
         } else if (!KeyBinds.getSpellCastMapping().isDown() && handler.castTick > 0) {
-            handler.castTick = 0;
-            spell.onCastReset(spellContext);
-            PayloadHandler.castReset(spellType, isRecast);
-        } else if (handler.isChannelling()) {
-            handler.setChannelling(false);
-            PayloadHandler.stopChannel();
+            resetCast(handler, spell, spellContext, isRecast);
+        } else if (handler.isChargingOrChannelling()) {
+            handler.setChargingOrChannelling(false);
+            PayloadHandler.setChargeOrChannel(false);
         }
+    }
 
-        handler.castKeyDown = flag;
-        PayloadHandler.setCastKey(flag);
+    private static void resetCast(SpellHandler handler, AbstractSpell spell, SpellContext spellContext, boolean isRecast) {
+        handler.castTick = 0;
+        spell.onCastReset(spellContext);
+        PayloadHandler.castReset(spell.getSpellType(), isRecast);
     }
 
     private static boolean isAbleToSpellCast() {
@@ -108,10 +118,12 @@ public class SpellCastEvents {
         return minecraft.isWindowActive();
     }
 
-    public static void castSpell(Player player, AbstractSpell spell) {
+    public static void castSpell(Player player) {
         if (player.isSpectator()) return;
-        if (!SpellUtil.canCastSpell(player, spell)) return;
-
         PayloadHandler.castSpell();
+    }
+
+    public static void openWorkbench() {
+        Minecraft.getInstance().setScreen(new WorkbenchScreen(Component.translatable("screen.spellbound.workbench")));
     }
 }

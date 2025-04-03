@@ -1,7 +1,8 @@
 package com.ombremoon.spellbound.common.content.spell.deception;
 
+import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.main.CommonClass;
-import com.ombremoon.spellbound.common.content.effects.SBEffectInstance;
+import com.ombremoon.spellbound.common.content.world.effects.SBEffectInstance;
 import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
 import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;
 import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
@@ -33,7 +34,9 @@ public class ShadowbondSpell extends AnimatedSpell {
     private static final SpellDataKey<Boolean> EARLY_END = SyncedSpellData.registerDataKey(ShadowbondSpell.class, SBDataTypes.BOOLEAN.get());
     public static Builder<ShadowbondSpell> createShadowbondBuilder() {
         return createSimpleSpellBuilder(ShadowbondSpell.class)
-                .duration(context -> 300)
+                .mastery(SpellMastery.ADEPT)
+                .duration(300)
+                .manaCost(35)
                 .castCondition((context, spell) -> {
                     if (context.isRecast()) {
                         if (spell.canReverse) {
@@ -184,7 +187,7 @@ public class ShadowbondSpell extends AnimatedSpell {
                     SBSkills.BLINK.value(),
                     BuffCategory.BENEFICIAL,
                     SkillBuff.ATTRIBUTE_MODIFIER,
-                    new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(CommonClass.customLocation("shadow_step"), 1.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                    new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(CommonClass.customLocation("shadow_step"), 1.3F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
                     100);
 
         if (skills.hasSkill(SBSkills.SNEAK_ATTACK.value())) {
@@ -219,14 +222,16 @@ public class ShadowbondSpell extends AnimatedSpell {
                 if (skills.hasSkill(SBSkills.DISORIENTED.value())) {
                     living.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 100, 0, false, false));
                     addEventBuff(
-                            caster,
+                            living,
                             SBSkills.DISORIENTED.value(),
                             BuffCategory.HARMFUL,
                             SpellEventListener.Events.PRE_DAMAGE,
                             DISORIENTED,
                             pre -> pre.setNewDamage(pre.getOriginalDamage() * 0.8F),
                             100);
+
                 }
+                context.getSpellHandler().applyFear(living, 100);
             }
         }
 
