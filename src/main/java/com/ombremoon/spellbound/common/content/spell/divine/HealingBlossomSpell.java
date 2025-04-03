@@ -80,8 +80,13 @@ public class HealingBlossomSpell extends AnimatedSpell {
             setBlossom(blossom);
         });
 
-        if (skills.hasSkill(SBSkills.REBIRTH)) context.getSpellHandler().getListener().addListener(SpellEventListener.Events.PRE_DAMAGE,
-                PLAYER_DAMAGE, this::onDamagePre);
+        addEventBuff(context.getCaster(),
+                SBSkills.REBIRTH.value(),
+                BuffCategory.BENEFICIAL,
+                SpellEventListener.Events.PRE_DAMAGE,
+                PLAYER_DAMAGE,
+                this::onDamagePre);
+
         if (skills.hasSkill(SBSkills.PETAL_SHIELD)) addSkillBuff(
                 context.getCaster(),
                 SBSkills.PETAL_SHIELD.value(),
@@ -96,7 +101,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellTick(SpellContext context) {
-        if ((ticks+2) % 30 != 0 && ticks % 20 != 0) return;
+        if ((ticks-8) % 31 != 0 && ticks % 31 != 0 && ticks % 20 != 0) return;
         HealingBlossom blossom = getBlossom(context);
         if (blossom == null) return;
         LivingEntity caster = context.getCaster();
@@ -108,7 +113,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
             if (distance > 20) {
                 blossom.teleportToAroundBlockPos(caster.blockPosition().above());
             } else if (distance > 7) {
-                Vec3 towardsCaster = caster.position().subtract(blossom.position()).normalize().scale(0.2f);
+                Vec3 towardsCaster = caster.position().subtract(blossom.position()).normalize().scale(0.3f);
                 blossom.setDeltaMovement(towardsCaster);
             } else if (level.getBlockState(blossom.blockPosition().below(2)).is(Blocks.AIR)){
                 double grav = blossom.getGravity() == 0 ? 0 : blossom.getGravity() * -1;
@@ -126,13 +131,12 @@ public class HealingBlossomSpell extends AnimatedSpell {
 
         //Damage is done separately to healing to sync with animation better
         List<LivingEntity> effectedEntities = level.getEntitiesOfClass(LivingEntity.class, blossom.getBoundingBox().inflate(10));
-        if (skills.hasSkill(SBSkills.THORNY_VINES) && (ticks+2) % 30 == 0) {
+        if (skills.hasSkill(SBSkills.THORNY_VINES) && (ticks-8) % 31 == 0) {
             for (LivingEntity entity : effectedEntities) {
                 if (canAttack(entity))
                     this.hurt(entity, SBDamageTypes.SB_GENERIC, 4f);
             }
-            return;
-        } else if (skills.hasSkill(SBSkills.THORNY_VINES) && ticks % 30 == 0) {
+        } else if (skills.hasSkill(SBSkills.THORNY_VINES) && ticks % 31 == 0) {
             for (LivingEntity entity : effectedEntities) {
                 if (canAttack(entity)) {
                     blossom.triggerAnim("actionController", "attack");

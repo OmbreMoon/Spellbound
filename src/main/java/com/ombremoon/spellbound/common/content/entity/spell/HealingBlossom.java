@@ -39,6 +39,7 @@ public class HealingBlossom extends SpellEntity<HealingBlossomSpell> {
     public void tick() {
         super.tick();
         if (level().isClientSide) animateTick(level(), blockPosition(), getRandom());
+        this.move(MoverType.SELF, this.getDeltaMovement());
     }
 
     public void animateTick(Level p_222504_, BlockPos p_222505_, RandomSource p_222506_) {
@@ -48,7 +49,6 @@ public class HealingBlossom extends SpellEntity<HealingBlossomSpell> {
         double d0 = (double)i + p_222506_.nextDouble();
         double d1 = (double)j + 0.7;
         double d2 = (double)k + p_222506_.nextDouble();
-        p_222504_.addParticle(ParticleTypes.FALLING_SPORE_BLOSSOM, d0, d1, d2, 0.0, 0.0, 0.0);
         BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
 
         for (int l = 0; l < 14; l++) {
