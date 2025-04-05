@@ -13,7 +13,7 @@ public class SolarRayModel extends GeoModel<SolarRay> {
 
     @Override
     public ResourceLocation getModelResource(SolarRay animatable) {
-        return CommonClass.customLocation("geo/entity/" + getName(animatable) + ".geo.json");
+        return CommonClass.customLocation("geo/entity/solar_ray.geo.json");
     }
 
     @Override
