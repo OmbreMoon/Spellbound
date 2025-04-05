@@ -149,13 +149,13 @@ public class SolarRaySpell extends ChanneledSpell {
         LivingEntity caster = context.getCaster();
         var skills = context.getSkills();
         if (!context.getLevel().isClientSide) {
-            boolean flag = skills.hasSkill(SBSkills.SUNSHINE.value());
             var boxOwner = (ISentinel) caster;
-            boxOwner.triggerSentinelBox(flag ? SOLAR_RAY_EXTENDED : SOLAR_RAY);
+            SentinelBox box = skills.hasSkill(SBSkills.SUNSHINE.value()) ? SOLAR_RAY_EXTENDED : SOLAR_RAY;
+            boxOwner.triggerSentinelBox(box);
 
             if (skills.hasSkill(SBSkills.SOLAR_BURST.value())) {
                 boxOwner.triggerSentinelBox(SOLAR_BURST_FRONT);
-                boxOwner.triggerSentinelBox(flag ? SOLAR_BURST_END_EXTENDED : SOLAR_BURST_END);
+                boxOwner.triggerSentinelBox(box);
             }
         }
     }
@@ -166,7 +166,7 @@ public class SolarRaySpell extends ChanneledSpell {
         LivingEntity caster = context.getCaster();
         var handler = context.getSpellHandler();
         var skills = context.getSkills();
-        if (skills.hasSkill(SBSkills.OVERHEAT.value()) && this.ticks >= 100)
+        if (skills.hasSkill(SBSkills.OVERHEAT.value()) && this.ticks == 100)
             ((ISentinel)caster).triggerSentinelBox(OVERHEAT);
 
         SolarRay solarRay = getSolarRay(context);
@@ -308,7 +308,7 @@ public class SolarRaySpell extends ChanneledSpell {
                     if (!level.isClientSide) {
                         if (skills.hasSkill(SBSkills.SOLAR_BORE.value())) {
                             Vec3 vec3 = instance.getCenter();
-                            if (instance.tickCount % 20 == 0)
+                            if (instance.tickCount > 20 && instance.tickCount % 20 == 0)
                                 level.explode(livingEntity, Explosion.getDefaultDamageSource(level, livingEntity), null, vec3.x(), vec3.y(), vec3.z(), 4.0F, true, Level.ExplosionInteraction.TNT);
                         }
                     }
