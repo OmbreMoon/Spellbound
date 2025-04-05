@@ -1,9 +1,13 @@
 package com.ombremoon.spellbound.common.content.spell.divine;
 
+import com.ombremoon.spellbound.common.magic.SpellMastery;
+import com.ombremoon.spellbound.datagen.ModTagProvider;
+import com.ombremoon.spellbound.main.CommonClass;
+import com.ombremoon.spellbound.client.CameraEngine;
+import com.ombremoon.spellbound.client.renderer.entity.PlaceholderRenderer;
 import com.ombremoon.spellbound.common.content.entity.spell.HealingBlossom;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
 import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;
@@ -13,7 +17,7 @@ import com.ombremoon.spellbound.common.magic.api.buff.events.DamageEvent;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
-import com.ombremoon.spellbound.main.CommonClass;
+import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -24,6 +28,8 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.List;
@@ -73,11 +79,20 @@ public class HealingBlossomSpell extends AnimatedSpell {
                 blossom.fastBloom();
                 this.fastBloomed = true;
             }
+            if (skills.hasSkill(SBSkills.REBIRTH) && context.hasCatalyst(SBItems.HOLY_SHARD.get())) {
+                context.useCatalyst(SBItems.HOLY_SHARD.get());
+                blossom.setEmpowered(true);
+            }
             setBlossom(blossom);
         });
 
-        if (skills.hasSkill(SBSkills.REBIRTH)) context.getSpellHandler().getListener().addListener(SpellEventListener.Events.PRE_DAMAGE,
-                PLAYER_DAMAGE, this::onDamagePre);
+        addEventBuff(context.getCaster(),
+                SBSkills.REBIRTH.value(),
+                BuffCategory.BENEFICIAL,
+                SpellEventListener.Events.PRE_DAMAGE,
+                PLAYER_DAMAGE,
+                this::onDamagePre);
+
         if (skills.hasSkill(SBSkills.PETAL_SHIELD)) addSkillBuff(
                 context.getCaster(),
                 SBSkills.PETAL_SHIELD.value(),
@@ -92,13 +107,28 @@ public class HealingBlossomSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellTick(SpellContext context) {
-        if (context.getLevel().isClientSide) return;
-        if ((ticks+2) % 30 != 0 && ticks % 20 != 0) return;
+        if ((ticks-8) % 31 != 0 && ticks % 31 != 0 && ticks % 20 != 0) return;
         HealingBlossom blossom = getBlossom(context);
         if (blossom == null) return;
         LivingEntity caster = context.getCaster();
         SkillHolder skills = context.getSkills();
         Level level = context.getLevel();
+
+        if (skills.hasSkill(SBSkills.HEALING_WINDS)) {
+            float distance = caster.distanceTo(blossom);
+            if (distance > 20) {
+                blossom.teleportToAroundBlockPos(caster.blockPosition().above());
+            } else if (distance > 7) {
+                Vec3 towardsCaster = caster.position().subtract(blossom.position()).normalize().scale(0.3f);
+                blossom.setDeltaMovement(towardsCaster);
+            } else if (level.getBlockState(blossom.blockPosition().below(2)).is(Blocks.AIR)){
+                double grav = blossom.getGravity() == 0 ? 0 : blossom.getGravity() * -1;
+                blossom.setDeltaMovement(0, grav, 0);
+            } else {
+                blossom.setDeltaMovement(Vec3.ZERO);
+            }
+        }
+        if (context.getLevel().isClientSide) return;
 
         if (!this.hasBursted && skills.hasSkill(SBSkills.BURST_OF_LIFE)) {
             context.getCaster().heal(4f);
@@ -107,15 +137,21 @@ public class HealingBlossomSpell extends AnimatedSpell {
 
         //Damage is done separately to healing to sync with animation better
         List<LivingEntity> effectedEntities = level.getEntitiesOfClass(LivingEntity.class, blossom.getBoundingBox().inflate(10));
-        if ((ticks+2) % 30 == 0) {
+        if (skills.hasSkill(SBSkills.THORNY_VINES) && (ticks-8) % 31 == 0) {
             for (LivingEntity entity : effectedEntities) {
-                if (skills.hasSkill(SBSkills.THORNY_VINES) && canAttack(entity))
+                if (canAttack(entity))
                     this.hurt(entity, SBDamageTypes.SB_GENERIC, 4f);
             }
-            return;
+        } else if (skills.hasSkill(SBSkills.THORNY_VINES) && ticks % 31 == 0) {
+            for (LivingEntity entity : effectedEntities) {
+                if (canAttack(entity)) {
+                    blossom.triggerAnim("actionController", "attack");
+                    break;
+                }
+            }
         }
 
-        float healingAmount = 3.0F;
+        float healingAmount = 2f;
         for (LivingEntity entity : effectedEntities) {
             if (entity.is(caster)) {
                 if (skills.hasSkill(SBSkills.VERDANT_RENEWAL)) this.cleanseCaster();
@@ -137,7 +173,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
 
     private boolean canAttack(LivingEntity entity) {
         return entity instanceof Mob mob
-                && mob.getType().getCategory() == MobCategory.MONSTER;
+                && !mob.isAlliedTo(getCastContext().getCaster());
     }
 
     @Override
