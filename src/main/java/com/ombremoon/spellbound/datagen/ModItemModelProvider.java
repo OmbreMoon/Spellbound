@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.datagen;
 
+import com.ombremoon.spellbound.common.init.SBBlocks;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.init.SBItems;
@@ -24,6 +25,8 @@ public class ModItemModelProvider extends ItemModelProvider {
     protected void registerModels() {
         SBItems.SIMPLE_ITEM_LIST.stream().map(Supplier::get).forEach(this::tempItem);
         tempItem(SBItems.DEBUG.get());
+        simpleGeneratedModel(SBBlocks.ARCANTHUS.get().asItem());
+        simpleGeneratedModel(SBBlocks.UNNAMED.get().asItem());
 
     }
 

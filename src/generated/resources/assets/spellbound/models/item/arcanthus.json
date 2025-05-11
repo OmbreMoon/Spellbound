@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "spellbound:item/storm_shard"
+    "layer0": "spellbound:item/arcanthus"
   }
 }
