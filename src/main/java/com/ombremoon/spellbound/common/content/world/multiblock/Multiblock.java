@@ -6,25 +6,34 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.ombremoon.spellbound.main.Constants;
+import it.unimi.dsi.fastutil.chars.CharArraySet;
+import it.unimi.dsi.fastutil.chars.CharSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiConsumer;
-import java.util.function.Predicate;
 
 public abstract class Multiblock {
-    private final Map<MultiblockIndex, Predicate<BlockState>> indices;
+    private final Map<MultiblockIndex, BuildingBlock> indices;
     private final int width;
     private final int height;
     private final int depth;
@@ -35,8 +44,6 @@ public abstract class Multiblock {
         this.height = info.height;
         this.depth = info.depth;
     }
-
-    public abstract MultiblockIndexProperty getType();
 
     public abstract MultiblockIndex getActiveIndex();
 
@@ -81,7 +88,17 @@ public abstract class Multiblock {
 
 
         Constants.LOG.debug("Found multiblock pattern for {} from {} to {}", this, origin, this.getFinalIndex().toPos(facing, origin));
-        return new MultiblockPattern(level, origin, cache, facing, up, this.width, this.height, this.depth);
+        return new MultiblockPattern(this, origin, cache, facing, up);
+    }
+
+    public boolean tryCreateMultiblock(Level level, Player player, BlockPos blockPos, Direction facing) {
+        Multiblock.MultiblockPattern pattern = this.findPattern(level, blockPos, facing);
+        if (pattern != null) {
+            pattern.assignMultiblock(level, blockPos);
+            this.onActivate(player, level, pattern);
+            return true;
+        }
+        return false;
     }
 
     public void clearMultiblock(Player player, Level level, MultiblockPattern pattern) {
@@ -95,9 +112,9 @@ public abstract class Multiblock {
                 for (int k = 0; k < this.depth; k++) {
                     MultiblockIndex currentIndex = new MultiblockIndex(i, j, k);
                     BlockPos currentPos = currentIndex.toPos(facing, blockPos);
-                    BlockState testState = level.getBlockState(currentPos);
-                    if (testState.getBlock() instanceof MultiblockParts<?> part && part.getMultiblock() == this && part.isAssigned(testState))
-                        part.setIndex(level, currentPos, MultiblockIndex.ORIGIN, facing, false);
+                    BlockEntity blockEntity = level.getBlockEntity(currentPos);
+                    if (blockEntity instanceof MultiblockPart part && part.getMultiblock() == this && part.isAssigned())
+                        part.setIndex(null, MultiblockIndex.ORIGIN, facing);
                 }
             }
         }
@@ -141,12 +158,13 @@ public abstract class Multiblock {
 
     public static class MultiblockBuilder {
         List<String[]> pattern = Lists.newArrayList();
-        private final Map<Character, Predicate<BlockState>> key = Maps.newHashMap();
+        private final Map<Character, BuildingBlock> key = Maps.newHashMap();
         private int width;
         private int depth;
+        private Optional<MultiblockPattern.Data> data;
 
         private MultiblockBuilder() {
-            this.key.put(' ', blockInWorld -> true);
+            this.key.put(' ', BuildingBlock.EMPTY);
         }
 
         public MultiblockBuilder pattern(String... pattern) {
@@ -187,26 +205,68 @@ public abstract class Multiblock {
             return new MultiblockBuilder();
         }
 
-        public MultiblockBuilder key(char symbol, Predicate<BlockState> condition) {
-            this.key.put(symbol, condition);
+        public MultiblockBuilder key(char symbol, BuildingBlock block) {
+            this.key.put(symbol, block);
             return this;
         }
 
         public MultiblockInfo build() {
-            return new MultiblockInfo(this.buildPattern(), this.width, this.pattern.size(), this.depth);
+            return MultiblockInfo.of(this.key, this.pattern);
+        }
+    }
+
+    public record MultiblockInfo(Map<MultiblockIndex, BuildingBlock> indices, int width, int height,
+                                 int depth, Optional<MultiblockPattern.Data> data) {
+
+        public static MultiblockInfo of(Map<Character, BuildingBlock> key, List<String[]> pattern) {
+            MultiblockPattern.Data data = new MultiblockPattern.Data(key, pattern);
+            return unpack(data).getOrThrow();
         }
 
-        private Map<MultiblockIndex, Predicate<BlockState>> buildPattern() {
-            this.ensureAllCharactersMatched();
-            Map<MultiblockIndex, Predicate<BlockState>> map = Maps.newHashMap();
-            Predicate<BlockState> predicate;
+        private static DataResult<MultiblockInfo> unpack(MultiblockPattern.Data data) {
+            List<String[]> pattern = data.pattern;
+            int i = pattern.size();
+            int j = pattern.getFirst().length;
+            CharSet charSet = new CharArraySet(data.key.keySet());
 
-            for (int i = 0; i < this.width; i++) {
-                for (int j = 0; j < this.pattern.size(); j++) {
-                    for (int k = 0; k < this.depth; k++) {
+            for (int i1 = 0; i1 < i; i1++) {
+                for (int j1 = 0; j1 < j; j1++) {
+                    String s = pattern.getFirst()[i1];
+
+                    for (int k = 0; k < s.length(); k++) {
+                        char c0 = s.charAt(k);
+                        BuildingBlock block = c0 == ' ' ? BuildingBlock.EMPTY : data.key.get(c0);
+                        if (block == null) {
+                            return DataResult.error(() -> "Pattern references symbol '" + c0 + "' but it's not defined in the key");
+                        }
+
+                        charSet.remove(c0);
+                    }
+                }
+            }
+
+            return !charSet.isEmpty()
+                    ? DataResult.error(() -> "Key defines symbols that aren't used in pattern: " + charSet)
+                    : DataResult.success(new MultiblockInfo(buildPattern(data.key, data.pattern), i, pattern.size(), j, Optional.of(data)));
+        }
+
+        private static Map<MultiblockIndex, BuildingBlock> buildPattern(MultiblockBuilder builder) {
+            return buildPattern(builder.key, builder.pattern);
+        }
+
+        private static Map<MultiblockIndex, BuildingBlock> buildPattern(Map<Character, BuildingBlock> key, List<String[]> pattern) {
+            ensureAllCharactersMatched(key);
+            Map<MultiblockIndex, BuildingBlock> map = Maps.newHashMap();
+            BuildingBlock buildingBlock;
+            int width = pattern.getFirst()[0].length();
+            int depth = pattern.getFirst().length;
+
+            for (int i = 0; i < width; i++) {
+                for (int j = 0; j < pattern.size(); j++) {
+                    for (int k = 0; k < depth; k++) {
                         MultiblockIndex index = new MultiblockIndex(i, j, k);
-                        predicate = this.key.get(this.pattern.get(j)[k].charAt(i));
-                        map.put(index, predicate);
+                        buildingBlock = key.get(pattern.get(j)[k].charAt(i));
+                        map.put(index, buildingBlock);
                     }
                 }
             }
@@ -214,10 +274,10 @@ public abstract class Multiblock {
             return map;
         }
 
-        private void ensureAllCharactersMatched() {
+        private static void ensureAllCharactersMatched(Map<Character, BuildingBlock> key) {
             List<Character> list = Lists.newArrayList();
 
-            for (Map.Entry<Character, Predicate<BlockState>> entry : this.key.entrySet()) {
+            for (Map.Entry<Character, BuildingBlock> entry : key.entrySet()) {
                 if (entry.getValue() == null) {
                     list.add(entry.getKey());
                 }
@@ -229,12 +289,7 @@ public abstract class Multiblock {
         }
     }
 
-    public record MultiblockInfo(Map<MultiblockIndex, Predicate<BlockState>> indices, int width, int height,
-                                    int depth) {
-    }
-
-    public record MultiblockPattern(LevelAccessor level, BlockPos frontBottomLeft, LoadingCache<BlockPos, BlockState> cache, Direction facing, Direction up, int width, int height,
-                                    int depth) {
+    public record MultiblockPattern(Multiblock multiblock, BlockPos frontBottomLeft, LoadingCache<BlockPos, BlockState> cache, Direction facing, Direction up) {
 
         public BlockState getBlock(MultiblockIndex index) {
             return this.getBlock(index.x(), index.y(), index.z());
@@ -252,21 +307,53 @@ public abstract class Multiblock {
             return this.frontBottomLeft.relative(facing.getClockWise(), xOffset).relative(up, yOffset).relative(facing, zOffset);
         }
 
-        void assignMultiblock() {
+        void assignMultiblock(LevelAccessor level, BlockPos blockPos) {
             this.forEachBlock((blockState, index) -> {
-                if (blockState.getBlock() instanceof MultiblockParts<?> part)
-                    part.setIndex(level, getIndexPos(index), index, facing, true);
+                BlockEntity blockEntity = level.getBlockEntity(blockPos);
+                if (blockEntity instanceof MultiblockPart part)
+                    part.setIndex(multiblock, index, facing);
             });
         }
 
         public void forEachBlock(BiConsumer<BlockState, MultiblockIndex> consumer) {
-            for (int i = 0; i < this.width; i++) {
-                for (int j = 0; j < this.height; j++) {
-                    for (int k = 0; k < this.depth; k++) {
+            for (int i = 0; i < multiblock.width; i++) {
+                for (int j = 0; j < multiblock.height; j++) {
+                    for (int k = 0; k < multiblock.depth; k++) {
                         consumer.accept(getBlock(i, j, k), new MultiblockIndex(i, j, k));
                     }
                 }
             }
+        }
+
+        public record Data(Map<Character, BuildingBlock> key, List<String[]> pattern) {
+            private static final Codec<List<String[]>> PATTERN_CODEC = Codec.STRING.listOf().listOf().comapFlatMap(stringList -> {
+                int i = stringList.getFirst().getFirst().length();
+
+                for (String s : stringList.getFirst()) {
+                    if (i != s.length()) {
+                        return DataResult.error(() -> "Invalid pattern: each row must be the same width");
+                    }
+                }
+
+                return DataResult.success(stringList.stream()
+                        .map(list -> list.toArray(new String[0]))
+                        .toList());
+            }, stringArray -> stringArray.stream()
+                        .map(Arrays::asList)
+                        .toList());
+            private static final Codec<Character> SYMBOL_CODEC = Codec.STRING.comapFlatMap(symbol -> {
+                if (symbol.length() != 1) {
+                    return DataResult.error(() -> "Invalid key entry: '" + symbol + "' is an invalid symbol (must be 1 character only).");
+                } else {
+                    return " ".equals(symbol) ? DataResult.error(() -> "Invalid key entry: ' ' is a reserved symbol.") : DataResult.success(symbol.charAt(0));
+                }
+            }, String::valueOf);
+            public static final MapCodec<Data> MAP_CODEC = RecordCodecBuilder.mapCodec(
+                    instance -> instance.group(
+                            ExtraCodecs.strictUnboundedMap(SYMBOL_CODEC, BuildingBlock.CODEC_NON_EMPTY).fieldOf("key").forGetter(data -> data.key),
+                            PATTERN_CODEC.fieldOf("pattern").forGetter(data -> data.pattern)
+                    ).apply(instance, Data::new)
+            );
         }
     }
 }
