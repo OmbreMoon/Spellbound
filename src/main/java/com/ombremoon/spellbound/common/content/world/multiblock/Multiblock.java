@@ -318,7 +318,7 @@ public abstract class Multiblock {
                 if (symbol.length() != 1) {
                     return DataResult.error(() -> "Invalid key entry: '" + symbol + "' is an invalid symbol (must be 1 character only).");
                 } else {
-                    return " ".equals(symbol) ? DataResult.error(() -> "Invalid key entry: ' ' is a reserved symbol.") : DataResult.success(symbol.charAt(0));
+                    return DataResult.success(symbol.charAt(0));
                 }
             }, String::valueOf);
             public static final MapCodec<Data> MAP_CODEC = RecordCodecBuilder.mapCodec(

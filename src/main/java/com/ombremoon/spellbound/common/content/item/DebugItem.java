@@ -1,9 +1,12 @@
 package com.ombremoon.spellbound.common.content.item;
 
 import com.ombremoon.spellbound.client.shader.SBShaders;
+import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockManager;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
+import com.ombremoon.spellbound.main.CommonClass;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.util.Loggable;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.world.InteractionHand;
@@ -29,8 +32,9 @@ public class DebugItem extends Item implements Loggable {
     private void ombreDebug(Level level, Player player, InteractionHand usedHand, SpellHandler spellHandler, SkillHolder skillHolder) {
         if (!level.isClientSide) {
 //            skillHolder.awardSpellXp(SBSpells.STRIDE.get(), 1500);
+            Constants.LOG.info("{}", MultiblockManager.byKey(CommonClass.customLocation("test")));
         } else {
-            SBShaders.HEAT_DISTORTION_SHADER.toggleShader();
+//            SBShaders.HEAT_DISTORTION_SHADER.toggleShader();
         }
     }
 }
