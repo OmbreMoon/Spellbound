@@ -1,0 +1,64 @@
+package com.ombremoon.spellbound.common.content.world.multiblock;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.mojang.serialization.JsonOps;
+import com.ombremoon.spellbound.common.magic.acquisition.divine.DivineActionManager;
+import com.ombremoon.spellbound.main.Constants;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import org.slf4j.Logger;
+
+import java.util.Map;
+
+@EventBusSubscriber(modid = Constants.MOD_ID)
+public class MultiblockManager extends SimpleJsonResourceReloadListener {
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+    private static final Logger LOGGER = Constants.LOG;
+    private final HolderLookup.Provider registries;
+    private static Map<ResourceLocation, MultiblockHolder<?>> MULTIBLOCKS = ImmutableMap.of();
+
+    public MultiblockManager(HolderLookup.Provider registries) {
+        super(GSON, Registries.elementsDirPath(Multiblock.RESOURCE_KEY));
+        this.registries = registries;
+    }
+
+    @Override
+    protected void apply(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler) {
+        ImmutableMap.Builder<ResourceLocation, MultiblockHolder<?>> builder = ImmutableMap.builder();
+
+        for (var entry : object.entrySet()) {
+            ResourceLocation location = entry.getKey();
+            try {
+                Multiblock multiblock = Multiblock.CODEC.parse(JsonOps.INSTANCE, entry.getValue()).getOrThrow(JsonParseException::new);
+                MultiblockHolder<?> holder = new MultiblockHolder<>(location, multiblock);
+                builder.put(location, holder);
+            } catch (IllegalArgumentException | JsonParseException jsonParseException) {
+                LOGGER.error("Parsing error loading multiblock {}", location, jsonParseException);
+            }
+        }
+
+        MULTIBLOCKS = builder.build();
+        LOGGER.info("Loaded {} multiblocks", MULTIBLOCKS.size());
+    }
+
+    public static MultiblockHolder<?> byKey(ResourceLocation id) {
+        return MULTIBLOCKS.get(id);
+    }
+
+    @SubscribeEvent
+    public static void onAddReloadListener(AddReloadListenerEvent event) {
+        MultiblockManager manager = new MultiblockManager(event.getRegistryAccess());
+        event.addListener(manager);
+    }
+}

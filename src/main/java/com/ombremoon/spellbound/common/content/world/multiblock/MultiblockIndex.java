@@ -1,13 +1,25 @@
 package com.ombremoon.spellbound.common.content.world.multiblock;
 
+import com.google.common.base.MoreObjects;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 public record MultiblockIndex(int x, int y, int z) implements Comparable<MultiblockIndex> {
-    public static MultiblockIndex ORIGIN = new MultiblockIndex(0, 0, 0);
+    public static final MultiblockIndex ORIGIN = new MultiblockIndex(0, 0, 0);
+    public static final Codec<MultiblockIndex> CODEC = Codec.INT_STREAM
+            .comapFlatMap(
+                    intStream -> Util.fixedSize(intStream, 3).map(array -> new MultiblockIndex(array[0], array[1], array[2])),
+                    index -> IntStream.of(index.x(), index.y(), index.z())
+            )
+            .stable();
 
     public static MultiblockIndex of(int x, int y, int z) {
         return new MultiblockIndex(x, y, z);
@@ -30,16 +42,8 @@ public record MultiblockIndex(int x, int y, int z) implements Comparable<Multibl
 
     @Override
     public String toString() {
-        int[] array = new int[3];
-        array[0] = this.x;
-        array[1] = this.y;
-        array[2] = this.z;
-        return Arrays.stream(array)
-                .mapToObj(String::valueOf)
-                .reduce((a, b) -> a + "," + b)
-                .orElse("")
-                .replaceAll(",", "_");
-//        return "" + this.x + "" + this.y + "" + this.z;
+        return MoreObjects.toStringHelper(this).add("x", this.x()).add("y", this.y()).add("z", this.z()).toString();
+
     }
 
     @Override

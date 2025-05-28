@@ -114,7 +114,7 @@ public final class BuildingBlock implements Predicate<BlockState> {
         Codec<Value[]> codec = Codec.list(Value.CODEC)
                 .comapFlatMap(
                         values -> !allowEmpty && values.isEmpty()
-                                ? DataResult.error(() -> "Item array cannot be empty, at least one item must be defined")
+                                ? DataResult.error(() -> "Block array cannot be empty, at least one block must be defined")
                                 : DataResult.success(values.toArray(new Value[0])),
                         List::of
                 );
