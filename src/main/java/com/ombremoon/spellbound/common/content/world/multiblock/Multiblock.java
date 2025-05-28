@@ -174,7 +174,6 @@ public abstract class Multiblock {
         protected int width;
         protected int depth;
         protected MultiblockIndex activeIndex;
-        protected Optional<MultiblockPattern.Data> data;
 
         protected MultiblockBuilder() {
             this.key.put(' ', BuildingBlock.EMPTY);
@@ -199,14 +198,14 @@ public abstract class Multiblock {
             List<String[]> pattern = data.pattern;
             int i = pattern.size();
             int j = pattern.getFirst().length;
+            int k = pattern.getFirst()[0].length();
             CharSet charSet = new CharArraySet(data.key.keySet());
 
             for (int i1 = 0; i1 < i; i1++) {
-                for (int j1 = 0; j1 < j; j1++) {
-                    String s = pattern.getFirst()[i1];
-
-                    for (int k = 0; k < s.length(); k++) {
-                        char c0 = s.charAt(k);
+                var array = pattern.get(i1);
+                for (String s : array) {
+                    for (int l = 0; l < s.length(); l++) {
+                        char c0 = s.charAt(l);
                         BuildingBlock block = c0 == ' ' ? BuildingBlock.EMPTY : data.key.get(c0);
                         if (block == null) {
                             return DataResult.error(() -> "Pattern references symbol '" + c0 + "' but it's not defined in the key");
@@ -219,7 +218,7 @@ public abstract class Multiblock {
 
             return !charSet.isEmpty()
                     ? DataResult.error(() -> "Key defines symbols that aren't used in pattern: " + charSet)
-                    : DataResult.success(new MultiblockStructure(buildPattern(data.key, data.pattern), i, pattern.size(), j, data.index, Optional.of(data)));
+                    : DataResult.success(new MultiblockStructure(buildPattern(data.key, data.pattern), k, i, j, data.index, Optional.of(data)));
         }
 
 /*

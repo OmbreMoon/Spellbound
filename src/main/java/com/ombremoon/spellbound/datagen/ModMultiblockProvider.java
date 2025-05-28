@@ -20,7 +20,10 @@ public class ModMultiblockProvider extends MultiblockProvider {
     protected void buildMultiblocks(MultiblockOutput multiblockOutput) {
         StandardMultiblock.Builder.of()
                 .pattern("^ ^")
-                .key('^', BuildingBlock.of(Blocks.GOLD_BLOCK))
+                .pattern(" $ ")
+                .pattern("^$^")
+                .key('^', BuildingBlock.of(Blocks.ACACIA_DOOR))
+                .key('$', BuildingBlock.of(Blocks.GOLD_BLOCK))
                 .build(multiblockOutput, CommonClass.customLocation("test"));
     }
 }
