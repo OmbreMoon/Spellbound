@@ -1,0 +1,21 @@
+{
+  "type": "spellbound:standard_multiblock",
+  "index": [
+    0,
+    0,
+    0
+  ],
+  "key": {
+    " ": [],
+    "^": {
+      "block": {
+        "Name": "minecraft:gold_block"
+      }
+    }
+  },
+  "pattern": [
+    [
+      "^ ^"
+    ]
+  ]
+}
