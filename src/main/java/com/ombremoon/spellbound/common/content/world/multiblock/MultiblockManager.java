@@ -14,11 +14,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import org.slf4j.Logger;
 
+import java.util.List;
 import java.util.Map;
 
 @EventBusSubscriber(modid = Constants.MOD_ID)
@@ -27,6 +29,15 @@ public class MultiblockManager extends SimpleJsonResourceReloadListener {
     private static final Logger LOGGER = Constants.LOG;
     private final HolderLookup.Provider registries;
     private static Map<ResourceLocation, MultiblockHolder<?>> MULTIBLOCKS = ImmutableMap.of();
+
+    private static MultiblockManager instance;
+
+    public static MultiblockManager getInstance(Level level) {
+        if (instance == null) {
+            instance = new MultiblockManager(level.registryAccess());
+        }
+        return instance;
+    }
 
     public MultiblockManager(HolderLookup.Provider registries) {
         super(GSON, Registries.elementsDirPath(Multiblock.RESOURCE_KEY));
@@ -54,6 +65,21 @@ public class MultiblockManager extends SimpleJsonResourceReloadListener {
 
     public static MultiblockHolder<?> byKey(ResourceLocation id) {
         return MULTIBLOCKS.get(id);
+    }
+
+
+    public static List<MultiblockHolder<?>> getMultiblocks() {
+        return MULTIBLOCKS.values().stream().toList();
+    }
+
+    public void updateMultiblocks(Iterable<MultiblockHolder<?>> multiblocks) {
+        ImmutableMap.Builder<ResourceLocation, MultiblockHolder<?>> builder = ImmutableMap.builder();
+
+        for (MultiblockHolder<?> multiblockHolder : multiblocks) {
+            builder.put(multiblockHolder.id(), multiblockHolder);
+        }
+
+        MULTIBLOCKS = builder.build();
     }
 
     @SubscribeEvent

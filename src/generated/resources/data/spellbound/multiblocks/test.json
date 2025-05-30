@@ -6,30 +6,18 @@
     0
   ],
   "key": {
-    " ": [],
-    "$": {
-      "block": {
-        "Name": "minecraft:gold_block"
-      }
+    "-": {
+      "blocks": "minecraft:air"
     },
     "^": {
-      "block": {
-        "Name": "minecraft:acacia_door",
-        "Properties": {
-          "facing": "north",
-          "half": "lower",
-          "hinge": "left",
-          "open": "false",
-          "powered": "false"
-        }
-      }
+      "blocks": "minecraft:gold_block"
     }
   },
   "pattern": [
     [
-      "^ ^",
-      " $ ",
-      "^$^"
+      "^-^",
+      "---",
+      "^-^"
     ]
   ]
 }

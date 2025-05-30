@@ -2,11 +2,11 @@ package com.ombremoon.spellbound.common.content.world.multiblock.type;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.ombremoon.spellbound.common.content.world.multiblock.BuildingBlock;
-import com.ombremoon.spellbound.common.content.world.multiblock.Multiblock;
-import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockOutput;
-import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockSerializer;
+import com.ombremoon.spellbound.common.content.world.multiblock.*;
 import com.ombremoon.spellbound.common.init.SBMultiblockSerializers;
+import net.minecraft.advancements.critereon.BlockPredicate;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,9 +23,14 @@ public class StandardMultiblock extends Multiblock {
 
     public static class Builder extends MultiblockBuilder {
 
-       public static Builder of() {
-           return new Builder();
-       }
+        protected Builder() {
+            this.key.put('-', EMPTY);
+            this.activeIndex = MultiblockIndex.ORIGIN;
+        }
+
+        public static Builder of() {
+            return new Builder();
+        }
 
         public Builder pattern(String... pattern) {
             if (!ArrayUtils.isEmpty(pattern) && !StringUtils.isEmpty(pattern[0])) {
@@ -61,7 +66,7 @@ public class StandardMultiblock extends Multiblock {
             }
         }
 
-        public Builder key(char symbol, BuildingBlock block) {
+        public Builder key(char symbol, BlockPredicate block) {
             this.key.put(symbol, block);
             return this;
         }
@@ -77,13 +82,30 @@ public class StandardMultiblock extends Multiblock {
     public static class Serializer implements MultiblockSerializer<StandardMultiblock> {
         public static final MapCodec<StandardMultiblock> CODEC = RecordCodecBuilder.mapCodec(
                 instance -> instance.group(
-                        MultiblockStructure.MAP_CODEC.forGetter(standardMultiblock -> standardMultiblock.info)
+                        MultiblockStructure.MAP_CODEC.forGetter(standardMultiblock -> standardMultiblock.structure)
                 ).apply(instance, StandardMultiblock::new)
+        );
+        public static final StreamCodec<RegistryFriendlyByteBuf, StandardMultiblock> STREAM_CODEC = StreamCodec.of(
+                Serializer::toNetwork, Serializer::fromNetwork
         );
 
         @Override
         public MapCodec<StandardMultiblock> codec() {
             return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, StandardMultiblock> streamCodec() {
+            return STREAM_CODEC;
+        }
+
+        private static StandardMultiblock fromNetwork(RegistryFriendlyByteBuf buffer) {
+            MultiblockStructure structure = MultiblockStructure.STREAM_CODEC.decode(buffer);
+            return new StandardMultiblock(structure);
+        }
+
+        private static void toNetwork(RegistryFriendlyByteBuf buffer, StandardMultiblock multiblock) {
+            MultiblockStructure.STREAM_CODEC.encode(buffer, multiblock.structure);
         }
     }
 }

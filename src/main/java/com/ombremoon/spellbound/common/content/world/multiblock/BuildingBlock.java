@@ -10,8 +10,8 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.util.NeoForgeExtraCodecs;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class BuildingBlock implements Predicate<BlockState> {
-    public static final BuildingBlock EMPTY = new BuildingBlock(Stream.empty());
+    public static final BuildingBlock EMPTY = of(Blocks.AIR);
     private final Value[] values;
     @Nullable
     private BlockState[] blockStates;
@@ -103,7 +103,7 @@ public final class BuildingBlock implements Predicate<BlockState> {
     }
 
     public static BuildingBlock of(Stream<BlockState> blockStates) {
-        return fromValues(blockStates.filter(blockState -> !blockState.isEmpty()).map(BlockValue::new));
+        return fromValues(blockStates/*.filter(blockState -> !blockState.isEmpty())*/.map(BlockValue::new));
     }
 
     public static BuildingBlock of(TagKey<Block> tag) {

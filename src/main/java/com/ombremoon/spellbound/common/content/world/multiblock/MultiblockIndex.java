@@ -4,9 +4,12 @@ import com.google.common.base.MoreObjects;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -20,6 +23,17 @@ public record MultiblockIndex(int x, int y, int z) implements Comparable<Multibl
                     index -> IntStream.of(index.x(), index.y(), index.z())
             )
             .stable();
+    public static final StreamCodec<ByteBuf, MultiblockIndex> STREAM_CODEC = new StreamCodec<>() {
+        public MultiblockIndex decode(ByteBuf buffer) {
+            return MultiblockIndex.of(buffer.readInt(), buffer.readInt(), buffer.readInt());
+        }
+
+        public void encode(ByteBuf buffer, MultiblockIndex index) {
+            buffer.writeInt(index.x);
+            buffer.writeInt(index.y);
+            buffer.writeInt(index.z);
+        }
+    };
 
     public static MultiblockIndex of(int x, int y, int z) {
         return new MultiblockIndex(x, y, z);

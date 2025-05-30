@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.networking;
 
+import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockHolder;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.api.SpellType;
@@ -129,6 +130,10 @@ public class PayloadHandler {
         sendToAll(server, new UpdateDimensionsPayload(keys, add));
     }
 
+    public static void updateMultiblocks(MinecraftServer server, List<MultiblockHolder<?>> multiblocks) {
+        sendToAll(server, new UpdateMultiblocksPayload(multiblocks));
+    }
+
     public static void changeHailLevel(ServerLevel level, float hailLevel) {
         PacketDistributor.sendToPlayersInDimension(level, new ChangeHailLevelPayload(hailLevel));
     }
@@ -218,6 +223,11 @@ public class PayloadHandler {
                 UpdateDimensionsPayload.TYPE,
                 UpdateDimensionsPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleUpdateDimensions
+        );
+        registrar.playToClient(
+                UpdateMultiblocksPayload.TYPE,
+                UpdateMultiblocksPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleUpdateMultiblocks
         );
 
         registrar.playToServer(
