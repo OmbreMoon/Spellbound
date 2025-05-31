@@ -6,32 +6,39 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.neoforged.neoforge.common.util.NeoForgeExtraCodecs;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@SuppressWarnings("unchecked")
 public final class BuildingBlock implements Predicate<BlockState> {
     public static final BuildingBlock EMPTY = of(Blocks.AIR);
     private final Value[] values;
     @Nullable
-    private BlockState[] blockStates;
-
+    private Block[] blockStates;
     public static final Codec<BuildingBlock> CODEC = codec(true);
     public static final Codec<BuildingBlock> CODEC_NON_EMPTY = codec(false);
+    public static final StreamCodec<RegistryFriendlyByteBuf, BuildingBlock> STREAM_CODEC = Value.STREAM_CODEC
+            .apply(ByteBufCodecs.list())
+            .map(values -> new BuildingBlock(values.toArray(Value[]::new)), buildingBlock -> Arrays.stream(buildingBlock.values).toList());
 
     private BuildingBlock(Stream<? extends Value> values) {
         this.values = values.toArray(Value[]::new);
@@ -41,24 +48,24 @@ public final class BuildingBlock implements Predicate<BlockState> {
         this.values = values;
     }
 
-    public BlockState[] getBlocks() {
+    public Block[] getBlocks() {
         if (this.blockStates == null) {
-            final Stream<BlockState> stream = Arrays.stream(this.values).flatMap(value -> value.getBlocks().stream());
-            this.blockStates = stream.collect(Collectors.toCollection(BlockStateLinkedSet::createTypeAndComponentsSet)).toArray(BlockState[]::new);
+            final Stream<Block> stream = Arrays.stream(this.values).flatMap(value -> value.getBlocks().stream());
+            this.blockStates = stream.collect(Collectors.toCollection(BlockLinkedSet::createTypeAndComponentsSet)).toArray(Block[]::new);
         }
 
         return this.blockStates;
     }
 
     @Override
-    public boolean test(BlockState blockState) {
-        if (blockState == null) {
+    public boolean test(BlockState block) {
+        if (block == null) {
             return false;
         } else if (this.isEmpty()) {
-            return blockState.isEmpty();
+            return block.isAir();
         } else {
-            for (BlockState blockState1 : this.getBlocks()) {
-                if (blockState == blockState1) {
+            for (Block block1 : this.getBlocks()) {
+                if (block.is(block1)) {
                     return true;
                 }
             }
@@ -94,16 +101,31 @@ public final class BuildingBlock implements Predicate<BlockState> {
         return EMPTY;
     }
 
-    public static BuildingBlock of(Block... blocks) {
-        return of(Arrays.stream(blocks).map(Block::defaultBlockState));
+    public static BuildingBlock of(Block block) {
+        return of(Stream.of(block));
     }
 
-    public static BuildingBlock of(BlockState... blocks) {
-        return of(Arrays.stream(blocks));
+    public static <T extends Comparable<T>> BuildingBlock of(Block block, PropertyValue<T>... properties) {
+        return of(Stream.of(block), properties);
     }
 
-    public static BuildingBlock of(Stream<BlockState> blockStates) {
-        return fromValues(blockStates/*.filter(blockState -> !blockState.isEmpty())*/.map(BlockValue::new));
+    public static BuildingBlock of(Stream<Block> blocks) {
+        return fromValues(blocks.map(block -> new BlockValue(block, Optional.empty())));
+    }
+
+    public static <T extends Comparable<T>> BuildingBlock of(Stream<Block> blocks, PropertyValue<T>... properties) {
+        StatePropertiesPredicate.Builder builder = StatePropertiesPredicate.Builder.properties();
+        for (var propertyValue : properties) {
+            T value = propertyValue.value;
+            if (value instanceof Integer intValue) {
+                builder.hasProperty((Property<Integer>) propertyValue.property(), intValue);
+            } else if (value instanceof Boolean booleanValue) {
+                builder.hasProperty((Property<Boolean>) propertyValue.property(), booleanValue);
+            } else if (value instanceof StringRepresentable stringValue) {
+                builder.hasProperty(propertyValue.property(), stringValue.getSerializedName());
+            }
+        }
+        return fromValues(blocks.map(block -> new BlockValue(block, builder.build())));
     }
 
     public static BuildingBlock of(TagKey<Block> tag) {
@@ -133,27 +155,32 @@ public final class BuildingBlock implements Predicate<BlockState> {
                 );
     }
 
-    public record BlockValue(BlockState block) implements Value {
+    public record BlockValue(Block block, Optional<StatePropertiesPredicate> state) implements Value {
         static final MapCodec<BlockValue> MAP_CODEC = RecordCodecBuilder.mapCodec(
                 instance -> instance.group(
-                        BlockState.CODEC.fieldOf("block").forGetter(blockValue -> blockValue.block)
+                        BuiltInRegistries.BLOCK.byNameCodec().fieldOf("block").forGetter(blockValue -> blockValue.block),
+                        StatePropertiesPredicate.CODEC.optionalFieldOf("state").forGetter(blockValue -> blockValue.state)
                 ).apply(instance, BlockValue::new)
         );
         static final Codec<BlockValue> CODEC = MAP_CODEC.codec();
+        static final StreamCodec<RegistryFriendlyByteBuf, BlockValue> STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.registry(Registries.BLOCK), BlockValue::block,
+                ByteBufCodecs.optional(StatePropertiesPredicate.STREAM_CODEC), BlockValue::state,
+                BlockValue::new
+        );
 
         @Override
         public boolean equals(Object obj) {
-            return obj instanceof BlockValue blockValue && blockValue.block.getBlock().equals(this.block.getBlock()) && blockValue.block == this.block;
+            return obj instanceof BlockValue blockValue && blockValue.block.equals(this.block) && blockValue.block == this.block;
         }
 
         @Override
         public int hashCode() {
-            int i = 31 * block.getBlock().hashCode();
-            return 31 * i + block.getValues().hashCode();
+            return 31 * block.hashCode();
         }
 
         @Override
-        public Collection<BlockState> getBlocks() {
+        public Collection<Block> getBlocks() {
             return Collections.singleton(this.block);
         }
     }
@@ -165,6 +192,17 @@ public final class BuildingBlock implements Predicate<BlockState> {
                 ).apply(instance, TagValue::new)
         );
         static final Codec<TagValue> CODEC = MAP_CODEC.codec();
+        static final StreamCodec<RegistryFriendlyByteBuf, TagValue> STREAM_CODEC = StreamCodec.of(
+                TagValue::toNetwork, TagValue::fromNetwork
+        );
+
+        private static TagValue fromNetwork(RegistryFriendlyByteBuf buffer) {
+            return new TagValue(TagKey.create(Registries.BLOCK, ResourceLocation.STREAM_CODEC.decode(buffer)));
+        }
+
+        private static void toNetwork(RegistryFriendlyByteBuf buffer, TagValue tagValue) {
+            ResourceLocation.STREAM_CODEC.encode(buffer, tagValue.tag.location());
+        }
 
         @Override
         public boolean equals(Object obj) {
@@ -172,11 +210,11 @@ public final class BuildingBlock implements Predicate<BlockState> {
         }
 
         @Override
-        public Collection<BlockState> getBlocks() {
-            List<BlockState> list = Lists.newArrayList();
+        public Collection<Block> getBlocks() {
+            List<Block> list = Lists.newArrayList();
 
             for (Holder<Block> holder : BuiltInRegistries.BLOCK.getTagOrEmpty(this.tag)) {
-                list.add(holder.value().defaultBlockState());
+                list.add(holder.value());
             }
 
             return list;
@@ -195,7 +233,20 @@ public final class BuildingBlock implements Predicate<BlockState> {
                     }
                 });
         Codec<Value> CODEC = MAP_CODEC.codec();
+        StreamCodec<RegistryFriendlyByteBuf, Value> STREAM_CODEC = ByteBufCodecs.either(BlockValue.STREAM_CODEC, TagValue.STREAM_CODEC)
+                .map(Either::unwrap, value -> {
+                    if (value instanceof TagValue tagValue) {
+                        return Either.right(tagValue);
+                    } else if (value instanceof BlockValue blockValue) {
+                        return Either.left(blockValue);
+                    } else {
+                        throw new UnsupportedOperationException();
+                    }
+                }
+        );
 
-        Collection<BlockState> getBlocks();
+        Collection<Block> getBlocks();
     }
+
+    public record PropertyValue<T extends Comparable<T>>(Property<T> property, T value) {}
 }

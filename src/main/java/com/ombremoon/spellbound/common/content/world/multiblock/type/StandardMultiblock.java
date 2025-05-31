@@ -24,7 +24,7 @@ public class StandardMultiblock extends Multiblock {
     public static class Builder extends MultiblockBuilder {
 
         protected Builder() {
-            this.key.put('-', EMPTY);
+            this.key.put(' ', BuildingBlock.EMPTY);
             this.activeIndex = MultiblockIndex.ORIGIN;
         }
 
@@ -66,7 +66,7 @@ public class StandardMultiblock extends Multiblock {
             }
         }
 
-        public Builder key(char symbol, BlockPredicate block) {
+        public Builder key(char symbol, BuildingBlock block) {
             this.key.put(symbol, block);
             return this;
         }
