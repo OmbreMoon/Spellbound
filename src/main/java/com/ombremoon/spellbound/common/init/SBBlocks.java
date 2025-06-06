@@ -17,7 +17,7 @@ public class SBBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Constants.MOD_ID);
 
     public static final Supplier<UnnamedWorkbenchBlock> UNNAMED = registerBlock("unnamed_workbench", () -> new UnnamedWorkbenchBlock(BlockBehaviour.Properties.of().noOcclusion()));
-    public static final Supplier<ArcanthusCropBlock> ARCANTHUS = registerBlock("arcanthus", () -> new ArcanthusCropBlock(BlockBehaviour.Properties.of()));
+    public static final Supplier<ArcanthusCropBlock> ARCANTHUS = registerBlock("arcanthus", () -> new ArcanthusCropBlock(BlockBehaviour.Properties.of().noOcclusion()));
     public static final Supplier<DivineShrineBlock> DIVINE_SHRINE = registerBlock("divine_shrine", () -> new DivineShrineBlock(BlockBehaviour.Properties.of()));
     public static final Supplier<SummonStoneBlock> SUMMON_STONE = registerBlock("summon_stone", () -> new SummonStoneBlock(BlockBehaviour.Properties.of()));
     public static final Supplier<SummonPortalBlock> SUMMON_PORTAL = registerBlock("summon_portal", () ->
