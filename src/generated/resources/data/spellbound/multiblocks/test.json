@@ -1,0 +1,23 @@
+{
+  "type": "spellbound:standard_multiblock",
+  "index": [
+    0,
+    0,
+    0
+  ],
+  "key": {
+    "-": {
+      "blocks": "minecraft:air"
+    },
+    "^": {
+      "blocks": "minecraft:gold_block"
+    }
+  },
+  "pattern": [
+    [
+      "^-^",
+      "---",
+      "^-^"
+    ]
+  ]
+}
