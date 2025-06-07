@@ -1,10 +1,7 @@
 package com.ombremoon.spellbound.main;
 
 import com.ombremoon.spellbound.client.shader.SBShaders;
-import com.ombremoon.spellbound.common.init.SBDataTypes;
-import com.ombremoon.spellbound.common.init.SBSkills;
-import com.ombremoon.spellbound.common.init.SBSpells;
-import com.ombremoon.spellbound.common.init.SBTriggers;
+import com.ombremoon.spellbound.common.init.*;
 import dev.kosmx.playerAnim.api.layered.IAnimation;
 import dev.kosmx.playerAnim.api.layered.ModifierLayer;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationFactory;
@@ -49,5 +46,6 @@ public class Spellbound {
         event.register(SBSkills.REGISTRY);
         event.register(SBDataTypes.REGISTRY);
         event.register(SBTriggers.REGISTRY);
+        event.register(SBMultiblockSerializers.REGISTRY);
     }
 }

@@ -23,6 +23,7 @@ public class CommonClass {
         SBTriggers.register(modEventBus);
         SBChunkGenerators.register(modEventBus);
         SBFeatures.register(modEventBus);
+        SBMultiblockSerializers.register(modEventBus);
 //        fixAttributes();
     }
 

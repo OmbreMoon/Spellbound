@@ -4,12 +4,15 @@ import com.ombremoon.spellbound.client.AnimationHelper;
 import com.ombremoon.spellbound.client.event.SpellCastEvents;
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormData;
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
+import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockManager;
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.serverbound.ChargeOrChannelPayload;
 import com.ombremoon.spellbound.util.SpellUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
@@ -150,6 +153,14 @@ public class ClientPayloadHandler {
             var level = context.player().level();
             HailstormData data = HailstormSavedData.get(level);
             data.setHailLevel(payload.hailLevel());
+        });
+    }
+
+    public static void handleUpdateMultiblocks(UpdateMultiblocksPayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            MultiblockManager multiblockManager = MultiblockManager.getInstance(context.player().level());
+            multiblockManager.updateMultiblocks(payload.multiblocks());
+            Constants.LOG.info("Loaded {} multiblocks on the client", payload.multiblocks().size());
         });
     }
 
