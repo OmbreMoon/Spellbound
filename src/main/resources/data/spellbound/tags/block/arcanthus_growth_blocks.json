@@ -3,6 +3,7 @@
     "minecraft:grass_block",
     "minecraft:dirt",
     "#minecraft:sand",
-    "minecraft:snow"
+    "minecraft:snow",
+    "minecraft:end_stone"
   ]
 }
