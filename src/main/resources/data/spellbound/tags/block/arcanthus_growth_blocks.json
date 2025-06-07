@@ -1,0 +1,9 @@
+{
+  "values": [
+    "minecraft:grass_block",
+    "minecraft:dirt",
+    "#minecraft:sand",
+    "minecraft:snow",
+    "minecraft:end_stone"
+  ]
+}

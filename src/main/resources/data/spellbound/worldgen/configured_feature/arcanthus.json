@@ -1,0 +1,8 @@
+{
+  "type": "spellbound:arcanthus_patch",
+  "config": {
+    "spread_height": 4,
+    "spread_width": 8,
+    "count": 5
+  }
+}
