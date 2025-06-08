@@ -135,7 +135,7 @@ public class SBSkills {
     public static final Holder<Skill> EQUILIBRIUM = registerSkill("equilibrium", 0, 100, preReqs(ARCANE_VENGEANCE));
     public static final Holder<Skill> PLANAR_DEFLECTION = registerSkill("planar_deflection", 0, 150, preReqs(EQUILIBRIUM));
     public static final Holder<Skill> PURSUIT = registerSkill("pursuit", 50, 50, preReqs(MYSTIC_ARMOR));
-    public static final Holder<Skill> COMBAT_PERCEPTION = registerSkill("combat-perception", 50, 100, preReqs(PURSUIT));
+    public static final Holder<Skill> COMBAT_PERCEPTION = registerSkill("combat_perception", 50, 100, preReqs(PURSUIT));
     public static final Holder<Skill> CRYSTALLINE_ARMOR = registerSkill("crystalline_armor", 50, 150, preReqs(COMBAT_PERCEPTION));
     public static final Holder<Skill> ELDRITCH_INTERVENTION = registerSkill("eldritch_intervention", 50, 200, preReqs(CRYSTALLINE_ARMOR));
     public static final Holder<Skill> SUBLIME_BEACON = registerSkill("sublime_beacon", 100, 200, preReqs(CRYSTALLINE_ARMOR));
