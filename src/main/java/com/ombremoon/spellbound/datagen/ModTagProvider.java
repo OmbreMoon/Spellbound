@@ -1,5 +1,7 @@
 package com.ombremoon.spellbound.datagen;
 
+import com.ombremoon.spellbound.common.init.SBBlocks;
+import com.ombremoon.spellbound.common.init.SBTags;
 import com.ombremoon.spellbound.main.Constants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -12,6 +14,7 @@ import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
@@ -36,6 +39,11 @@ public class ModTagProvider {
     }
 
     public static class Blocks extends TagsProvider<Block> {
+        public static final List<Block> EXCLUDED_BLOCKS = List.of(
+                SBBlocks.RUNE.get(),
+                SBBlocks.TRANSFIGURATION_PEDESTAL.get(),
+                SBBlocks.TRANSFIGURATION_DISPLAY.get()
+        );
 
         public Blocks(PackOutput pGenerator, CompletableFuture<HolderLookup.Provider> provider, @Nullable ExistingFileHelper existingFileHelper) {
             super(pGenerator, Registries.BLOCK, provider, Constants.MOD_ID, existingFileHelper);
@@ -43,12 +51,15 @@ public class ModTagProvider {
 
         @Override
         protected void addTags(HolderLookup.Provider pProvider) {
-
+            for (Block block : BuiltInRegistries.BLOCK) {
+                if (!EXCLUDED_BLOCKS.contains(block))
+                    this.tag(SBTags.Blocks.RITUAL_COMPATIBLE).add(BuiltInRegistries.BLOCK.getResourceKey(block).get());
+            }
         }
 
-        public <T extends Block> void populateTag(TagKey<Block> tag, Supplier<?>... items){
-            for (Supplier<?> item : items) {
-                tag(tag).add(BuiltInRegistries.BLOCK.getResourceKey((Block)item.get()).get());
+        public void populateTag(TagKey<Block> tag, Block... blocks){
+            for (Block block : blocks) {
+                tag(tag).add(BuiltInRegistries.BLOCK.getResourceKey(block).get());
             }
         }
     }

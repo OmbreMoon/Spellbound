@@ -265,7 +265,9 @@ public class NeoForgeEvents {
 
     @SubscribeEvent
     public static void onDatapackSync(OnDatapackSyncEvent event) {
-        PayloadHandler.updateMultiblocks(event.getPlayer().server, MultiblockManager.getMultiblocks());
+        var players = event.getRelevantPlayers().toList();
+        if (!players.isEmpty())
+            PayloadHandler.updateMultiblocks(players.getFirst().server, MultiblockManager.getMultiblocks());
     }
 
     @SubscribeEvent

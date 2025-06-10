@@ -72,7 +72,6 @@ public abstract class Multiblock {
     public Block getBlock(MultiblockIndex index) {
         BuildingBlock block = this.indices.get(index);
         return block != null ? block.getBlocks()[0] : null;
-
     }
 
     public BlockPos locateOrigin(MultiblockIndex index, BlockPos blockPos, Direction facing) {
@@ -299,7 +298,6 @@ public abstract class Multiblock {
             for (int i = 0; i < size; i++) {
                 MultiblockIndex index = MultiblockIndex.STREAM_CODEC.decode(buffer);
                 BuildingBlock block = BuildingBlock.STREAM_CODEC.decode(buffer);
-//                BuildingBlock block = BuildingBlock.EMPTY;
                 indices.put(index, block);
             }
 

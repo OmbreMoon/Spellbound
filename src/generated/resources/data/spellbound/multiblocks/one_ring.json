@@ -1,0 +1,36 @@
+{
+  "type": "spellbound:standard_multiblock",
+  "index": [
+    3,
+    0,
+    3
+  ],
+  "key": {
+    " ": {
+      "block": "minecraft:air"
+    },
+    "#": {
+      "block": "spellbound:transfiguration_pedestal"
+    },
+    "$": {
+      "block": "spellbound:transfiguration_display"
+    },
+    "*": {
+      "tag": "spellbound:ritual_compatible"
+    },
+    "^": {
+      "block": "spellbound:rune"
+    }
+  },
+  "pattern": [
+    [
+      "  ^^^  ",
+      " $***$ ",
+      "^*   *^",
+      "^* # *^",
+      "^*   *^",
+      " $***$ ",
+      "  ^^^  "
+    ]
+  ]
+}

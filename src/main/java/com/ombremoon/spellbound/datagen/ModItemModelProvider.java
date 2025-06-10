@@ -26,7 +26,6 @@ public class ModItemModelProvider extends ItemModelProvider {
         SBItems.SIMPLE_ITEM_LIST.stream().map(Supplier::get).forEach(this::tempItem);
         tempItem(SBItems.DEBUG.get());
         simpleGeneratedModel(SBBlocks.ARCANTHUS.get().asItem());
-        simpleGeneratedModel(SBBlocks.TRANSFIGURATION_PEDESTAL.get().asItem());
         simpleGeneratedModel(SBBlocks.UNNAMED.get().asItem());
 
     }

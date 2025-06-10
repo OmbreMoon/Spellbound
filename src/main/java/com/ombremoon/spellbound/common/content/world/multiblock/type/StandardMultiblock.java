@@ -71,6 +71,11 @@ public class StandardMultiblock extends Multiblock {
             return this;
         }
 
+        public Builder index(int x, int y, int z) {
+            this.activeIndex = MultiblockIndex.of(x, y, z);
+            return this;
+        }
+
         @Override
         public void build(MultiblockOutput output, ResourceLocation location) {
             MultiblockStructure structure = MultiblockStructure.of(this.key, this.pattern, this.activeIndex);

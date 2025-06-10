@@ -18,6 +18,7 @@ public class SBTags {
 
     public static class Blocks {
         public static final TagKey<Block> ARCANTHUS_GROWTH_BLOCKS = tag("arcanthus_growth_blocks");
+        public static final TagKey<Block> RITUAL_COMPATIBLE = tag("ritual_compatible");
 
         private static TagKey<Block> tag(String name) {
             return TagKey.create(Registries.BLOCK, CommonClass.customLocation(name));

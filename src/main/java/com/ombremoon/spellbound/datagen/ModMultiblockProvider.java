@@ -1,10 +1,13 @@
 package com.ombremoon.spellbound.datagen;
 
 import com.mojang.datafixers.util.Pair;
+import com.ombremoon.spellbound.common.content.block.RuneBlock;
 import com.ombremoon.spellbound.common.content.world.multiblock.BuildingBlock;
 import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockOutput;
 import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockProvider;
 import com.ombremoon.spellbound.common.content.world.multiblock.type.StandardMultiblock;
+import com.ombremoon.spellbound.common.init.SBBlocks;
+import com.ombremoon.spellbound.common.init.SBTags;
 import com.ombremoon.spellbound.main.CommonClass;
 import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
@@ -38,8 +41,22 @@ public class ModMultiblockProvider extends MultiblockProvider {
                 .pattern("^^^",
                          "^^^",
                          "^^^")
-                .key('^', BuildingBlock.of(Blocks.GOLD_BLOCK))
+                .key('^', BuildingBlock.ANY)
                 .key('$', BuildingBlock.of(Blocks.DIAMOND_BLOCK))
                 .build(multiblockOutput, CommonClass.customLocation("building_block_test"));
+
+        StandardMultiblock.Builder.of()
+                .pattern("  ^^^  ",
+                         " $   $ ",
+                         "^     ^",
+                         "^  #  ^",
+                         "^     ^",
+                         " $   $ ",
+                         "  ^^^  ")
+                .key('^', BuildingBlock.of(SBBlocks.RUNE.get()))
+                .key('$', BuildingBlock.of(SBBlocks.TRANSFIGURATION_DISPLAY.get()))
+                .key('#', BuildingBlock.of(SBBlocks.TRANSFIGURATION_PEDESTAL.get()))
+                .index(3, 0, 3)
+                .build(multiblockOutput, CommonClass.customLocation("one_ring"));
     }
 }

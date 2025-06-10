@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class RuneBlock extends BaseEntityBlock {
     public static final MapCodec<RuneBlock> CODEC = simpleCodec(RuneBlock::new);
-    protected static final IntegerProperty RUNE_TYPE = IntegerProperty.create("rune_type", 1, 26);
+    public static final IntegerProperty RUNE_TYPE = IntegerProperty.create("rune_type", 1, 26);
     protected static final VoxelShape SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 1.0, 16.0);
 
     public RuneBlock(Properties properties) {

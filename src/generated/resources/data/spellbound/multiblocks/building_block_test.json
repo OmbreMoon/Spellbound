@@ -13,7 +13,7 @@
       "block": "minecraft:diamond_block"
     },
     "^": {
-      "block": "minecraft:emerald_block"
+      "tag": "spellbound:ritual_compatible"
     }
   },
   "pattern": [

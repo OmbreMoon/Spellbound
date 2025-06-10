@@ -11,6 +11,7 @@ import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.util.Loggable;
 import com.ombremoon.spellbound.util.SpellUtil;
+import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -36,8 +37,9 @@ public class DebugItem extends Item implements Loggable {
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
-//        Constants.LOG.info("{}", MultiblockManager.byKey(CommonClass.customLocation("building_block_test")).value().getBlock(MultiblockIndex.of(1, 0, 1)));
-        MultiblockManager.byKey(CommonClass.customLocation("building_block_test")).value().debugMultiblock(level, context.getClickedPos(), context.getHorizontalDirection());
+        var multiblock = MultiblockManager.byKey(CommonClass.customLocation("one_ring")).value();
+        Constants.LOG.info("{}", multiblock.findPattern(level, context.getClickedPos(), Direction.EAST));
+//        multiblock.debugMultiblock(level, context.getClickedPos(), context.getHorizontalDirection());
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 

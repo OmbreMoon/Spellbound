@@ -1,11 +1,13 @@
 package com.ombremoon.spellbound.common.content.world.multiblock;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.ombremoon.spellbound.common.init.SBTags;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -16,6 +18,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.enchantment.effects.SetValue;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -31,6 +34,7 @@ import java.util.stream.Stream;
 @SuppressWarnings("unchecked")
 public final class BuildingBlock implements Predicate<BlockState> {
     public static final BuildingBlock EMPTY = of(Blocks.AIR);
+    public static final BuildingBlock ANY = of(SBTags.Blocks.RITUAL_COMPATIBLE);
     private final Value[] values;
     @Nullable
     private Block[] blockStates;
@@ -64,9 +68,18 @@ public final class BuildingBlock implements Predicate<BlockState> {
         } else if (this.isEmpty()) {
             return block.isAir();
         } else {
-            for (Block block1 : this.getBlocks()) {
-                if (block.is(block1)) {
-                    return true;
+            var potentialValues = Arrays.stream(this.getValues()).filter(value -> value.getBlocks().contains(block.getBlock())).toList();
+            if (potentialValues.isEmpty()) {
+                return false;
+            } else {
+                for (Value value : potentialValues) {
+                    if (value.getProperties().isEmpty()) {
+                        return true;
+                    } else {
+                        if (value.getProperties().get().matches(block)) {
+                            return true;
+                        }
+                    }
                 }
             }
         }
@@ -109,11 +122,11 @@ public final class BuildingBlock implements Predicate<BlockState> {
         return of(Stream.of(block), properties);
     }
 
-    public static BuildingBlock of(Stream<Block> blocks) {
+    private static BuildingBlock of(Stream<Block> blocks) {
         return fromValues(blocks.map(block -> new BlockValue(block, Optional.empty())));
     }
 
-    public static <T extends Comparable<T>> BuildingBlock of(Stream<Block> blocks, PropertyValue<T>... properties) {
+    private static <T extends Comparable<T>> BuildingBlock of(Stream<Block> blocks, PropertyValue<T>... properties) {
         StatePropertiesPredicate.Builder builder = StatePropertiesPredicate.Builder.properties();
         for (var propertyValue : properties) {
             T value = propertyValue.value;
@@ -129,7 +142,7 @@ public final class BuildingBlock implements Predicate<BlockState> {
     }
 
     public static BuildingBlock of(TagKey<Block> tag) {
-        return fromValues(Stream.of(new TagValue(tag)));
+        return fromValues(Stream.of(new TagValue(tag, Optional.empty())));
     }
 
     private static Codec<BuildingBlock> codec(boolean allowEmpty) {
@@ -180,15 +193,21 @@ public final class BuildingBlock implements Predicate<BlockState> {
         }
 
         @Override
-        public Collection<Block> getBlocks() {
+        public Set<Block> getBlocks() {
             return Collections.singleton(this.block);
+        }
+
+        @Override
+        public Optional<StatePropertiesPredicate> getProperties() {
+            return this.state;
         }
     }
 
-    public record TagValue(TagKey<Block> tag) implements Value {
+    public record TagValue(TagKey<Block> tag, Optional<StatePropertiesPredicate> state) implements Value {
         static final MapCodec<TagValue> MAP_CODEC = RecordCodecBuilder.mapCodec(
                 instance -> instance.group(
-                        TagKey.codec(Registries.BLOCK).fieldOf("tag").forGetter(tagValue -> tagValue.tag)
+                        TagKey.codec(Registries.BLOCK).fieldOf("tag").forGetter(tagValue -> tagValue.tag),
+                        StatePropertiesPredicate.CODEC.optionalFieldOf("state").forGetter(blockValue -> blockValue.state)
                 ).apply(instance, TagValue::new)
         );
         static final Codec<TagValue> CODEC = MAP_CODEC.codec();
@@ -197,11 +216,12 @@ public final class BuildingBlock implements Predicate<BlockState> {
         );
 
         private static TagValue fromNetwork(RegistryFriendlyByteBuf buffer) {
-            return new TagValue(TagKey.create(Registries.BLOCK, ResourceLocation.STREAM_CODEC.decode(buffer)));
+            return new TagValue(TagKey.create(Registries.BLOCK, ResourceLocation.STREAM_CODEC.decode(buffer)), ByteBufCodecs.optional(StatePropertiesPredicate.STREAM_CODEC).decode(buffer));
         }
 
         private static void toNetwork(RegistryFriendlyByteBuf buffer, TagValue tagValue) {
             ResourceLocation.STREAM_CODEC.encode(buffer, tagValue.tag.location());
+            ByteBufCodecs.optional(StatePropertiesPredicate.STREAM_CODEC).encode(buffer, tagValue.state);
         }
 
         @Override
@@ -210,14 +230,19 @@ public final class BuildingBlock implements Predicate<BlockState> {
         }
 
         @Override
-        public Collection<Block> getBlocks() {
-            List<Block> list = Lists.newArrayList();
+        public Set<Block> getBlocks() {
+            Set<Block> set = Sets.newHashSet();
 
             for (Holder<Block> holder : BuiltInRegistries.BLOCK.getTagOrEmpty(this.tag)) {
-                list.add(holder.value());
+                set.add(holder.value());
             }
 
-            return list;
+            return set;
+        }
+
+        @Override
+        public Optional<StatePropertiesPredicate> getProperties() {
+            return this.state;
         }
     }
 
@@ -245,7 +270,9 @@ public final class BuildingBlock implements Predicate<BlockState> {
                 }
         );
 
-        Collection<Block> getBlocks();
+        Set<Block> getBlocks();
+
+        Optional<StatePropertiesPredicate> getProperties();
     }
 
     public record PropertyValue<T extends Comparable<T>>(Property<T> property, T value) {}
