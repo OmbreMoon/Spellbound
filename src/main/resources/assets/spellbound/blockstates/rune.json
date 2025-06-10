@@ -1,0 +1,82 @@
+{
+  "variants": {
+    "rune_type=1": {
+      "model": "spellbound:block/rune/rune_1"
+    },
+    "rune_type=2": {
+      "model": "spellbound:block/rune/rune_2"
+    },
+    "rune_type=3": {
+      "model": "spellbound:block/rune/rune_3"
+    },
+    "rune_type=4": {
+      "model": "spellbound:block/rune/rune_4"
+    },
+    "rune_type=5": {
+      "model": "spellbound:block/rune/rune_5"
+    },
+    "rune_type=6": {
+      "model": "spellbound:block/rune/rune_6"
+    },
+    "rune_type=7": {
+      "model": "spellbound:block/rune/rune_7"
+    },
+    "rune_type=8": {
+      "model": "spellbound:block/rune/rune_8"
+    },
+    "rune_type=9": {
+      "model": "spellbound:block/rune/rune_9"
+    },
+    "rune_type=10": {
+      "model": "spellbound:block/rune/rune_10"
+    },
+    "rune_type=11": {
+      "model": "spellbound:block/rune/rune_11"
+    },
+    "rune_type=12": {
+      "model": "spellbound:block/rune/rune_12"
+    },
+    "rune_type=13": {
+      "model": "spellbound:block/rune/rune_13"
+    },
+    "rune_type=14": {
+      "model": "spellbound:block/rune/rune_14"
+    },
+    "rune_type=15": {
+      "model": "spellbound:block/rune/rune_15"
+    },
+    "rune_type=16": {
+      "model": "spellbound:block/rune/rune_16"
+    },
+    "rune_type=17": {
+      "model": "spellbound:block/rune/rune_17"
+    },
+    "rune_type=18": {
+      "model": "spellbound:block/rune/rune_18"
+    },
+    "rune_type=19": {
+      "model": "spellbound:block/rune/rune_19"
+    },
+    "rune_type=20": {
+      "model": "spellbound:block/rune/rune_20"
+    },
+    "rune_type=21": {
+      "model": "spellbound:block/rune/rune_21"
+    },
+    "rune_type=22": {
+      "model": "spellbound:block/rune/rune_22"
+    },
+    "rune_type=23": {
+      "model": "spellbound:block/rune/rune_23"
+    },
+    "rune_type=24": {
+      "model": "spellbound:block/rune/rune_24"
+    },
+    "rune_type=25": {
+      "model": "spellbound:block/rune/rune_25"
+    },
+    "rune_type=26": {
+      "model": "spellbound:block/rune/rune_26"
+    }
+  }
+}

@@ -13,7 +13,7 @@
       "block": "minecraft:diamond_block"
     },
     "^": {
-      "block": "minecraft:gold_block"
+      "block": "minecraft:emerald_block"
     }
   },
   "pattern": [

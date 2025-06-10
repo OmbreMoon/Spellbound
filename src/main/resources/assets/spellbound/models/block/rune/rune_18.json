@@ -1,0 +1,6 @@
+{
+  "parent": "spellbound:block/rune/rune_template",
+  "textures": {
+    "rune": "spellbound:block/rune/rune_18"
+  }
+}

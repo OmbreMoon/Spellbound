@@ -42,44 +42,4 @@ public class ModMultiblockProvider extends MultiblockProvider {
                 .key('$', BuildingBlock.of(Blocks.DIAMOND_BLOCK))
                 .build(multiblockOutput, CommonClass.customLocation("building_block_test"));
     }
-
-    protected static class BlockBuilder {
-        private final BlockPredicate.Builder blockBuilder;
-        private StatePropertiesPredicate.Builder stateBuilder;
-
-        public BlockBuilder() {
-            this.blockBuilder = BlockPredicate.Builder.block();
-        }
-
-        public static BlockBuilder of(Block block) {
-            return new BlockBuilder().block(block);
-        }
-
-        private BlockBuilder block(Block block) {
-            this.blockBuilder.of(block);
-            return this;
-        }
-
-        public <T extends Comparable<T>> BlockBuilder withProperties(Property<T> property, T value) {
-            if (this.stateBuilder == null)
-                this.stateBuilder = StatePropertiesPredicate.Builder.properties();
-
-            if (value instanceof Integer intValue) {
-                this.stateBuilder.hasProperty((Property<Integer>) property, intValue);
-            } else if (value instanceof Boolean booleanValue) {
-                this.stateBuilder.hasProperty((Property<Boolean>) property, booleanValue);
-            } else if (value instanceof StringRepresentable stringValue) {
-                this.stateBuilder.hasProperty(property, stringValue.getSerializedName());
-            }
-
-            return this;
-        }
-
-        public BlockPredicate build() {
-            if (this.stateBuilder != null)
-                this.blockBuilder.setProperties(this.stateBuilder);
-
-            return this.blockBuilder.build();
-        }
-    }
 }

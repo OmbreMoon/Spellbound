@@ -26,12 +26,6 @@ public class GenericSpellRenderer<T extends SpellEntity> extends GeoEntityRender
     }
 
     @Override
-    public void defaultRender(PoseStack poseStack, T animatable, MultiBufferSource bufferSource, @Nullable RenderType renderType, @Nullable VertexConsumer buffer, float yaw, float partialTick, int packedLight) {
-        VertexConsumer vertexConsumer = VertexMultiConsumer.create(bufferSource.getBuffer(SBRenderTypes.heatDistortion(getTextureLocation(animatable))), bufferSource.getBuffer(getRenderType(animatable, getTextureLocation(animatable), bufferSource, partialTick)));
-        super.defaultRender(poseStack, animatable, bufferSource, renderType, vertexConsumer, yaw, partialTick, packedLight);
-    }
-
-    @Override
     public boolean shouldRender(T spellEntity, Frustum camera, double camX, double camY, double camZ) {
         return true;
     }
