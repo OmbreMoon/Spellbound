@@ -1,14 +1,11 @@
 package com.ombremoon.spellbound.common.content.block;
 
 import com.mojang.serialization.MapCodec;
-import com.ombremoon.spellbound.client.gui.WorkbenchScreen;
+import com.ombremoon.spellbound.common.content.block.entity.SimpleMultiBlockEntity;
 import com.ombremoon.spellbound.common.init.SBStats;
 import com.ombremoon.spellbound.networking.PayloadHandler;
-import com.ombremoon.spellbound.util.SpellUtil;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,8 +14,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
@@ -30,20 +28,36 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
+import java.util.stream.Stream;
 
-public class UnnamedWorkbenchBlock extends HorizontalDirectionalBlock {
+public class UnnamedWorkbenchBlock extends AbstractMultiBlock {
     public static final MapCodec<UnnamedWorkbenchBlock> CODEC = simpleCodec(UnnamedWorkbenchBlock::new);
     public static final EnumProperty<WorkbenchPart> PART = EnumProperty.create("workbench", WorkbenchPart.class);
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
 
     @Override
-    protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
+    protected MapCodec<? extends Block> codec() {
         return CODEC;
     }
 
     public UnnamedWorkbenchBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.getStateDefinition().any().setValue(PART, WorkbenchPart.LEFT));
+        this.registerDefaultState(this.getStateDefinition().any().setValue(PART, WorkbenchPart.LEFT).setValue(AbstractMultiBlock.CENTER, false));
+    }
+
+    @Override
+    public Stream<BlockPos> fullBlockShape(@Nullable Direction direction, BlockPos center) {
+        return BlockPos.betweenClosedStream(center, center.relative(direction).above());
+    }
+
+    @Override
+    public boolean isDirectional() {
+        return true;
+    }
+
+    @Override
+    public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+        return new SimpleMultiBlockEntity(blockPos, blockState);
     }
 
     @Override
@@ -58,56 +72,26 @@ public class UnnamedWorkbenchBlock extends HorizontalDirectionalBlock {
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor level, BlockPos currentPos, BlockPos facingPos) {
-        WorkbenchPart part = state.getValue(PART);
-        boolean isAdjacent = facing == getNeighbourDirection(state.getValue(PART), state.getValue(FACING));
-        boolean isVertical = (part == WorkbenchPart.LEFT && facing == Direction.UP) || (part == WorkbenchPart.TOP_LEFT && facing == Direction.DOWN);
-        if (isAdjacent || isVertical) {
-            return facingState.is(this) && facingState.getValue(PART) != state.getValue(PART) ? state : Blocks.AIR.defaultBlockState();
-        } else return state;
-    }
-
-    private static Direction getNeighbourDirection(WorkbenchPart part, Direction direction) {
-        return part == WorkbenchPart.LEFT || part == WorkbenchPart.TOP_LEFT ? direction : direction.getOpposite();
-    }
-
-    @Override
-    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (!level.isClientSide && player.isCreative()) {
-            WorkbenchPart part = state.getValue(PART);
-            if (part == WorkbenchPart.LEFT) {
-                BlockPos blockpos = pos.relative(getNeighbourDirection(part, state.getValue(FACING)));
-                BlockState blockstate = level.getBlockState(blockpos);
-                if (blockstate.is(this) && blockstate.getValue(PART) == WorkbenchPart.RIGHT) {
-                    level.setBlock(blockpos, Blocks.AIR.defaultBlockState(), 35);
-                    level.levelEvent(player, 2001, blockpos, Block.getId(blockstate));
-                }
-            }
-        }
-
-        return super.playerWillDestroy(level, pos, state, player);
-    }
-
-    @Nullable
-    @Override
-    public BlockState getStateForPlacement(BlockPlaceContext context) {
-        Direction direction = context.getHorizontalDirection().getClockWise();
-        BlockPos blockpos = context.getClickedPos();
-        BlockPos blockpos1 = blockpos.relative(direction);
-        Level level = context.getLevel();
-        return level.getBlockState(blockpos1).canBeReplaced(context) && level.getWorldBorder().isWithinBounds(blockpos1)
-                ? this.defaultBlockState().setValue(FACING, direction)
-                : null;
-    }
-
-    @Override
     protected RenderShape getRenderShape(BlockState state) {
         return super.getRenderShape(state);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, PART);
+        builder.add(FACING, PART, AbstractMultiBlock.CENTER);
+    }
+
+    @Override
+    public @org.jetbrains.annotations.Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
+        LevelReader level = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        BlockState state = this.defaultBlockState();
+
+        if (isDirectional()){
+            state = state.setValue(HorizontalDirectionalBlock.FACING, context.getHorizontalDirection().getClockWise());
+        }
+
+        return canPlace(level, pos, state) ? state : null;
     }
 
     @Override

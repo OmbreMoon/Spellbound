@@ -58,6 +58,7 @@ public class SBItems {
     public static final Supplier<Item> CHALK = registerItem("chalk", () -> new ChalkItem(getItemProperties().stacksTo(16)));
 
     public static final Supplier<CreativeModeTab> SPELL_TAB = CREATIVE_MODE_TABS.register("spell_tab", () -> CreativeModeTab.builder(CreativeModeTab.Row.TOP,0)
+            .icon(() -> new ItemStack(SBBlocks.ARCANTHUS.get()))
             .displayItems(
                     (itemDisplayParameters,output)-> {
                         ITEMS.getEntries().forEach((registryObject)-> {
