@@ -383,7 +383,7 @@ public class Cyclone extends SpellEntity<CycloneSpell> {
 
     @Override
     public InteractionResult interact(Player pPlayer, InteractionHand pHand) {
-        var holder = SpellUtil.getSkillHolder(pPlayer);
+        var holder = SpellUtil.getSkills(pPlayer);
         if (pPlayer.isSecondaryUseActive()) {
             return InteractionResult.PASS;
         } else {

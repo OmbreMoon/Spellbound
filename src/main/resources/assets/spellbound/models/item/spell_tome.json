@@ -2,5 +2,37 @@
   "parent": "item/generated",
   "textures": {
     "layer0": "spellbound:item/spell_tome_generic"
-  }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "spellbound:ruin": 1.0
+      },
+      "model": "spellbound:item/spell_tome_ruin"
+    },
+    {
+      "predicate": {
+        "spellbound:transfiguration": 1.0
+      },
+      "model": "spellbound:item/spell_tome_transfiguration"
+    },
+    {
+      "predicate": {
+        "spellbound:summons": 1.0
+      },
+      "model": "spellbound:item/spell_tome_summons"
+    },
+    {
+      "predicate": {
+        "spellbound:divine": 1.0
+      },
+      "model": "spellbound:item/spell_tome_divine"
+    },
+    {
+      "predicate": {
+        "spellbound:deception": 1.0
+      },
+      "model": "spellbound:item/spell_tome_deception"
+    }
+  ]
 }

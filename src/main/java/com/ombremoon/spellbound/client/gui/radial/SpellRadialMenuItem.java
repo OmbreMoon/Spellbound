@@ -51,7 +51,7 @@ public class SpellRadialMenuItem extends RadialMenuItem {
 
     @Override
     public boolean isSelected() {
-        var handler = SpellUtil.getSpellHandler(this.owner.getScreen().getMinecraft().player);
+        var handler = SpellUtil.getSpellCaster(this.owner.getScreen().getMinecraft().player);
         return handler.getSelectedSpell() == this.spellType;
     }
 

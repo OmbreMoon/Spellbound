@@ -43,7 +43,7 @@ public class SpellSelectScreen extends Screen {
     public SpellSelectScreen() {
         super(Component.literal("TEMP RADIAL SELECTION"));
         this.player = Minecraft.getInstance().player;
-        this.handler = SpellUtil.getSpellHandler(this.player);
+        this.handler = SpellUtil.getSpellCaster(this.player);
         this.items = new ObjectArrayList<>();
         this.radialMenu = new RadialMenu(this, this.items, RADIAL_WIDTH - RADIAL_ITEM_WIDTH, RADIAL_WIDTH, BACKGROUND_COLOR, BACKGROUND_HOVER_COLOR) {
             @Override

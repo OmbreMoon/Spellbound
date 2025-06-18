@@ -23,7 +23,7 @@ import java.util.Set;
 
 public class SpellUtil {
 
-    public static SpellHandler getSpellHandler(LivingEntity livingEntity) {
+    public static SpellHandler getSpellCaster(LivingEntity livingEntity) {
         var handler = livingEntity.getData(SBData.SPELL_HANDLER);
         if (!handler.isInitialized())
             handler.initData(livingEntity);
@@ -31,7 +31,7 @@ public class SpellUtil {
         return handler;
     }
 
-    public static SkillHolder getSkillHolder(LivingEntity livingEntity) {
+    public static SkillHolder getSkills(LivingEntity livingEntity) {
         return livingEntity.getData(SBData.SKILL_HOLDER);
     }
 
@@ -57,7 +57,7 @@ public class SpellUtil {
         if (player.getAbilities().instabuild) return true;
         if (EffectManager.isSilenced(player)) return false;
 
-        var handler = getSpellHandler(player);
+        var handler = getSpellCaster(player);
         return handler.inCastMode() && handler.consumeMana(spell.getManaCost(player), false);
     }
 
@@ -153,7 +153,7 @@ public class SpellUtil {
      */
     @NotNull
     public static Set<Integer> getAllSummonIds(@NotNull LivingEntity caster) {
-        SpellHandler handler = SpellUtil.getSpellHandler(caster);
+        SpellHandler handler = SpellUtil.getSpellCaster(caster);
         return handler.getSummons();
     }
 

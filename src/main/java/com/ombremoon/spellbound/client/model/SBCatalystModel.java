@@ -9,17 +9,17 @@ import software.bernie.geckolib.model.GeoModel;
 public class SBCatalystModel extends GeoModel<CatalystItem> {
     @Override
     public ResourceLocation getModelResource(CatalystItem animatable) {
-        return CommonClass.customLocation("geo/item/" + getName(animatable) + ".geo.json");
+        return CommonClass.customLocation("geo/item/staff/" + getName(animatable) + ".geo.json");
     }
 
     @Override
     public ResourceLocation getTextureResource(CatalystItem animatable) {
-        return CommonClass.customLocation("textures/item/" + getName(animatable) + ".png");
+        return CommonClass.customLocation("textures/item/staff/" + getName(animatable) + ".png");
     }
 
     @Override
     public ResourceLocation getAnimationResource(CatalystItem animatable) {
-        return CommonClass.customLocation("animations/item/" + getName(animatable) + ".animation.json");
+        return CommonClass.customLocation("animations/item/staff/" + getName(animatable) + ".animation.json");
     }
 
     protected String getName(CatalystItem animatable) {

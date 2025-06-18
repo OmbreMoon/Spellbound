@@ -27,6 +27,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         tempItem(SBItems.DEBUG.get());
         simpleGeneratedModel(SBBlocks.ARCANTHUS.get().asItem());
         simpleGeneratedModel(SBBlocks.UNNAMED.get().asItem());
+        simpleGeneratedModel(SBItems.CHALK.get());
 
     }
 

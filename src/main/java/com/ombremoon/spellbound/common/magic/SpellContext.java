@@ -42,8 +42,8 @@ public class SpellContext {
         this.blockPos = blockPos;
         this.itemStack = itemStack;
         this.target = target;
-        this.spellHandler = SpellUtil.getSpellHandler(caster);
-        this.skillHolder = SpellUtil.getSkillHolder(caster);
+        this.spellHandler = SpellUtil.getSpellCaster(caster);
+        this.skillHolder = SpellUtil.getSkills(caster);
         this.isRecast = isRecast;
     }
 

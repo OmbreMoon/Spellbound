@@ -8,6 +8,7 @@ import com.google.gson.JsonParseException;
 import com.mojang.serialization.JsonOps;
 import com.ombremoon.spellbound.common.magic.acquisition.divine.DivineActionManager;
 import com.ombremoon.spellbound.main.Constants;
+import com.ombremoon.spellbound.main.Keys;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -40,7 +41,7 @@ public class MultiblockManager extends SimpleJsonResourceReloadListener {
     }
 
     public MultiblockManager(HolderLookup.Provider registries) {
-        super(GSON, Registries.elementsDirPath(Multiblock.RESOURCE_KEY));
+        super(GSON, Registries.elementsDirPath(Keys.MULTIBLOCKS));
         this.registries = registries;
     }
 

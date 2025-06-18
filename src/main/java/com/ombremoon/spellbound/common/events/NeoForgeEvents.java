@@ -8,20 +8,21 @@ import com.ombremoon.spellbound.common.content.commands.SpellboundCommand;
 import com.ombremoon.spellbound.common.content.entity.spell.Hail;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
 import com.ombremoon.spellbound.common.content.world.dimension.DimensionCreator;
-import com.ombremoon.spellbound.common.content.world.effects.SBEffectInstance;
+import com.ombremoon.spellbound.common.content.world.effect.SBEffectInstance;
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormData;
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
 import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockManager;
 import com.ombremoon.spellbound.common.events.custom.MobEffectEvent;
 import com.ombremoon.spellbound.common.events.custom.TickChunkEvent;
 import com.ombremoon.spellbound.common.init.*;
+import com.ombremoon.spellbound.common.magic.EffectManager;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.magic.acquisition.transfiguration.RitualSavedData;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
 import com.ombremoon.spellbound.common.magic.api.buff.events.*;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.PayloadHandler;
-import com.ombremoon.spellbound.common.magic.EffectManager;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -35,12 +36,10 @@ import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -88,14 +87,14 @@ public class NeoForgeEvents {
     @SubscribeEvent
     public static void onEntityJoinWorld(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof LivingEntity livingEntity) {
-            var handler = SpellUtil.getSpellHandler(livingEntity);
+            var handler = SpellUtil.getSpellCaster(livingEntity);
             handler.initData(livingEntity);
 
             if (livingEntity instanceof Player player) {
                 if (!player.level().isClientSide) {
                     handler.sync();
 
-                    var holder = SpellUtil.getSkillHolder(player);
+                    var holder = SpellUtil.getSkills(player);
                     holder.sync();
 
                     var tree = player.getData(SBData.UPGRADE_TREE);
@@ -127,7 +126,7 @@ public class NeoForgeEvents {
         Level level = event.getLevel();
         Entity entity = event.getEntity();
         if (!level.isClientSide && entity instanceof Player player) {
-            var handler = SpellUtil.getSpellHandler(player);
+            var handler = SpellUtil.getSpellCaster(player);
             if (handler.isArenaOwner(handler.getLastArenaEntered()) && level.dimension().location().getNamespace().equals(Constants.MOD_ID))
                 DimensionCreator.get().markDimensionForUnregistration(level.getServer(), level.dimension());
         }
@@ -135,7 +134,7 @@ public class NeoForgeEvents {
 
     @SubscribeEvent
     public static void onHandlerTick(PlayerTickEvent.Post event) {
-        var handler = SpellUtil.getSpellHandler(event.getEntity());
+        var handler = SpellUtil.getSpellCaster(event.getEntity());
         handler.tick();
     }
 
@@ -165,7 +164,7 @@ public class NeoForgeEvents {
     public static void onEffectRemoved(MobEffectEvent.Remove event) {
         LivingEntity livingEntity = event.getEntity();
         if (event.getEffect().is(SBEffects.FEAR)) {
-            var skills = SpellUtil.getSkillHolder(livingEntity);
+            var skills = SpellUtil.getSkills(livingEntity);
             skills.removeModifier(SpellModifier.FEAR);
             livingEntity.setData(SBData.FEAR_TICK, 0);
             livingEntity.setData(SBData.FEAR_SOURCE, Vec3.ZERO);
@@ -189,6 +188,13 @@ public class NeoForgeEvents {
     @SubscribeEvent
     public static void onLevelTick(LevelTickEvent.Pre event) {
         Level level = event.getLevel();
+        if (!level.isClientSide && level.dimension() == Level.OVERWORLD) {
+            RitualSavedData data = RitualSavedData.get(level);
+            data.ACTIVE_RITUALS.removeIf(ritualInstance -> !ritualInstance.isActive());
+            data.ACTIVE_RITUALS.forEach(instance -> instance.tick((ServerLevel) level));
+            data.setDirty();
+        }
+        /*
         HailstormData data = HailstormSavedData.get(level);
         if (level.dimension() == Level.OVERWORLD) {
             if (!level.isClientSide) {
@@ -227,7 +233,7 @@ public class NeoForgeEvents {
                     }
                 }
             }
-        }
+        }*/
     }
 
     @SubscribeEvent
@@ -280,7 +286,7 @@ public class NeoForgeEvents {
     @SubscribeEvent
     public static void onPlayerLeaveWorld(EntityLeaveLevelEvent event) {
         if (event.getEntity() instanceof Player player && player.level() instanceof ServerLevel level) {
-            SpellHandler handler = SpellUtil.getSpellHandler(player);
+            SpellHandler handler = SpellUtil.getSpellCaster(player);
             handler.endSpells();
         }
     }
@@ -289,13 +295,13 @@ public class NeoForgeEvents {
     public static void onWorldEnd(ServerStoppingEvent event) {
         List<ServerPlayer> players = event.getServer().getPlayerList().getPlayers();
         for (ServerPlayer player : players) {
-            SpellUtil.getSpellHandler(player).endSpells();
+            SpellUtil.getSpellCaster(player).endSpells();
         }
     }
 
     @SubscribeEvent
     public static void onPlayerLogOut(PlayerEvent.PlayerLoggedOutEvent event) {
-        SpellUtil.getSpellHandler(event.getEntity()).endSpells();
+        SpellUtil.getSpellCaster(event.getEntity()).endSpells();
     }
 
     @SubscribeEvent
@@ -303,7 +309,7 @@ public class NeoForgeEvents {
         if (event.getEntity().level().isClientSide) return;
 
         if (event.getSource().getEntity() instanceof LivingEntity livingEntity) {
-            SpellUtil.getSpellHandler(livingEntity).getListener().fireEvent(SpellEventListener.Events.PLAYER_KILL, new DeathEvent(livingEntity, event));
+            SpellUtil.getSpellCaster(livingEntity).getListener().fireEvent(SpellEventListener.Events.PLAYER_KILL, new DeathEvent(livingEntity, event));
         }
     }
 
@@ -311,28 +317,28 @@ public class NeoForgeEvents {
     public static void onChangeTarget(LivingChangeTargetEvent event) {
         if (event.getEntity().level().isClientSide) return;
 
-        SpellUtil.getSpellHandler(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.CHANGE_TARGET, new ChangeTargetEvent(event.getEntity(), event));
+        SpellUtil.getSpellCaster(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.CHANGE_TARGET, new ChangeTargetEvent(event.getEntity(), event));
     }
 
     @SubscribeEvent
     public static void onLivingAttack(AttackEntityEvent event) {
         if (event.getEntity().level().isClientSide) return;
 
-        SpellUtil.getSpellHandler(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.ATTACK, new PlayerAttackEvent(event.getEntity(), event));
+        SpellUtil.getSpellCaster(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.ATTACK, new PlayerAttackEvent(event.getEntity(), event));
     }
 
     @SubscribeEvent
     public static void onLivingBlock(LivingShieldBlockEvent event) {
         if (event.getEntity().level().isClientSide) return;
 
-        SpellUtil.getSpellHandler(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.BLOCK, new BlockEvent(event.getEntity(), event));
+        SpellUtil.getSpellCaster(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.BLOCK, new BlockEvent(event.getEntity(), event));
     }
 
     @SubscribeEvent
     public static void onLivingDamage(LivingDamageEvent.Post event) {
         if (event.getEntity().level().isClientSide) return;
 
-        SpellUtil.getSpellHandler(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.POST_DAMAGE, new DamageEvent.Post(event.getEntity(), event));
+        SpellUtil.getSpellCaster(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.POST_DAMAGE, new DamageEvent.Post(event.getEntity(), event));
     }
 
     @SubscribeEvent
@@ -340,7 +346,7 @@ public class NeoForgeEvents {
         LivingEntity livingEntity = event.getEntity();
         if (livingEntity.level().isClientSide) return;
 
-        SpellUtil.getSpellHandler(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.PRE_DAMAGE, new DamageEvent.Pre(livingEntity, event));
+        SpellUtil.getSpellCaster(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.PRE_DAMAGE, new DamageEvent.Pre(livingEntity, event));
 
         if (livingEntity.hasEffect(SBEffects.SLEEP))
             livingEntity.removeEffect(SBEffects.SLEEP);
@@ -350,7 +356,7 @@ public class NeoForgeEvents {
     public static void onLivingJump(LivingEvent.LivingJumpEvent event) {
         if (event.getEntity().level().isClientSide) return;
 
-        SpellUtil.getSpellHandler(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.JUMP, new JumpEvent(event.getEntity(), event));
+        SpellUtil.getSpellCaster(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.JUMP, new JumpEvent(event.getEntity(), event));
 
     }
 }

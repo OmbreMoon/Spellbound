@@ -1,18 +1,13 @@
-package com.ombremoon.spellbound.common.content.world.effects;
+package com.ombremoon.spellbound.common.content.world.effect;
 
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
-import com.ombremoon.spellbound.main.Constants;
-import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
-import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.tslat.smartbrainlib.util.RandomUtil;
 
 public class FearEffect extends SBEffect {
     public FearEffect(MobEffectCategory category, int color) {
@@ -21,8 +16,8 @@ public class FearEffect extends SBEffect {
 
     @Override
     public void onEffectStarted(LivingEntity livingEntity, int amplifier) {
-        var handler = SpellUtil.getSpellHandler(livingEntity);
-        var skills = SpellUtil.getSkillHolder(livingEntity);
+        var handler = SpellUtil.getSpellCaster(livingEntity);
+        var skills = SpellUtil.getSkills(livingEntity);
         skills.addModifierWithExpiry(SpellModifier.FEAR);
         livingEntity.setData(SBData.FEAR_TICK, 0);
         handler.consumeMana((float) (handler.getMaxMana() * 0.07F + 15.0F), true);

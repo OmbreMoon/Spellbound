@@ -120,7 +120,7 @@ public class PlayerDivineActions implements Loggable {
     @SubscribeEvent
     public static void onDataReload(OnDatapackSyncEvent event) {
         for (Player player : event.getRelevantPlayers().toList()) {
-            var handler = SpellUtil.getSpellHandler(player);
+            var handler = SpellUtil.getSpellCaster(player);
             var actions = handler.getDivineActions();
             actions.reload();
         }

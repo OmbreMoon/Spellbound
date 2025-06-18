@@ -40,7 +40,7 @@ public class SBSkills {
     //Solar Ray
     public static final Holder<Skill> SOLAR_RAY = registerSkill("solar_ray");
     public static final Holder<Skill> SUNSHINE = registerSkill("sunshine", -50, 50, preReqs(SOLAR_RAY));
-    public static final Holder<Skill> OVERPOWER = registerSkill("radiance", -50, 100, preReqs(SUNSHINE));
+    public static final Holder<Skill> OVERPOWER = registerSkill("overpower", -50, 100, preReqs(SUNSHINE));
     public static final Holder<Skill> HEALING_LIGHT = registerSkill("healing_light", -50, 150, preReqs(OVERPOWER));
     public static final Holder<Skill> CONCENTRATED_HEAT = registerSkill("concentrated_heat", 0, 50, preReqs(SOLAR_RAY));
     public static final Holder<Skill> OVERHEAT = registerSkill("overheat", 0, 100, preReqs(CONCENTRATED_HEAT));

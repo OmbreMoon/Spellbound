@@ -93,7 +93,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     public void initData(LivingEntity caster) {
         this.caster = caster;
         this.listener = new SpellEventListener(caster);
-        this.skillHolder = SpellUtil.getSkillHolder(this.caster);
+        this.skillHolder = SpellUtil.getSkills(this.caster);
         this.skillHolder.init(caster);
         this.effectManager = SpellUtil.getSpellEffects(this.caster);
         this.effectManager.init(caster);

@@ -4,17 +4,17 @@ import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.gui.CastModeOverlay;
 import com.ombremoon.spellbound.client.gui.SpellSelectScreen;
 import com.ombremoon.spellbound.client.renderer.blockentity.SummonPortalRenderer;
+import com.ombremoon.spellbound.client.renderer.blockentity.TransfigurationDisplayRenderer;
 import com.ombremoon.spellbound.client.renderer.entity.*;
 import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
 import com.ombremoon.spellbound.client.renderer.types.EmissiveSpellProjectileRenderer;
-import com.ombremoon.spellbound.client.renderer.types.EmissiveSpellRenderer;
 import com.ombremoon.spellbound.client.renderer.types.GenericLivingEntityRenderer;
 import com.ombremoon.spellbound.client.renderer.types.GenericSpellRenderer;
 import com.ombremoon.spellbound.client.shader.SBShaders;
+import com.ombremoon.spellbound.common.content.block.entity.RuneBlockEntity;
 import com.ombremoon.spellbound.common.content.world.hailstorm.ClientHailstormData;
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
-import com.ombremoon.spellbound.common.init.SBBlockEntities;
-import com.ombremoon.spellbound.common.init.SBEntities;
+import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.buff.events.MouseInputEvent;
@@ -28,10 +28,12 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
+import software.bernie.geckolib.util.Color;
 
 public class ClientEvents {
 
@@ -66,6 +68,7 @@ public class ClientEvents {
             event.registerEntityRenderer(SBEntities.DUNGEON_SHADOW.get(), GenericLivingEntityRenderer::new);
 
             event.registerBlockEntityRenderer(SBBlockEntities.SUMMON_PORTAL.get(), SummonPortalRenderer::new);
+            event.registerBlockEntityRenderer(SBBlockEntities.TRANSFIGURATION_DISPLAY.get(), TransfigurationDisplayRenderer::new);
         }
 
         @SubscribeEvent
@@ -85,6 +88,16 @@ public class ClientEvents {
                     CastModeOverlay::new);
 
         }
+
+        @SubscribeEvent
+        public static void onRegisterItemColorHandlers(RegisterColorHandlersEvent.Item event) {
+            event.register((stack, tintIndex) -> tintIndex > 0 ? -1 : DyedItemColor.getOrDefault(stack, Color.WHITE.argbInt()), SBItems.CHALK.get());
+        }
+
+        @SubscribeEvent
+        public static void onRegisterBlockColorHandlers(RegisterColorHandlersEvent.Block event) {
+            event.register((state, level, pos, tintIndex) ->  level != null && pos != null && level.getBlockEntity(pos) instanceof RuneBlockEntity runeBlock ? runeBlock.getData(SBData.RUNE_COLOR.get()) : -1, SBBlocks.RUNE.get());
+        }
     }
 
     @EventBusSubscriber(modid = Constants.MOD_ID, value = Dist.CLIENT)
@@ -95,7 +108,7 @@ public class ClientEvents {
             Minecraft minecraft = Minecraft.getInstance();
             Player player = minecraft.player;
             if (player != null) {
-                SpellHandler handler = SpellUtil.getSpellHandler(player);
+                SpellHandler handler = SpellUtil.getSpellCaster(player);
                 if (KeyBinds.SWITCH_MODE_BINDING.consumeClick()) {
                     handler.switchMode();
                     player.displayClientMessage(Component.literal("Switched to " + (handler.inCastMode() ? "Cast mode" : "Normal mode")), true);
@@ -122,19 +135,19 @@ public class ClientEvents {
         public static void onMouseInputPre(InputEvent.MouseButton.Pre event) {
             Player player = Minecraft.getInstance().player;
             if (player != null)
-                SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.PRE_MOUSE_INPUT, new MouseInputEvent.Pre(player, event));
+                SpellUtil.getSpellCaster(player).getListener().fireEvent(SpellEventListener.Events.PRE_MOUSE_INPUT, new MouseInputEvent.Pre(player, event));
         }
 
         @SubscribeEvent
         public static void onMouseInputPost(InputEvent.MouseButton.Post event) {
             Player player = Minecraft.getInstance().player;
             if (player != null)
-                SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.POST_MOUSE_INPUT, new MouseInputEvent.Post(player, event));
+                SpellUtil.getSpellCaster(player).getListener().fireEvent(SpellEventListener.Events.POST_MOUSE_INPUT, new MouseInputEvent.Post(player, event));
         }
 
         @SubscribeEvent
         public static void onMovementInput(MovementInputUpdateEvent event) {
-            var handler = SpellUtil.getSpellHandler(event.getEntity());
+            var handler = SpellUtil.getSpellCaster(event.getEntity());
             if (handler.isStationary()) {
                 event.getInput().leftImpulse = 0;
                 event.getInput().forwardImpulse = 0;
@@ -143,32 +156,29 @@ public class ClientEvents {
         }
 
         @SubscribeEvent
-        public static void onWeatherRender(RenderLevelStageEvent event) {
+        public static void onRenderLevel(RenderLevelStageEvent event) {
             if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_WEATHER) {
                 ClientHailstormData data = (ClientHailstormData) HailstormSavedData.get(Minecraft.getInstance().level);
-                data.renderHailstorm(event);
+//                data.renderHailstorm(event);
+            }
+
+            if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL) {
+                SBShaders.setupPoseStack(event.getPoseStack());
+                SBShaders.processShaders();
             }
         }
 
         @SubscribeEvent
         public static void onComputeFogColor(ViewportEvent.ComputeFogColor event) {
             ClientHailstormData data = (ClientHailstormData) HailstormSavedData.get(Minecraft.getInstance().level);
-            data.renderHailstormFog(event);
+//            data.renderHailstormFog(event);
         }
 
         @SubscribeEvent
         public static void onSpellZoom(ComputeFovModifierEvent event) {
             Player player = event.getPlayer();
-            var handler = SpellUtil.getSpellHandler(player);
+            var handler = SpellUtil.getSpellCaster(player);
             event.setNewFovModifier(handler.getZoom());
-        }
-
-        @SubscribeEvent
-        public static void onRenderLevelLast(RenderLevelStageEvent event) {
-            if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL) {
-                SBShaders.setupPoseStack(event.getPoseStack());
-                SBShaders.processShaders();
-            }
         }
     }
 }

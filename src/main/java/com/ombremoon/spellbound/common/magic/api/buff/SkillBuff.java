@@ -5,11 +5,9 @@ import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
-import java.util.function.Predicate;
 
 public class SkillBuff<T> {
     public static final BuffObject<MobEffectInstance> MOB_EFFECT = new BuffObject<>(
@@ -32,11 +30,11 @@ public class SkillBuff<T> {
 
     public static final BuffObject<SpellModifier> SPELL_MODIFIER = new BuffObject<>(
             (livingEntity, spellModifier) -> {
-                var skills = SpellUtil.getSkillHolder(livingEntity);
+                var skills = SpellUtil.getSkills(livingEntity);
                 skills.addModifierWithExpiry(spellModifier);
             },
             (livingEntity, spellModifier) -> {
-                var skills = SpellUtil.getSkillHolder(livingEntity);
+                var skills = SpellUtil.getSkills(livingEntity);
                 skills.removeModifier(spellModifier);
             },
             (o, o1) -> o instanceof SpellModifier modifier && o1 instanceof SpellModifier modifier1 && modifier.equals(modifier1));
@@ -44,7 +42,7 @@ public class SkillBuff<T> {
     public static final BuffObject<ResourceLocation> EVENT = new BuffObject<>(
             (livingEntity, resourceLocation) -> {},
             (livingEntity, resourceLocation) -> {
-                var handler = SpellUtil.getSpellHandler(livingEntity);
+                var handler = SpellUtil.getSpellCaster(livingEntity);
                 handler.getListener().removeListener(resourceLocation);
             },
             (o, o1) -> o instanceof ResourceLocation location && o1 instanceof ResourceLocation location1 && location.equals(location1));

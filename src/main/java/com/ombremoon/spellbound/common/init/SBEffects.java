@@ -1,11 +1,11 @@
 package com.ombremoon.spellbound.common.init;
 
-import com.ombremoon.spellbound.common.content.world.effects.FearEffect;
-import com.ombremoon.spellbound.common.content.world.effects.SleepEffect;
+import com.ombremoon.spellbound.common.content.world.effect.FearEffect;
+import com.ombremoon.spellbound.common.content.world.effect.SleepEffect;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;
-import com.ombremoon.spellbound.common.content.world.effects.SBEffect;
-import com.ombremoon.spellbound.common.content.world.effects.StormstrikeEffect;
+import com.ombremoon.spellbound.common.content.world.effect.SBEffect;
+import com.ombremoon.spellbound.common.content.world.effect.StormstrikeEffect;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.effect.MobEffect;

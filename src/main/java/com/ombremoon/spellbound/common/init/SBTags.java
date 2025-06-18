@@ -4,6 +4,7 @@ import com.ombremoon.spellbound.main.CommonClass;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
 public class SBTags {
@@ -22,6 +23,14 @@ public class SBTags {
 
         private static TagKey<Block> tag(String name) {
             return TagKey.create(Registries.BLOCK, CommonClass.customLocation(name));
+        }
+    }
+
+    public static class Items {
+
+
+        private static TagKey<Item> tag(String name) {
+            return TagKey.create(Registries.ITEM, CommonClass.customLocation(name));
         }
     }
 }

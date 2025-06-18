@@ -64,8 +64,8 @@ public abstract class SmartSpellEntity<T extends AbstractSpell> extends SBLiving
     public void tick() {
         super.tick();
         if (this.getOwner() instanceof LivingEntity livingEntity && this.tickCount < 5 && (this.handler == null || this.skills == null)) {
-            this.handler = SpellUtil.getSpellHandler(livingEntity);
-            this.skills = SpellUtil.getSkillHolder(livingEntity);
+            this.handler = SpellUtil.getSpellCaster(livingEntity);
+            this.skills = SpellUtil.getSkills(livingEntity);
         }
     }
 

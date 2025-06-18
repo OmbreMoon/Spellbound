@@ -32,14 +32,30 @@ public class SBItems {
     public static final Supplier<Item> FOOL_SHARD = registerSimpleItem("fool_shard");
 
     public static final Supplier<Item> TRANSFIGURATION_STAFF = registerCatalystItem("transfiguration_staff", SpellPath.TRANSFIGURATION);
+    public static final Supplier<Item> FIRE_STAFF = registerCatalystItem("fire_staff", SpellPath.FIRE);
+    public static final Supplier<Item> ICE_STAFF = registerCatalystItem("ice_staff", SpellPath.FROST);
+    public static final Supplier<Item> SHOCK_STAFF = registerCatalystItem("shock_staff", SpellPath.SHOCK);
 
     public static final Supplier<Item> TRANSFIGURER_HELMET = registerArmorItem("transfigurer_helmet", SBArmorMaterials.TRANSFIGURER, ArmorItem.Type.HELMET);
     public static final Supplier<Item> TRANSFIGURER_CHESTPLATE = registerArmorItem("transfigurer_chestplate", SBArmorMaterials.TRANSFIGURER, ArmorItem.Type.CHESTPLATE);
     public static final Supplier<Item> TRANSFIGURER_LEGGINGS = registerArmorItem("transfigurer_leggings", SBArmorMaterials.TRANSFIGURER, ArmorItem.Type.LEGGINGS);
     public static final Supplier<Item> TRANSFIGURER_BOOTS = registerArmorItem("transfigurer_boots", SBArmorMaterials.TRANSFIGURER, ArmorItem.Type.BOOTS);
+    public static final Supplier<Item> PYROMANCER_HELMET = registerArmorItem("pyromancer_helmet", SBArmorMaterials.PYROMANCER, ArmorItem.Type.HELMET);
+    public static final Supplier<Item> PYROMANCER_CHESTPLATE = registerArmorItem("pyromancer_chestplate", SBArmorMaterials.PYROMANCER, ArmorItem.Type.CHESTPLATE);
+    public static final Supplier<Item> PYROMANCER_LEGGINGS = registerArmorItem("pyromancer_leggings", SBArmorMaterials.PYROMANCER, ArmorItem.Type.LEGGINGS);
+    public static final Supplier<Item> PYROMANCER_BOOTS = registerArmorItem("pyromancer_boots", SBArmorMaterials.PYROMANCER, ArmorItem.Type.BOOTS);
+    public static final Supplier<Item> CRYOMANCER_HELMET = registerArmorItem("cryomancer_helmet", SBArmorMaterials.CRYOMANCER, ArmorItem.Type.HELMET);
+    public static final Supplier<Item> CRYOMANCER_CHESTPLATE = registerArmorItem("cryomancer_chestplate", SBArmorMaterials.CRYOMANCER, ArmorItem.Type.CHESTPLATE);
+    public static final Supplier<Item> CRYOMANCER_LEGGINGS = registerArmorItem("cryomancer_leggings", SBArmorMaterials.CRYOMANCER, ArmorItem.Type.LEGGINGS);
+    public static final Supplier<Item> CRYOMANCER_BOOTS = registerArmorItem("cryomancer_boots", SBArmorMaterials.CRYOMANCER, ArmorItem.Type.BOOTS);
+    public static final Supplier<Item> STORMWEAVER_HELMET = registerArmorItem("stormweaver_helmet", SBArmorMaterials.STORMWEAVER, ArmorItem.Type.HELMET);
+    public static final Supplier<Item> STORMWEAVER_CHESTPLATE = registerArmorItem("stormweaver_chestplate", SBArmorMaterials.STORMWEAVER, ArmorItem.Type.CHESTPLATE);
+    public static final Supplier<Item> STORMWEAVER_LEGGINGS = registerArmorItem("stormweaver_leggings", SBArmorMaterials.STORMWEAVER, ArmorItem.Type.LEGGINGS);
+    public static final Supplier<Item> STORMWEAVER_BOOTS = registerArmorItem("stormweaver_boots", SBArmorMaterials.STORMWEAVER, ArmorItem.Type.BOOTS);
 
     public static final Supplier<Item> SPELL_TOME = ITEMS.register("spell_tome", () -> new SpellTomeItem(getItemProperties()));
     public static final Supplier<Item> MANA_TEAR = registerItem("mana_tear", () -> new ManaTearItem(getItemProperties()));
+    public static final Supplier<Item> CHALK = registerItem("chalk", () -> new ChalkItem(getItemProperties().stacksTo(16)));
 
     public static final Supplier<CreativeModeTab> SPELL_TAB = CREATIVE_MODE_TABS.register("spell_tab", () -> CreativeModeTab.builder(CreativeModeTab.Row.TOP,0)
             .displayItems(
@@ -66,13 +82,13 @@ public class SBItems {
     }
 
     public static Supplier<Item> registerArmorItem(String name, Holder<ArmorMaterial> material, ArmorItem.Type type) {
-        Supplier<Item> item = ITEMS.register(name, () -> new MageArmorItem(material, type, getItemProperties()));
+        Supplier<Item> item = ITEMS.register(name, () -> new MageArmorItem(material, type, getItemProperties().stacksTo(1)));
         SIMPLE_ITEM_LIST.add(item);
         return item;
     }
 
     public static Supplier<Item> registerCatalystItem(String name, SpellPath path) {
-        Supplier<Item> item = ITEMS.register(name, () -> new CatalystItem(path, getItemProperties()));
+        Supplier<Item> item = ITEMS.register(name, () -> new CatalystItem(path, getItemProperties().stacksTo(1)));
         return item;
     }
 

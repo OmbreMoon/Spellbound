@@ -92,7 +92,7 @@ public class HealingTouchSpell extends AnimatedSpell {
     }
 
     private void onDamagePost(DamageEvent.Post event) {
-        SkillHolder skills = SpellUtil.getSkillHolder(caster);
+        SkillHolder skills = SpellUtil.getSkills(caster);
 
         if (event.getEntity().hasEffect(SBEffects.POISON) && skills.hasSkill(SBSkills.CONVALESCENCE.value()))
             caster.heal(1);

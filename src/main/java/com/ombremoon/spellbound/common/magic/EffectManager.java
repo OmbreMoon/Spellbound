@@ -98,7 +98,7 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
     }
 
     private float calculateBuildUp(Effect effect, float amount) {
-        var skills = SpellUtil.getSkillHolder(this.livingEntity);
+        var skills = SpellUtil.getSkills(this.livingEntity);
         float resistance = 1.0F - effect.getEntityResistance(this.livingEntity);
         float pathAmount = 1.0F + (PATH_BUILD_UP_MODIFIER * skills.getPathLevel(effect.getPath()));
         float ruinPathAmount = 1.0F + (PATH_BUILD_UP_MODIFIER * skills.getPathLevel(SpellPath.RUIN));

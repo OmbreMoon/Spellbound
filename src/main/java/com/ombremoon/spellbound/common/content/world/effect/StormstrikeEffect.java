@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common.content.world.effects;
+package com.ombremoon.spellbound.common.content.world.effect;
 
 import com.ombremoon.sentinellib.api.BoxUtil;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.StormstrikeSpell;
@@ -17,8 +17,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.tslat.smartbrainlib.util.RandomUtil;
 
-import javax.swing.*;
-
 public class StormstrikeEffect extends SBEffect {
     public StormstrikeEffect(MobEffectCategory category, int color) {
         super(category, color);
@@ -29,7 +27,7 @@ public class StormstrikeEffect extends SBEffect {
         int ownerId = livingEntity.getData(SBData.STORMSTRIKE_OWNER);
         Entity entity = livingEntity.level().getEntity(ownerId);
         if (entity instanceof LivingEntity owner) {
-            var skills = SpellUtil.getSkillHolder(owner);
+            var skills = SpellUtil.getSkills(owner);
             StormstrikeSpell spell = SBSpells.STORMSTRIKE.get().createSpell();
 
             if (skills.hasSkill(SBSkills.CHARGED_ATMOSPHERE.value()))
@@ -49,7 +47,7 @@ public class StormstrikeEffect extends SBEffect {
         Entity entity = livingEntity.level().getEntity(ownerId);
         float damage = 2F;
         if (entity instanceof LivingEntity owner) {
-            var skills = SpellUtil.getSkillHolder(owner);
+            var skills = SpellUtil.getSkills(owner);
             StormstrikeSpell spell = SBSpells.STORMSTRIKE.get().createSpellWithData(owner);
 
             if (skills.hasSkill(SBSkills.SHOCK_FACTOR.value()))
@@ -101,8 +99,8 @@ public class StormstrikeEffect extends SBEffect {
         int ownerId = livingEntity.getData(SBData.STORMSTRIKE_OWNER);
         Entity entity = livingEntity.level().getEntity(ownerId);
         if (entity instanceof LivingEntity owner) {
-            var handler = SpellUtil.getSpellHandler(owner);
-            var skills = SpellUtil.getSkillHolder(owner);
+            var handler = SpellUtil.getSpellCaster(owner);
+            var skills = SpellUtil.getSkills(owner);
             StormstrikeSpell spell = SBSpells.STORMSTRIKE.get().createSpell();
 
             if (skills.hasSkill(SBSkills.REFRACTION.value()) && damageSource.is(SBDamageTypes.RUIN_SHOCK) && damageSource.getEntity() != null && damageSource.getEntity().is(owner))

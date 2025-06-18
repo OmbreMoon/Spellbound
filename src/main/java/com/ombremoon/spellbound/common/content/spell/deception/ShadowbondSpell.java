@@ -2,7 +2,7 @@ package com.ombremoon.spellbound.common.content.spell.deception;
 
 import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.main.CommonClass;
-import com.ombremoon.spellbound.common.content.world.effects.SBEffectInstance;
+import com.ombremoon.spellbound.common.content.world.effect.SBEffectInstance;
 import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
 import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;
 import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;

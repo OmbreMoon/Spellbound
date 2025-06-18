@@ -33,8 +33,8 @@ public class SpellboundCommand {
 
     private int grantSkillPoint(CommandSourceStack context, Holder.Reference<SpellType<?>> spell, int points) {
         if (!context.isPlayer()) return 0;
-        SpellHandler handler = SpellUtil.getSpellHandler(context.getPlayer());
-        SkillHolder skillHolder = SpellUtil.getSkillHolder(context.getPlayer());
+        SpellHandler handler = SpellUtil.getSpellCaster(context.getPlayer());
+        SkillHolder skillHolder = SpellUtil.getSkills(context.getPlayer());
 
         SpellType<?> spellType = SBSpells.REGISTRY.get(spell.key());
         if (!handler.getSpellList().contains(spellType)) {

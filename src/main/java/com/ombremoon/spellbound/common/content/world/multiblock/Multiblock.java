@@ -8,15 +8,19 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.ombremoon.spellbound.common.init.SBMultiblockSerializers;
+import com.ombremoon.spellbound.common.magic.acquisition.transfiguration.TransfigurationRitual;
 import com.ombremoon.spellbound.main.Constants;
 import it.unimi.dsi.fastutil.chars.CharArraySet;
 import it.unimi.dsi.fastutil.chars.CharSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -24,13 +28,16 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 import java.util.Arrays;
 import java.util.List;
@@ -42,7 +49,6 @@ public abstract class Multiblock {
     public static final Codec<Multiblock> CODEC = SBMultiblockSerializers.REGISTRY.byNameCodec().dispatch(Multiblock::getSerializer, MultiblockSerializer::codec);
     public static final StreamCodec<RegistryFriendlyByteBuf, Multiblock> STREAM_CODEC = ByteBufCodecs.registry(SBMultiblockSerializers.MULTIBLOCK_SERIALIZER_REGISTRY_KEY)
             .dispatch(Multiblock::getSerializer, MultiblockSerializer::streamCodec);
-    public static final ResourceKey<Registry<Multiblock>> RESOURCE_KEY = ResourceKey.createRegistryKey(ResourceLocation.withDefaultNamespace("multiblocks"));
     protected final MultiblockStructure structure;
     public final Map<MultiblockIndex, BuildingBlock> indices;
     private final int width;
@@ -92,7 +98,6 @@ public abstract class Multiblock {
 
     private MultiblockPattern findPattern(LevelAccessor level, BlockPos blockPos, Direction facing, Direction up, MultiblockIndex index) {
         BlockPos origin = this.locateOrigin(index, blockPos, facing);
-        LoadingCache<BlockPos, BlockState> cache = createLevelCache(level);
         for (int i = 0; i < this.width; i++) {
             for (int j = 0; j < this.height; j++) {
                 for (int k = 0; k < this.depth; k++) {
@@ -107,7 +112,7 @@ public abstract class Multiblock {
 
 
         Constants.LOG.debug("Found multiblock pattern for {} from {} to {}", this, origin, this.getFinalIndex().toPos(facing, origin));
-        return new MultiblockPattern(this, origin, cache, facing, up);
+        return new MultiblockPattern(this, origin, facing, up);
     }
 
     public boolean tryCreateMultiblock(Level level, Player player, BlockPos blockPos, Direction facing) {
@@ -141,10 +146,6 @@ public abstract class Multiblock {
         Constants.LOG.debug("Successfully removed multiblock {} from {} to {}", this, blockPos, this.getFinalIndex().toPos(facing, blockPos));
     }
 
-    public static LoadingCache<BlockPos, BlockState> createLevelCache(LevelReader level) {
-        return CacheBuilder.newBuilder().build(new MultiblockCache(level));
-    }
-
     public int getWidth() {
         return this.width;
     }
@@ -167,24 +168,11 @@ public abstract class Multiblock {
             var possibleStates = block.getBlocks()[0].getStateDefinition().getPossibleStates();
             Optional<BlockState> optional = possibleStates.stream().filter(block).findFirst();
             if (optional.isPresent()) {
-                BlockState state = optional.get();
+                BlockState state = block.equals(BuildingBlock.ANY) ? Blocks.GRASS_BLOCK.defaultBlockState() : optional.get();
                 BlockPos indexPos = entry.getKey().toPos(facing, blockPos);
                 if (!level.isClientSide)
                     level.setBlock(indexPos, state, 3);
             }
-        }
-    }
-
-    static class MultiblockCache extends CacheLoader<BlockPos, BlockState> {
-        private final LevelReader level;
-
-        public MultiblockCache(LevelReader level) {
-            this.level = level;
-        }
-
-        @Override
-        public @NotNull BlockState load(@NotNull BlockPos key) {
-            return this.level.getBlockState(key);
         }
     }
 
@@ -309,14 +297,15 @@ public abstract class Multiblock {
         }
     }
 
-    public record MultiblockPattern(Multiblock multiblock, BlockPos frontBottomLeft, LoadingCache<BlockPos, BlockState> cache, Direction facing, Direction up) {
+    public record MultiblockPattern(Multiblock multiblock, BlockPos frontBottomLeft, Direction facing, Direction up) {
+        private static final Logger LOGGER = Constants.LOG;
 
-        public BlockState getBlock(MultiblockIndex index) {
-            return this.getBlock(index.x(), index.y(), index.z());
+        public BlockState getBlock(LevelAccessor level, MultiblockIndex index) {
+            return this.getBlock(level, index.x(), index.y(), index.z());
         }
 
-        public BlockState getBlock(int xOffset, int yOffset, int zOffset) {
-            return this.cache.getUnchecked(getIndexPos(xOffset, yOffset, zOffset));
+        public BlockState getBlock(LevelAccessor level, int xOffset, int yOffset, int zOffset) {
+            return level.getBlockState(getIndexPos(xOffset, yOffset, zOffset));
         }
 
         public BlockPos getIndexPos(MultiblockIndex index) {
@@ -328,24 +317,46 @@ public abstract class Multiblock {
         }
 
         void assignMultiblock(LevelAccessor level, BlockPos blockPos) {
-            this.forEachBlock((blockState, index) -> {
+            this.forEachBlock(level, (blockState, index) -> {
                 BlockEntity blockEntity = level.getBlockEntity(blockPos);
                 if (blockEntity instanceof MultiblockPart part)
                     part.setIndex(multiblock, index, facing);
             });
         }
 
-        public void forEachBlock(BiConsumer<BlockState, MultiblockIndex> consumer) {
+        public void forEachBlock(LevelAccessor level, BiConsumer<BlockState, MultiblockIndex> consumer) {
             for (int i = 0; i < multiblock.width; i++) {
                 for (int j = 0; j < multiblock.height; j++) {
                     for (int k = 0; k < multiblock.depth; k++) {
-                        consumer.accept(getBlock(i, j, k), new MultiblockIndex(i, j, k));
+                        consumer.accept(getBlock(level, i, j, k), new MultiblockIndex(i, j, k));
                     }
                 }
             }
         }
 
-        public record Data(Map<Character, BuildingBlock> key, List<String[]> pattern, MultiblockIndex index) {
+        public CompoundTag save() {
+            CompoundTag tag = new CompoundTag();
+            Multiblock.CODEC
+                    .encodeStart(NbtOps.INSTANCE, this.multiblock)
+                    .resultOrPartial(LOGGER::error)
+                    .ifPresent(nbt -> tag.put("Multiblock", nbt));
+            tag.putInt("X", frontBottomLeft.getX());
+            tag.putInt("Y", frontBottomLeft.getY());
+            tag.putInt("Z", frontBottomLeft.getZ());
+            tag.putString("Facing", facing.getSerializedName());
+            tag.putString("Up", up.getSerializedName());
+            return tag;
+        }
+
+        public static MultiblockPattern load(CompoundTag tag) {
+            Multiblock multiblock = Multiblock.CODEC.parse(new Dynamic<>(NbtOps.INSTANCE, tag.get("Multiblock"))).resultOrPartial(LOGGER::error).orElseThrow();
+            BlockPos origin = new BlockPos(tag.getInt("X"), tag.getInt("Y"), tag.getInt("Z"));
+            Direction facing = Direction.byName(tag.getString("Facing"));
+            Direction up = Direction.byName(tag.getString("Up"));
+            return new MultiblockPattern(multiblock, origin, facing, up);
+        }
+
+        record Data(Map<Character, BuildingBlock> key, List<String[]> pattern, MultiblockIndex index) {
             private static final Codec<List<String[]>> PATTERN_CODEC = Codec.STRING.listOf().listOf().comapFlatMap(stringList -> {
                 int i = stringList.getFirst().getFirst().length();
 

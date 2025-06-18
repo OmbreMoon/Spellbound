@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common.content.world.effects;
+package com.ombremoon.spellbound.common.content.world.effect;
 
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -11,7 +11,7 @@ public class SleepEffect extends SBEffect {
 
     @Override
     public void onEffectStarted(LivingEntity livingEntity, int amplifier) {
-        var handler = SpellUtil.getSpellHandler(livingEntity);
+        var handler = SpellUtil.getSpellCaster(livingEntity);
         handler.consumeMana((float) (handler.getMaxMana() * 0.1F + 30.0F), true);
     }
 }

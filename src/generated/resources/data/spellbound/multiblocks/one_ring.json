@@ -1,5 +1,5 @@
 {
-  "type": "spellbound:standard_multiblock",
+  "type": "spellbound:transfiguration_multiblock",
   "index": [
     3,
     0,
@@ -24,13 +24,14 @@
   },
   "pattern": [
     [
-      "  ^^^  ",
-      " $***$ ",
-      "^*   *^",
-      "^* # *^",
-      "^*   *^",
-      " $***$ ",
-      "  ^^^  "
+      "**^^^**",
+      "*$   $*",
+      "^     ^",
+      "^  #  ^",
+      "^     ^",
+      "*$   $*",
+      "**^^^**"
     ]
-  ]
+  ],
+  "rings": 1
 }

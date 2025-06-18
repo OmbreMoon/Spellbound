@@ -1,0 +1,20 @@
+{
+  "credit": "Made with Blockbench",
+  "parent": "builtin/entity",
+  "texture_size": [
+    128,
+    128
+  ],
+  "display": {
+    "thirdperson_righthand": {
+      "scale": [
+        0.8,
+        0.8,
+        0.8
+      ]
+    }
+  },
+  "textures": {
+    "particle": "item/fire_staff"
+  }
+}

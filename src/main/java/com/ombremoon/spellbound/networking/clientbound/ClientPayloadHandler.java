@@ -12,7 +12,6 @@ import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.serverbound.ChargeOrChannelPayload;
 import com.ombremoon.spellbound.util.SpellUtil;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
@@ -37,7 +36,7 @@ public class ClientPayloadHandler {
 
     public static void handleEndSpell(EndSpellPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
-            var handler = SpellUtil.getSpellHandler(context.player());
+            var handler = SpellUtil.getSpellCaster(context.player());
             AbstractSpell spell = handler.getSpell(payload.spellType(), payload.castId());
             if (spell != null)
                 spell.endSpell();
@@ -45,7 +44,7 @@ public class ClientPayloadHandler {
     }
 
     public static void handleClientChargeOrChannel(final ChargeOrChannelPayload payload, final IPayloadContext context) {
-        var handler = SpellUtil.getSpellHandler(context.player());
+        var handler = SpellUtil.getSpellCaster(context.player());
         handler.setChargingOrChannelling(payload.isChargingOrChannelling());
     }
 
@@ -55,7 +54,7 @@ public class ClientPayloadHandler {
 
             Player player = level.getPlayerByUUID(UUID.fromString(payload.playerId()));
             if (player != null) {
-                var handler = SpellUtil.getSpellHandler(player);
+                var handler = SpellUtil.getSpellCaster(player);
                 AbstractSpell spell = handler.getCurrentlyCastSpell();
                 spell.clientInitSpell(player, level,player.getOnPos(), payload.isRecast(), payload.castId(), payload.forceReset());
                 handler.setCurrentlyCastingSpell(null);
@@ -67,7 +66,7 @@ public class ClientPayloadHandler {
         context.enqueueWork(() -> {
             var level = context.player().level();
 
-            SpellHandler handler = SpellUtil.getSpellHandler(context.player());
+            SpellHandler handler = SpellUtil.getSpellCaster(context.player());
             handler.deserializeNBT(level.registryAccess(), payload.tag());
             if (handler.caster == null) handler.caster = context.player();
         });
@@ -83,14 +82,14 @@ public class ClientPayloadHandler {
         context.enqueueWork(() -> {
             var level = context.player().level();
 
-            var holder = SpellUtil.getSkillHolder(context.player());
+            var holder = SpellUtil.getSkills(context.player());
             holder.deserializeNBT(level.registryAccess(), payload.tag());
         });
     }
 
     public static void handleClientSetSpellData(SetSpellDataPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
-            var handler = SpellUtil.getSpellHandler(context.player());
+            var handler = SpellUtil.getSpellCaster(context.player());
             AbstractSpell spell = handler.castTick > 0 ? handler.getCurrentlyCastSpell() : handler.getSpell(payload.spellType(), payload.id());
             if (spell != null)
                 spell.getSpellData().assignValues(payload.packedItems());
@@ -122,7 +121,7 @@ public class ClientPayloadHandler {
     public static void handleAddGlowEffect(AddGlowEffectPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             var level = context.player().level();
-            var handler = SpellUtil.getSpellHandler(context.player());
+            var handler = SpellUtil.getSpellCaster(context.player());
             Entity entity = level.getEntity(payload.entityId());
             if (entity instanceof LivingEntity livingEntity)
                 handler.addGlowEffect(livingEntity);
@@ -132,7 +131,7 @@ public class ClientPayloadHandler {
     public static void handleRemoveGlowEffect(RemoveGlowEffectPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             var level = context.player().level();
-            var handler = SpellUtil.getSpellHandler(context.player());
+            var handler = SpellUtil.getSpellCaster(context.player());
             Entity entity = level.getEntity(payload.entityId());
             if (entity instanceof LivingEntity livingEntity)
                 handler.removeGlowEffect(livingEntity);
@@ -142,7 +141,7 @@ public class ClientPayloadHandler {
     public static void handleRemoveFearEffect(RemoveFearEffectPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             var player = context.player();
-            var skills = SpellUtil.getSkillHolder(player);
+            var skills = SpellUtil.getSkills(player);
             player.setData(SBData.FEAR_TICK, 0);
             skills.removeModifier(SpellModifier.FEAR);
         });

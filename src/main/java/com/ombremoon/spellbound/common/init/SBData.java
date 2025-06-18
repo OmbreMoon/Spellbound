@@ -15,6 +15,7 @@ import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 public class SBData {
@@ -67,9 +68,17 @@ public class SBData {
     public static final Supplier<AttachmentType<Boolean>> STORMSTRIKE_FLAG = ATTACHMENT_TYPES.register(
             "stormstrike_flag", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).build());
 
+    //Misc
+    public static final Supplier<AttachmentType<Integer>> RUNE_COLOR = ATTACHMENT_TYPES.register(
+            "rune_color", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
+
     //Components
     public static final Supplier<DataComponentType<String>> SPELL = COMPONENT_TYPES.registerComponentType("spells",
             builder -> builder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
+    public static final Supplier<DataComponentType<Integer>> RUNE_INDEX = COMPONENT_TYPES.registerComponentType("rune_type",
+            builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT));
+    public static final Supplier<DataComponentType<List<Integer>>> RUNES = COMPONENT_TYPES.registerComponentType("runes",
+            builder -> builder.persistent(Codec.INT.listOf()).networkSynchronized(ByteBufCodecs.VAR_INT.apply(ByteBufCodecs.list())));
 
     public static void register(IEventBus modEventBus) {
         SBData.ATTACHMENT_TYPES.register(modEventBus);

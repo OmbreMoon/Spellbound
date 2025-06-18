@@ -1,14 +1,12 @@
 package com.ombremoon.spellbound.common.content.item;
 
-import com.ombremoon.spellbound.client.shader.SBShaders;
-import com.ombremoon.spellbound.common.content.world.multiblock.BuildingBlock;
-import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockIndex;
 import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockManager;
-import com.ombremoon.spellbound.common.init.SBSpells;
+import com.ombremoon.spellbound.common.init.SBRitualEffects;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;
+import com.ombremoon.spellbound.main.Keys;
 import com.ombremoon.spellbound.util.Loggable;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.Direction;
@@ -28,8 +26,8 @@ public class DebugItem extends Item implements Loggable {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
-        var handler = SpellUtil.getSpellHandler(player);
-        var skillHandler = SpellUtil.getSkillHolder(player);
+        var handler = SpellUtil.getSpellCaster(player);
+        var skillHandler = SpellUtil.getSkills(player);
         ombreDebug(level, player, usedHand, handler, skillHandler);
         return super.use(level, player, usedHand);
     }
@@ -38,8 +36,12 @@ public class DebugItem extends Item implements Loggable {
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
         var multiblock = MultiblockManager.byKey(CommonClass.customLocation("one_ring")).value();
-        Constants.LOG.info("{}", multiblock.findPattern(level, context.getClickedPos(), Direction.EAST));
+        multiblock.tryCreateMultiblock(level, context.getPlayer(), context.getClickedPos(), Direction.NORTH);
+//        Constants.LOG.info("{}", multiblock.findPattern(level, context.getClickedPos(), Direction.EAST));
 //        multiblock.debugMultiblock(level, context.getClickedPos(), context.getHorizontalDirection());
+//        if (multiblock instanceof TransfigurationMultiblock transfigurationMultiblock)
+//            Constants.LOG.info("{}", transfigurationMultiblock.getDisplayPositions());
+
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 

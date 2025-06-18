@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common.content.world.effects;
+package com.ombremoon.spellbound.common.content.world.effect;
 
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import net.minecraft.core.Holder;

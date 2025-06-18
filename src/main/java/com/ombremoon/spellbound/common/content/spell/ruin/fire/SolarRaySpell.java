@@ -4,7 +4,7 @@ import com.ombremoon.sentinellib.api.box.AABBSentinelBox;
 import com.ombremoon.sentinellib.api.box.OBBSentinelBox;
 import com.ombremoon.sentinellib.api.box.SentinelBox;
 import com.ombremoon.sentinellib.common.ISentinel;
-import com.ombremoon.spellbound.common.content.world.effects.SBEffectInstance;
+import com.ombremoon.spellbound.common.content.world.effect.SBEffectInstance;
 import com.ombremoon.spellbound.common.content.entity.spell.SolarRay;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
@@ -47,7 +47,7 @@ public class SolarRaySpell extends ChanneledSpell {
     private static final BiFunction<Entity, LivingEntity, Float> POTENCY = (entity, livingEntity) -> {
         float damage = 3F;
         if (entity instanceof LivingEntity living) {
-            var handler = SpellUtil.getSpellHandler(living);
+            var handler = SpellUtil.getSpellCaster(living);
             SolarRaySpell spell = handler.getSpell(SBSpells.SOLAR_RAY.get());
             if (spell != null) {
                 damage = spell.potency(damage);
@@ -214,15 +214,15 @@ public class SolarRaySpell extends ChanneledSpell {
                 .attackCondition((entity, livingEntity) -> !entity.isAlliedTo(livingEntity) || !livingEntity.hasEffect(SBEffects.COUNTER_MAGIC) || (livingEntity instanceof OwnableEntity ownable && ownable.getOwner() != entity))
                 .onCollisionTick((entity, living) -> {
                     if (entity instanceof LivingEntity livingEntity) {
-                        var skills = SpellUtil.getSkillHolder(livingEntity);
+                        var skills = SpellUtil.getSkills(livingEntity);
                         if (skills.hasSkill(SBSkills.HEALING_LIGHT.value()) && living.isAlliedTo(livingEntity))
                             living.heal(2);
                     }
                 })
                 .onHurtTick((entity, livingEntity) -> {
                     if (entity instanceof LivingEntity caster) {
-                        var skills = SpellUtil.getSkillHolder(caster);
-                        var handler = SpellUtil.getSpellHandler(caster);
+                        var skills = SpellUtil.getSkills(caster);
+                        var handler = SpellUtil.getSpellCaster(caster);
                         SolarRaySpell spell = handler.getSpell(SBSpells.SOLAR_RAY.get());
                         if (entity.isAlliedTo(livingEntity) || (livingEntity instanceof OwnableEntity ownable && ownable.getOwner() == entity)) {
                             if (skills.hasSkill(SBSkills.HEALING_LIGHT.value()))
@@ -232,7 +232,7 @@ public class SolarRaySpell extends ChanneledSpell {
                         }
 
                         if (skills.hasSkill(SBSkills.OVERPOWER.value())) {
-                            var targetHandler = SpellUtil.getSpellHandler(livingEntity);
+                            var targetHandler = SpellUtil.getSpellCaster(livingEntity);
                             targetHandler.consumeMana(5, true);
                         }
 
@@ -272,8 +272,8 @@ public class SolarRaySpell extends ChanneledSpell {
                 .typeDamage(SBDamageTypes.RUIN_FIRE, (entity, living) -> {
                     float damage = 3F;
                     if (entity instanceof LivingEntity livingEntity) {
-                        var handler = SpellUtil.getSpellHandler(livingEntity);
-                        var skills = SpellUtil.getSkillHolder(livingEntity);
+                        var handler = SpellUtil.getSpellCaster(livingEntity);
+                        var skills = SpellUtil.getSkills(livingEntity);
                         SolarRaySpell spell = handler.getSpell(SBSpells.SOLAR_RAY.get());
                         if (spell != null) {
                             damage = spell.potency(damage);
@@ -304,7 +304,7 @@ public class SolarRaySpell extends ChanneledSpell {
                     Level level = entity.level();
                     if (!(entity instanceof LivingEntity livingEntity)) return;
 
-                    var skills = SpellUtil.getSkillHolder(livingEntity);
+                    var skills = SpellUtil.getSkills(livingEntity);
                     if (!level.isClientSide) {
                         if (skills.hasSkill(SBSkills.SOLAR_BORE.value())) {
                             Vec3 vec3 = instance.getCenter();

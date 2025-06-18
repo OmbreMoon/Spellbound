@@ -38,10 +38,10 @@ public class SpellTomeItem extends Item {
 
         SpellType<?> spell = SBSpells.REGISTRY.get(resLoc);
         if (!level.isClientSide) {
-            var handler = SpellUtil.getSpellHandler(player);
+            var handler = SpellUtil.getSpellCaster(player);
             if (handler.getSpellList().contains(spell)) {
                 player.displayClientMessage(Component.translatable("chat.spelltome.awardxp"), true);
-                SpellUtil.getSkillHolder(player).awardSpellXp(spell, 10);
+                SpellUtil.getSkills(player).awardSpellXp(spell, 10);
                 itemStack.shrink(1);
                 return InteractionResultHolder.fail(itemStack);
             }

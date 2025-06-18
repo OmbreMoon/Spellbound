@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.common.content.world.multiblock;
 
 import com.google.common.collect.Sets;
+import com.ombremoon.spellbound.main.Keys;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -17,7 +18,7 @@ public class MultiblockProvider implements DataProvider {
     private final CompletableFuture<HolderLookup.Provider> registries;
 
     public MultiblockProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-        this.multiblockPathProvider = output.createRegistryElementsPathProvider(Multiblock.RESOURCE_KEY);
+        this.multiblockPathProvider = output.createRegistryElementsPathProvider(Keys.MULTIBLOCKS);
         this.registries = registries;
     }
 

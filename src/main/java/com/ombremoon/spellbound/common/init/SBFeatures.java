@@ -1,16 +1,13 @@
 package com.ombremoon.spellbound.common.init;
 
-import com.ombremoon.spellbound.common.content.world.features.ArcanthusConfig;
-import com.ombremoon.spellbound.common.content.world.features.ArcanthusFeature;
-import com.ombremoon.spellbound.main.CommonClass;
+import com.ombremoon.spellbound.common.content.world.worldgen.ArcanthusConfig;
+import com.ombremoon.spellbound.common.content.world.worldgen.ArcanthusFeature;
 import com.ombremoon.spellbound.main.Constants;
-import com.ombremoon.spellbound.main.Spellbound;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-import java.awt.*;
 import java.util.function.Supplier;
 
 public class SBFeatures {

@@ -35,13 +35,13 @@ public class LearnSkillsCommand {
     private int learnSingleSkill(CommandSourceStack context, Holder.Reference<Skill> skill) {
         if (!context.isPlayer()) return 0;
 
-        if (!SpellUtil.getSpellHandler(context.getPlayer()).getSpellList().contains(skill.value().getSpell())) {
+        if (!SpellUtil.getSpellCaster(context.getPlayer()).getSpellList().contains(skill.value().getSpell())) {
             context.getPlayer().sendSystemMessage(Component.translatable("command.spellbound.spellunknown",
                     skill.value().getSpell().createSpell().getName()));
             return 0;
         }
 
-        var skillHandler = SpellUtil.getSkillHolder(context.getPlayer());
+        var skillHandler = SpellUtil.getSkills(context.getPlayer());
         skillHandler.unlockSkill(skill.value());
         skillHandler.sync();
         context.getPlayer().sendSystemMessage(Component.translatable("command.spellbound.singleskilllearnt",
@@ -52,8 +52,8 @@ public class LearnSkillsCommand {
 
     private int learnSpells(CommandSourceStack context, Holder.Reference<SpellType<?>> spell) {
         if (!context.isPlayer()) return 0;
-        SpellHandler handler = SpellUtil.getSpellHandler(context.getPlayer());
-        SkillHolder skillHolder = SpellUtil.getSkillHolder(context.getPlayer());
+        SpellHandler handler = SpellUtil.getSpellCaster(context.getPlayer());
+        SkillHolder skillHolder = SpellUtil.getSkills(context.getPlayer());
 
         SpellType<?> spellType = SBSpells.REGISTRY.get(spell.key());
         if (!handler.getSpellList().contains(spellType)) {
@@ -75,8 +75,8 @@ public class LearnSkillsCommand {
 
     private int resetSpells(CommandSourceStack context, Holder.Reference<SpellType<?>> spell) {
         if (!context.isPlayer()) return 0;
-        SpellHandler handler = SpellUtil.getSpellHandler(context.getPlayer());
-        SkillHolder skillHolder = SpellUtil.getSkillHolder(context.getPlayer());
+        SpellHandler handler = SpellUtil.getSpellCaster(context.getPlayer());
+        SkillHolder skillHolder = SpellUtil.getSkills(context.getPlayer());
 
         SpellType<?> spellType = SBSpells.REGISTRY.get(spell.key());
         if (!handler.getSpellList().contains(spellType)) return 0;

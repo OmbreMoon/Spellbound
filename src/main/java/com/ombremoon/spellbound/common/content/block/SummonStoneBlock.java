@@ -89,7 +89,7 @@ public class SummonStoneBlock extends Block {
             if (this.spell != null) {
                 BlockPattern.BlockPatternMatch blockPatternMatch = getOrCreatePortalShape().find(level, pos);
                 if (blockPatternMatch != null) {
-                    var handler = SpellUtil.getSpellHandler(player);
+                    var handler = SpellUtil.getSpellCaster(player);
                     int arenaId = 0;
                     if (!level.isClientSide) {
                         MinecraftServer server = level.getServer();

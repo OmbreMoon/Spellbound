@@ -34,7 +34,7 @@ public class CastModeOverlay implements LayeredDraw.Layer {
     @Override
     public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         Player player = Minecraft.getInstance().player;
-        var handler = SpellUtil.getSpellHandler(player);
+        var handler = SpellUtil.getSpellCaster(player);
         if (handler.inCastMode())
             renderCastMode(guiGraphics, player, handler);
 

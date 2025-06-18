@@ -50,8 +50,8 @@ public abstract class SpellProjectile<T extends AbstractSpell> extends Projectil
     public void tick() {
         super.tick();
         if (this.getOwner() instanceof LivingEntity livingEntity && this.tickCount < 5 && (this.handler == null || this.skills == null)) {
-            this.handler = SpellUtil.getSpellHandler(livingEntity);
-            this.skills = SpellUtil.getSkillHolder(livingEntity);
+            this.handler = SpellUtil.getSpellCaster(livingEntity);
+            this.skills = SpellUtil.getSkills(livingEntity);
         }
 
         Vec3 vec3 = this.getDeltaMovement();

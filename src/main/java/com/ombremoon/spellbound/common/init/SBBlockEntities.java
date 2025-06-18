@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.common.init;
 
 import com.ombremoon.spellbound.common.content.block.entity.RuneBlockEntity;
+import com.ombremoon.spellbound.common.content.block.entity.TransfigurationDisplayBlockEntity;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.content.block.entity.SummonBlockEntity;
 import net.minecraft.core.registries.Registries;
@@ -15,6 +16,7 @@ public class SBBlockEntities {
 
     public static final Supplier<BlockEntityType<SummonBlockEntity>> SUMMON_PORTAL = BLOCK_ENTITY_TYPE.register("summon_portal", () -> BlockEntityType.Builder.of(SummonBlockEntity::new, SBBlocks.SUMMON_PORTAL.get()).build(null));
     public static final Supplier<BlockEntityType<RuneBlockEntity>> RUNE = BLOCK_ENTITY_TYPE.register("rune", () -> BlockEntityType.Builder.of(RuneBlockEntity::new, SBBlocks.RUNE.get()).build(null));
+    public static final Supplier<BlockEntityType<TransfigurationDisplayBlockEntity>> TRANSFIGURATION_DISPLAY = BLOCK_ENTITY_TYPE.register("transfiguration_display", () -> BlockEntityType.Builder.of(TransfigurationDisplayBlockEntity::new, SBBlocks.TRANSFIGURATION_DISPLAY.get()).build(null));
 
     public static void register(IEventBus modEventBus) {
         BLOCK_ENTITY_TYPE.register(modEventBus);

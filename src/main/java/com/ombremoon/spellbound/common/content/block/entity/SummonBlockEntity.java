@@ -63,7 +63,7 @@ public class SummonBlockEntity extends BlockEntity {
                 ResourceKey<Level> levelKey = data.getOrCreateKey(server, this.arenaId);
                 ServerLevel arena = DynamicDimensionFactory.createDimension(server, levelKey);
                 if (arena != null && this.spell != null) {
-                    var handler = SpellUtil.getSpellHandler(livingEntity);
+                    var handler = SpellUtil.getSpellCaster(livingEntity);
                     DynamicDimensionFactory.spawnInArena(entity, arena, this.spell, !this.hasEnteredPortal);
                     if (handler.isArenaOwner(this.arenaId)) {
                         handler.setLastArenaEntered(this.arenaId);

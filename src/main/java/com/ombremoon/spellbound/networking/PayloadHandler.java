@@ -87,11 +87,11 @@ public class PayloadHandler {
     }
 
     public static void syncSpellsToClient(Player player) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncSpellPayload(SpellUtil.getSpellHandler(player).serializeNBT(player.level().registryAccess())));
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncSpellPayload(SpellUtil.getSpellCaster(player).serializeNBT(player.level().registryAccess())));
     }
 
     public static void syncSkillsToClient(Player player) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncSkillPayload(SpellUtil.getSkillHolder(player).serializeNBT(player.level().registryAccess())));
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncSkillPayload(SpellUtil.getSkills(player).serializeNBT(player.level().registryAccess())));
     }
 
     public static void setSpellData(Player player, SpellType<?> spellType, int id, List<SyncedSpellData.DataValue<?>> packedItems) {

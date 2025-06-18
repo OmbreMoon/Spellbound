@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.init;
 
 import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockSerializer;
 import com.ombremoon.spellbound.common.content.world.multiblock.type.StandardMultiblock;
+import com.ombremoon.spellbound.common.content.world.multiblock.type.TransfigurationMultiblock;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;
 import net.minecraft.core.Registry;
@@ -18,6 +19,7 @@ public class SBMultiblockSerializers {
     public static final DeferredRegister<MultiblockSerializer<?>> MULTIBLOCK_SERIALIZERS = DeferredRegister.create(REGISTRY, Constants.MOD_ID);
 
     public static final Supplier<MultiblockSerializer<StandardMultiblock>> STANDARD_MULTIBLOCK = MULTIBLOCK_SERIALIZERS.register("standard_multiblock", StandardMultiblock.Serializer::new);
+    public static final Supplier<MultiblockSerializer<TransfigurationMultiblock>> TRANSFIGURATION_MULTIBLOCK = MULTIBLOCK_SERIALIZERS.register("transfiguration_multiblock", TransfigurationMultiblock.Serializer::new);
 
     public static void register(IEventBus modEventBus) {
         MULTIBLOCK_SERIALIZERS.register(modEventBus);

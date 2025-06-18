@@ -4,10 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.ombremoon.spellbound.common.content.block.entity.RuneBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -18,7 +15,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
@@ -36,13 +32,6 @@ public class RuneBlock extends BaseEntityBlock {
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
-    }
-
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        BlockState blockState = state.cycle(RUNE_TYPE);
-        level.setBlock(pos, blockState, 3);
-        return InteractionResult.CONSUME;
     }
 
     @Override

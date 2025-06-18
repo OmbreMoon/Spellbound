@@ -33,7 +33,7 @@ public class SpellCastEvents {
                 return;
             }
 
-            var handler = SpellUtil.getSpellHandler(player);
+            var handler = SpellUtil.getSpellCaster(player);
             var spellType = handler.getSelectedSpell();
 
             if (spellType == null) return;
@@ -54,7 +54,7 @@ public class SpellCastEvents {
         Player player = Minecraft.getInstance().player;
         if (player == null) return;
 
-        var handler = SpellUtil.getSpellHandler(player);
+        var handler = SpellUtil.getSpellCaster(player);
         if (!handler.inCastMode()) return;
 
         var spellType = handler.getSelectedSpell();

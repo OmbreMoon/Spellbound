@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common.content.world.features;
+package com.ombremoon.spellbound.common.content.world.worldgen;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

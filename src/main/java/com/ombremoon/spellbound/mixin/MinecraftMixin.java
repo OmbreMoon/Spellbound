@@ -20,7 +20,7 @@ public class MinecraftMixin {
 
     @Inject(method = "shouldEntityAppearGlowing", at = @At("RETURN"), cancellable = true)
     private void shouldEntityAppearGlowing(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        var handler = SpellUtil.getSpellHandler(player);
+        var handler = SpellUtil.getSpellCaster(player);
         if (entity instanceof LivingEntity livingEntity && handler.hasGlowEffect(livingEntity)) {
             cir.setReturnValue(true);
         }
