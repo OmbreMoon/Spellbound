@@ -42,6 +42,7 @@ public class SBItems {
     public static final Supplier<Item> MANA_TEAR = registerItem("mana_tear", () -> new ManaTearItem(getItemProperties()));
 
     public static final Supplier<CreativeModeTab> SPELL_TAB = CREATIVE_MODE_TABS.register("spell_tab", () -> CreativeModeTab.builder(CreativeModeTab.Row.TOP,0)
+            .icon(() -> new ItemStack(SBBlocks.ARCANTHUS.get()))
             .displayItems(
                     (itemDisplayParameters,output)-> {
                         ITEMS.getEntries().forEach((registryObject)-> {
@@ -66,13 +67,13 @@ public class SBItems {
     }
 
     public static Supplier<Item> registerArmorItem(String name, Holder<ArmorMaterial> material, ArmorItem.Type type) {
-        Supplier<Item> item = ITEMS.register(name, () -> new MageArmorItem(material, type, getItemProperties()));
+        Supplier<Item> item = ITEMS.register(name, () -> new MageArmorItem(material, type, getItemProperties().stacksTo(1)));
         SIMPLE_ITEM_LIST.add(item);
         return item;
     }
 
     public static Supplier<Item> registerCatalystItem(String name, SpellPath path) {
-        Supplier<Item> item = ITEMS.register(name, () -> new CatalystItem(path, getItemProperties()));
+        Supplier<Item> item = ITEMS.register(name, () -> new CatalystItem(path, getItemProperties().stacksTo(1)));
         return item;
     }
 

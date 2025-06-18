@@ -22,6 +22,7 @@
   "item.spellbound.transfigurer_chestplate": "Transfigurer Chestplate",
   "item.spellbound.transfigurer_helmet": "Transfigurer Helmet",
   "item.spellbound.transfigurer_leggings": "Transfigurer Leggings",
+  "itemGroup.spellbound": "Spellbound🪄",
   "skill.description.spellbound.accelerated_growth": "Each tick restores hunger equal to 2% of the caster's max mana.",
   "skill.description.spellbound.afterglow": "Enemies hit are marked with a glow for 5 seconds. While marked, they take 20% extra fire damage.",
   "skill.description.spellbound.alternating_current": "The discharge has a small chance to instantly kill the target. Does not work on target with more than twice the caster's current health. On failure, the caster takes damage equal to 5% of their max health.",

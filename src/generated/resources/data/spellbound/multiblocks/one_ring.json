@@ -15,9 +15,6 @@
     "$": {
       "block": "spellbound:transfiguration_display"
     },
-    "*": {
-      "tag": "spellbound:ritual_compatible"
-    },
     "^": {
       "block": "spellbound:rune"
     }
@@ -25,11 +22,11 @@
   "pattern": [
     [
       "  ^^^  ",
-      " $***$ ",
-      "^*   *^",
-      "^* # *^",
-      "^*   *^",
-      " $***$ ",
+      " $   $ ",
+      "^     ^",
+      "^  #  ^",
+      "^     ^",
+      " $   $ ",
       "  ^^^  "
     ]
   ]
