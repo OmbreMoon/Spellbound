@@ -1,0 +1,33 @@
+{
+  "definition": {
+    "duration": 100,
+    "startupTime": 100,
+    "tier": 1
+  },
+  "description": {
+    "translate": "ritual.spellbound.test"
+  },
+  "effects": [
+    {
+      "type": "spellbound:create_item",
+      "data": {
+        "spellbound:rune_type": 3
+      },
+      "item": "spellbound:chalk"
+    }
+  ],
+  "materials": [
+    {
+      "item": "minecraft:water_bucket"
+    },
+    {
+      "item": "minecraft:gold_ingot"
+    },
+    {
+      "item": "minecraft:iron_ingot"
+    },
+    {
+      "item": "spellbound:arcanthus"
+    }
+  ]
+}

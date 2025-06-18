@@ -1,0 +1,54 @@
+{
+  "type": "spellbound:transfiguration_multiblock",
+  "index": [
+    5,
+    0,
+    5
+  ],
+  "key": {
+    " ": {
+      "block": "minecraft:air"
+    },
+    "#": {
+      "block": "spellbound:transfiguration_pedestal"
+    },
+    "$": {
+      "block": "spellbound:transfiguration_display"
+    },
+    "*": {
+      "tag": "spellbound:ritual_compatible"
+    },
+    "^": {
+      "block": "spellbound:rune"
+    }
+  },
+  "pattern": [
+    [
+      "***********",
+      "***********",
+      "****^^^****",
+      "***$   $***",
+      "**^     ^**",
+      "**^  #  ^**",
+      "**^     ^**",
+      "***$   $***",
+      "****^^^****",
+      "***********",
+      "***********"
+    ],
+    [
+      "***^^^^^***",
+      "**$     $**",
+      "*$       $*",
+      "^         ^",
+      "^         ^",
+      "^         ^",
+      "^         ^",
+      "^         ^",
+      "*$       $*",
+      "**$     $**",
+      "***^^^^^***"
+    ]
+  ],
+  "rings": 2
+}

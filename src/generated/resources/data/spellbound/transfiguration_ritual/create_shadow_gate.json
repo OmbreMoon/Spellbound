@@ -1,0 +1,31 @@
+{
+  "definition": {
+    "duration": 100,
+    "startupTime": 100,
+    "tier": 1
+  },
+  "description": {
+    "translate": "ritual.spellbound.create_shadow_gate"
+  },
+  "effects": [
+    {
+      "type": "spellbound:create_spell_tome",
+      "spell": "spellbound:shadow_gate",
+      "tier": 1
+    }
+  ],
+  "materials": [
+    {
+      "item": "minecraft:water_bucket"
+    },
+    {
+      "item": "minecraft:diamond_sword"
+    },
+    {
+      "item": "minecraft:iron_ingot"
+    },
+    {
+      "item": "spellbound:arcanthus"
+    }
+  ]
+}
