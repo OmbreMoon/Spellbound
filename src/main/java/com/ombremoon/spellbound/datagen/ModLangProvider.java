@@ -95,6 +95,8 @@ public class ModLangProvider extends LanguageProvider {
         add("command.spellbound.singleskilllearnt", "%1$s has been unlocked.");
         add("command.spellbound.learntskills", "All skills unlocked for %1$s");
         add("command.spellbound.spelllearnt", "%1%s has been learnt.");
+        
+        add("itemGroup.spellbound", "Spellbound🪄");
     }
 
     protected void skillDescriptions() {

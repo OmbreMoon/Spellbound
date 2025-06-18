@@ -26,7 +26,19 @@ public class ModItemModelProvider extends ItemModelProvider {
         SBItems.SIMPLE_ITEM_LIST.stream().map(Supplier::get).forEach(this::tempItem);
         tempItem(SBItems.DEBUG.get());
         simpleGeneratedModel(SBBlocks.ARCANTHUS.get().asItem());
+
+        simpleGeneratedModel(SBItems.SOUL_SHARD.get());
+        simpleGeneratedModel(SBItems.FOOL_SHARD.get());
+        simpleGeneratedModel(SBItems.FROZEN_SHARD.get());
+        simpleGeneratedModel(SBItems.SMOLDERING_SHARD.get());
+        simpleGeneratedModel(SBItems.STORM_SHARD.get());
+        simpleGeneratedModel(SBItems.HOLY_SHARD.get());
+
         simpleGeneratedModel(SBBlocks.UNNAMED.get().asItem());
+        simpleGeneratedModel(SBItems.TRANSFIGURER_BOOTS.get());
+        simpleGeneratedModel(SBItems.TRANSFIGURER_CHESTPLATE.get());
+        simpleGeneratedModel(SBItems.TRANSFIGURER_LEGGINGS.get());
+        simpleGeneratedModel(SBItems.TRANSFIGURER_HELMET.get());
 
     }
 
