@@ -53,7 +53,8 @@ public interface MultiBlock {
         if (level.isClientSide()) return;
         fullBlockShape(pos, state).forEach(blockPos -> {
             blockPos = blockPos.immutable();
-            level.setBlock(blockPos, state.setValue(AbstractMultiBlock.CENTER, pos.equals(blockPos)), 3);
+            int flags = level.isClientSide ? 0 : 3;
+            level.setBlock(blockPos, state.setValue(AbstractMultiBlock.CENTER, pos.equals(blockPos)), flags);
             if(level.getBlockEntity(blockPos) instanceof MultiBlockEntity entity) {
                 entity.setCenter(pos);
             }
@@ -79,7 +80,9 @@ public interface MultiBlock {
     default void destroy(BlockPos center, Level level, BlockState state){
         if (level.isClientSide()) return;
         fullBlockShape(center, state).forEach(pos ->{
-            if (level.getBlockState(pos).is(state.getBlock())) {
+            BlockState blockState = level.getBlockState(pos);
+            Block block = state.getBlock();
+            if (blockState.is(block)) {
                 level.destroyBlock(pos, true);
             }
         });
