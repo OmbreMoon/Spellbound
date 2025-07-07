@@ -43,7 +43,7 @@ public class TransfigurationDisplayRenderer implements BlockEntityRenderer<Trans
                 poseStack.mulPose(Axis.YP.rotation(-f2));
             } else {
                 Vec3 vec3 = blockEntity.spiralOffset(partialTick, 1.5);
-                poseStack.translate(vec3.x, 0.0, vec3.z);
+                poseStack.translate(vec3.x, vec3.y, vec3.z);
             }
 
             this.itemRenderer.renderStatic(itemstack, ItemDisplayContext.GROUND, 15728880, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, blockEntity.getLevel(), 0);

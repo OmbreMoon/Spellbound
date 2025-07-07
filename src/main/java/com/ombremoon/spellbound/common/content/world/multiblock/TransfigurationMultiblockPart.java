@@ -31,7 +31,7 @@ public abstract class TransfigurationMultiblockPart extends BlockEntity implemen
     }
 
     @Override
-    public void setIndex(Multiblock multiblock, MultiblockIndex index, Direction facing) {
+    public void assign(Multiblock multiblock, MultiblockIndex index, Direction facing) {
         this.multiblock = multiblock;
         this.index = index;
         this.facing = facing;

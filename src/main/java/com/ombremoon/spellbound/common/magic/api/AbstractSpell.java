@@ -32,6 +32,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -1079,6 +1080,11 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         Vec3 toPos = fromPos.add((double) xComponent * distance, (double) yComponent * distance,
                 (double) zComponent * distance);
         return new ClipContext(fromPos, toPos, ClipContext.Block.OUTLINE, fluidContext, livingEntity);
+    }
+
+    protected void createParticles(ParticleOptions particleData, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+        if (!this.level.isClientSide)
+            PayloadHandler.createParticles(this.caster, particleData, x, y, z, xSpeed, ySpeed, zSpeed);
     }
 
     public void awardXp(float amount) {

@@ -16,6 +16,7 @@ import com.ombremoon.spellbound.common.magic.acquisition.transfiguration.RitualS
 import com.ombremoon.spellbound.common.magic.acquisition.transfiguration.TransfigurationRitual;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -75,7 +76,8 @@ public class TransfigurationMultiblock extends StandardMultiblock {
         List<TransfigurationDisplayBlockEntity> displays = this.displayPositions.stream().map(index -> index.toPos(pattern.facing(), origin)).map(level::getBlockEntity).filter(Objects::nonNull).map(blockEntity -> (TransfigurationDisplayBlockEntity) blockEntity).toList();
         List<ItemStack> items = displays.stream().map(display -> display.currentItem).toList();
         Optional<TransfigurationRitual> optional = RitualHelper.getRitualFor(level, this, items);
-        optional.ifPresent(ritual -> {
+        if (optional.isPresent()) {
+            TransfigurationRitual ritual = optional.get();
             displays.forEach(display -> {
                 if (!display.active) {
                     display.setRitual(ritual);
@@ -86,8 +88,15 @@ public class TransfigurationMultiblock extends StandardMultiblock {
 
             if (!level.isClientSide)
                 RitualSavedData.addRitual(level, new RitualInstance(Holder.direct(ritual), player.getUUID(), pedestal, pattern));
-        });
-        clearMultiblock(player, level, pattern);
+        } else {
+            clearMultiblock(player, level, pattern);
+        }
+    }
+
+    @Override
+    public void debugMultiblock(Level level, BlockPos blockPos, Direction facing) {
+        BlockPos originFromPedestal = this.locateOrigin(this.getActiveIndex(), blockPos, facing);
+        super.debugMultiblock(level, originFromPedestal, facing);
     }
 
     private void initializeDisplays() {

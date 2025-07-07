@@ -1,6 +1,5 @@
 package com.ombremoon.spellbound.common.content.block.entity;
 
-import com.ombremoon.spellbound.common.init.SBBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -9,13 +8,12 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 
-public abstract class MultiBlockEntity extends BlockEntity {
+public abstract class ExtendedBlockEntity extends BlockEntity {
     public BlockPos center;
     public boolean isPlaced; //True once the whole placing logic runs (to prevent updateShape from breaking it early)
 
-    public MultiBlockEntity(BlockEntityType<?> pType, BlockPos pPos, BlockState pBlockState) {
+    public ExtendedBlockEntity(BlockEntityType<?> pType, BlockPos pPos, BlockState pBlockState) {
         super(pType, pPos, pBlockState);
         this.center = this.getBlockPos();
         this.isPlaced = false;
@@ -46,6 +44,6 @@ public abstract class MultiBlockEntity extends BlockEntity {
     }
 
     public static void setPlaced(LevelReader level, BlockPos blockPos) {
-        if(level.getBlockEntity(blockPos) instanceof MultiBlockEntity entity) entity.setPlaced();
+        if(level.getBlockEntity(blockPos) instanceof ExtendedBlockEntity entity) entity.setPlaced();
     }
 }

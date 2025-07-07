@@ -31,7 +31,7 @@ public interface SBRituals {
         register(
                 context,
                 TEST,
-                TransfigurationRitual.ritual(1)
+                TransfigurationRitual.ritual(2)
                         .requires(Ingredient.of(Items.WATER_BUCKET))
                         .requires(Ingredient.of(Items.GOLD_INGOT))
                         .requires(Ingredient.of(Items.IRON_INGOT))

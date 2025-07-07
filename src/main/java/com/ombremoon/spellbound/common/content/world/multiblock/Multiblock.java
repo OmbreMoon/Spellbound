@@ -1,9 +1,6 @@
 package com.ombremoon.spellbound.common.content.world.multiblock;
 
 import com.google.common.base.Joiner;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
@@ -12,31 +9,25 @@ import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.ombremoon.spellbound.common.init.SBMultiblockSerializers;
-import com.ombremoon.spellbound.common.magic.acquisition.transfiguration.TransfigurationRitual;
 import com.ombremoon.spellbound.main.Constants;
+import com.ombremoon.spellbound.networking.PayloadHandler;
 import it.unimi.dsi.fastutil.chars.CharArraySet;
 import it.unimi.dsi.fastutil.chars.CharSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.util.Arrays;
@@ -116,18 +107,30 @@ public abstract class Multiblock {
     }
 
     public boolean tryCreateMultiblock(Level level, Player player, BlockPos blockPos, Direction facing) {
-        Multiblock.MultiblockPattern pattern = this.findPattern(level, blockPos, facing);
-        if (pattern != null) {
-            pattern.assignMultiblock(level, blockPos);
-            this.onActivate(player, level, pattern);
-            return true;
+        if (!this.checkForMultiblock(level, blockPos)) {
+            Multiblock.MultiblockPattern pattern = this.findPattern(level, blockPos, facing);
+            if (pattern != null) {
+                pattern.assignMultiblock(level, blockPos);
+                this.onActivate(player, level, pattern);
+                return true;
+            }
         }
         return false;
     }
 
+    private boolean checkForMultiblock(Level level, BlockPos blockPos) {
+        BlockEntity blockEntity = level.getBlockEntity(blockPos);
+        return blockEntity instanceof MultiblockPart part && part.isAssigned();
+    }
+
     public void clearMultiblock(Player player, Level level, MultiblockPattern pattern) {
-        this.onRemoved(player, level, pattern);
-        this.clearMultiblock(level, pattern.frontBottomLeft, pattern.facing);
+        if (!level.isClientSide) {
+            this.onRemoved(player, level, pattern);
+            this.clearMultiblock(level, pattern.frontBottomLeft, pattern.facing);
+            PayloadHandler.clearMultiblock(player.getServer(), pattern.save());
+        } else {
+            this.clearMultiblock(level, pattern.frontBottomLeft, pattern.facing);
+        }
     }
 
     private void clearMultiblock(LevelAccessor level, BlockPos blockPos, Direction facing) {
@@ -138,7 +141,7 @@ public abstract class Multiblock {
                     BlockPos currentPos = currentIndex.toPos(facing, blockPos);
                     BlockEntity blockEntity = level.getBlockEntity(currentPos);
                     if (blockEntity instanceof MultiblockPart part && part.getMultiblock() == this && part.isAssigned())
-                        part.setIndex(null, MultiblockIndex.ORIGIN, facing);
+                        part.assign(null, MultiblockIndex.ORIGIN, facing);
                 }
             }
         }
@@ -320,7 +323,7 @@ public abstract class Multiblock {
             this.forEachBlock(level, (blockState, index) -> {
                 BlockEntity blockEntity = level.getBlockEntity(blockPos);
                 if (blockEntity instanceof MultiblockPart part)
-                    part.setIndex(multiblock, index, facing);
+                    part.assign(multiblock, index, facing);
             });
         }
 

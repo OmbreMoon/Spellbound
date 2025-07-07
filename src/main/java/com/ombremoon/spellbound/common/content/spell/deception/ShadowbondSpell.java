@@ -14,8 +14,11 @@ import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -71,6 +74,7 @@ public class ShadowbondSpell extends AnimatedSpell {
     protected void onSpellStart(SpellContext context) {
         Level level = context.getLevel();
         Entity target = context.getTarget();
+        LivingEntity caster = context.getCaster();
         var skills = context.getSkills();
         if (target == null) return;
         int id = target.getId();
@@ -88,18 +92,26 @@ public class ShadowbondSpell extends AnimatedSpell {
         this.targetList.add(this.secondTarget);
         if (!level.isClientSide) {
             if (!this.canReverse) {
-                MobEffectInstance mobEffectInstance = new SBEffectInstance(context.getCaster(), MobEffects.INVISIBILITY, -1, skills.hasSkill(SBSkills.OBSERVANT.value()), 0, false, false);
-                context.getCaster().addEffect(mobEffectInstance);
-                for (Integer entityId : this.targetList) {
-                    Entity entity = level.getEntity(entityId);
-                    if (entity instanceof LivingEntity living)
+                MobEffectInstance mobEffectInstance = new SBEffectInstance(caster, MobEffects.INVISIBILITY, -1, skills.hasSkill(SBSkills.OBSERVANT.value()), 0, false, false);
+                caster.addEffect(mobEffectInstance);
+
+                int size = this.targetList.size();
+                for (int i = 0; i < size + 1; i++) {
+                    Entity entity = i < size ? level.getEntity(this.targetList.get(i)) : caster;
+                    if (entity instanceof LivingEntity living) {
                         addSkillBuff(
                                 living,
                                 SBSkills.SHADOWBOND.value(),
                                 BuffCategory.HARMFUL,
                                 SkillBuff.MOB_EFFECT,
                                 mobEffectInstance);
+
+                        this.spawnTeleportParticles(entity, 40);
+                    }
                 }
+
+                level.playSound(null, caster.xo, caster.yo, caster.zo, SoundEvents.ENDERMAN_TELEPORT, caster.getSoundSource(), 1.0F, 1.0F);
+                caster.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
             }
         }
     }
@@ -159,6 +171,12 @@ public class ShadowbondSpell extends AnimatedSpell {
         Vec3 secondPosPos = second.position();
         first.teleportTo(secondPosPos.x, secondPosPos.y, secondPosPos.z);
         second.teleportTo(firstPos.x, firstPos.y, firstPos.z);
+
+        this.spawnTeleportParticles(first, 40);
+        this.spawnTeleportParticles(second, 40);
+
+        first.level().playSound(null, first.xo, first.yo, first.zo, SoundEvents.ENDERMAN_TELEPORT, first.getSoundSource(), 1.0F, 1.0F);
+        first.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
     }
 
     private void swapTargets(LivingEntity caster, Level level) {
@@ -231,13 +249,27 @@ public class ShadowbondSpell extends AnimatedSpell {
                             100);
 
                 }
-                context.getSpellHandler().applyFear(living, 100);
+//                context.getSpellHandler().applyFear(living, 100);
             }
         }
 
         if (skills.hasSkill(SBSkills.LIVING_SHADOW.value())) {
             summonEntity(context, SBEntities.LIVING_SHADOW.get(), caster.position(), livingShadow -> {});
             caster.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 100, 0, false, false));
+        }
+    }
+
+    private void spawnTeleportParticles(Entity entity ,int amount) {
+        for (int j = 0; j < amount; j++) {
+            this.createParticles(
+                    ParticleTypes.PORTAL,
+                    entity.getRandomX(0.5),
+                    entity.getRandomY() - 0.25,
+                    entity.getRandomZ(0.5),
+                    (entity.getRandom().nextDouble() - 0.5) * 2.0,
+                    -entity.getRandom().nextDouble(),
+                    (entity.getRandom().nextDouble() - 0.5) * 2.0
+            );
         }
     }
 

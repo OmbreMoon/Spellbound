@@ -4,6 +4,7 @@ import com.ombremoon.spellbound.client.AnimationHelper;
 import com.ombremoon.spellbound.client.event.SpellCastEvents;
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormData;
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
+import com.ombremoon.spellbound.common.content.world.multiblock.Multiblock;
 import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockManager;
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
@@ -13,6 +14,7 @@ import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.serverbound.ChargeOrChannelPayload;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -118,6 +120,13 @@ public class ClientPayloadHandler {
         });
     }
 
+    public static void handleCreateParticles(CreateParticlesPayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            var level = context.player().level();
+            level.addParticle(payload.particle(), payload.x(), payload.y(), payload.z(), payload.xSpeed(), payload.ySpeed(), payload.zSpeed());
+        });
+    }
+
     public static void handleAddGlowEffect(AddGlowEffectPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             var level = context.player().level();
@@ -160,6 +169,15 @@ public class ClientPayloadHandler {
             MultiblockManager multiblockManager = MultiblockManager.getInstance(context.player().level());
             multiblockManager.updateMultiblocks(payload.multiblocks());
             Constants.LOG.info("Loaded {} multiblocks on the client", payload.multiblocks().size());
+        });
+    }
+
+    public static void handleClearMultiblock(ClearMultiblockPayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            CompoundTag tag = payload.tag();
+            Multiblock.MultiblockPattern pattern = Multiblock.MultiblockPattern.load(tag);
+            Multiblock multiblock = pattern.multiblock();
+            multiblock.clearMultiblock(context.player(), context.player().level(), pattern);
         });
     }
 

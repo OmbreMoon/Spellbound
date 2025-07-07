@@ -1,8 +1,8 @@
 {
   "definition": {
-    "duration": 100,
+    "duration": 20,
     "startupTime": 100,
-    "tier": 1
+    "tier": 2
   },
   "description": {
     "translate": "ritual.spellbound.test"

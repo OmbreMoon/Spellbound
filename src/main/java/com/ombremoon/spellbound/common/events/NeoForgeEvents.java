@@ -122,17 +122,6 @@ public class NeoForgeEvents {
     }
 
     @SubscribeEvent
-    public static void onEntityLeaveDimension(EntityLeaveLevelEvent event) {
-        Level level = event.getLevel();
-        Entity entity = event.getEntity();
-        if (!level.isClientSide && entity instanceof Player player) {
-            var handler = SpellUtil.getSpellCaster(player);
-            if (handler.isArenaOwner(handler.getLastArenaEntered()) && level.dimension().location().getNamespace().equals(Constants.MOD_ID))
-                DimensionCreator.get().markDimensionForUnregistration(level.getServer(), level.dimension());
-        }
-    }
-
-    @SubscribeEvent
     public static void onHandlerTick(PlayerTickEvent.Post event) {
         var handler = SpellUtil.getSpellCaster(event.getEntity());
         handler.tick();
@@ -285,9 +274,13 @@ public class NeoForgeEvents {
 
     @SubscribeEvent
     public static void onPlayerLeaveWorld(EntityLeaveLevelEvent event) {
-        if (event.getEntity() instanceof Player player && player.level() instanceof ServerLevel level) {
-            SpellHandler handler = SpellUtil.getSpellCaster(player);
-            handler.endSpells();
+        Level level = event.getLevel();
+        if (event.getEntity() instanceof Player player && !level.isClientSide) {
+            var caster = SpellUtil.getSpellCaster(player);
+            caster.endSpells();
+
+            if (caster.isArenaOwner(caster.getLastArenaEntered()) && level.dimension().location().getNamespace().equals(Constants.MOD_ID))
+                DimensionCreator.get().markDimensionForUnregistration(level.getServer(), level.dimension());
         }
     }
 

@@ -28,7 +28,7 @@ public class RitualHelper {
                 item.set((DataComponentType<T>) typeComponent.type(), (T)typeComponent.value());
             }
         });
-        Constants.LOG.info("{}", item.getComponents());
+
         ItemEntity entity = new ItemEntity(level, pos.x(), pos.y() + 1.5F, pos.z(), item);
         entity.setDeltaMovement(Vec3.ZERO);
         level.addFreshEntity(entity);

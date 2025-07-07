@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.common.content.block;
 
 import com.mojang.serialization.MapCodec;
-import com.ombremoon.spellbound.common.content.block.entity.SimpleMultiBlockEntity;
+import com.ombremoon.spellbound.common.content.block.entity.SimpleExtendedBlockEntity;
 import com.ombremoon.spellbound.common.init.SBStats;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import net.minecraft.core.BlockPos;
@@ -30,7 +30,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import javax.annotation.Nullable;
 import java.util.stream.Stream;
 
-public class UnnamedWorkbenchBlock extends AbstractMultiBlock {
+public class UnnamedWorkbenchBlock extends AbstractExtendedBlock {
     public static final MapCodec<UnnamedWorkbenchBlock> CODEC = simpleCodec(UnnamedWorkbenchBlock::new);
     public static final EnumProperty<WorkbenchPart> PART = EnumProperty.create("workbench", WorkbenchPart.class);
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
@@ -42,7 +42,7 @@ public class UnnamedWorkbenchBlock extends AbstractMultiBlock {
 
     public UnnamedWorkbenchBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.getStateDefinition().any().setValue(PART, WorkbenchPart.LEFT).setValue(AbstractMultiBlock.CENTER, false));
+        this.registerDefaultState(this.getStateDefinition().any().setValue(PART, WorkbenchPart.LEFT).setValue(AbstractExtendedBlock.CENTER, false));
     }
 
     @Override
@@ -57,7 +57,7 @@ public class UnnamedWorkbenchBlock extends AbstractMultiBlock {
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return new SimpleMultiBlockEntity(blockPos, blockState);
+        return new SimpleExtendedBlockEntity(blockPos, blockState);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class UnnamedWorkbenchBlock extends AbstractMultiBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, PART, AbstractMultiBlock.CENTER);
+        builder.add(FACING, PART, AbstractExtendedBlock.CENTER);
     }
 
     @Override

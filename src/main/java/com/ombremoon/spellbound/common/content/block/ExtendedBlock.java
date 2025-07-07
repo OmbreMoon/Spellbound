@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.content.block;
 
-import com.ombremoon.spellbound.common.content.block.entity.MultiBlockEntity;
+import com.ombremoon.spellbound.common.content.block.entity.ExtendedBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.Stream;
 
-public interface MultiBlock {
+public interface ExtendedBlock {
 
     /*
    How to use:
@@ -53,8 +53,8 @@ public interface MultiBlock {
         if (level.isClientSide()) return;
         fullBlockShape(pos, state).forEach(blockPos -> {
             blockPos = blockPos.immutable();
-            level.setBlock(blockPos, state.setValue(AbstractMultiBlock.CENTER, pos.equals(blockPos)), 3);
-            if(level.getBlockEntity(blockPos) instanceof MultiBlockEntity entity) {
+            level.setBlock(blockPos, state.setValue(AbstractExtendedBlock.CENTER, pos.equals(blockPos)), 3);
+            if(level.getBlockEntity(blockPos) instanceof ExtendedBlockEntity entity) {
                 entity.setCenter(pos);
             }
         });
@@ -92,15 +92,15 @@ public interface MultiBlock {
         boolean ret;
         ret = fullBlockShape(center, state).allMatch(blockPos -> level.getBlockState(blockPos).is(originalBlock));
 
-        if (ret && level.getBlockEntity(pos) instanceof MultiBlockEntity entity && !entity.isPlaced) {
-            fullBlockShape(center, state).forEach(blockPos -> MultiBlockEntity.setPlaced(level, blockPos));
+        if (ret && level.getBlockEntity(pos) instanceof ExtendedBlockEntity entity && !entity.isPlaced) {
+            fullBlockShape(center, state).forEach(blockPos -> ExtendedBlockEntity.setPlaced(level, blockPos));
         }
 
         return ret;
     }
 
     default BlockState updateShapeHelper(BlockState state, LevelAccessor level, BlockPos pos){
-        if (level.getBlockEntity(pos) instanceof MultiBlockEntity entity){
+        if (level.getBlockEntity(pos) instanceof ExtendedBlockEntity entity){
             boolean canSurvive = state.canSurvive(level, pos);
             if (!canSurvive){
                 destroy(entity.getCenter(), (Level) level, state);
@@ -115,7 +115,7 @@ public interface MultiBlock {
     }
 
     default boolean canSurviveHelper(BlockState state, LevelReader level, BlockPos pos, Block thisBlock){
-        if (level.getBlockEntity(pos) instanceof MultiBlockEntity entity){
+        if (level.getBlockEntity(pos) instanceof ExtendedBlockEntity entity){
             //survive logic
             boolean extraSurvive = fullBlockShape(entity.getCenter(), state).allMatch(blockPos -> extraSurviveRequirements(level, blockPos, state));
             return (allBlocksPresent(level, pos, state, thisBlock) || !entity.isPlaced) && extraSurvive;
@@ -132,20 +132,20 @@ public interface MultiBlock {
     }
 
     default void preventCreativeDrops(Player player, Level level, BlockPos pos){
-        if (player.isCreative() && level.getBlockEntity(pos) instanceof MultiBlockEntity entity) {
+        if (player.isCreative() && level.getBlockEntity(pos) instanceof ExtendedBlockEntity entity) {
             level.destroyBlock(entity.center, false);
         }
     }
 
     default BlockPos getCenter(LevelReader level, BlockPos pos){
-        if (level.getBlockEntity(pos) instanceof MultiBlockEntity entity){
+        if (level.getBlockEntity(pos) instanceof ExtendedBlockEntity entity){
             return entity.getCenter();
         }
         return pos;
     }
 
     default boolean isCenter(LevelReader level, BlockPos pos){
-        if (level.getBlockEntity(pos) instanceof MultiBlockEntity entity) {
+        if (level.getBlockEntity(pos) instanceof ExtendedBlockEntity entity) {
             return entity.getCenter().equals(pos);
         }
         return false;
@@ -154,7 +154,7 @@ public interface MultiBlock {
         Block block = blockState.getBlock();
         // This was originally using my own cropBlock, it may not work with the vanilla one idk
         if (block instanceof CropBlock cropBlock) {
-            if(level.getBlockEntity(blockPos) instanceof MultiBlockEntity entity) {
+            if(level.getBlockEntity(blockPos) instanceof ExtendedBlockEntity entity) {
                 fullBlockShape(entity.getCenter(), level.getBlockState(blockPos)).forEach(pos -> {
                     if(level.getBlockState(pos).is(block)) {
                         cropBlock.growCrops(level, pos, level.getBlockState(pos));

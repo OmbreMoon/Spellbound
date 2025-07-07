@@ -9,6 +9,8 @@ import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import com.ombremoon.spellbound.networking.clientbound.*;
 import com.ombremoon.spellbound.networking.serverbound.*;
 import com.ombremoon.spellbound.util.SpellUtil;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -16,6 +18,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -114,6 +117,10 @@ public class PayloadHandler {
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new SetRotationPayload(entity.getId(), xRot, yRot));
     }
 
+    public static void createParticles(LivingEntity entity, ParticleOptions particle, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new CreateParticlesPayload(particle, x, y, z, xSpeed, ySpeed, zSpeed));
+    }
+
     public static void addGlowEffect(Player player, int entityId) {
         PacketDistributor.sendToPlayer((ServerPlayer) player, new AddGlowEffectPayload(entityId));
     }
@@ -134,9 +141,13 @@ public class PayloadHandler {
         sendToAll(server, new UpdateMultiblocksPayload(multiblocks));
     }
 
-    public static void changeHailLevel(ServerLevel level, float hailLevel) {
-        PacketDistributor.sendToPlayersInDimension(level, new ChangeHailLevelPayload(hailLevel));
+    public static void clearMultiblock(MinecraftServer server, CompoundTag tag) {
+        sendToAll(server, new ClearMultiblockPayload(tag));
     }
+
+/*    public static void changeHailLevel(ServerLevel level, float hailLevel) {
+        PacketDistributor.sendToPlayersInDimension(level, new ChangeHailLevelPayload(hailLevel));
+    }*/
 
     public static <PACKET extends CustomPacketPayload> void sendToAll(MinecraftServer server, PACKET packet) {
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
@@ -200,6 +211,11 @@ public class PayloadHandler {
                 ClientPayloadHandler::handleClientSetRotation
         );
         registrar.playToClient(
+                CreateParticlesPayload.TYPE,
+                CreateParticlesPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleCreateParticles
+        );
+        registrar.playToClient(
                 RemoveGlowEffectPayload.TYPE,
                 RemoveGlowEffectPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleRemoveGlowEffect
@@ -228,6 +244,11 @@ public class PayloadHandler {
                 UpdateMultiblocksPayload.TYPE,
                 UpdateMultiblocksPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleUpdateMultiblocks
+        );
+        registrar.playToClient(
+                ClearMultiblockPayload.TYPE,
+                ClearMultiblockPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleClearMultiblock
         );
 
         registrar.playToServer(
