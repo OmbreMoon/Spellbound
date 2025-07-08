@@ -107,6 +107,13 @@ public class ElectricChargeSpell extends AnimatedSpell {
                 }
             }
         }
+
+
+        for (Integer entityId : this.entityIds) {
+            Entity entity = level.getEntity(entityId);
+            if (entity instanceof LivingEntity && entity.tickCount % 3 == 0)
+                this.createSurroundingParticles(entity, SBParticles.SPARK.get(), 1);
+        }
     }
 
     private void discharge(SpellContext context, LivingEntity target, boolean hasShard) {

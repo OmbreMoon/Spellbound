@@ -3,15 +3,13 @@ package com.ombremoon.spellbound.common.content.entity.spell;
 import com.ombremoon.sentinellib.api.Easing;
 import com.ombremoon.spellbound.common.content.entity.PortalEntity;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.StormRiftSpell;
-import com.ombremoon.spellbound.common.init.SBData;
-import com.ombremoon.spellbound.common.init.SBEffects;
+import com.ombremoon.spellbound.common.init.SBParticles;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -62,20 +60,31 @@ public class StormRift extends PortalEntity<StormRiftSpell> {
         if (this.tickCount <= 100)
             this.refreshDimensions();
 
-        if (this.tickCount > 100 && this.canRotate()) {
-            this.rotationTick++;
+        if (this.tickCount > 60) {
+            if (this.canRotate()) {
+                this.rotationTick++;
 
-            if (this.radius < 5)
-                this.radius += (float) this.delta;
+                if (this.radius < 5)
+                    this.radius += (float) this.delta;
 
-            BlockPos center = this.getCenter();
-            double x = center.getX();
-            double z = center.getZ();
-            double newX = x + this.radius * Math.cos(this.angle);
-            double newZ = z + this.radius * Math.sin(this.angle);
+                BlockPos center = this.getCenter();
+                double x = center.getX();
+                double z = center.getZ();
+                double newX = x + this.radius * Math.cos(this.angle);
+                double newZ = z + this.radius * Math.sin(this.angle);
 
-            this.angle += 0.1F;
-            this.setPos(newX, this.getY(), newZ);
+                this.angle += 0.1F;
+                this.setPos(newX, this.getY(), newZ);
+            }
+
+            this.level().addParticle(
+                    SBParticles.SPARK.get(),
+                    this.getRandomX(0.5),
+                    this.getRandomY() - 0.25,
+                    this.getRandomZ(0.5),
+                    (this.random.nextDouble() - 0.5) * 2.0,
+                    -this.random.nextDouble(),
+                    (this.random.nextDouble() - 0.5) * 2.0);
         }
 
         if (this.entityData.get(IMPLODE)) {

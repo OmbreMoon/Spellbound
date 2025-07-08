@@ -445,7 +445,6 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      */
     protected void onSpellTick(SpellContext context) {
 //        endSpell();
-        log(HailstormSavedData.get(this.level).isHailing());
     }
 
     /**
@@ -1080,6 +1079,20 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         Vec3 toPos = fromPos.add((double) xComponent * distance, (double) yComponent * distance,
                 (double) zComponent * distance);
         return new ClipContext(fromPos, toPos, ClipContext.Block.OUTLINE, fluidContext, livingEntity);
+    }
+
+    protected void createSurroundingParticles(Entity entity, ParticleOptions particle, double scale) {
+        double d0 = entity.getRandom().nextGaussian() * 0.02;
+        double d1 = entity.getRandom().nextGaussian() * 0.02;
+        double d2 = entity.getRandom().nextGaussian() * 0.02;
+        this.createParticles(
+                particle,
+                entity.getRandomX(scale),
+                entity.getRandomY(),
+                entity.getRandomZ(scale),
+                d0,
+                d1,
+                d2);
     }
 
     protected void createParticles(ParticleOptions particleData, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {

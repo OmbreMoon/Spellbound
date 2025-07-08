@@ -13,6 +13,7 @@ import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;
 import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -114,7 +115,12 @@ public class MysticArmorSpell extends AnimatedSpell {
                     SBSkills.CRYSTALLINE_ARMOR.value(),
                     BuffCategory.BENEFICIAL,
                     SkillBuff.ATTRIBUTE_MODIFIER,
-                    new ModifierData(Attributes.ARMOR, new AttributeModifier(CRYSTALLINE_ARMOR, caster.getArmorValue() * 1.25F, AttributeModifier.Operation.ADD_VALUE)));
+                    new ModifierData(Attributes.ARMOR, new AttributeModifier(CRYSTALLINE_ARMOR, 1.25F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)));
+
+        context.getLevel()
+                .playSeededSound(
+                        null, caster.getX(), caster.getY(), caster.getZ(), SoundEvents.ARMOR_EQUIP_NETHERITE, caster.getSoundSource(), 1.0F, 1.0F, caster.getRandom().nextLong()
+                );
     }
 
     @Override

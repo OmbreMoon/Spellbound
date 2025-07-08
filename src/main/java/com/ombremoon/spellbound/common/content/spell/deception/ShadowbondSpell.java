@@ -76,20 +76,22 @@ public class ShadowbondSpell extends AnimatedSpell {
         Entity target = context.getTarget();
         LivingEntity caster = context.getCaster();
         var skills = context.getSkills();
-        if (target == null) return;
+        if (target == null)
+            return;
+
         int id = target.getId();
         boolean flag = skills.hasSkill(SBSkills.SHADOW_CHAIN.value());
 
         if (id > 0) {
             if (context.isRecast() && !this.canReverse && flag && this.secondTarget == 0) {
                 this.secondTarget = id;
+                this.targetList.add(id);
             } else if (!context.isRecast() && this.firstTarget == 0){
                 this.firstTarget = id;
+                this.targetList.add(id);
             }
         }
 
-        this.targetList.add(this.firstTarget);
-        this.targetList.add(this.secondTarget);
         if (!level.isClientSide) {
             if (!this.canReverse) {
                 MobEffectInstance mobEffectInstance = new SBEffectInstance(caster, MobEffects.INVISIBILITY, -1, skills.hasSkill(SBSkills.OBSERVANT.value()), 0, false, false);
@@ -174,21 +176,26 @@ public class ShadowbondSpell extends AnimatedSpell {
 
         this.spawnTeleportParticles(first, 40);
         this.spawnTeleportParticles(second, 40);
+    }
 
-        first.level().playSound(null, first.xo, first.yo, first.zo, SoundEvents.ENDERMAN_TELEPORT, first.getSoundSource(), 1.0F, 1.0F);
-        first.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
+    private void chainTeleport(LivingEntity caster, LivingEntity first, LivingEntity second) {
+        Vec3 playerPos = caster.position();
+        Vec3 firstPos = first.position();
+        Vec3 secondPos = second.position();
+        caster.teleportTo(secondPos.x, secondPos.y, secondPos.z);
+        second.teleportTo(firstPos.x, firstPos.y, firstPos.z);
+        first.teleportTo(playerPos.x, playerPos.y, playerPos.z);
+
+        this.spawnTeleportParticles(caster, 40);
+        this.spawnTeleportParticles(first, 40);
+        this.spawnTeleportParticles(second, 40);
     }
 
     private void swapTargets(LivingEntity caster, Level level) {
-        Vec3 playerPos = caster.position();
         Entity entity = level.getEntity(this.firstTarget);
         Entity secondEntity = level.getEntity(this.secondTarget);
         if (entity instanceof LivingEntity living && secondEntity instanceof LivingEntity secondLiving) {
-            Vec3 firstPos = living.position();
-            Vec3 secondPos = secondLiving.position();
-            caster.teleportTo(secondPos.x, secondPos.y, secondPos.z);
-            secondEntity.teleportTo(firstPos.x, firstPos.y, firstPos.z);
-            living.teleportTo(playerPos.x, playerPos.y, playerPos.z);
+            chainTeleport(caster, living, secondLiving);
         } else if (entity instanceof LivingEntity living) {
             teleport(caster, living);
         } else if (secondEntity instanceof LivingEntity secondLiving) {
@@ -196,6 +203,9 @@ public class ShadowbondSpell extends AnimatedSpell {
         } else {
             endSpell();
         }
+
+        level.playSound(null, caster.xo, caster.yo, caster.zo, SoundEvents.ENDERMAN_TELEPORT, caster.getSoundSource(), 1.0F, 1.0F);
+        caster.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
     }
 
     private void handleSwapEffect(SpellContext context, LivingEntity caster, Level level, SkillHolder skills) {
@@ -261,15 +271,7 @@ public class ShadowbondSpell extends AnimatedSpell {
 
     private void spawnTeleportParticles(Entity entity ,int amount) {
         for (int j = 0; j < amount; j++) {
-            this.createParticles(
-                    ParticleTypes.PORTAL,
-                    entity.getRandomX(0.5),
-                    entity.getRandomY() - 0.25,
-                    entity.getRandomZ(0.5),
-                    (entity.getRandom().nextDouble() - 0.5) * 2.0,
-                    -entity.getRandom().nextDouble(),
-                    (entity.getRandom().nextDouble() - 0.5) * 2.0
-            );
+            this.createSurroundingParticles(entity, ParticleTypes.PORTAL, 0.5);
         }
     }
 

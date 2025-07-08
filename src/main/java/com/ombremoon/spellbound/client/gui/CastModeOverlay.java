@@ -46,8 +46,9 @@ public class CastModeOverlay implements LayeredDraw.Layer {
         int y = 30;
         guiGraphics.blit(MANA_BAR, guiGraphics.guiWidth() / 2 - 200, guiGraphics.guiHeight() - 20, 0, 0, 106, 16, 106, 28);
         guiGraphics.blit(MANA_BAR, guiGraphics.guiWidth() / 2 - 198, guiGraphics.guiHeight() - 15, 2, 18, RenderUtil.getScaledRender((int)Math.floor(player.getData(SBData.MANA)), (int)Math.floor(player.getAttributeValue(SBAttributes.MAX_MANA)), 103), 8, 106, 28);
+        int mana = Mth.floor(player.getData(SBData.MANA));
         guiGraphics.drawString(Minecraft.getInstance().font,
-                player.getData(SBData.MANA) + "/" + player.getAttribute(SBAttributes.MAX_MANA).getValue(),
+                mana + "/" + Mth.floor(player.getAttribute(SBAttributes.MAX_MANA).getValue()),
                 40,
                 guiGraphics.guiHeight() - 40,
                 8889187 ,

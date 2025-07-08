@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.client.event;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.gui.CastModeOverlay;
 import com.ombremoon.spellbound.client.gui.SpellSelectScreen;
+import com.ombremoon.spellbound.client.particle.SparkParticle;
 import com.ombremoon.spellbound.client.renderer.blockentity.SummonPortalRenderer;
 import com.ombremoon.spellbound.client.renderer.blockentity.TransfigurationDisplayRenderer;
 import com.ombremoon.spellbound.client.renderer.entity.*;
@@ -25,6 +26,8 @@ import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.particle.DustParticle;
+import net.minecraft.client.particle.HeartParticle;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -45,6 +48,12 @@ public class ClientEvents {
             event.register(KeyBinds.SWITCH_MODE_BINDING);
             event.register(KeyBinds.SELECT_SPELL_BINDING);
             event.register(KeyBinds.CYCLE_SPELL_BINDING);
+        }
+
+        @SubscribeEvent
+        public static void onRegisterParticles(RegisterParticleProvidersEvent event) {
+            event.registerSpriteSet(SBParticles.SPARK.get(), SparkParticle.Provider::new);
+            event.registerSpriteSet(SBParticles.GOLD_HEART.get(), HeartParticle.Provider::new);
         }
 
         @SubscribeEvent
