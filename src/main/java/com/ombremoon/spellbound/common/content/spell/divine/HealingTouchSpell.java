@@ -83,7 +83,7 @@ public class HealingTouchSpell extends AnimatedSpell {
         }
 
         for (int j = 0; j < 5; j++) {
-            this.createSurroundingParticles(caster, SBParticles.GOLD_HEART.get(), 1);
+            this.createSurroundingServerParticles(caster, SBParticles.GOLD_HEART.get(), 1);
         }
     }
 

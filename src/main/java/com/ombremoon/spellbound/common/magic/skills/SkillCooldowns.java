@@ -33,7 +33,8 @@ public class SkillCooldowns {
     }
 
     public void addCooldown(Skill skill, int ticks) {
-        this.cooldowns.put(skill, new Instance(this.tickCount, this.tickCount + ticks));
+        if (!this.isOnCooldown(skill))
+            this.cooldowns.put(skill, new Instance(this.tickCount, this.tickCount + ticks));
     }
 
     record Instance(int startTime, int endTime) {}

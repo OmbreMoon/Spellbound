@@ -34,10 +34,14 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -479,7 +483,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Called every tick while the caster is casting
+     * Called every tick while the caster is casting. Is expensive on performance, so use sparingly.
      * @param context The casting specific spells context
      * @param castTime The current cast tick
      */
@@ -603,7 +607,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Hurts the target entity. Should only be used for Ruin sub-path spells. Will fail otherwise. The damage type is determined by the sub-path of the spell.
+     * Hurts the target entity. The damage type is determined by the sub-path of the spell.
      * @param targetEntity The hurt entity
      * @param hurtAmount The amount of damage the entity takes
      * @return Whether the entity takes damage or not
@@ -611,7 +615,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     public boolean hurt(LivingEntity targetEntity, float hurtAmount) {
         SpellPath subPath = this.getSubPath();
         if (subPath == null)
-            return false;
+            return hurt(targetEntity, SBDamageTypes.SB_GENERIC, hurtAmount);;
 
         var effect = subPath.getEffect();
         if (effect == null)
@@ -621,7 +625,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Hurts the target entity by the pre-defined base damage of the spell. Should only be used for Ruin sub-path spells. Will fail otherwise. The damage type is determined by the sub-path of the spell.
+     * Hurts the target entity by the pre-defined base damage of the spell. The damage type is determined by the sub-path of the spell.
      * @param targetEntity The hurt entity
      * @return Whether the entity takes damage or not
      */
@@ -1085,7 +1089,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         double d0 = entity.getRandom().nextGaussian() * 0.02;
         double d1 = entity.getRandom().nextGaussian() * 0.02;
         double d2 = entity.getRandom().nextGaussian() * 0.02;
-        this.createParticles(
+        entity.level().addParticle(
                 particle,
                 entity.getRandomX(scale),
                 entity.getRandomY(),
@@ -1095,7 +1099,21 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
                 d2);
     }
 
-    protected void createParticles(ParticleOptions particleData, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+    protected void createSurroundingServerParticles(Entity entity, ParticleOptions particle, double scale) {
+        double d0 = entity.getRandom().nextGaussian() * 0.02;
+        double d1 = entity.getRandom().nextGaussian() * 0.02;
+        double d2 = entity.getRandom().nextGaussian() * 0.02;
+        this.createServerParticles(
+                particle,
+                entity.getRandomX(scale),
+                entity.getRandomY(),
+                entity.getRandomZ(scale),
+                d0,
+                d1,
+                d2);
+    }
+
+    protected void createServerParticles(ParticleOptions particleData, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
         if (!this.level.isClientSide)
             PayloadHandler.createParticles(this.caster, particleData, x, y, z, xSpeed, ySpeed, zSpeed);
     }
@@ -1112,7 +1130,6 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         if (list != null) {
             LivingEntity caster = !this.isInactive ? this.castContext.getCaster() : this.caster;
 
-            //WILL THIS BITE ME IN THE ASS EVENTUALLY?? Yes
             if (caster instanceof Player player)
                 PayloadHandler.setSpellData(player, getSpellType(), this.castId, list);
         }
@@ -1151,6 +1168,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
             var handler = SpellUtil.getSpellCaster(caster);
             boolean incrementId = true;
+            CompoundTag nbt = new CompoundTag();
             if (this.isRecast) {
                 AbstractSpell prevSpell;
 
@@ -1162,32 +1180,33 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
                 if (prevSpell != null) {
                     if (this.fullRecast) {
-                        if (!prevSpell.skipEndOnRecast(prevSpell.context))
-                            prevSpell.endSpell();
-
                         this.castId = 1;
+
+                        if (!prevSpell.skipEndOnRecast(prevSpell.context) && !prevSpell.equals(this))
+                            prevSpell.endSpell();
                     } else {
                         this.castId = prevSpell.castId + 1;
                     }
 
                     incrementId = false;
-                    CompoundTag nbt = prevSpell.saveData(new CompoundTag());
+                    nbt = prevSpell.saveData(new CompoundTag());
                     this.loadData(nbt);
                 }
             }
 
-            if (incrementId) this.castId++;
+            if (incrementId)
+                this.castId++;
 
             if (!(this.castPredicate.test(this.context, this) && RandomUtil.percentChance(getCastChance()))) {
                 onCastReset(this.context);
                 if (caster instanceof Player player)
-                    PayloadHandler.updateSpells(player, this.isRecast, this.castId, true);
+                    PayloadHandler.updateSpells(player, nbt, this.isRecast, this.castId, true);
 
                 return;
             }
 
             if (caster instanceof Player player) {
-                PayloadHandler.updateSpells(player, this.isRecast, this.castId, false);
+                PayloadHandler.updateSpells(player, nbt, this.isRecast, this.castId, false);
                 awardXp(this.manaCost * this.xpModifier);
                 player.awardStat(SBStats.SPELLS_CAST.get());
             }
@@ -1209,7 +1228,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param castId The specific numeric id for the spell instance
      * @param forceReset Whether the spell failed casting on the server
      */
-    public void clientInitSpell(LivingEntity caster, Level level, BlockPos blockPos, boolean isRecast, int castId, boolean forceReset) {
+    public void clientInitSpell(LivingEntity caster, Level level, BlockPos blockPos, CompoundTag spellData, boolean isRecast, int castId, boolean forceReset) {
         this.level = level;
         this.caster = caster;
         this.blockPos = blockPos;
@@ -1223,6 +1242,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         }
 
         this.castId = castId;
+
+        this.loadData(spellData);
         activateSpell();
         EventFactory.onSpellCast(caster, this, this.context);
 
@@ -1300,6 +1321,11 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     @Override
     public double getTick(Object object) {
         return this.ticks;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof AbstractSpell spell && spell.getSpellType() == this.getSpellType() && spell.castId == this.castId;
     }
 
     @Override

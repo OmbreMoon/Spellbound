@@ -104,12 +104,12 @@ public class StormRift extends PortalEntity<StormRiftSpell> {
                         6.0F,
                         false,
                         Level.ExplosionInteraction.BLOCK,
-                        ParticleTypes.EXPLOSION,
+                        SBParticles.SPARK.get(),
                         ParticleTypes.EXPLOSION_EMITTER,
                         SoundEvents.GENERIC_EXPLODE
                 );
                 if (this.handler != null) {
-                    List<LivingEntity> list = this.level().getEntitiesOfClass(LivingEntity.class,  new AABB(this.getX() - 6.0, this.getY() - 6.0, this.getZ() - 6.0, this.getX() + 6.0, this.getY() + 6.0, this.getZ() + 6.0), livingEntity -> !livingEntity.is(this.handler.caster));
+                    List<LivingEntity> list = this.level().getEntitiesOfClass(LivingEntity.class, new AABB(this.getX() - 6.0, this.getY() - 6.0, this.getZ() - 6.0, this.getX() + 6.0, this.getY() + 6.0, this.getZ() + 6.0), livingEntity -> !livingEntity.is(this.handler.caster));
                     for (LivingEntity livingEntity : list) {
                         this.handler.applyStormStrike(livingEntity, 100);
                     }

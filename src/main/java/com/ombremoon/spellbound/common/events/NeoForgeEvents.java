@@ -122,14 +122,11 @@ public class NeoForgeEvents {
     }
 
     @SubscribeEvent
-    public static void onHandlerTick(PlayerTickEvent.Post event) {
-        var handler = SpellUtil.getSpellCaster(event.getEntity());
-        handler.tick();
-    }
-
-    @SubscribeEvent
     public static void onPostEntityTick(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof LivingEntity entity) {
+            var handler = SpellUtil.getSpellCaster(entity);
+            handler.tick();
+
             EffectManager status = entity.getData(SBData.STATUS_EFFECTS);
             if (status.isInitialised()) status.tick(entity.tickCount);
 

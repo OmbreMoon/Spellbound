@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.content.spell.transfiguration;
 
+import com.ombremoon.spellbound.common.init.SBDamageTypes;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.init.SBSpells;
@@ -34,7 +35,8 @@ public class StrideSpell extends AnimatedSpell {
                 .duration(600)
                 .manaCost(12)
                 .hasLayer()
-                .fullRecast();
+                .fullRecast()
+                .skipEndOnRecast();
     }
 
     private int initialFoodLevel;
@@ -125,7 +127,7 @@ public class StrideSpell extends AnimatedSpell {
                     if (!isCaster(living) && !living.isAlliedTo(caster) && (caster.isSprinting() || flag && !living.is(caster.getVehicle()))) {
                         living.knockback(0.4, caster.getX() - living.getX(), caster.getZ() - living.getZ());
                         living.hurtMarked = true;
-                        this.hurt(living, level.damageSources().mobAttack(caster), 1.5F);
+                        this.hurt(living, SBDamageTypes.SB_GENERIC, 1.5F);
                     }
                 }
             }

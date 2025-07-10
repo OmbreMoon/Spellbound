@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.networking;
 
 import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockHolder;
+import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.api.SpellType;
@@ -27,6 +28,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Set;
@@ -81,8 +83,8 @@ public class PayloadHandler {
     public static void playAnimation(Player player, String animation) {
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getUUID().toString(), animation));
     }
-    public static void updateSpells(Player player, boolean isRecast, int castId, boolean forceReset) {
-        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new UpdateSpellsPayload(player.getUUID().toString(), isRecast, castId, forceReset));
+    public static void updateSpells(Player player, @Nullable CompoundTag spellData, boolean isRecast, int castId, boolean forceReset) {
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new UpdateSpellsPayload(player.getUUID().toString(), spellData, isRecast, castId, forceReset));
     }
 
     public static void endSpell(Player player, SpellType<?> spellType, int castId) {

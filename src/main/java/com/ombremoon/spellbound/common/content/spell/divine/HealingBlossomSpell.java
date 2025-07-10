@@ -93,7 +93,8 @@ public class HealingBlossomSpell extends AnimatedSpell {
                 PLAYER_DAMAGE,
                 this::onDamagePre);
 
-        if (skills.hasSkill(SBSkills.PETAL_SHIELD)) addSkillBuff(
+        if (skills.hasSkill(SBSkills.PETAL_SHIELD))
+            this.addSkillBuff(
                 context.getCaster(),
                 SBSkills.PETAL_SHIELD.value(),
                 BuffCategory.BENEFICIAL,
@@ -136,7 +137,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
         }
 
         //Damage is done separately to healing to sync with animation better
-        List<LivingEntity> effectedEntities = level.getEntitiesOfClass(LivingEntity.class, blossom.getBoundingBox().inflate(10));
+        List<LivingEntity> effectedEntities = level.getEntitiesOfClass(LivingEntity.class, blossom.getBoundingBox().inflate(5));
         if (skills.hasSkill(SBSkills.THORNY_VINES) && (ticks-8) % 31 == 0) {
             for (LivingEntity entity : effectedEntities) {
                 if (canAttack(entity))
@@ -154,7 +155,9 @@ public class HealingBlossomSpell extends AnimatedSpell {
         float healingAmount = 2f;
         for (LivingEntity entity : effectedEntities) {
             if (entity.is(caster)) {
-                if (skills.hasSkill(SBSkills.VERDANT_RENEWAL)) this.cleanseCaster();
+                if (skills.hasSkill(SBSkills.VERDANT_RENEWAL))
+                    this.cleanseCaster();
+
                 if (skills.hasSkill(SBSkills.FLOURISHING_GROWTH)) {
                     float maxHp = caster.getMaxHealth();
                     float currentHp = caster.getHealth();

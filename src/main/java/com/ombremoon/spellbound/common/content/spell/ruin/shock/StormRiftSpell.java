@@ -63,7 +63,9 @@ public class StormRiftSpell extends AnimatedSpell {
                     }
 
                     return true;
-                }).fullRecast().skipEndOnRecast();
+                })
+                .fullRecast()
+                .skipEndOnRecast();
     }
 
     private static final ResourceLocation MAGNETIC_FIELD = CommonClass.customLocation("magnetic_field");
