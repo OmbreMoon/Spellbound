@@ -16,7 +16,8 @@ import com.ombremoon.spellbound.common.events.custom.MobEffectEvent;
 import com.ombremoon.spellbound.common.events.custom.TickChunkEvent;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.EffectManager;
-import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.magic.acquisition.ArenaCache;
+import com.ombremoon.spellbound.common.magic.acquisition.ArenaSavedData;
 import com.ombremoon.spellbound.common.magic.acquisition.transfiguration.RitualSavedData;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
@@ -30,10 +31,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LightningBolt;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -54,7 +52,6 @@ import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.server.command.ConfigCommand;
 
 import java.util.List;
@@ -100,23 +97,44 @@ public class NeoForgeEvents {
                     var tree = player.getData(SBData.UPGRADE_TREE);
                     tree.update(player, tree.getUnlockedSkills());
 
-                    Level level = player.level();
-                    BlockPos blockPos = handler.getLastArenaPosition();
-                    if (handler.isArenaOwner(handler.getLastArenaEntered()) && blockPos != null && !level.dimension().location().getNamespace().equals(Constants.MOD_ID)) {
-                        blockPos = blockPos.offset(-4, 0, -4);
+                    ArenaCache cache = handler.getLastArena();
+                    Level arenaLevel = player.getServer().getLevel(cache.getArenaLevel());
+
+                    if (arenaLevel == null)
+                        return;
+
+                    BlockPos arenaPos = cache.getArenaPos();
+
+                    if (handler.isArenaOwner(cache.getArenaID()) && arenaPos != null && !ArenaSavedData.isArena(event.getLevel()) && cache.leftArena()) {
+                        arenaPos = arenaPos.offset(-4, 0, -4);
 
                         for (int i = 0; i < 5; i++) {
                             for (int j = 0; j < 5; j++) {
-                                BlockPos blockPos1 = blockPos.offset(i, 0, j);
-                                BlockState blockState = level.getBlockState(blockPos1);
+                                BlockPos blockPos1 = arenaPos.offset(i, 0, j);
+                                BlockState blockState = arenaLevel.getBlockState(blockPos1);
                                 if (blockState.is(SBBlocks.SUMMON_STONE.get()) || blockState.is(SBBlocks.SUMMON_PORTAL.get()))
-                                    level.setBlock(blockPos1, Blocks.AIR.defaultBlockState(), 3);
+                                    arenaLevel.setBlock(blockPos1, Blocks.AIR.defaultBlockState(), 3);
                             }
                         }
-                        handler.setLastArenaPosition(null);
-                        handler.closeArena(handler.getLastArenaEntered());
+                        handler.closeArena();
+                        handler.getLastArena().clearCache();
                     }
                 }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLeaveWorld(EntityLeaveLevelEvent event) {
+        Level level = event.getLevel();
+        if (event.getEntity() instanceof Player player && !level.isClientSide) {
+            var caster = SpellUtil.getSpellCaster(player);
+            caster.endSpells();
+
+            var cache = caster.getLastArena();
+            if (caster.isArenaOwner(cache.getArenaID()) && ArenaSavedData.isArena(level)) {
+                DimensionCreator.get().markDimensionForUnregistration(level.getServer(), level.dimension());
+                cache.leaveArena();
             }
         }
     }
@@ -128,7 +146,8 @@ public class NeoForgeEvents {
             handler.tick();
 
             EffectManager status = entity.getData(SBData.STATUS_EFFECTS);
-            if (status.isInitialised()) status.tick(entity.tickCount);
+            if (status.isInitialised())
+                status.tick(entity.tickCount);
 
             if (entity instanceof Player player) {
                 if (player.tickCount % 20 == 0) {
@@ -141,8 +160,11 @@ public class NeoForgeEvents {
                 }
             }
 
-            if (entity.hasEffect(SBEffects.STUNNED) || entity.hasEffect(SBEffects.ROOTED))
+            if (entity.hasEffect(SBEffects.STUNNED) || entity.hasEffect(SBEffects.ROOTED)) {
                 entity.setDeltaMovement(0, -entity.getGravity(), 0);
+                if (entity instanceof Mob mob)
+                    mob.getNavigation().stop();
+            }
         }
     }
 
@@ -267,18 +289,6 @@ public class NeoForgeEvents {
         Player player = event.getEntity();
         player.setData(SBData.MANA, player.getAttribute(SBAttributes.MAX_MANA).getValue());
         PayloadHandler.syncMana(player);
-    }
-
-    @SubscribeEvent
-    public static void onPlayerLeaveWorld(EntityLeaveLevelEvent event) {
-        Level level = event.getLevel();
-        if (event.getEntity() instanceof Player player && !level.isClientSide) {
-            var caster = SpellUtil.getSpellCaster(player);
-            caster.endSpells();
-
-            if (caster.isArenaOwner(caster.getLastArenaEntered()) && level.dimension().location().getNamespace().equals(Constants.MOD_ID))
-                DimensionCreator.get().markDimensionForUnregistration(level.getServer(), level.dimension());
-        }
     }
 
     @SubscribeEvent

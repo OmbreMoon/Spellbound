@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 import com.ombremoon.spellbound.common.init.SBAttributes;
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.init.SBEffects;
+import com.ombremoon.spellbound.common.magic.acquisition.ArenaCache;
 import com.ombremoon.spellbound.common.magic.acquisition.divine.PlayerDivineActions;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
@@ -23,11 +24,9 @@ import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -62,8 +61,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     private final Map<SkillBuff<?>, Integer> skillBuffs = new Object2IntOpenHashMap<>();
     private final Set<Integer> glowEntities = new IntOpenHashSet();
     private IntOpenHashSet openArenas = new IntOpenHashSet();
-    private int lastArenaEntered;
-    private BlockPos lastArenaPosition;
+    private final ArenaCache arenaCache = new ArenaCache();
     public int castTick;
     private boolean channelling;
     private int stationaryTicks;
@@ -224,7 +222,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
         if (this.equippedSpellSet.size() < 10)
             this.equippedSpellSet.add(spellType);
 
-        this.skillHolder.unlockSkill(spellType.getRootSkill());
+        this.skillHolder.unlockSkill(spellType.getRootSkill(), false);
         this.upgradeTree.addAll(spellType.getSkills());
         if (this.caster instanceof Player player) {
             this.upgradeTree.update(player, spellType.getSkills());
@@ -362,7 +360,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      */
     public void setSelectedSpell(SpellType<?> selectedSpell) {
         this.selectedSpell = selectedSpell;
-        this.currentlyCastingSpell = null;
+//        this.currentlyCastingSpell = null;
     }
 
     /**
@@ -382,26 +380,32 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     }
 
     public void addSkillBuff(SkillBuff<?> skillBuff, int ticks) {
-        for (SkillBuff<?> buff : this.skillBuffs.keySet()) {
-            if (buff.equals(skillBuff))
-                return;
-        }
+        this.removeSkillBuff(skillBuff);
+        int duration = this.caster.tickCount + ticks;
+        if (ticks == -1)
+            duration = -1;
 
-        if (!this.skillBuffs.containsKey(skillBuff)) {
-            int duration = this.caster.tickCount + ticks;
-            if (ticks == -1)
-                duration = -1;
+        skillBuff.addBuff(this.caster);
+        this.skillBuffs.put(skillBuff, duration);
 
-            skillBuff.addBuff(this.caster);
-            this.skillBuffs.put(skillBuff, duration);
-        }
+        if (this.caster instanceof Player player)
+            PayloadHandler.updateSkillBuff((ServerPlayer) player, skillBuff, ticks, false);
     }
 
     public void removeSkillBuff(SkillBuff<?> skillBuff) {
         if (this.skillBuffs.containsKey(skillBuff)) {
             skillBuff.removeBuff(this.caster);
             this.skillBuffs.remove(skillBuff);
+
+            if (this.caster instanceof Player player)
+                PayloadHandler.updateSkillBuff((ServerPlayer) player, skillBuff, 0, true);
         }
+    }
+
+    public void forceAddBuff(SkillBuff<?> skillBuff, int ticks) {
+        this.removeSkillBuff(skillBuff);
+        skillBuff.addBuff(this.caster);
+        this.skillBuffs.put(skillBuff, ticks);
     }
 
     public Set<SkillBuff<?>> getBuffs() {
@@ -536,24 +540,12 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
         this.openArenas.add(arenaId);
     }
 
-    public void closeArena(int arenaId) {
-        this.openArenas.remove(arenaId);
+    public void closeArena() {
+        this.openArenas.remove(this.arenaCache.getArenaID());
     }
 
-    public int getLastArenaEntered() {
-        return this.lastArenaEntered;
-    }
-
-    public void setLastArenaEntered(int lastArenaEntered) {
-        this.lastArenaEntered = lastArenaEntered;
-    }
-
-    public BlockPos getLastArenaPosition() {
-        return this.lastArenaPosition;
-    }
-
-    public void setLastArenaPosition(BlockPos lastArenaPosition) {
-        this.lastArenaPosition = lastArenaPosition;
+    public ArenaCache getLastArena() {
+        return this.arenaCache;
     }
 
     /**
@@ -628,24 +620,22 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
             }
         }
         compoundTag.put("OpenArenas", arenaList);
-        compoundTag.putInt("PortalId", this.lastArenaEntered);
-        if (this.lastArenaPosition != null)
-            BlockPos.CODEC.encodeStart(NbtOps.INSTANCE, this.lastArenaPosition).resultOrPartial(LOGGER::error).ifPresent(nbt -> compoundTag.put("PortalPos", nbt));
+        compoundTag.put("ArenaCache", this.arenaCache.serializeNBT(provider));
 
         return compoundTag;
     }
 
     @Override
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
-        if (nbt.contains("CastMode", 99)) {
+        if (nbt.contains("CastMode", 99))
             this.castMode = nbt.getBoolean("CastMode");
-        }
-        if (nbt.contains("Channeling", 99)) {
+
+        if (nbt.contains("Channeling", 99))
             this.channelling = nbt.getBoolean("Channeling");
-        }
-        if (nbt.contains("SelectedSpell", 8)) {
+
+        if (nbt.contains("SelectedSpell", 8))
             this.selectedSpell = AbstractSpell.getSpellByName(SpellUtil.getSpellId(nbt, "SelectedSpell"));
-        }
+
         if (nbt.contains("Spells", 9)) {
             ListTag spellList = nbt.getList("Spells", 10);
             Set<SpellType<?>> set = new ObjectOpenHashSet<>();
@@ -674,11 +664,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
             this.openArenas = set;
         }
 
-        if (nbt.contains("PortalId", 99)) {
-            this.lastArenaEntered = nbt.getInt("PortalId");
-        }
-
-        if (nbt.get("PortalPos") != null)
-            BlockPos.CODEC.parse(NbtOps.INSTANCE, nbt.get("PortalPos")).resultOrPartial(LOGGER::error).ifPresent(blockPos -> this.lastArenaPosition = blockPos);
+        this.arenaCache.deserializeNBT(provider, nbt);
     }
 }

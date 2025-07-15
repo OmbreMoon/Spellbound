@@ -31,7 +31,7 @@ import java.util.List;
 
 //TODO: ADD OPEN/CLOSE ANIMATIONS
 
-public class ShadowGateSpell extends AnimatedSpell {
+public class ShadowGateSpell extends AnimatedSpell implements RadialSpell {
     private static Builder<ShadowGateSpell> createShadowGateBuilder() {
         return createSimpleSpellBuilder(ShadowGateSpell.class)
                 .mastery(SpellMastery.ADEPT)
@@ -74,6 +74,9 @@ public class ShadowGateSpell extends AnimatedSpell {
             boolean hasReach = context.getSkills().hasSkill(SBSkills.REACH.value());
             this.summonEntity(context, SBEntities.SHADOW_GATE.get(), hasReach ? 100 : 50, shadowGate -> {
                 int maxPortals = skills.hasSkill(SBSkills.DUAL_DESTINATION.value()) ? 3 : 2;
+                if (context.getFlag() == 1)
+                    shadowGate.shift();
+
                 this.portalMap.createOrShiftPortal(shadowGate, maxPortals, 20);
             });
         }
@@ -138,12 +141,14 @@ public class ShadowGateSpell extends AnimatedSpell {
                                 }
 
                                 if (skills.hasSkill(SBSkills.BAIT_AND_SWITCH.value()) && !entity.isAlliedTo(caster)) {
-                                    this.hurt(entity, level.damageSources().magic(), 5);
+                                    this.hurt(entity, 5);
                                     SpellUtil.getSpellCaster(entity).consumeMana(5);
                                 }
 
-                                if (skills.hasSkill(SBSkills.GRAVITY_SHIFT.value())) {
-                                    ShadowGate adjacentGate = this.portalMap.getAdjacentPortal(shadowGate, level);
+                                ShadowGate adjacentGate = this.portalMap.getAdjacentPortal(shadowGate, level);
+                                if (adjacentGate.isShifted()) {
+//                                if (skills.hasSkill(SBSkills.GRAVITY_SHIFT.value())) {
+//                                    ShadowGate adjacentGate = this.portalMap.getAdjacentPortal(shadowGate, level);
                                     Vec3 lookVec = adjacentGate.getViewVector(1.0F);
                                     entity.setDeltaMovement(lookVec.x, 2, lookVec.z);
                                     entity.hurtMarked = true;

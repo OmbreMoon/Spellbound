@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.networking;
 
 import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockHolder;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.api.SpellType;
@@ -83,8 +84,13 @@ public class PayloadHandler {
     public static void playAnimation(Player player, String animation) {
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getUUID().toString(), animation));
     }
+
     public static void updateSpells(Player player, @Nullable CompoundTag spellData, boolean isRecast, int castId, boolean forceReset) {
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new UpdateSpellsPayload(player.getUUID().toString(), spellData, isRecast, castId, forceReset));
+    }
+
+    public static void updateSkillBuff(ServerPlayer player, SkillBuff<?> skillBuff, int duration, boolean removeBuff) {
+        PacketDistributor.sendToPlayer(player, new UpdateSkillBuffPayload(player.getId(), skillBuff, duration, removeBuff));
     }
 
     public static void endSpell(Player player, SpellType<?> spellType, int castId) {
@@ -176,6 +182,11 @@ public class PayloadHandler {
                 UpdateSpellsPayload.TYPE,
                 UpdateSpellsPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleClientUpdateSpells
+        );
+        registrar.playToClient(
+                UpdateSkillBuffPayload.TYPE,
+                UpdateSkillBuffPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleClientUpdateSkillBuff
         );
         registrar.playToClient(
                 SyncSpellPayload.TYPE,

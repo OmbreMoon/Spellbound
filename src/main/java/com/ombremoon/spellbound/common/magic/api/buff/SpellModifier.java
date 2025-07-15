@@ -5,7 +5,11 @@ import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.skills.ModifierSkill;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringRepresentable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,15 +17,17 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 /**
- * Used to modify certain attributes (specifically mana, duration, potency, or cast chance) of a spells or category of spells. Spell modifiers must be registered in the *insert event here* and used as parameters for {@link ModifierSkill}s.
+ * Used to modify certain attributes (specifically mana, duration, potency, or cast chance) of a spell or category of spells. Spell modifiers must be registered in the *insert event here* and used as parameters for {@link ModifierSkill}s.
  * @see SkillBuff#SPELL_MODIFIER
  * @param id The resource location of the spells modifier
  * @param modifierType The type of attribute that modifier affects
  * @param spellPredicate The condition necessary for the modifier to take effect
  * @param modifier The amount the attribute is modified by. Modifiers are <b><u>ALWAYS</u></b> multiplicative.
  */
-public record SpellModifier(ResourceLocation id, ModifierType modifierType, Predicate<SpellType<?>> spellPredicate, float modifier, Operation operation) {
+public record SpellModifier(ResourceLocation id, ModifierType modifierType, Predicate<SpellType<?>> spellPredicate, float modifier) {
     private static final Map<ResourceLocation, SpellModifier> MODIFIER_REGISTRY = new HashMap<>();
+    public static final StreamCodec<ByteBuf, SpellModifier> STREAM_CODEC = ResourceLocation.STREAM_CODEC
+            .map(SpellModifier::getTypeFromLocation, SpellModifier::id);
 
     public static final SpellModifier FEAR = registerModifier("fear", ModifierType.POTENCY, spellType -> true, 0.75F);
     public static final SpellModifier UNWANTED_GUESTS = registerModifier("unwanted_guests", ModifierType.POTENCY, spellType -> true, 0.9F);
@@ -33,7 +39,6 @@ public record SpellModifier(ResourceLocation id, ModifierType modifierType, Pred
     public static final SpellModifier DIVINE_BALANCE_MANA = registerModifier("divine_balance_mana", ModifierType.MANA, spell -> spell == SBSpells.HEALING_TOUCH.get(), 1.5F);
     public static final SpellModifier DIVINE_BALANCE_DURATION = registerModifier("divine_balance_duration", ModifierType.DURATION, spell -> spell == SBSpells.HEALING_TOUCH.get(), 2F);
     public static final SpellModifier SYNTHESIS = registerModifier("synthesis", ModifierType.MANA, spell -> spell == SBSpells.WILD_MUSHROOM.get(), 0F);
-    public static final SpellModifier EVERLASTING_BOND = registerModifier("everlasting_bond", ModifierType.DURATION, spell -> spell == SBSpells.SHADOWBOND.get(), 2F);
     public static final SpellModifier ENDURANCE = registerModifier("endurance", ModifierType.DURATION, spell -> spell == SBSpells.STRIDE.get(), 2F);
     public static final SpellModifier FORESIGHT = registerModifier("foresight", ModifierType.MANA, spell -> spell == SBSpells.MYSTIC_ARMOR.get(), 0.85F);
     public static final SpellModifier GALE_FORCE = registerModifier("gale_force", ModifierType.DURATION, spell -> spell == SBSpells.CYCLONE.get(), 2F);
@@ -41,11 +46,7 @@ public record SpellModifier(ResourceLocation id, ModifierType modifierType, Pred
     public static final SpellModifier UNFOCUSED = registerModifier("unfocused", ModifierType.POTENCY, spell -> true, 0.8F);
 
     private static SpellModifier registerModifier(String name, ModifierType type, Predicate<SpellType<?>> spellPredicate, float modifier) {
-        return registerModifier(name, type, spellPredicate, modifier, Operation.MULTIPLY);
-    }
-
-    private static SpellModifier registerModifier(String name, ModifierType type, Predicate<SpellType<?>> spellPredicate, float modifier, Operation operation) {
-        SpellModifier spellModifier = new SpellModifier(CommonClass.customLocation(name), type, spellPredicate, modifier, operation);
+        SpellModifier spellModifier = new SpellModifier(CommonClass.customLocation(name), type, spellPredicate, modifier);
         registerModifier(spellModifier);
         return spellModifier;
     }
@@ -70,21 +71,6 @@ public record SpellModifier(ResourceLocation id, ModifierType modifierType, Pred
             return true;
         } else {
             return other instanceof SpellModifier spellModifier && id().equals(spellModifier.id());
-        }
-    }
-
-    public enum Operation {
-        ADD((value, modifier) -> value + modifier),
-        MULTIPLY((value, modifier) -> value * modifier);
-
-        final BiFunction<Float, Float, Float> operator;
-
-        Operation(BiFunction<Float, Float, Float> operator) {
-            this.operator = operator;
-        }
-
-        public float modifierValue(float value, float modifier) {
-            return this.operator.apply(value, modifier);
         }
     }
 }

@@ -1,0 +1,35 @@
+
+{
+  "variants": {
+    "facing=east,powered=false": {
+      "model": "spellbound:block/conjure_spirit_totem_stone",
+      "y": 90
+    },
+    "facing=east,powered=true": {
+      "model": "spellbound:block/conjure_spirit_totem_stone",
+      "y": 90
+    },
+    "facing=north,powered=false": {
+      "model": "spellbound:block/conjure_spirit_totem_stone"
+    },
+    "facing=north,powered=true": {
+      "model": "spellbound:block/conjure_spirit_totem_stone"
+    },
+    "facing=south,powered=false": {
+      "model": "spellbound:block/conjure_spirit_totem_stone",
+      "y": 180
+    },
+    "facing=south,powered=true": {
+      "model": "spellbound:block/conjure_spirit_totem_stone",
+      "y": 180
+    },
+    "facing=west,powered=false": {
+      "model": "spellbound:block/conjure_spirit_totem_stone",
+      "y": 270
+    },
+    "facing=west,powered=true": {
+      "model": "spellbound:block/conjure_spirit_totem_stone",
+      "y": 270
+    }
+  }
+}

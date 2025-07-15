@@ -129,12 +129,11 @@ public class ShadowbondSpell extends AnimatedSpell {
         Level level = context.getLevel();
         var skills = context.getSkills();
         if (this.canReverse || this.isEarlyEnd()) {
-            swapTargets(caster, level);
+            swapTargets(context, caster, level, skills);
 
             if (this.isEarlyEnd()) {
+                this.setRemainingTicks(100);
                 this.canReverse = skills.hasSkill(SBSkills.REVERSAL.value()) && !this.targetList.isEmpty();
-                handleSwapEffect(context, caster, level, skills);
-
                 if (!this.canReverse)
                     endSpell();
             } else {
@@ -155,22 +154,26 @@ public class ShadowbondSpell extends AnimatedSpell {
                 this.targetList.remove(entityId);
         }
 
-        int extension = skills.hasSkill(SBSkills.EVERLASTING_BOND.value()) ? 200 : 100;
-        if (this.ticks == this.getDuration() - extension) {
-            swapTargets(caster, level);
-            handleSwapEffect(context, caster, level, skills);
-        } else if (this.ticks > this.getDuration() - extension) {
+        int remainder = this.getRemainingTime();
+        if (remainder == 100) {
+            swapTargets(context, caster, level, skills);
+        } else if (remainder < 100) {
             this.canReverse = skills.hasSkill(SBSkills.REVERSAL.value()) && !this.targetList.isEmpty();
         }
 
-        if (this.isEarlyEnd() && this.ticks >= 100) {
+        if (this.targetList.isEmpty())
             endSpell();
-        }
     }
 
     @Override
     protected void onSpellStop(SpellContext context) {
 
+    }
+
+    @Override
+    protected int getDuration(SpellContext context) {
+        var skills = context.getSkills();
+        return skills.hasSkill(SBSkills.EVERLASTING_BOND.value()) ? 500 :  super.getDuration(context);
     }
 
     private void teleport(LivingEntity first, LivingEntity second) {
@@ -196,9 +199,10 @@ public class ShadowbondSpell extends AnimatedSpell {
         this.spawnTeleportParticles(second, 40);
     }
 
-    private void swapTargets(LivingEntity caster, Level level) {
+    private void swapTargets(SpellContext context, LivingEntity caster, Level level, SkillHolder skills) {
         Entity entity = level.getEntity(this.firstTarget);
         Entity secondEntity = level.getEntity(this.secondTarget);
+        boolean flag = true;
         if (entity instanceof LivingEntity living && secondEntity instanceof LivingEntity secondLiving) {
             chainTeleport(caster, living, secondLiving);
         } else if (entity instanceof LivingEntity living) {
@@ -206,9 +210,11 @@ public class ShadowbondSpell extends AnimatedSpell {
         } else if (secondEntity instanceof LivingEntity secondLiving) {
             teleport(caster, secondLiving);
         } else {
-            endSpell();
-            return;
+            flag = false;
         }
+
+        if (flag)
+            handleSwapEffect(context, caster, level, skills);
 
         level.playSound(null, caster.xo, caster.yo, caster.zo, SoundEvents.ENDERMAN_TELEPORT, caster.getSoundSource(), 1.0F, 1.0F);
         caster.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
@@ -218,7 +224,7 @@ public class ShadowbondSpell extends AnimatedSpell {
         if (skills.hasSkill(SBSkills.SHADOW_STEP.value()))
             addSkillBuff(
                     caster,
-                    SBSkills.BLINK.value(),
+                    SBSkills.SHADOW_STEP.value(),
                     BuffCategory.BENEFICIAL,
                     SkillBuff.ATTRIBUTE_MODIFIER,
                     new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(CommonClass.customLocation("shadow_step"), 1.3F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
@@ -242,7 +248,6 @@ public class ShadowbondSpell extends AnimatedSpell {
                     100);
         }
 
-//        caster.removeEffect(MobEffects.INVISIBILITY);
         removeSkillBuff(caster, SBSkills.SHADOWBOND.value());
         for (Integer entityId : this.targetList) {
             Entity effectEntity = level.getEntity(entityId);

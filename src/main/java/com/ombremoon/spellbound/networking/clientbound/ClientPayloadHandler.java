@@ -56,10 +56,26 @@ public class ClientPayloadHandler {
 
             Player player = level.getPlayerByUUID(UUID.fromString(payload.playerId()));
             if (player != null) {
-                var handler = SpellUtil.getSpellCaster(player);
-                AbstractSpell spell = handler.getCurrentlyCastSpell();
+                var caster = SpellUtil.getSpellCaster(player);
+                AbstractSpell spell = caster.getCurrentlyCastSpell();
                 spell.clientInitSpell(player, level,player.getOnPos(), payload.spellData(), payload.isRecast(), payload.castId(), payload.forceReset());
-                handler.setCurrentlyCastingSpell(null);
+                caster.setCurrentlyCastingSpell(null);
+            }
+        });
+    }
+
+    public static void handleClientUpdateSkillBuff(UpdateSkillBuffPayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            var level = context.player().level();
+
+            Entity entity = level.getEntity(payload.entityId());
+            if (entity instanceof LivingEntity livingEntity) {
+                var caster = SpellUtil.getSpellCaster(livingEntity);
+                if (!payload.removeBuff()) {
+                    caster.forceAddBuff(payload.skillBuff(), payload.duration());
+                } else {
+                    caster.removeSkillBuff(payload.skillBuff());
+                }
             }
         });
     }

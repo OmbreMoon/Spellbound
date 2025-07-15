@@ -53,6 +53,10 @@ public class SpellType<S extends AbstractSpell> {
         return this.subPath;
     }
 
+    public SpellPath getIdentifiablePath() {
+        return this.getSubPath() != null ? this.getSubPath() : this.getPath();
+    }
+
     public Skill getRootSkill() {
         return this.availableSkills.isEmpty() ? null : this.getSkills().getFirst().getRoot();
     }

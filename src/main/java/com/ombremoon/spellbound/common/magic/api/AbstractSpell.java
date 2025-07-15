@@ -528,6 +528,10 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         this.ticks = Mth.clamp(this.getDuration() - ticks, 0, this.getDuration());
     }
 
+    public int getRemainingTime() {
+        return this.getDuration() - this.ticks;
+    }
+
     /**
      * Checks if the spells should tick. Can be used to start/stop spells effects in certain conditions
      * @param context The spells context
@@ -642,7 +646,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     public float getModifiedDamage(LivingEntity ownerEntity, float amount) {
         var skills = SpellUtil.getSkills(ownerEntity);
         var effects = SpellUtil.getSpellEffects(this.caster);
-        SpellPath path = this.getPath() == SpellPath.RUIN ? this.getSubPath() : this.getPath();
+        SpellPath path = this.getSpellType().getIdentifiablePath();
         float levelDamage = amount * (1.0F + SPELL_LEVEL_DAMAGE_MODIFIER * skills.getSpellLevel(getSpellType()));
         float judgementFactor = this.getPath() == SpellPath.DIVINE ? effects.getJudgementFactor(this.negativeScaling.test(this.context)) : 1.0F;
         levelDamage *= 1 + PATH_LEVEL_DAMAGE_MODIFIER * ((float) skills.getPathLevel(path) / 100) * judgementFactor;
@@ -714,7 +718,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param <T> The buff
      */
     public <T> void addSkillBuff(LivingEntity livingEntity, Skill skill, BuffCategory buffCategory, SkillBuff.BuffObject<T> buffObject, T skillObject, int duration) {
-        if (checkForCounterMagic(livingEntity) && buffCategory == BuffCategory.HARMFUL) return;
+        if (livingEntity.level().isClientSide || checkForCounterMagic(livingEntity) && buffCategory == BuffCategory.HARMFUL) return;
         SkillBuff<T> skillBuff = new SkillBuff<>(skill, buffCategory, buffObject, skillObject);
         var handler = SpellUtil.getSpellCaster(livingEntity);
         handler.addSkillBuff(skillBuff, duration);
@@ -750,11 +754,14 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
     public void removeSkillBuff(LivingEntity livingEntity, Skill skill) {
         var handler = SpellUtil.getSpellCaster(livingEntity);
-        var buffs = handler.getBuffs().stream().filter(skillBuff -> skillBuff.isSkill(skill)).collect(Collectors.toSet());
+        var buffs = handler.getBuffs().stream().filter(skillBuff -> skillBuff.isSkill(skill)).toList();
         this.removeSkillBuff(livingEntity, skill, buffs.size());
     }
 
     private void removeSkillBuff(LivingEntity livingEntity, Skill skill, int iterations) {
+        if (livingEntity.level().isClientSide)
+            return;
+
         for (int i = 0; i < iterations; i++) {
             var handler = SpellUtil.getSpellCaster(livingEntity);
             var optional = handler.getSkillBuff(skill);
@@ -797,12 +804,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         var skills = SpellUtil.getSkills(livingEntity);
         float f = 1;
         for (var modifier : skills.getModifiers()) {
-            if (modifierType.equals(modifier.modifierType()) && modifier.spellPredicate().test(getSpellType())) {
-                if (f == 1 && modifier.operation() == SpellModifier.Operation.ADD)
-                    f = 0;
-
-                f = modifier.operation().modifierValue(f, modifier.modifier());
-            }
+            if (modifierType.equals(modifier.modifierType()) && modifier.spellPredicate().test(getSpellType()))
+                f *= modifier.modifier();
         }
         return f;
     }
@@ -938,7 +941,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     public boolean checkForCounterMagic(LivingEntity targetEntity) {
-        return targetEntity.hasEffect(SBEffects.COUNTER_MAGIC);
+        return targetEntity.hasEffect(SBEffects.COUNTER_MAGIC) || targetEntity instanceof Player player && player.isCreative();
     }
 
     /**
@@ -962,6 +965,9 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param ticks The amount of ticks the cooldown will last
      */
     protected void addCooldown(Holder<Skill> skill, int ticks) {
+        if (this.caster instanceof Player player && player.isCreative())
+            return;
+
         this.context.getSkills().getCooldowns().addCooldown(skill.value(), ticks);
     }
 

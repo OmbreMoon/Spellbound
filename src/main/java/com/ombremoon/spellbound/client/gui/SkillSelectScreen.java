@@ -20,6 +20,7 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
+import java.util.Arrays;
 import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
@@ -77,8 +78,8 @@ public class SkillSelectScreen extends Screen {
         super.init();
         this.x = (float) this.width / 2;
         this.y = (float) this.height / 2;
-        for (int i = 0; i < this.radialSkills.size(); i++) {
-            this.items.add(skillItems[i]);
+        if (this.items.isEmpty()) {
+            this.items.addAll(Arrays.asList(skillItems).subList(0, this.radialSkills.size()));
         }
     }
 

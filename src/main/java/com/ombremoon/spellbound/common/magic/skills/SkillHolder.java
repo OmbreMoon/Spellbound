@@ -18,6 +18,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -88,6 +89,8 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
         if (newLevel > level && newLevel > 0) {
             NeoForge.EVENT_BUS.post(new SpellLevelUpEvent(this.caster, spellType, newLevel));
             this.awardSkillPoints(spellType, this.getSkillPoints(spellType) + (newLevel - level));
+            float f = newLevel > 10 ? 1.0F : (float)newLevel / 10.0F;
+            caster.level().playSound(null, caster.getX(), caster.getY(), caster.getZ(), SoundEvents.PLAYER_LEVELUP, caster.getSoundSource(), f * 0.75F, 1.0F);
         }
         sync();
     }
@@ -113,7 +116,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
         }
     }
 
-    public void unlockSkill(Skill skill) {
+    public void unlockSkill(Skill skill, boolean consumePoints) {
         SpellType<?> spellType = skill.getSpell();
         Set<Skill> unlocked = this.unlockedSkills.get(spellType);
         if (unlocked == null)
@@ -128,7 +131,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
         if (skill instanceof ModifierSkill modifierSkill)
             this.permanentModifiers.addAll(modifierSkill.getModifiers());
 
-        this.skillPoints.put(spellType, skill.isRoot() ? 0 : this.getSkillPoints(spellType) - 1);
+        this.awardSkillPoints(spellType, skill.isRoot() || !consumePoints ? 0 : -1);
     }
 
     public boolean canUnlockSkill(Skill skill) {
@@ -138,7 +141,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
 
         Set<Skill> unlocked = unlockedSkills.get(spellType);
         if (unlocked == null) return false;
-//        if (unlocked.size() > MAX_SPELL_LEVEL + 1) return false;
+        if (unlocked.size() > MAX_SPELL_LEVEL + 1) return false;
         if (!skill.canUnlockSkill((Player) this.caster, this)) return false;
         if (this.getSkillPoints(spellType) <= 0) return false;
 

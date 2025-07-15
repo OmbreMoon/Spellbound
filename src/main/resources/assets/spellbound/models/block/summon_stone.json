@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "spellbound:block/summon_stone_bottom",
+    "east": "spellbound:block/summon_stone",
+    "north": "spellbound:block/summon_stone",
+    "particle": "spellbound:block/summon_stone",
+    "south": "spellbound:block/summon_stone",
+    "up": "spellbound:block/summon_stone",
+    "west": "spellbound:block/summon_stone"
+  }
+}

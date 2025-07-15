@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.content.spell.ruin.fire;
 
+import com.ombremoon.sentinellib.Constants;
 import com.ombremoon.sentinellib.api.box.AABBSentinelBox;
 import com.ombremoon.sentinellib.api.box.OBBSentinelBox;
 import com.ombremoon.sentinellib.api.box.SentinelBox;
@@ -25,11 +26,14 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.OwnableEntity;
+import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.util.RandomUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -90,6 +94,7 @@ public class SolarRaySpell extends ChanneledSpell {
             .typeDamage(SBDamageTypes.RUIN_FIRE, POTENCY).build();
     public static final OBBSentinelBox SOLAR_BURST_END = createSolarBurstEnd(false);
     public static final OBBSentinelBox SOLAR_BURST_END_EXTENDED = createSolarBurstEnd(true);
+    private static final Logger log = LoggerFactory.getLogger(SolarRaySpell.class);
     private final Set<LivingEntity> concentratedHeatSet = new ObjectOpenHashSet<>();
     private final Map<LivingEntity, Integer> heatTracker = new Object2IntOpenHashMap<>();
 
@@ -211,7 +216,10 @@ public class SolarRaySpell extends ChanneledSpell {
                 .moverType(SentinelBox.MoverType.HEAD_NO_X)
                 .noDuration(entity -> false)
                 .activeTicks((entity, integer) -> integer % 10 == 1)
-                .attackCondition((entity, livingEntity) -> !entity.isAlliedTo(livingEntity) || !livingEntity.hasEffect(SBEffects.COUNTER_MAGIC) || (livingEntity instanceof OwnableEntity ownable && ownable.getOwner() != entity))
+                .attackCondition((entity, livingEntity) -> {
+//                    Constants.LOG.info("{}", ((OwnableEntity)livingEntity).getOwner() == entity);
+                    return !livingEntity.isAlliedTo(entity) && !livingEntity.hasEffect(SBEffects.COUNTER_MAGIC) && !(livingEntity instanceof OwnableEntity ownable && ownable.getOwner() == (entity));
+                })
                 .onCollisionTick((entity, living) -> {
                     if (entity instanceof LivingEntity livingEntity) {
                         var skills = SpellUtil.getSkills(livingEntity);

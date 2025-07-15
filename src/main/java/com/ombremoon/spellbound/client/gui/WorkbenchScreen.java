@@ -159,7 +159,7 @@ public class WorkbenchScreen extends Screen {
                     if (widget.isMouseOver(i, j, mouseX - this.leftPos - 98, mouseY - this.topPos - 18)) {
                         Skill skill = widget.getSkill();
                         if (this.skillHolder.canUnlockSkill(skill)) {
-                            this.skillHolder.unlockSkill(skill);
+                            this.skillHolder.unlockSkill(skill, true);
                             PayloadHandler.unlockSkill(skill);
                             return true;
                         }

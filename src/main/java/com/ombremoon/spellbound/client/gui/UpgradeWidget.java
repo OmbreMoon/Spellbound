@@ -44,7 +44,7 @@ public class UpgradeWidget {
         this.x = skillNode.skill().getX();
         this.y = -skillNode.skill().getY();
         int j = 29 + minecraft.font.width(this.title);
-        SpellPath path = getSkill().getSpell().getSubPath() != null ? getSkill().getSpell().getSubPath() : getSkill().getSpell().getPath();
+        SpellPath path = getSkill().getSpell().getIdentifiablePath();
         this.color = path.getColor();
         this.description = Language.getInstance()
                 .getVisualOrder(

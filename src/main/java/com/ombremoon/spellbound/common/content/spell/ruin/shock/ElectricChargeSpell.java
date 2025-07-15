@@ -222,10 +222,10 @@ public class ElectricChargeSpell extends AnimatedSpell {
 
     private void spawnDischargeParticles(Entity entity) {
         for (int i = 0; i < 25; i++) {
-            double d0 = entity.getX() + (entity.getRandom().nextDouble() - entity.getRandom().nextDouble()) * 4.0;
-            double d1 = entity.getY() + (entity.getRandom().nextDouble() - entity.getRandom().nextDouble()) * 4.0;
-            double d2 = entity.getZ() + (entity.getRandom().nextDouble() - entity.getRandom().nextDouble()) * 4.0;
-            this.createServerParticles(SBParticles.SPARK.get(), d0, d1, d2, 1, 0.0, 0.0);
+            double d0 = entity.getRandom().nextFloat() * 0.4;
+            double d1 = entity.getRandom().nextFloat() * 0.4;
+            double d2 = entity.getRandom().nextFloat() * 0.4;
+            this.createServerParticles(SBParticles.SPARK.get(), entity.xo, entity.getY(), entity.zo, d0, d1, d2);
         }
     }
 

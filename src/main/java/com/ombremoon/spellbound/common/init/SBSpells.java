@@ -126,7 +126,7 @@ public class SBSpells {
     }
 
     private static <T extends AbstractSpell> SpellType.Builder<T> summonBuilder(String name, SpellType.SpellFactory<T> factory) {
-        SBBlocks.registerSummonStone(name + "_summon_stone", name);
+        SBBlocks.registerSummonStone(name + "_stone", name);
         return new SpellType.Builder<>(name, factory).setPath(SpellPath.SUMMONS);
     }
 

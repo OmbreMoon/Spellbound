@@ -1062,8 +1062,9 @@
     "spellbound:arcanthus",
     "spellbound:divine_shrine",
     "spellbound:summon_stone",
+    "spellbound:cracked_summon_stone",
     "spellbound:summon_portal",
-    "spellbound:wild_mushroom_summon_stone",
-    "spellbound:conjure_spirit_totem_summon_stone"
+    "spellbound:wild_mushroom_stone",
+    "spellbound:conjure_spirit_totem_stone"
   ]
 }

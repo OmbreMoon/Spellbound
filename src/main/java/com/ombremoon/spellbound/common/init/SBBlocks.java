@@ -29,18 +29,23 @@ public class SBBlocks {
             .pushReaction(PushReaction.DESTROY)
             .noLootTable()
             .noOcclusion()));
-    public static final Supplier<SummonStoneBlock> SUMMON_STONE = registerBlock("summon_stone", () -> new SummonStoneBlock(BlockBehaviour.Properties.of()));
-    public static final Supplier<SummonPortalBlock> SUMMON_PORTAL = registerBlock("summon_portal", () ->
-            new SummonPortalBlock(BlockBehaviour.Properties.of()
-                    .mapColor(MapColor.COLOR_BLACK)
-                    .noCollission()
-                    .lightLevel(state -> 15)
-                    .strength(-1.0F, 3600000.0F)
-                    .noLootTable()
-                    .pushReaction(PushReaction.BLOCK)), false);
+    public static final Supplier<SummonStoneBlock> SUMMON_STONE = registerBlock("summon_stone", () -> new SummonStoneBlock(BlockBehaviour.Properties.of()
+            .lightLevel(state -> state.getValue(SummonStoneBlock.POWERED) ? 13 : 0)));
+    public static final Supplier<Block> CRACKED_SUMMON_STONE = registerSimpleBlock("cracked_summon_stone");
+    public static final Supplier<SummonPortalBlock> SUMMON_PORTAL = registerBlock("summon_portal", () -> new SummonPortalBlock(BlockBehaviour.Properties.of()
+            .mapColor(MapColor.COLOR_BLACK)
+            .noCollission()
+            .lightLevel(state -> 15)
+            .strength(-1.0F, 3600000.0F)
+            .noLootTable()
+            .pushReaction(PushReaction.BLOCK)), false);
 
     public static void registerSummonStone(String name, String spell) {
         registerBlock(name, () -> new SummonStoneBlock(CommonClass.customLocation(spell), BlockBehaviour.Properties.of()));
+    }
+
+    private static DeferredBlock<Block> registerSimpleBlock(String name) {
+        return registerBlock(name, () -> new Block(BlockBehaviour.Properties.of()), true);
     }
 
     private static <T extends Block> DeferredBlock<T> registerBlock(String name, Supplier<T> block) {

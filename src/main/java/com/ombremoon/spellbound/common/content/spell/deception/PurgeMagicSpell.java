@@ -63,7 +63,7 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
             for (LivingEntity target : targets) {
                 var targetHandler = SpellUtil.getSpellCaster(target);
                 var activeSpells = targetHandler.getActiveSpells();
-                targetHandler.getBuffs().forEach(skillBuff -> removeSkillBuff(target, skillBuff.getSkill()));
+                targetHandler.getBuffs().stream().filter(SkillBuff::isBeneficial).forEach(skillBuff -> removeSkillBuff(target, skillBuff.skill()));
                 for (AbstractSpell spell : activeSpells) {
                     spell.endSpell();
                 }
