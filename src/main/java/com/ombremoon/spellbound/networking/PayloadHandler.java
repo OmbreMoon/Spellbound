@@ -61,10 +61,6 @@ public class PayloadHandler {
         PacketDistributor.sendToServer(new CastStartPayload(spellType, recast));
     }
 
-    public static void whenCasting(SpellType<?> spellType, int castTime, boolean recast) {
-        PacketDistributor.sendToServer(new CastingPayload(spellType, castTime, recast));
-    }
-
     public static void castReset(SpellType<?> spellType, boolean recast) {
         PacketDistributor.sendToServer(new CastResetPayload(spellType, recast));
     }
@@ -91,6 +87,10 @@ public class PayloadHandler {
 
     public static void updateSkillBuff(ServerPlayer player, SkillBuff<?> skillBuff, int duration, boolean removeBuff) {
         PacketDistributor.sendToPlayer(player, new UpdateSkillBuffPayload(player.getId(), skillBuff, duration, removeBuff));
+    }
+
+    public static void setChargeOrChannel(Player player, boolean isChargingOrChanneling) {
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new ChargeOrChannelPayload(isChargingOrChanneling));
     }
 
     public static void endSpell(Player player, SpellType<?> spellType, int castId) {
@@ -293,11 +293,6 @@ public class PayloadHandler {
                 CastStartPayload.TYPE,
                 CastStartPayload.STREAM_CODEC,
                 ServerPayloadHandler::handleNetworkCastStart
-        );
-        registrar.playToServer(
-                CastingPayload.TYPE,
-                CastingPayload.STREAM_CODEC,
-                ServerPayloadHandler::handleNetworkCasting
         );
         registrar.playToServer(
                 CastResetPayload.TYPE,

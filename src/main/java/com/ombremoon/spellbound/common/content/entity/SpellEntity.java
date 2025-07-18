@@ -178,7 +178,7 @@ public abstract class SpellEntity<T extends AbstractSpell> extends Entity implem
     }
 
     public boolean hasOwner() {
-        return getOwner() != null;
+        return getOwner() != null && getOwner().isAlive();
     }
 
     @Override

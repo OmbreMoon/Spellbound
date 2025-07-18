@@ -30,10 +30,10 @@ public class StormstrikeEffect extends SBEffect {
             var skills = SpellUtil.getSkills(owner);
             StormstrikeSpell spell = SBSpells.STORMSTRIKE.get().createSpell();
 
-            if (skills.hasSkill(SBSkills.CHARGED_ATMOSPHERE.value()))
+            if (skills.hasSkill(SBSkills.CHARGED_ATMOSPHERE))
                 spell.addSkillBuff(
                         owner,
-                        SBSkills.CHARGED_ATMOSPHERE.value(),
+                        SBSkills.CHARGED_ATMOSPHERE,
                         BuffCategory.BENEFICIAL,
                         SkillBuff.SPELL_MODIFIER,
                         SpellModifier.CHARGED_ATMOSPHERE,
@@ -47,16 +47,17 @@ public class StormstrikeEffect extends SBEffect {
         Entity entity = livingEntity.level().getEntity(ownerId);
         float damage = 2F;
         if (entity instanceof LivingEntity owner) {
+            var caster = SpellUtil.getSpellCaster(owner);
             var skills = SpellUtil.getSkills(owner);
             StormstrikeSpell spell = SBSpells.STORMSTRIKE.get().createSpellWithData(owner);
 
-            if (skills.hasSkill(SBSkills.SHOCK_FACTOR.value()))
-                damage += (float) (livingEntity.getData(SBData.MANA) * 0.01F);
+            if (skills.hasSkill(SBSkills.SHOCK_FACTOR))
+                damage += (float) (caster.getMana() * 0.01F);
 
-            if (skills.hasSkill(SBSkills.PURGE.value()) && SpellUtil.isSummon(livingEntity) && !SpellUtil.isSummonOf(livingEntity, owner))
-                damage += (float) (livingEntity.getData(SBData.MANA) * 0.1F);
+            if (skills.hasSkill(SBSkills.PURGE) && SpellUtil.isSummon(livingEntity) && !SpellUtil.isSummonOf(livingEntity, owner))
+                damage += (float) (caster.getMana() * 0.1F);
 
-            if (skills.hasSkill(SBSkills.DISCHARGE.value())) {
+            if (skills.hasSkill(SBSkills.DISCHARGE)) {
                 ItemStack itemStack = livingEntity.getItemBySlot(EquipmentSlot.MAINHAND);
                 if (!itemStack.isEmpty() && RandomUtil.percentChance(0.2)) {
                     if (livingEntity instanceof Player player) {
@@ -67,20 +68,20 @@ public class StormstrikeEffect extends SBEffect {
                 }
             }
 
-            if (skills.hasSkill(SBSkills.PULSATION.value()) && RandomUtil.percentChance(0.1))
+            if (skills.hasSkill(SBSkills.PULSATION) && RandomUtil.percentChance(0.1))
                 livingEntity.addEffect(new MobEffectInstance(SBEffects.STUNNED, 20, 0, false, false));
 
             if (spell.hurt(livingEntity, damage)) {
                 if (livingEntity.isDeadOrDying()) {
                     if (skills.hasSkillReady(SBSkills.STORM_SHARD) && owner instanceof Player player) {
                         player.addItem(new ItemStack(SBItems.STORM_SHARD.get()));
-                        skills.getCooldowns().addCooldown(SBSkills.STORM_SHARD.value(), 600);
+                        skills.getCooldowns().addCooldown(SBSkills.STORM_SHARD, 600);
                     }
 
-                    if (skills.hasSkill(SBSkills.SUPERCHARGE.value()))
+                    if (skills.hasSkill(SBSkills.SUPERCHARGE))
                         spell.addSkillBuff(
                                 owner,
-                                SBSkills.SUPERCHARGE.value(),
+                                SBSkills.SUPERCHARGE,
                                 BuffCategory.BENEFICIAL,
                                 SkillBuff.SPELL_MODIFIER,
                                 SpellModifier.SUPERCHARGE,
@@ -103,7 +104,7 @@ public class StormstrikeEffect extends SBEffect {
             var skills = SpellUtil.getSkills(owner);
             StormstrikeSpell spell = SBSpells.STORMSTRIKE.get().createSpell();
 
-            if (skills.hasSkill(SBSkills.REFRACTION.value()) && damageSource.is(SBDamageTypes.RUIN_SHOCK) && damageSource.getEntity() != null && damageSource.getEntity().is(owner))
+            if (skills.hasSkill(SBSkills.REFRACTION) && damageSource.is(SBDamageTypes.RUIN_SHOCK) && damageSource.getEntity() != null && damageSource.getEntity().is(owner))
                 handler.awardMana(20 + skills.getSpellLevel(spell.getSpellType()) * 2);
         }
     }

@@ -62,7 +62,7 @@ public abstract class AnimatedSpell extends AbstractSpell {
             return this;
         }
 
-        public Builder<T> baseDamage(int baseDamage) {
+        public Builder<T> baseDamage(float baseDamage) {
             this.baseDamage = baseDamage;
             return this;
         }

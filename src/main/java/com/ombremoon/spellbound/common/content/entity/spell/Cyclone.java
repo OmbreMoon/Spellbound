@@ -234,7 +234,7 @@ public class Cyclone extends SpellEntity<CycloneSpell> {
                                     spell.hurt(livingEntity, SBDamageTypes.RUIN_FROST, 4.0F);
                                     spell.addSkillBuff(
                                             livingEntity,
-                                            SBSkills.PURSUIT.value(),
+                                            SBSkills.PURSUIT,
                                             BuffCategory.HARMFUL,
                                             SkillBuff.ATTRIBUTE_MODIFIER,
                                             new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(FROSTFRONT, 0.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),

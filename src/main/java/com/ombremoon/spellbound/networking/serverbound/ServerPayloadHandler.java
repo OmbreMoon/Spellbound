@@ -52,12 +52,6 @@ public class ServerPayloadHandler {
         spell.onCastStart(spell.getCastContext());
     }
 
-    public static void handleNetworkCasting(final CastingPayload payload, final IPayloadContext context) {
-        var handler = SpellUtil.getSpellCaster(context.player());
-        AbstractSpell spell = handler.getCurrentlyCastSpell();
-        spell.whenCasting(spell.getCastContext(), payload.castTime());
-    }
-
     public static void handleNetworkCastReset(final CastResetPayload payload, final IPayloadContext context) {
         var handler = SpellUtil.getSpellCaster(context.player());
         AbstractSpell spell = handler.getCurrentlyCastSpell();

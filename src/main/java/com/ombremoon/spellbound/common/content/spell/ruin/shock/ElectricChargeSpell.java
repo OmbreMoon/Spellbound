@@ -75,7 +75,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
         Level level = context.getLevel();
         var skills = context.getSkills();
         boolean hasShard = context.hasCatalyst(SBItems.STORM_SHARD.get());
-        if (skills.hasSkill(SBSkills.AMPLIFY.value())) {
+        if (skills.hasSkill(SBSkills.AMPLIFY)) {
             context.getSpellHandler().setChargingOrChannelling(true);
             return;
         }
@@ -102,11 +102,13 @@ public class ElectricChargeSpell extends AnimatedSpell {
         var handler = context.getSpellHandler();
         var skills = context.getSkills();
         boolean hasShard = context.hasCatalyst(SBItems.STORM_SHARD.get());
-        if (skills.hasSkill(SBSkills.AMPLIFY.value())) {
+        if (skills.hasSkill(SBSkills.AMPLIFY)) {
             if ((context.isRecast() && context.getTarget() == null) || this.discharged) {
                 this.discharging = true;
                 if (handler.isChargingOrChannelling()) {
                     incrementTick();
+                    if (!level.isClientSide && this.ticks % 20 == 0)
+                        drainMana(context.getCaster(), 3);
                 } else {
                     for (Integer entityId : this.entityIds) {
                         Entity entity = level.getEntity(entityId);
@@ -154,34 +156,34 @@ public class ElectricChargeSpell extends AnimatedSpell {
                     if (skills.hasSkill(SBSkills.STORM_SURGE))
                         handler.awardMana(10 + (skills.getSpellLevel(getSpellType()) * 2));
 
-                    if (skills.hasSkill(SBSkills.UNLEASHED_STORM.value())) {
+                    if (skills.hasSkill(SBSkills.UNLEASHED_STORM)) {
                         this.spawnDischargeParticles(target);
                         for (LivingEntity targetEntity : entities) {
                             if (!isCaster(targetEntity)
                                     && hurt(targetEntity, damage / 2)
                                     && targetEntity.isDeadOrDying()
-                                    && skills.hasSkill(SBSkills.STORM_CHARGE.value())
+                                    && skills.hasSkill(SBSkills.STORM_CHARGE)
                                     && caster instanceof Player player) {
                                 player.addItem(new ItemStack(SBItems.STORM_SHARD.get()));
                             }
                         }
                     }
 
-                    if (skills.hasSkill(SBSkills.STORM_CHARGE.value()) && caster instanceof Player player)
+                    if (skills.hasSkill(SBSkills.STORM_CHARGE) && caster instanceof Player player)
                         player.addItem(new ItemStack(SBItems.STORM_SHARD.get()));
                 }
             }
         }
 
         if (!checkForCounterMagic(target)) {
-            if (skills.hasSkill(SBSkills.ELECTRIFICATION.value()))
+            if (skills.hasSkill(SBSkills.ELECTRIFICATION))
                 handler.applyStormStrike(target, 60);
 
-            if (skills.hasSkill(SBSkills.HIGH_VOLTAGE.value()) && hasShard) {
+            if (skills.hasSkill(SBSkills.HIGH_VOLTAGE) && hasShard) {
                 MobEffectInstance mobEffectInstance = new MobEffectInstance(SBEffects.STUNNED, 60, 0, false, false);
                 addSkillBuff(
                         target,
-                        SBSkills.HIGH_VOLTAGE.value(),
+                        SBSkills.HIGH_VOLTAGE,
                         BuffCategory.HARMFUL,
                         SkillBuff.MOB_EFFECT,
                         mobEffectInstance,
@@ -198,7 +200,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
             }
 
             if (!level.isClientSide) {
-                if (skills.hasSkill(SBSkills.ALTERNATING_CURRENT.value())) {
+                if (skills.hasSkill(SBSkills.ALTERNATING_CURRENT)) {
                     if (RandomUtil.percentChance(potency(0.03F)) && target.getHealth() < caster.getHealth() * 2) {
                         target.kill();
                         if (skills.hasSkill(SBSkills.STORM_CHARGE) && caster instanceof Player player)
@@ -209,7 +211,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
                 }
             }
 
-            if (skills.hasSkill(SBSkills.CHAIN_REACTION.value())) {
+            if (skills.hasSkill(SBSkills.CHAIN_REACTION)) {
                 for (LivingEntity livingEntity : entities) {
                     if (!this.entityIds.contains(livingEntity.getId())) {
                         this.entityIds.add(livingEntity.getId());

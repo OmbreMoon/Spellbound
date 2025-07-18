@@ -57,6 +57,10 @@ public class SpellType<S extends AbstractSpell> {
         return this.getSubPath() != null ? this.getSubPath() : this.getPath();
     }
 
+    public ResourceLocation getTexture() {
+        return this.createSpell().getTexture();
+    }
+
     public Skill getRootSkill() {
         return this.availableSkills.isEmpty() ? null : this.getSkills().getFirst().getRoot();
     }

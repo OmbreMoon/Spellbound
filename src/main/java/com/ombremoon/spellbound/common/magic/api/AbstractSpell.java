@@ -11,6 +11,7 @@ import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedDat
 import com.ombremoon.spellbound.common.events.EventFactory;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
+import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.api.buff.*;
@@ -97,7 +98,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     private final SpellMastery spellMastery;
     private final int manaCost;
     private final int duration;
-    private final int baseDamage;
+    private final float baseDamage;
     private final float xpModifier;
     private final int castTime;
     private final BiPredicate<SpellContext, AbstractSpell> castPredicate;
@@ -200,7 +201,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         return this.duration;
     }
 
-    public int getBaseDamage() {
+    public float getBaseDamage() {
         return this.baseDamage;
     }
 
@@ -404,6 +405,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      */
     public final void tick() {
         ticks++;
+//        endSpell();
         if (init) {
             this.startSpell();
         } else if (!isInactive) {
@@ -483,18 +485,6 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Called every tick while the caster is casting. Is expensive on performance, so use sparingly.
-     * @param context The casting specific spells context
-     * @param castTime The current cast tick
-     */
-    public void whenCasting(SpellContext context, int castTime) {
-        if (!context.getLevel().isClientSide) {
-            if (this.spellData.isDirty() || castTime % this.updateInterval == 0)
-                this.sendDirtySpellData();
-        }
-    }
-
-    /**
      * Called when a cast condition isn't met or if the cast key is released before the cast duration.
      * @param context The casting specific spells context
      */
@@ -502,6 +492,12 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         context.getSpellHandler().setCurrentlyCastingSpell(null);
         if (context.getLevel().isClientSide)
             KeyBinds.getSpellCastMapping().setDown(false);
+    }
+
+    public void resetCast(SpellHandler handler) {
+        handler.castTick = 0;
+        this.onCastReset(this.castContext);
+        PayloadHandler.castReset(this.getSpellType(), this.isRecast);
     }
 
     /**
@@ -589,7 +585,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @return Whether the entity takes damage or not
      */
     private boolean hurt(LivingEntity ownerEntity, LivingEntity targetEntity, ResourceKey<DamageType> damageType, float hurtAmount) {
-        if (checkForCounterMagic(targetEntity))
+        if (!SpellUtil.CAN_ATTACK_ENTITY.test(ownerEntity, targetEntity))
             return false;
 
         float damageAfterResistance = this.getDamageAfterResistances(ownerEntity, targetEntity, hurtAmount);
@@ -650,7 +646,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         float levelDamage = amount * (1.0F + SPELL_LEVEL_DAMAGE_MODIFIER * skills.getSpellLevel(getSpellType()));
         float judgementFactor = this.getPath() == SpellPath.DIVINE ? effects.getJudgementFactor(this.negativeScaling.test(this.context)) : 1.0F;
         levelDamage *= 1 + PATH_LEVEL_DAMAGE_MODIFIER * ((float) skills.getPathLevel(path) / 100) * judgementFactor;
-        return getModifier(ModifierType.POTENCY, ownerEntity) * levelDamage;
+        return potency(ownerEntity, levelDamage);
     }
 
     public float getModifiedDamage() {
@@ -717,14 +713,14 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param duration The length in ticks the buff persists
      * @param <T> The buff
      */
-    public <T> void addSkillBuff(LivingEntity livingEntity, Skill skill, BuffCategory buffCategory, SkillBuff.BuffObject<T> buffObject, T skillObject, int duration) {
+    public <T> void addSkillBuff(LivingEntity livingEntity, Holder<Skill> skill, BuffCategory buffCategory, SkillBuff.BuffObject<T> buffObject, T skillObject, int duration) {
         if (livingEntity.level().isClientSide || checkForCounterMagic(livingEntity) && buffCategory == BuffCategory.HARMFUL) return;
-        SkillBuff<T> skillBuff = new SkillBuff<>(skill, buffCategory, buffObject, skillObject);
+        SkillBuff<T> skillBuff = new SkillBuff<>(skill.value(), buffCategory, buffObject, skillObject);
         var handler = SpellUtil.getSpellCaster(livingEntity);
         handler.addSkillBuff(skillBuff, duration);
     }
 
-    public <T> void addSkillBuff(LivingEntity livingEntity, Skill skill, BuffCategory buffCategory, SkillBuff.BuffObject<T> buffObject, T skillObject) {
+    public <T> void addSkillBuff(LivingEntity livingEntity, Holder<Skill> skill, BuffCategory buffCategory, SkillBuff.BuffObject<T> buffObject, T skillObject) {
         this.addSkillBuff(livingEntity, skill, buffCategory, buffObject, skillObject, -1);
     }
 
@@ -740,17 +736,20 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param duration The length in ticks the buff persists
      * @param <T> The buff
      */
-    public <T extends SpellEvent> void addEventBuff(LivingEntity livingEntity, Skill skill, BuffCategory category, SpellEventListener.IEvent<T> event, ResourceLocation location, Consumer<T> consumer, int duration) {
+    public <T extends SpellEvent> void addEventBuff(LivingEntity livingEntity, Holder<Skill> skill, BuffCategory category, SpellEventListener.IEvent<T> event, ResourceLocation location, Consumer<T> consumer, int duration) {
         this.addSkillBuff(livingEntity, skill, category, SkillBuff.EVENT, location, duration);
         var listener = SpellUtil.getSpellCaster(livingEntity).getListener();
         if (!listener.hasListener(event, location))
             listener.addListener(event, location, consumer);
     }
 
-    public <T extends SpellEvent> void addEventBuff(LivingEntity livingEntity, Skill skill, BuffCategory category, SpellEventListener.IEvent<T> event, ResourceLocation location, Consumer<T> consumer) {
+    public <T extends SpellEvent> void addEventBuff(LivingEntity livingEntity, Holder<Skill> skill, BuffCategory category, SpellEventListener.IEvent<T> event, ResourceLocation location, Consumer<T> consumer) {
         this.addEventBuff(livingEntity, skill, category, event, location, consumer, -1);
     }
 
+    public void removeSkillBuff(LivingEntity livingEntity, Holder<Skill> skill) {
+        this.removeSkillBuff(livingEntity, skill.value());
+    }
 
     public void removeSkillBuff(LivingEntity livingEntity, Skill skill) {
         var handler = SpellUtil.getSpellCaster(livingEntity);
@@ -968,7 +967,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         if (this.caster instanceof Player player && player.isCreative())
             return;
 
-        this.context.getSkills().getCooldowns().addCooldown(skill.value(), ticks);
+        this.context.getSkills().getCooldowns().addCooldown(skill, ticks);
     }
 
     protected void shakeScreen(Player player) {
@@ -1173,6 +1172,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
             this.initNoCast(caster, level, blockPos, target);
 
             var handler = SpellUtil.getSpellCaster(caster);
+            handler.setCurrentlyCastingSpell(null);
             boolean incrementId = true;
             CompoundTag nbt = new CompoundTag();
             if (this.isRecast) {
@@ -1203,7 +1203,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
             if (incrementId)
                 this.castId++;
 
-            if (!(this.castPredicate.test(this.context, this) && RandomUtil.percentChance(getCastChance()))) {
+            if (!SpellUtil.canCastSpell(caster, this) || !(this.castPredicate.test(this.context, this) && RandomUtil.percentChance(getCastChance()))) {
                 onCastReset(this.context);
                 if (caster instanceof Player player)
                     PayloadHandler.updateSpells(player, nbt, this.isRecast, this.castId, true);
@@ -1250,6 +1250,9 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         this.castId = castId;
 
         this.loadData(spellData);
+
+        var handler = SpellUtil.getSpellCaster(caster);
+        handler.setCurrentlyCastingSpell(null);
         activateSpell();
         EventFactory.onSpellCast(caster, this, this.context);
 
@@ -1307,7 +1310,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         if (!this.level.isClientSide)
             this.sendDirtySpellData();
 
-        handler.consumeMana(getManaCost(), true);
+        float mana = getManaCost();
+        handler.consumeMana(mana, true);
     }
 
     @Override
@@ -1351,7 +1355,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         protected SpellMastery spellMastery = SpellMastery.NOVICE;
         protected int duration = 10;
         protected int manaCost;
-        protected int baseDamage;
+        protected float baseDamage;
         protected int castTime = 1;
         protected float xpModifier = 0.08F;
         protected BiPredicate<SpellContext, T> castPredicate = (context, abstractSpell) -> true;
@@ -1398,7 +1402,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
          * @param baseDamage The duration
          * @return The spells builder
          */
-        public Builder<T> baseDamage(int baseDamage) {
+        public Builder<T> baseDamage(float baseDamage) {
             this.baseDamage = baseDamage;
             return this;
         }

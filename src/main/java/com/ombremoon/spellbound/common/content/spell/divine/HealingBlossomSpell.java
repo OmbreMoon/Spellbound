@@ -87,7 +87,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
         });
 
         addEventBuff(context.getCaster(),
-                SBSkills.REBIRTH.value(),
+                SBSkills.REBIRTH,
                 BuffCategory.BENEFICIAL,
                 SpellEventListener.Events.PRE_DAMAGE,
                 PLAYER_DAMAGE,
@@ -96,7 +96,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
         if (skills.hasSkill(SBSkills.PETAL_SHIELD))
             this.addSkillBuff(
                 context.getCaster(),
-                SBSkills.PETAL_SHIELD.value(),
+                SBSkills.PETAL_SHIELD,
                 BuffCategory.BENEFICIAL,
                 SkillBuff.ATTRIBUTE_MODIFIER,
                 new ModifierData(Attributes.ARMOR, new AttributeModifier(PETAL_SHIELD,

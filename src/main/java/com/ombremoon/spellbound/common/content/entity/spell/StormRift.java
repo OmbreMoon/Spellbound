@@ -80,11 +80,11 @@ public class StormRift extends PortalEntity<StormRiftSpell> {
             this.level().addParticle(
                     SBParticles.SPARK.get(),
                     this.getRandomX(0.5),
-                    this.getRandomY() - 0.25,
+                    this.getRandomY() - 0.15,
                     this.getRandomZ(0.5),
-                    (this.random.nextDouble() - 0.5) * 2.0,
-                    -this.random.nextDouble(),
-                    (this.random.nextDouble() - 0.5) * 2.0);
+                    (this.random.nextDouble() - 0.5) * 0.02,
+                    (this.random.nextDouble() - 0.5) * 0.02,
+                    (this.random.nextDouble() - 0.5) * 0.02);
         }
 
         if (this.entityData.get(IMPLODE)) {

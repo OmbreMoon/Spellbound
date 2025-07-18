@@ -17,6 +17,7 @@ import com.ombremoon.spellbound.common.content.world.hailstorm.ClientHailstormDa
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.buff.events.MouseInputEvent;
 import com.ombremoon.spellbound.main.CommonClass;
@@ -133,6 +134,12 @@ public class ClientEvents {
                         }
                     }
                     if (KeyBinds.CYCLE_SPELL_BINDING.consumeClick()) {
+                        if (handler.castTick > 0) {
+                            AbstractSpell spell = handler.getCurrentlyCastSpell();
+                            spell.resetCast(handler);
+                        }
+
+                        KeyBinds.getSpellCastMapping().setDown(false);
                         SpellUtil.cycle(handler, handler.getSelectedSpell());
                         PayloadHandler.setSpell(handler.getSelectedSpell());
                     }

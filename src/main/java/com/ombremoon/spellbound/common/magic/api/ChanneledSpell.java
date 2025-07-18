@@ -1,11 +1,13 @@
 package com.ombremoon.spellbound.common.magic.api;
 
+import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.common.events.EventFactory;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -13,6 +15,7 @@ import java.util.function.Predicate;
 
 public abstract class ChanneledSpell extends AnimatedSpell {
     protected int manaTickCost;
+    protected String channelAnimation;
 
     public static <T extends ChanneledSpell> Builder<T> createChannelledSpellBuilder(Class<T> spellClass) {
         return new Builder<>();
@@ -21,6 +24,7 @@ public abstract class ChanneledSpell extends AnimatedSpell {
     public ChanneledSpell(SpellType<?> spellType, Builder<?> builder) {
         super(spellType, EventFactory.getChanneledBuilder(spellType, builder));
         this.manaTickCost = builder.manaTickCost;
+        this.channelAnimation = builder.channelAnimation;
     }
 
     public int getManaTickCost() {
@@ -33,8 +37,8 @@ public abstract class ChanneledSpell extends AnimatedSpell {
         var handler = SpellUtil.getSpellCaster(caster);
         handler.setChargingOrChannelling(true);
 
-        if (context.getLevel().isClientSide) {
-            //Play Channel Anim
+        if (!context.getLevel().isClientSide && !this.channelAnimation.isEmpty() && context.getCaster() instanceof Player player) {
+            playAnimation(player, this.channelAnimation);
         }
     }
 
@@ -43,8 +47,10 @@ public abstract class ChanneledSpell extends AnimatedSpell {
         super.onSpellTick(context);
         LivingEntity caster = context.getCaster();
         var handler = SpellUtil.getSpellCaster(caster);
-        if ((this.ticks % 20 == 0 && !handler.consumeMana(this.manaTickCost, true)) || !handler.isChargingOrChannelling()) {
-            this.endSpell();
+        if (!caster.level().isClientSide) {
+            if ((this.ticks > 0 && this.ticks % 20 == 0 && !handler.consumeMana(this.manaTickCost, true)) || !handler.isChargingOrChannelling()) {
+                this.endSpell();
+            }
         }
     }
 
@@ -53,6 +59,8 @@ public abstract class ChanneledSpell extends AnimatedSpell {
         LivingEntity caster = context.getCaster();
         var handler = SpellUtil.getSpellCaster(caster);
         handler.setChargingOrChannelling(false);
+        if (caster.level().isClientSide)
+            KeyBinds.getSpellCastMapping().setDown(false);
         //Stop Channel Anim
     }
 
@@ -79,7 +87,7 @@ public abstract class ChanneledSpell extends AnimatedSpell {
             return this;
         }
 
-        public Builder<T> baseDamage(int baseDamage) {
+        public Builder<T> baseDamage(float baseDamage) {
             this.baseDamage = baseDamage;
             return this;
         }

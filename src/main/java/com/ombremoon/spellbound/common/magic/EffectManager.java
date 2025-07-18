@@ -94,7 +94,6 @@ public class EffectManager implements INBTSerializable<CompoundTag>, Loggable {
                 progress = buildUpAmount;
             }
 
-            log(progress);
             this.buildUp.put(effect, progress);
             if (progress >= 100.0F) {
                 tryApplyEffect(effect);

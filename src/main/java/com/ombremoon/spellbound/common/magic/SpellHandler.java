@@ -66,6 +66,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     private boolean channelling;
     private int stationaryTicks;
     private float zoomModifier = 1.0F;
+    public boolean dirty;
     private boolean initialized;
 
     /**
@@ -137,8 +138,16 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
         this.skillHolder.getCooldowns().tick();
     }
 
+    public double getMana() {
+        return this.caster.getData(SBData.MANA);
+    }
+
     public double getMaxMana() {
         return this.caster.getAttribute(SBAttributes.MAX_MANA) != null ? this.caster.getAttribute(SBAttributes.MAX_MANA).getValue() : 0;
+    }
+
+    public double getManaRegen() {
+        return this.caster.getAttribute(SBAttributes.MANA_REGEN) != null ? this.caster.getAttribute(SBAttributes.MANA_REGEN).getValue() : 0;
     }
 
     /**
@@ -157,16 +166,15 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * @return If the mana is actually can be consumed
      */
     public boolean consumeMana(float amount, boolean forceConsume) {
-        double currentFP = caster.getData(SBData.MANA);
+        double currentMana = this.getMana();
         if (this.caster instanceof Player player && player.getAbilities().instabuild) {
             return true;
-        } else if (currentFP < amount && !forceConsume) {
+        } else if (currentMana < amount) {
             return false;
         } else {
-            if (forceConsume) {
-                double fpCost = currentFP - amount;
-                caster.setData(SBData.MANA, Math.max(fpCost, 0));
-            }
+            if (forceConsume)
+                this.awardMana(-amount);
+
             return true;
         }
     }
@@ -177,7 +185,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      */
     public void awardMana(float mana) {
         this.caster.setData(SBData.MANA, Mth.clamp(caster.getData(SBData.MANA) + mana, 0, this.getMaxMana()));
-        if (this.caster instanceof Player player)
+        if (this.caster instanceof Player player && !player.level().isClientSide)
             PayloadHandler.syncMana(player);
     }
 
@@ -360,7 +368,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      */
     public void setSelectedSpell(SpellType<?> selectedSpell) {
         this.selectedSpell = selectedSpell;
-//        this.currentlyCastingSpell = null;
+        this.currentlyCastingSpell = null;
     }
 
     /**
@@ -397,7 +405,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
             skillBuff.removeBuff(this.caster);
             this.skillBuffs.remove(skillBuff);
 
-            if (this.caster instanceof Player player)
+            if (this.caster instanceof Player player && !player.level().isClientSide)
                 PayloadHandler.updateSkillBuff((ServerPlayer) player, skillBuff, 0, true);
         }
     }
@@ -496,6 +504,8 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      */
     public void setChargingOrChannelling(boolean channelling) {
         this.channelling = channelling;
+        if (this.caster instanceof Player player && !this.caster.level().isClientSide)
+            PayloadHandler.setChargeOrChannel(player, channelling);
     }
 
     public Set<Integer> getSummons() {

@@ -37,7 +37,7 @@ public class SBAttributes {
 
     public static Holder<Attribute> register(String name, double defaultVal, double min, double max) {
         return ATTRIBUTES.register(name, () -> new RangedAttribute("attribute.name.spellbound." + name,
-                defaultVal, min, max));
+                defaultVal, min, max).setSyncable(true));
     }
 
     public static void register(IEventBus eventBus) {

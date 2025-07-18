@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.events;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.ombremoon.sentinellib.common.event.RegisterPlayerSentinelBoxEvent;
+import com.ombremoon.spellbound.client.event.SpellCastEvents;
 import com.ombremoon.spellbound.common.content.commands.LearnSkillsCommand;
 import com.ombremoon.spellbound.common.content.commands.LearnSpellCommand;
 import com.ombremoon.spellbound.common.content.commands.SpellboundCommand;
@@ -30,7 +31,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
@@ -142,8 +142,8 @@ public class NeoForgeEvents {
     @SubscribeEvent
     public static void onPostEntityTick(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof LivingEntity entity) {
-            var handler = SpellUtil.getSpellCaster(entity);
-            handler.tick();
+            var caster = SpellUtil.getSpellCaster(entity);
+            caster.tick();
 
             EffectManager status = entity.getData(SBData.STATUS_EFFECTS);
             if (status.isInitialised())
@@ -151,16 +151,19 @@ public class NeoForgeEvents {
 
             if (entity instanceof Player player) {
                 if (player.tickCount % 20 == 0) {
-                    double mana = player.getData(SBData.MANA);
-                    double maxMana = player.getAttribute(SBAttributes.MAX_MANA).getValue();
+                    double mana = caster.getMana();
+                    double maxMana = caster.getMaxMana();
                     if (mana < maxMana) {
-                        double regen = player.getAttribute(SBAttributes.MANA_REGEN).getValue();
-                        player.setData(SBData.MANA, Mth.clamp(mana + regen, 0, maxMana));
+                        double regen = caster.getManaRegen();
+                        caster.awardMana((float) regen);
                     }
                 }
+
+                if (player.level().isClientSide)
+                    SpellCastEvents.chargeOrChannelSpell(event);
             }
 
-            if (entity.hasEffect(SBEffects.STUNNED) || entity.hasEffect(SBEffects.ROOTED)) {
+            if (caster.isStationary()) {
                 entity.setDeltaMovement(0, -entity.getGravity(), 0);
                 if (entity instanceof Mob mob)
                     mob.getNavigation().stop();
@@ -347,6 +350,9 @@ public class NeoForgeEvents {
         if (livingEntity.level().isClientSide) return;
 
         SpellUtil.getSpellCaster(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.PRE_DAMAGE, new DamageEvent.Pre(livingEntity, event));
+
+        if (event.getSource().is(SBDamageTypes.RUIN_FIRE))
+            livingEntity.igniteForSeconds(3.0F);
 
         if (livingEntity.hasEffect(SBEffects.SLEEP))
             livingEntity.removeEffect(SBEffects.SLEEP);

@@ -49,7 +49,7 @@ public class MysticArmorSpell extends AnimatedSpell {
         var skills = context.getSkills();
         addEventBuff(
                 caster,
-                SBSkills.MYSTIC_ARMOR.value(),
+                SBSkills.MYSTIC_ARMOR,
                 BuffCategory.BENEFICIAL,
                 SpellEventListener.Events.PRE_DAMAGE,
                 PRE_DAMAGE,
@@ -59,63 +59,63 @@ public class MysticArmorSpell extends AnimatedSpell {
                         pre.setNewDamage(pre.getOriginalDamage() * f);
                     }
 
-                    if (skills.hasSkill(SBSkills.COMBAT_PERCEPTION.value()) && isPhysicalDamage(pre.getSource()) && RandomUtil.percentChance(0.1))
+                    if (skills.hasSkill(SBSkills.COMBAT_PERCEPTION) && isPhysicalDamage(pre.getSource()) && RandomUtil.percentChance(0.1))
                         pre.setNewDamage(0);
 
-                    if (skills.hasSkillReady(SBSkills.SOUL_RECHARGE.value()) && context.hasCatalyst(SBItems.SOUL_SHARD.get()) && caster.getHealth() - pre.getNewDamage() < caster.getMaxHealth() * 0.1F) {
+                    if (skills.hasSkillReady(SBSkills.SOUL_RECHARGE) && context.hasCatalyst(SBItems.SOUL_SHARD.get()) && caster.getHealth() - pre.getNewDamage() < caster.getMaxHealth() * 0.1F) {
                         pre.setNewDamage(0);
                         caster.setHealth(caster.getMaxHealth());
                         context.useCatalyst(SBItems.SOUL_SHARD.get());
                         addCooldown(SBSkills.SOUL_RECHARGE, 3600);
-                    } else if (skills.hasSkillReady(SBSkills.ELDRITCH_INTERVENTION.value()) && caster.getHealth() - pre.getNewDamage() < caster.getMaxHealth() * 0.2F) {
+                    } else if (skills.hasSkillReady(SBSkills.ELDRITCH_INTERVENTION) && caster.getHealth() - pre.getNewDamage() < caster.getMaxHealth() * 0.2F) {
                         caster.heal(caster.getMaxHealth() / 2 - caster.getHealth());
                         addCooldown(SBSkills.ELDRITCH_INTERVENTION, 2400);
                     }
                 });
         addEventBuff(
                 caster,
-                SBSkills.MYSTIC_ARMOR.value(),
+                SBSkills.MYSTIC_ARMOR,
                 BuffCategory.BENEFICIAL,
                 SpellEventListener.Events.POST_DAMAGE,
                 POST_DAMAGE,
                 post -> {
                     Entity entity = post.getSource().getEntity();
                     if (entity instanceof LivingEntity living) {
-                        if (skills.hasSkill(SBSkills.EQUILIBRIUM.value()))
+                        if (skills.hasSkill(SBSkills.EQUILIBRIUM))
                             hurt(living, post.getSource(), caster.getMaxHealth() * 0.1F);
 
-                        if (skills.hasSkill(SBSkills.PLANAR_DEFLECTION.value()) && isPhysicalDamage(post.getSource()))
+                        if (skills.hasSkill(SBSkills.PLANAR_DEFLECTION) && isPhysicalDamage(post.getSource()))
                             hurt(living, post.getSource(), post.getNewDamage() * 0.3F);
                     }
                 });
-        if (skills.hasSkill(SBSkills.ARCANE_VENGEANCE.value())) {
+        if (skills.hasSkill(SBSkills.ARCANE_VENGEANCE)) {
             addEventBuff(
                     caster,
-                    SBSkills.ARCANE_VENGEANCE.value(),
+                    SBSkills.ARCANE_VENGEANCE,
                     BuffCategory.BENEFICIAL,
                     SpellEventListener.Events.BLOCK,
                     ARCANE_VENGEANCE,
                     blockEvent -> addSkillBuff(
                             caster,
-                            SBSkills.ARCANE_VENGEANCE.value(),
+                            SBSkills.ARCANE_VENGEANCE,
                             BuffCategory.BENEFICIAL,
                             SkillBuff.ATTRIBUTE_MODIFIER,
                             new ModifierData(Attributes.ATTACK_DAMAGE, new AttributeModifier(ARCANE_VENGEANCE, 1.15F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
                             200));
         }
 
-        if (skills.hasSkill(SBSkills.PURSUIT.value()))
+        if (skills.hasSkill(SBSkills.PURSUIT))
             addSkillBuff(
                     caster,
-                    SBSkills.PURSUIT.value(),
+                    SBSkills.PURSUIT,
                     BuffCategory.BENEFICIAL,
                     SkillBuff.ATTRIBUTE_MODIFIER,
                     new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(PURSUIT, 1.15F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)));
 
-        if (skills.hasSkill(SBSkills.CRYSTALLINE_ARMOR.value()))
+        if (skills.hasSkill(SBSkills.CRYSTALLINE_ARMOR))
             addSkillBuff(
                     caster,
-                    SBSkills.CRYSTALLINE_ARMOR.value(),
+                    SBSkills.CRYSTALLINE_ARMOR,
                     BuffCategory.BENEFICIAL,
                     SkillBuff.ATTRIBUTE_MODIFIER,
                     new ModifierData(Attributes.ARMOR, new AttributeModifier(CRYSTALLINE_ARMOR, 1.25F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)));
@@ -134,7 +134,7 @@ public class MysticArmorSpell extends AnimatedSpell {
         var skills = context.getSkills();
 
         if (!level.isClientSide) {
-            if (skills.hasSkill(SBSkills.SUBLIME_BEACON.value()))
+            if (skills.hasSkill(SBSkills.SUBLIME_BEACON))
                 caster.heal(caster.getArmorValue() * 0.25F);
         }
     }
@@ -142,10 +142,10 @@ public class MysticArmorSpell extends AnimatedSpell {
     @Override
     protected void onSpellStop(SpellContext context) {
         LivingEntity caster = context.getCaster();
-        removeSkillBuff(caster, SBSkills.MYSTIC_ARMOR.value());
-        removeSkillBuff(caster, SBSkills.ARCANE_VENGEANCE.value());
-        removeSkillBuff(caster, SBSkills.PURSUIT.value());
-        removeSkillBuff(caster, SBSkills.CRYSTALLINE_ARMOR.value());
+        removeSkillBuff(caster, SBSkills.MYSTIC_ARMOR);
+        removeSkillBuff(caster, SBSkills.ARCANE_VENGEANCE);
+        removeSkillBuff(caster, SBSkills.PURSUIT);
+        removeSkillBuff(caster, SBSkills.CRYSTALLINE_ARMOR);
     }
 
     @Override

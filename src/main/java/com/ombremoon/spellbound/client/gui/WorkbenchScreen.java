@@ -292,7 +292,7 @@ public class WorkbenchScreen extends Screen {
                 if (spellType != null) {
                     int confirm = isHovering(95, 13 + (i * 29), 137, 30, mouseX, mouseY) ? 184 : 154;
                     guiGraphics.blit(EQUIP_PAGE, xPos + 2, yPos + 2 + (i * 29), 0,confirm, 135, 30);
-                    guiGraphics.blit(spellType.getRootSkill().getTexture(), xPos + 5, yPos + 5 + (i * 29), 0, 0, 24, 24, 24, 24);
+                    guiGraphics.blit(spellType.getTexture(), xPos + 5, yPos + 5 + (i * 29), 0, 0, 24, 24, 24, 24);
                     Component component = spellType.createSpell().getName();
                     guiGraphics.drawString(this.font, component, xPos + 33, yPos + 6 + (i * 29), -1);
                     guiGraphics.drawString(this.font, Component.literal("Lvl " + this.skillHolder.getSpellLevel(spellType)), xPos + 33, yPos + 19 + (i * 29), -1);
