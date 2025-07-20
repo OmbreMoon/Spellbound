@@ -63,7 +63,9 @@ public class StormRiftSpell extends AnimatedSpell {
                     }
 
                     return true;
-                }).fullRecast().skipEndOnRecast();
+                })
+                .fullRecast()
+                .skipEndOnRecast();
     }
 
     private static final ResourceLocation MAGNETIC_FIELD = CommonClass.customLocation("magnetic_field");
@@ -156,7 +158,7 @@ public class StormRiftSpell extends AnimatedSpell {
                                     if (skills.hasSkill(SBSkills.MOTION_SICKNESS)) {
                                         this.addSkillBuff(
                                                 livingEntity,
-                                                SBSkills.MOTION_SICKNESS.value(),
+                                                SBSkills.MOTION_SICKNESS,
                                                 BuffCategory.HARMFUL,
                                                 SkillBuff.ATTRIBUTE_MODIFIER,
                                                 new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(MOTION_SICKNESS, 0.7, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
@@ -164,7 +166,7 @@ public class StormRiftSpell extends AnimatedSpell {
                                         );
                                         this.addSkillBuff(
                                                 livingEntity,
-                                                SBSkills.MOTION_SICKNESS.value(),
+                                                SBSkills.MOTION_SICKNESS,
                                                 BuffCategory.HARMFUL,
                                                 SkillBuff.ATTRIBUTE_MODIFIER,
                                                 new ModifierData(Attributes.ATTACK_SPEED, new AttributeModifier(MOTION_SICKNESS, 0.7, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
@@ -172,7 +174,7 @@ public class StormRiftSpell extends AnimatedSpell {
                                         );
                                         this.addSkillBuff(
                                                 livingEntity,
-                                                SBSkills.MOTION_SICKNESS.value(),
+                                                SBSkills.MOTION_SICKNESS,
                                                 BuffCategory.HARMFUL,
                                                 SkillBuff.ATTRIBUTE_MODIFIER,
                                                 new ModifierData(Attributes.BLOCK_BREAK_SPEED, new AttributeModifier(MOTION_SICKNESS, 0.7, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
@@ -325,7 +327,7 @@ public class StormRiftSpell extends AnimatedSpell {
                             strength = 0.06F;
                             this.addSkillBuff(
                                     livingEntity,
-                                    SBSkills.MAGNETIC_FIELD.value(),
+                                    SBSkills.MAGNETIC_FIELD,
                                     BuffCategory.HARMFUL,
                                     SkillBuff.ATTRIBUTE_MODIFIER,
                                     new ModifierData(Attributes.ARMOR, new AttributeModifier(MAGNETIC_FIELD, 0.75F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),

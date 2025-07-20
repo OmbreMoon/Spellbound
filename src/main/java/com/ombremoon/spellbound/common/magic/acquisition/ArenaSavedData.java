@@ -10,6 +10,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 
@@ -20,8 +21,8 @@ public class ArenaSavedData extends SavedData {
     private final Map<Integer, UUID> arenaMap = new Int2ObjectOpenHashMap<>();
     private int arenaId;
 
-    public static ArenaSavedData get(MinecraftServer server) {
-        return server.overworld().getDataStorage().computeIfAbsent(new Factory<>(ArenaSavedData::create, ArenaSavedData::load), "_dynamic_dimension");
+    public static ArenaSavedData get(ServerLevel level) {
+        return level.getDataStorage().computeIfAbsent(new Factory<>(ArenaSavedData::create, ArenaSavedData::load), "_dynamic_dimension");
     }
 
     private ArenaSavedData() {}
@@ -58,8 +59,12 @@ public class ArenaSavedData extends SavedData {
 
     public ResourceKey<Level> getOrCreateKey(MinecraftServer server, int arenaId) {
         UUID uuid = getOrCreateUuid(server, arenaId);
-        ResourceLocation dimension = CommonClass.customLocation(uuid.toString());
+        ResourceLocation dimension = CommonClass.customLocation(uuid + "_" + Constants.MOD_ID);
         return ResourceKey.create(Registries.DIMENSION, dimension);
+    }
+
+    public static boolean isArena(Level level) {
+        return level.dimension().location().getPath().endsWith("_" + Constants.MOD_ID);
     }
 
     public boolean leftArena(Level level) {

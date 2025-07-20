@@ -63,7 +63,7 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
             for (LivingEntity target : targets) {
                 var targetHandler = SpellUtil.getSpellCaster(target);
                 var activeSpells = targetHandler.getActiveSpells();
-                targetHandler.getBuffs().forEach(skillBuff -> removeSkillBuff(target, skillBuff.getSkill()));
+                targetHandler.getBuffs().stream().filter(SkillBuff::isBeneficial).forEach(skillBuff -> removeSkillBuff(target, skillBuff.skill()));
                 for (AbstractSpell spell : activeSpells) {
                     spell.endSpell();
                 }
@@ -75,7 +75,7 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
                 if (skills.hasSkill(SBSkills.RESIDUAL_DISRUPTION.value())) {
                     addSkillBuff(
                             target,
-                            SBSkills.RESIDUAL_DISRUPTION.value(),
+                            SBSkills.RESIDUAL_DISRUPTION,
                             BuffCategory.HARMFUL,
                             SkillBuff.SPELL_MODIFIER,
                             SpellModifier.RESIDUAL_DISRUPTION,
@@ -83,10 +83,10 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
                     );
                 }
 
-                if (skills.hasSkill(SBSkills.UNFOCUSED.value()))
+                if (skills.hasSkill(SBSkills.UNFOCUSED))
                     addSkillBuff(
                             target,
-                            SBSkills.UNFOCUSED.value(),
+                            SBSkills.UNFOCUSED,
                             BuffCategory.HARMFUL,
                             SkillBuff.SPELL_MODIFIER,
                             SpellModifier.UNFOCUSED,

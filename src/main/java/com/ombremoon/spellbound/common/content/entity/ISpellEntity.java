@@ -11,6 +11,10 @@ import software.bernie.geckolib.animatable.GeoEntity;
 
 public interface ISpellEntity<T extends AbstractSpell> extends GeoEntity {
 
+    default Entity getEntity() {
+        return (Entity) this;
+    }
+
     EntityType<?> entityType();
 
     void setOwner(@NotNull LivingEntity entity);

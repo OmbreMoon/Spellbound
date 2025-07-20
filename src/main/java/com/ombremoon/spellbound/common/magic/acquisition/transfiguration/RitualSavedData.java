@@ -45,12 +45,11 @@ public class RitualSavedData extends SavedData {
         ListTag ritualList = new ListTag();
 
         for (RitualInstance ritual : ACTIVE_RITUALS) {
-            if (!ritual.isActive()) {
-                ritualList.add(ritual.save());
-            }
+            ritualList.add(ritual.save());
         }
 
         tag.put("Transfiguration Rituals", ritualList);
+
         Constants.LOG.info("Successfully saved rituals");
         return tag;
     }

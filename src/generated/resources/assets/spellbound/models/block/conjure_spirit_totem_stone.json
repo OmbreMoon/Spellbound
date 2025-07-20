@@ -1,0 +1,6 @@
+{
+  "parent": "spellbound:block/summon_stone",
+  "textures": {
+    "up": "spellbound:block/conjure_spirit_totem_stone"
+  }
+}

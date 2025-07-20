@@ -3,12 +3,14 @@ package com.ombremoon.spellbound.common.magic;
 import com.ombremoon.spellbound.common.init.SBAttributes;
 import com.ombremoon.spellbound.common.init.SBDamageTypes;
 import com.ombremoon.spellbound.common.init.SBEffects;
+import com.ombremoon.spellbound.util.Loggable;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
@@ -20,7 +22,7 @@ import org.jetbrains.annotations.UnknownNullability;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EffectManager implements INBTSerializable<CompoundTag> {
+public class EffectManager implements INBTSerializable<CompoundTag>, Loggable {
     protected static final float PATH_BUILD_UP_MODIFIER = 0.01F;
     protected static final float JUDGEMENT_MODIFIER = 0.5F;
     public static final int MAX_JUDGEMENT = 100;
@@ -84,15 +86,18 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
     public void incrementRuinEffects(ResourceKey<DamageType> damageType, float amount) {
         Effect effect = this.getEffectFromDamageType(damageType);
         if (effect != null) {
-            Float progress = buildUp.get(effect);
+            Float progress = this.buildUp.get(effect);
             float buildUpAmount = this.calculateBuildUp(effect, amount);
-            if (progress == null) progress = buildUpAmount;
-            else progress = Math.clamp(progress + buildUpAmount, 0, 100);
+            if (progress != null) {
+                progress = Math.clamp(progress + buildUpAmount, 0.0F, 100.0F);
+            } else {
+                progress = buildUpAmount;
+            }
 
-            buildUp.put(effect, progress);
-            if (progress >= 100) {
+            this.buildUp.put(effect, progress);
+            if (progress >= 100.0F) {
                 tryApplyEffect(effect);
-                this.buildUp.put(effect, 0F);
+                this.buildUp.put(effect, 0.0F);
             }
         }
     }
@@ -149,14 +154,14 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
 
     /**
      * Ticks the build up effects, decreasing the progress by 1 per second
-     * @param tickCount the tickcount of the entity currently ticking
+     * @param tickCount the tick count of the entity currently ticking
      */
     @ApiStatus.Internal
     public void tick(int tickCount) {
         if (livingEntity == null)
             throw new RuntimeException("Status Effects not initialised.");
 
-        if (tickCount % 20 == 0) {
+        if (tickCount % 40 == 0) {
             this.buildUp.forEach((effect, amount) -> {
                 if (amount > 0)
                     this.buildUp.replace(effect, amount - 1);
@@ -200,6 +205,7 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
         for (Effect effect : this.buildUp.keySet()) {
             tag.putFloat(effect.name(), this.buildUp.get(effect));
         }
+        tag.putInt("Judgement", this.judgement);
 
         return tag;
     }
@@ -211,6 +217,9 @@ public class EffectManager implements INBTSerializable<CompoundTag> {
                 this.buildUp.put(effect, tag.getFloat(effect.name()));
             }
         }
+
+        if (tag.contains("Judgement", 99))
+            this.judgement = tag.getInt("Judgement");
     }
 
     public enum Effect {

@@ -74,26 +74,26 @@ public class TotemSpiritEntity extends SmartSpellEntity<SpiritTotemSpell> {
     public void switchForm() {
         if (isCatForm()) {
             this.entityData.set(IS_CAT, false);
-            if (skills.hasSkill(SBSkills.CATS_AGILITY.value()))
+            if (skills.hasSkill(SBSkills.CATS_AGILITY))
                 this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, -1));
 
-            if (skills.hasSkill(SBSkills.FERAL_FURY.value())) {
+            if (skills.hasSkill(SBSkills.FERAL_FURY)) {
                 this.getAttribute(Attributes.ATTACK_DAMAGE).removeModifier(FERAL_DAMAGE);
                 this.getAttribute(Attributes.ATTACK_SPEED).removeModifier(FERAL_SPEED);
             }
 
 
-            if (skills.hasSkill(SBSkills.TOTEMIC_ARMOR.value())) {
+            if (skills.hasSkill(SBSkills.TOTEMIC_ARMOR)) {
                 this.getAttribute(Attributes.ARMOR).addTransientModifier(new AttributeModifier(
                         TOTEMIC_ARMOR, 1.25d, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
                 ));
             }
         } else {
             this.entityData.set(IS_CAT, true);
-            if (skills.hasSkill(SBSkills.CATALEPSY.value()))
+            if (skills.hasSkill(SBSkills.CATALEPSY))
                 this.removeEffect(MobEffects.MOVEMENT_SPEED);
 
-            if (skills.hasSkill(SBSkills.FERAL_FURY.value())) {
+            if (skills.hasSkill(SBSkills.FERAL_FURY)) {
                 this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(new AttributeModifier(
                         FERAL_DAMAGE, 1.1d, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
                 ));
@@ -102,7 +102,7 @@ public class TotemSpiritEntity extends SmartSpellEntity<SpiritTotemSpell> {
                 ));
             }
 
-            if (skills.hasSkill(SBSkills.TOTEMIC_ARMOR.value())) {
+            if (skills.hasSkill(SBSkills.TOTEMIC_ARMOR)) {
                 this.getAttribute(Attributes.ARMOR).removeModifier(TOTEMIC_ARMOR);
             }
         }
@@ -143,7 +143,7 @@ public class TotemSpiritEntity extends SmartSpellEntity<SpiritTotemSpell> {
     public void onAddedToLevel() {
         super.onAddedToLevel();
         if (!this.isCatForm()) {
-            if (skills.hasSkill(SBSkills.TOTEMIC_ARMOR.value())) {
+            if (skills.hasSkill(SBSkills.TOTEMIC_ARMOR)) {
                 this.getAttribute(Attributes.ARMOR).addTransientModifier(new AttributeModifier(
                         TOTEMIC_ARMOR, 1.25d, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
                 ));
@@ -156,7 +156,7 @@ public class TotemSpiritEntity extends SmartSpellEntity<SpiritTotemSpell> {
         super.tickDeath();
         if (this.deathTime < 20 || this.level().isClientSide()) return;
 
-        if (skills.hasSkillReady(SBSkills.NINE_LIVES.value())) {
+        if (skills.hasSkillReady(SBSkills.NINE_LIVES)) {
 //            TotemSpiritEntity entity = EntityInit.TOTEM_SPIRIT.get().create(this.level());
 //            if (entity == null) return;
 //            SummonUtil.setOwner(entity, spells.getCastContext().getPlayer());
@@ -181,18 +181,18 @@ public class TotemSpiritEntity extends SmartSpellEntity<SpiritTotemSpell> {
                 //visual stuff
             } else {
                 float heal = 0.1f;
-                if (skills.hasSkill(SBSkills.PRIMAL_RESILIENCE.value()))
+                if (skills.hasSkill(SBSkills.PRIMAL_RESILIENCE))
                     heal += getMaxHealth() * 0.05f;
 
                 this.heal(heal);
-                if (skills.hasSkill(SBSkills.TOTEMIC_BOND.value()))
+                if (skills.hasSkill(SBSkills.TOTEMIC_BOND))
                     getOwner().heal(heal);
             }
         }
 
-        if (isCatForm() && skills.hasSkillReady(SBSkills.STEALTH_TACTICS.value()) && getHealth() < getMaxHealth() * 0.25f) {
+        if (isCatForm() && skills.hasSkillReady(SBSkills.STEALTH_TACTICS) && getHealth() < getMaxHealth() * 0.25f) {
             this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 200)); //10 seconds
-            skills.getCooldowns().addCooldown(SBSkills.STEALTH_TACTICS.value(), 800);//40 seconds
+            skills.getCooldowns().addCooldown(SBSkills.STEALTH_TACTICS, 800);//40 seconds
         }
     }
 
@@ -275,16 +275,16 @@ public class TotemSpiritEntity extends SmartSpellEntity<SpiritTotemSpell> {
                 new FirstApplicableBehaviour<>(
                         new DelayedLeapAtTarget<TotemSpiritEntity>(20, 40) //Need to modify to apply knockback
                                 .startCondition(mob ->
-                                        mob.skills.hasSkillReady(SBSkills.SAVAGE_LEAP.value())
+                                        mob.skills.hasSkillReady(SBSkills.SAVAGE_LEAP)
                                                 && BrainUtils.getTargetOfEntity(mob) != null
                                                 && mob.distanceTo(BrainUtils.getTargetOfEntity(mob)) >= 10f),
                         new ApplySurroundingEffectBehavior<TotemSpiritEntity>(new MobEffectInstance(SBEffects.BATTLE_CRY, 200))
                                 .areaOf(e -> e.getBoundingBox().inflate(5d))
                                 .applyPredicate(this::isAlliedTo)
                                 .runFor(mob -> 60)
-                                .startCondition(mob -> mob.skills.hasSkillReady(SBSkills.WARRIORS_ROAR.value()))
+                                .startCondition(mob -> mob.skills.hasSkillReady(SBSkills.WARRIORS_ROAR))
                                 .whenStarting(mob ->
-                                        mob.skills.getCooldowns().addCooldown(SBSkills.WARRIORS_ROAR.value(), 600)),
+                                        mob.skills.getCooldowns().addCooldown(SBSkills.WARRIORS_ROAR, 600)),
                         new AnimatableMeleeAttack<>(20)
                                 .startCondition(mob -> mob.distanceTo(mob.getTarget()) < 2f)
                 )

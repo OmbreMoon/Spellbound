@@ -41,19 +41,20 @@ public class CastModeOverlay implements LayeredDraw.Layer {
         renderActiveSpells(guiGraphics, handler);
     }
 
-    private void renderCastMode(GuiGraphics guiGraphics, Player player, SpellHandler handler) {
+    private void renderCastMode(GuiGraphics guiGraphics, Player player, SpellHandler caster) {
         int x = guiGraphics.guiWidth() - 27;
         int y = 30;
         guiGraphics.blit(MANA_BAR, guiGraphics.guiWidth() / 2 - 200, guiGraphics.guiHeight() - 20, 0, 0, 106, 16, 106, 28);
-        guiGraphics.blit(MANA_BAR, guiGraphics.guiWidth() / 2 - 198, guiGraphics.guiHeight() - 15, 2, 18, RenderUtil.getScaledRender((int)Math.floor(player.getData(SBData.MANA)), (int)Math.floor(player.getAttributeValue(SBAttributes.MAX_MANA)), 103), 8, 106, 28);
+        guiGraphics.blit(MANA_BAR, guiGraphics.guiWidth() / 2 - 198, guiGraphics.guiHeight() - 15, 2, 18, RenderUtil.getScaledRender((int)Math.floor(caster.getMana()), (int)Math.floor(player.getAttributeValue(SBAttributes.MAX_MANA)), 103), 8, 106, 28);
+        int mana = Mth.floor(caster.getMana());
         guiGraphics.drawString(Minecraft.getInstance().font,
-                player.getData(SBData.MANA) + "/" + player.getAttribute(SBAttributes.MAX_MANA).getValue(),
+                mana + "/" + Mth.floor(caster.getMaxMana()),
                 40,
                 guiGraphics.guiHeight() - 40,
                 8889187 ,
                 false);
 
-        SpellType<?> spell = handler.getSelectedSpell();
+        SpellType<?> spell = caster.getSelectedSpell();
         if (spell == null) return;
 
         ResourceLocation texture = spell.createSpell().getTexture();

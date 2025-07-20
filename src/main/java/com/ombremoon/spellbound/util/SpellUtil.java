@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.util;
 import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
 import com.ombremoon.spellbound.common.init.SBAttributes;
 import com.ombremoon.spellbound.common.init.SBData;
+import com.ombremoon.spellbound.common.init.SBEffects;
 import com.ombremoon.spellbound.common.magic.EffectManager;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.api.SpellType;
@@ -12,6 +13,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
@@ -20,8 +22,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 public class SpellUtil {
+    public static final BiPredicate<Entity, LivingEntity> CAN_ATTACK_ENTITY = (entity, livingEntity) -> !livingEntity.isAlliedTo(entity) && !livingEntity.hasEffect(SBEffects.COUNTER_MAGIC) && !(livingEntity instanceof OwnableEntity ownable && ownable.getOwner() == (entity));
+    public static final BiPredicate<Entity, LivingEntity> IS_ALLIED = (entity, livingEntity) -> livingEntity.isAlliedTo(entity) || (livingEntity instanceof OwnableEntity ownable && ownable.getOwner() == (entity));
 
     public static SpellHandler getSpellCaster(LivingEntity livingEntity) {
         var handler = livingEntity.getData(SBData.SPELL_HANDLER);
@@ -53,18 +59,19 @@ public class SpellUtil {
         return ResourceLocation.tryParse(compoundTag.getString(tagKey));
     }
 
-    public static boolean canCastSpell(Player player, AbstractSpell spell) {
-        if (player.getAbilities().instabuild) return true;
-        if (EffectManager.isSilenced(player)) return false;
+    public static boolean canCastSpell(LivingEntity livingEntity, AbstractSpell spell) {
+        if (livingEntity instanceof Player player && player.getAbilities().instabuild) return true;
+        if (EffectManager.isSilenced(livingEntity)) return false;
 
-        var handler = getSpellCaster(player);
-        return handler.inCastMode() && handler.consumeMana(spell.getManaCost(player), false);
+        var handler = getSpellCaster(livingEntity);
+        return handler.inCastMode() && handler.consumeMana(spell.getManaCost(livingEntity), false);
     }
 
     public static <T extends SpellType<?>> void cycle(SpellHandler handler, T activeSpell) {
         var spellType = findNextSpellInList(handler.getEquippedSpells(), activeSpell);
         if (spellType != activeSpell) {
             handler.setSelectedSpell(spellType);
+            handler.dirty = true;
         }
     }
 
@@ -90,7 +97,7 @@ public class SpellUtil {
      */
     public static void setSpell(@NotNull Entity entity, @NotNull AbstractSpell spell) {
         entity.setData(SBData.SPELL_ID, spell.getId());
-        if (entity instanceof ISpellEntity spellEntity)
+        if (entity instanceof ISpellEntity<?> spellEntity)
             spellEntity.setSpell(spell.getSpellType(), spell.getId());
     }
 

@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.events;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.ombremoon.sentinellib.common.event.RegisterPlayerSentinelBoxEvent;
+import com.ombremoon.spellbound.client.event.SpellCastEvents;
 import com.ombremoon.spellbound.common.content.commands.LearnSkillsCommand;
 import com.ombremoon.spellbound.common.content.commands.LearnSpellCommand;
 import com.ombremoon.spellbound.common.content.commands.SpellboundCommand;
@@ -16,7 +17,8 @@ import com.ombremoon.spellbound.common.events.custom.MobEffectEvent;
 import com.ombremoon.spellbound.common.events.custom.TickChunkEvent;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.EffectManager;
-import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.magic.acquisition.ArenaCache;
+import com.ombremoon.spellbound.common.magic.acquisition.ArenaSavedData;
 import com.ombremoon.spellbound.common.magic.acquisition.transfiguration.RitualSavedData;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
@@ -29,11 +31,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LightningBolt;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -54,7 +52,6 @@ import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.server.command.ConfigCommand;
 
 import java.util.List;
@@ -100,21 +97,27 @@ public class NeoForgeEvents {
                     var tree = player.getData(SBData.UPGRADE_TREE);
                     tree.update(player, tree.getUnlockedSkills());
 
-                    Level level = player.level();
-                    BlockPos blockPos = handler.getLastArenaPosition();
-                    if (handler.isArenaOwner(handler.getLastArenaEntered()) && blockPos != null && !level.dimension().location().getNamespace().equals(Constants.MOD_ID)) {
-                        blockPos = blockPos.offset(-4, 0, -4);
+                    ArenaCache cache = handler.getLastArena();
+                    Level arenaLevel = player.getServer().getLevel(cache.getArenaLevel());
+
+                    if (arenaLevel == null)
+                        return;
+
+                    BlockPos arenaPos = cache.getArenaPos();
+
+                    if (handler.isArenaOwner(cache.getArenaID()) && arenaPos != null && !ArenaSavedData.isArena(event.getLevel()) && cache.leftArena()) {
+                        arenaPos = arenaPos.offset(-4, 0, -4);
 
                         for (int i = 0; i < 5; i++) {
                             for (int j = 0; j < 5; j++) {
-                                BlockPos blockPos1 = blockPos.offset(i, 0, j);
-                                BlockState blockState = level.getBlockState(blockPos1);
+                                BlockPos blockPos1 = arenaPos.offset(i, 0, j);
+                                BlockState blockState = arenaLevel.getBlockState(blockPos1);
                                 if (blockState.is(SBBlocks.SUMMON_STONE.get()) || blockState.is(SBBlocks.SUMMON_PORTAL.get()))
-                                    level.setBlock(blockPos1, Blocks.AIR.defaultBlockState(), 3);
+                                    arenaLevel.setBlock(blockPos1, Blocks.AIR.defaultBlockState(), 3);
                             }
                         }
-                        handler.setLastArenaPosition(null);
-                        handler.closeArena(handler.getLastArenaEntered());
+                        handler.closeArena();
+                        handler.getLastArena().clearCache();
                     }
                 }
             }
@@ -122,41 +125,49 @@ public class NeoForgeEvents {
     }
 
     @SubscribeEvent
-    public static void onEntityLeaveDimension(EntityLeaveLevelEvent event) {
+    public static void onPlayerLeaveWorld(EntityLeaveLevelEvent event) {
         Level level = event.getLevel();
-        Entity entity = event.getEntity();
-        if (!level.isClientSide && entity instanceof Player player) {
-            var handler = SpellUtil.getSpellCaster(player);
-            if (handler.isArenaOwner(handler.getLastArenaEntered()) && level.dimension().location().getNamespace().equals(Constants.MOD_ID))
-                DimensionCreator.get().markDimensionForUnregistration(level.getServer(), level.dimension());
-        }
-    }
+        if (event.getEntity() instanceof Player player && !level.isClientSide) {
+            var caster = SpellUtil.getSpellCaster(player);
+            caster.endSpells();
 
-    @SubscribeEvent
-    public static void onHandlerTick(PlayerTickEvent.Post event) {
-        var handler = SpellUtil.getSpellCaster(event.getEntity());
-        handler.tick();
+            var cache = caster.getLastArena();
+            if (caster.isArenaOwner(cache.getArenaID()) && ArenaSavedData.isArena(level)) {
+                DimensionCreator.get().markDimensionForUnregistration(level.getServer(), level.dimension());
+                cache.leaveArena();
+            }
+        }
     }
 
     @SubscribeEvent
     public static void onPostEntityTick(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof LivingEntity entity) {
+            var caster = SpellUtil.getSpellCaster(entity);
+            caster.tick();
+
             EffectManager status = entity.getData(SBData.STATUS_EFFECTS);
-            if (status.isInitialised()) status.tick(entity.tickCount);
+            if (status.isInitialised())
+                status.tick(entity.tickCount);
 
             if (entity instanceof Player player) {
                 if (player.tickCount % 20 == 0) {
-                    double mana = player.getData(SBData.MANA);
-                    double maxMana = player.getAttribute(SBAttributes.MAX_MANA).getValue();
+                    double mana = caster.getMana();
+                    double maxMana = caster.getMaxMana();
                     if (mana < maxMana) {
-                        double regen = player.getAttribute(SBAttributes.MANA_REGEN).getValue();
-                        player.setData(SBData.MANA, Mth.clamp(mana + regen, 0, maxMana));
+                        double regen = caster.getManaRegen();
+                        caster.awardMana((float) regen);
                     }
                 }
+
+                if (player.level().isClientSide)
+                    SpellCastEvents.chargeOrChannelSpell(event);
             }
 
-            if (entity.hasEffect(SBEffects.STUNNED) || entity.hasEffect(SBEffects.ROOTED))
+            if (caster.isStationary()) {
                 entity.setDeltaMovement(0, -entity.getGravity(), 0);
+                if (entity instanceof Mob mob)
+                    mob.getNavigation().stop();
+            }
         }
     }
 
@@ -284,14 +295,6 @@ public class NeoForgeEvents {
     }
 
     @SubscribeEvent
-    public static void onPlayerLeaveWorld(EntityLeaveLevelEvent event) {
-        if (event.getEntity() instanceof Player player && player.level() instanceof ServerLevel level) {
-            SpellHandler handler = SpellUtil.getSpellCaster(player);
-            handler.endSpells();
-        }
-    }
-
-    @SubscribeEvent
     public static void onWorldEnd(ServerStoppingEvent event) {
         List<ServerPlayer> players = event.getServer().getPlayerList().getPlayers();
         for (ServerPlayer player : players) {
@@ -347,6 +350,9 @@ public class NeoForgeEvents {
         if (livingEntity.level().isClientSide) return;
 
         SpellUtil.getSpellCaster(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.PRE_DAMAGE, new DamageEvent.Pre(livingEntity, event));
+
+        if (event.getSource().is(SBDamageTypes.RUIN_FIRE))
+            livingEntity.igniteForSeconds(3.0F);
 
         if (livingEntity.hasEffect(SBEffects.SLEEP))
             livingEntity.removeEffect(SBEffects.SLEEP);

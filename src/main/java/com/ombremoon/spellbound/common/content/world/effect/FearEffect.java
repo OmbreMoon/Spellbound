@@ -29,8 +29,8 @@ public class FearEffect extends SBEffect {
         if (livingEntity.getData(SBData.FEAR_TICK) <= 40) {
             livingEntity.setData(SBData.FEAR_TICK, livingEntity.getData(SBData.FEAR_TICK) + 1);
             Vec3 source = livingEntity.getData(SBData.FEAR_SOURCE);
-            Vec3 direction = new Vec3(livingEntity.getX() - source.x, -livingEntity.getGravity(), livingEntity.getZ() - source.z).normalize().scale(0.15);
-            livingEntity.setDeltaMovement(direction);
+            Vec3 direction = new Vec3(livingEntity.getX() - source.x, 0, livingEntity.getZ() - source.z).normalize().scale(0.15);
+            livingEntity.setDeltaMovement(direction.add(new Vec3(0, -livingEntity.getGravity(), 0)));
             float yaw = Mth.wrapDegrees((float) (Mth.atan2(direction.z, direction.x) * 180.0F / (float) Math.PI) - 90.0F);
             livingEntity.setYRot(yaw);
             livingEntity.setYHeadRot(yaw);

@@ -11,6 +11,7 @@ import net.minecraft.util.Mth;
 import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
+import software.bernie.geckolib.util.Color;
 
 import java.util.List;
 

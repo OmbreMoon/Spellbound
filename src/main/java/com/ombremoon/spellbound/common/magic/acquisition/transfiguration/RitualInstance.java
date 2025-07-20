@@ -13,13 +13,14 @@ import org.slf4j.Logger;
 
 import java.util.UUID;
 
-public class RitualInstance {
-    protected static final Logger LOGGER = Constants.LOG;
+public final class RitualInstance {
+    private static final Logger LOGGER = Constants.LOG;
     private final Holder<TransfigurationRitual> ritualHolder;
     private final UUID ownerID;
     private final BlockPos blockPos;
     private final Multiblock.MultiblockPattern pattern;
     private boolean active;
+    public int startTicks;
     public int ticks;
 
     public RitualInstance(Holder<TransfigurationRitual> ritualHolder, UUID ownerID, BlockPos blockPos, Multiblock.MultiblockPattern pattern) {
@@ -35,9 +36,14 @@ public class RitualInstance {
         if (this.ticks >= ritual.definition().duration()) {
             ritual.effects().forEach(ritualEffect -> ritualEffect.onActivated(level, ritual.definition().tier(), player, this.blockPos, this.pattern));
             this.active = false;
+            pattern.multiblock().clearMultiblock(player, level, pattern);
         }
 
-        this.ticks++;
+        if (this.startTicks < ritual.definition().startupTime()) {
+            this.startTicks++;
+        } else {
+            this.ticks++;
+        }
     }
 
     public void toggleRitual() {

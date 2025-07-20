@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.content.block.entity;
 
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
+import com.ombremoon.sentinellib.api.Easing;
 import com.ombremoon.spellbound.common.content.world.multiblock.TransfigurationMultiblockPart;
 import com.ombremoon.spellbound.common.init.SBBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -23,7 +24,7 @@ public class TransfigurationDisplayBlockEntity extends TransfigurationMultiblock
     public int time;
     public boolean active;
     public int spiralTime;
-    public double dx, dz, r0, theta0;
+    public double dx, dy, dz, r0, theta0;
     public long t0;
 
     public TransfigurationDisplayBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -83,6 +84,7 @@ public class TransfigurationDisplayBlockEntity extends TransfigurationMultiblock
     private static void resetDisplay(TransfigurationDisplayBlockEntity display) {
         display.setItem(null);
         display.dx = 0;
+        display.dy = 0;
         display.dz = 0;
         display.r0 = 0;
         display.theta0 = 0;
@@ -95,6 +97,7 @@ public class TransfigurationDisplayBlockEntity extends TransfigurationMultiblock
 
     public void initSpiral(BlockPos center) {
         this.dx = worldPosition.getX() - center.getX();
+        this.dy = worldPosition.getY() - center.getY();
         this.dz = worldPosition.getZ() - center.getZ();
         this.r0 = Math.hypot(dx, dz);
         this.theta0 = Math.atan2(dz, dx);
@@ -112,7 +115,7 @@ public class TransfigurationDisplayBlockEntity extends TransfigurationMultiblock
 
         double x = radius * Math.cos(theta);
         double z = radius * Math.sin(theta);
-        return new Vec3(x - dx, 0, z - dz);
+        return new Vec3(x - dx, -dy, z - dz);
     }
 
     public void setItem(ItemStack stack) {

@@ -1,6 +1,8 @@
 package com.ombremoon.spellbound.common.init;
 
 import com.mojang.serialization.Codec;
+import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
@@ -36,7 +38,7 @@ public class SBData {
 
     //Mana
     public static final Supplier<AttachmentType<Double>> MANA = ATTACHMENT_TYPES.register(
-            "mana", () -> AttachmentType.builder(() -> 100d).serialize(Codec.DOUBLE).build());
+            "mana", () -> AttachmentType.builder(() -> 100.0).serialize(Codec.DOUBLE).build());
 
     //Upgrade Tree
     public static final Supplier<AttachmentType<UpgradeTree>> UPGRADE_TREE = ATTACHMENT_TYPES.register(

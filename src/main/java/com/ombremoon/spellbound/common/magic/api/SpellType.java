@@ -6,6 +6,8 @@ import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.Holder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -51,6 +53,14 @@ public class SpellType<S extends AbstractSpell> {
         return this.subPath;
     }
 
+    public SpellPath getIdentifiablePath() {
+        return this.getSubPath() != null ? this.getSubPath() : this.getPath();
+    }
+
+    public ResourceLocation getTexture() {
+        return this.createSpell().getTexture();
+    }
+
     public Skill getRootSkill() {
         return this.availableSkills.isEmpty() ? null : this.getSkills().getFirst().getRoot();
     }
@@ -83,7 +93,7 @@ public class SpellType<S extends AbstractSpell> {
         return this.resourceLocation.hashCode();
     }
 
-    public static class Builder<T extends AbstractSpell>{
+    public static class Builder<T extends AbstractSpell> {
         private final ResourceLocation resourceLocation;
         private final SpellFactory<T> factory;
         private SpellPath path;

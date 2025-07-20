@@ -1,30 +1,41 @@
 package com.ombremoon.spellbound.common.content.spell.ruin.fire;
 
+import com.ombremoon.sentinellib.CommonClass;
 import com.ombremoon.sentinellib.api.box.AABBSentinelBox;
 import com.ombremoon.sentinellib.api.box.OBBSentinelBox;
 import com.ombremoon.sentinellib.api.box.SentinelBox;
 import com.ombremoon.sentinellib.common.ISentinel;
-import com.ombremoon.spellbound.common.content.world.effect.SBEffectInstance;
+import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
 import com.ombremoon.spellbound.common.content.entity.spell.SolarRay;
+import com.ombremoon.spellbound.common.content.world.effect.SBEffectInstance;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
+import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;
 import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
-import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
+import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import com.ombremoon.spellbound.util.SpellUtil;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.OwnableEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
@@ -34,7 +45,8 @@ import net.tslat.smartbrainlib.util.RandomUtil;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BiFunction;
+import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 
 //TODO: CHANGE MODEL BASED ON SKILL
 //TODO: ADD SOLAR BURST ANIMATIONS
@@ -43,19 +55,17 @@ import java.util.function.BiFunction;
 
 public class SolarRaySpell extends ChanneledSpell {
     protected static final SpellDataKey<Integer> SOLAR_RAY_ID = SyncedSpellData.registerDataKey(SolarRaySpell.class, SBDataTypes.INT.get());
+    protected static final ResourceLocation OVERPOWER = CommonClass.customLocation("overpower");
+    protected static final ResourceLocation AFTERGLOW = CommonClass.customLocation("afterglow");
+    protected static final BiPredicate<Entity, LivingEntity> NO_ATTACK = (entity, livingEntity) -> false;
     private static final List<SentinelBox> BOXES = new ObjectArrayList<>();
-    private static final BiFunction<Entity, LivingEntity, Float> POTENCY = (entity, livingEntity) -> {
-        float damage = 3F;
-        if (entity instanceof LivingEntity living) {
-            var handler = SpellUtil.getSpellCaster(living);
+    protected static final BiConsumer<Entity, LivingEntity> SOLAR_RAY_HURT = (entity, livingEntity) -> {
+        if (entity instanceof LivingEntity caster) {
+            var handler = SpellUtil.getSpellCaster(caster);
             SolarRaySpell spell = handler.getSpell(SBSpells.SOLAR_RAY.get());
-            if (spell != null) {
-                damage = spell.potency(damage);
-                if (spell.checkForCounterMagic(livingEntity))
-                    damage = 0;
-            }
+            if (spell != null)
+                spell.hurt(livingEntity, spell.getBaseDamage());
         }
-        return damage;
     };
     public static final OBBSentinelBox SOLAR_RAY = createSolarRay(false);
     public static final OBBSentinelBox SOLAR_RAY_EXTENDED = createSolarRay(true);
@@ -80,26 +90,28 @@ public class SolarRaySpell extends ChanneledSpell {
                 }
             })
             .activeTicks((entity, integer) -> integer == 1 || integer % 20 == 0)
-            .attackCondition((entity, livingEntity) -> !entity.isAlliedTo(livingEntity) || !livingEntity.hasEffect(SBEffects.COUNTER_MAGIC) || (livingEntity instanceof OwnableEntity ownable && ownable.getOwner() != entity))
-            .typeDamage(SBDamageTypes.RUIN_FIRE, POTENCY).build();
+            .attackCondition(NO_ATTACK)
+            .onCollisionTick(SOLAR_RAY_HURT).build();
     public static final AABBSentinelBox SOLAR_BURST_FRONT = AABBSentinelBox.Builder.of("solar_burst_front")
             .sizeAndOffset(2, 0, 2, 0)
             .noDuration(entity -> false)
             .activeTicks((entity, integer) -> integer % 60 == 0)
-            .attackCondition((entity, livingEntity) -> entity instanceof LivingEntity living && !living.isAlliedTo(livingEntity))
-            .typeDamage(SBDamageTypes.RUIN_FIRE, POTENCY).build();
+            .attackCondition(NO_ATTACK)
+            .onCollisionTick(SOLAR_RAY_HURT).build();
     public static final OBBSentinelBox SOLAR_BURST_END = createSolarBurstEnd(false);
     public static final OBBSentinelBox SOLAR_BURST_END_EXTENDED = createSolarBurstEnd(true);
-    private final Set<LivingEntity> concentratedHeatSet = new ObjectOpenHashSet<>();
-    private final Map<LivingEntity, Integer> heatTracker = new Object2IntOpenHashMap<>();
+    private final Set<Integer> concentratedHeatSet = new IntOpenHashSet();
+    private final Map<Integer, Integer> heatTracker = new Int2IntOpenHashMap();
 
     public static Builder<SolarRaySpell> createSolarRayBuilder() {
         return createChannelledSpellBuilder(SolarRaySpell.class)
                 .mastery(SpellMastery.EXPERT)
                 .manaCost(40)
                 .manaTickCost(10)
+                .baseDamage(3)
                 .castTime(18)
-                .castAnimation(context -> "solar_ray1");
+                .castAnimation(context -> "name")
+                .channelAnimation("solar_ray1");
     }
 
     public SolarRaySpell() {
@@ -118,29 +130,24 @@ public class SolarRaySpell extends ChanneledSpell {
         Level level = context.getLevel();
         if (!level.isClientSide) {
             this.summonEntity(context, SBEntities.SOLAR_RAY.get(), caster.position(), solarRay -> {
+                solarRay.setSpellId(1);
                 solarRay.setStartTick(18);
                 this.setSolarRay(solarRay.getId());
+                solarRay.setPos(caster.position());
             });
         }
-    }
 
-    @Override
-    public void whenCasting(SpellContext context, int castTime) {
-        super.whenCasting(context, castTime);
-        LivingEntity caster = context.getCaster();
-        var handler = context.getSpellHandler();
-        handler.setStationaryTicks(1);
-
-        SolarRay solarRay = getSolarRay(context);
-        if (solarRay != null)
-            solarRay.setPos(caster.position());
+        context.getSpellHandler().setStationaryTicks(this.getCastTime() + 1);
     }
 
     @Override
     public void onCastReset(SpellContext context) {
         super.onCastReset(context);
         SolarRay solarRay = getSolarRay(context);
-        if (solarRay != null) solarRay.discard();
+        if (solarRay != null)
+            solarRay.setEndTick(context.getSkills().hasSkill(SBSkills.SUNSHINE) ? 15 : 9);
+
+        context.getSpellHandler().setStationaryTicks(0);
     }
 
     @Override
@@ -150,12 +157,32 @@ public class SolarRaySpell extends ChanneledSpell {
         var skills = context.getSkills();
         if (!context.getLevel().isClientSide) {
             var boxOwner = (ISentinel) caster;
-            SentinelBox box = skills.hasSkill(SBSkills.SUNSHINE.value()) ? SOLAR_RAY_EXTENDED : SOLAR_RAY;
-            boxOwner.triggerSentinelBox(box);
+            boolean hasSunshine = skills.hasSkill(SBSkills.SUNSHINE);
+            SentinelBox rayBox = hasSunshine ? SOLAR_RAY_EXTENDED : SOLAR_RAY;
+            SentinelBox burstBox = hasSunshine ? SOLAR_BURST_END_EXTENDED : SOLAR_BURST_END;
+            boxOwner.triggerSentinelBox(rayBox);
 
-            if (skills.hasSkill(SBSkills.SOLAR_BURST.value())) {
+            if (skills.hasSkill(SBSkills.SOLAR_BURST)) {
                 boxOwner.triggerSentinelBox(SOLAR_BURST_FRONT);
-                boxOwner.triggerSentinelBox(box);
+                boxOwner.triggerSentinelBox(rayBox);
+                boxOwner.triggerSentinelBox(burstBox);
+            }
+            
+            if (skills.hasSkill(SBSkills.OVERPOWER)) {
+                this.addSkillBuff(
+                        caster,
+                        SBSkills.OVERPOWER,
+                        BuffCategory.BENEFICIAL,
+                        SkillBuff.ATTRIBUTE_MODIFIER,
+                        new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(OVERPOWER, -0.75, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL))
+                );
+                this.addSkillBuff(
+                        caster,
+                        SBSkills.OVERPOWER,
+                        BuffCategory.BENEFICIAL,
+                        SkillBuff.ATTRIBUTE_MODIFIER,
+                        new ModifierData(Attributes.JUMP_STRENGTH, new AttributeModifier(OVERPOWER, -1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL))
+                );
             }
         }
     }
@@ -166,32 +193,35 @@ public class SolarRaySpell extends ChanneledSpell {
         LivingEntity caster = context.getCaster();
         var handler = context.getSpellHandler();
         var skills = context.getSkills();
-        if (skills.hasSkill(SBSkills.OVERHEAT.value()) && this.ticks == 100)
+        if (skills.hasSkill(SBSkills.OVERHEAT) && this.ticks == 100)
             ((ISentinel)caster).triggerSentinelBox(OVERHEAT);
 
         SolarRay solarRay = getSolarRay(context);
         if (solarRay != null)
             solarRay.setPos(caster.position());
 
-        if (context.getLevel().isClientSide && caster instanceof Player player) {
-            shakeScreen(player, 10, 5);
+        if (!skills.hasSkill(SBSkills.OVERPOWER))
             handler.setStationaryTicks(1);
-        }
+
+        if (context.getLevel().isClientSide && caster instanceof Player player)
+            shakeScreen(player, 10, 5);
     }
 
     @Override
     protected void onSpellStop(SpellContext context) {
         super.onSpellStop(context);
+        LivingEntity caster = context.getCaster();
         var handler = context.getSpellHandler();
         var skills = context.getSkills();
         handler.setStationaryTicks(16);
+        removeSkillBuff(caster, SBSkills.OVERPOWER);
         for (SentinelBox box : BOXES) {
-            ((ISentinel) context.getCaster()).removeSentinelInstance(box);
+            ((ISentinel) caster).removeSentinelInstance(box);
         }
 
         SolarRay solarRay = getSolarRay(context);
         if (solarRay != null)
-            solarRay.setEndTick(skills.hasSkill(SBSkills.SUNSHINE.value()) ? 15 : 9);
+            solarRay.setEndTick(skills.hasSkill(SBSkills.SUNSHINE) ? 15 : 9);
     }
 
     private void setSolarRay(int solarRay) {
@@ -211,83 +241,80 @@ public class SolarRaySpell extends ChanneledSpell {
                 .moverType(SentinelBox.MoverType.HEAD_NO_X)
                 .noDuration(entity -> false)
                 .activeTicks((entity, integer) -> integer % 10 == 1)
-                .attackCondition((entity, livingEntity) -> !entity.isAlliedTo(livingEntity) || !livingEntity.hasEffect(SBEffects.COUNTER_MAGIC) || (livingEntity instanceof OwnableEntity ownable && ownable.getOwner() != entity))
-                .onCollisionTick((entity, living) -> {
-                    if (entity instanceof LivingEntity livingEntity) {
-                        var skills = SpellUtil.getSkills(livingEntity);
-                        if (skills.hasSkill(SBSkills.HEALING_LIGHT.value()) && living.isAlliedTo(livingEntity))
-                            living.heal(2);
-                    }
-                })
-                .onHurtTick((entity, livingEntity) -> {
+                .attackCondition(NO_ATTACK)
+                .onCollisionTick((entity, livingEntity) -> {
                     if (entity instanceof LivingEntity caster) {
                         var skills = SpellUtil.getSkills(caster);
                         var handler = SpellUtil.getSpellCaster(caster);
                         SolarRaySpell spell = handler.getSpell(SBSpells.SOLAR_RAY.get());
-                        if (entity.isAlliedTo(livingEntity) || (livingEntity instanceof OwnableEntity ownable && ownable.getOwner() == entity)) {
-                            if (skills.hasSkill(SBSkills.HEALING_LIGHT.value()))
+                        if (spell != null) {
+                            boolean isAllied = SpellUtil.IS_ALLIED.test(caster, livingEntity);
+                            if (skills.hasSkill(SBSkills.HEALING_LIGHT) && isAllied) {
                                 livingEntity.heal(2);
+                            } else if (!isAllied) {
+                                float damage = spell.getBaseDamage();
+                                int bonus = spell.concentratedHeatSet.contains(livingEntity.getId()) ? 2 : 1;
+                                damage *= bonus;
+                                if (skills.hasSkill(SBSkills.POWER_OF_THE_SUN) && livingEntity.level().isDay())
+                                    damage *= 1.5F;
 
-                            return;
-                        }
+                                if (spell.hurt(livingEntity, damage)) {
+                                    if (skills.hasSkill(SBSkills.CONCENTRATED_HEAT)) {
+                                        int entityID = livingEntity.getId();
+                                        if (spell.heatTracker.containsKey(entityID)) {
+                                            int startTime = livingEntity.getData(SBData.HEAT_TICK);
+                                            int currentTime = spell.heatTracker.get(entityID);
+                                            if (livingEntity.tickCount != currentTime + 10) {
+                                                livingEntity.setData(SBData.HEAT_TICK, livingEntity.tickCount);
+                                                spell.concentratedHeatSet.remove(entityID);
+                                            } else {
+                                                if (livingEntity.tickCount == startTime + 100)
+                                                    spell.concentratedHeatSet.add(livingEntity.getId());
+                                            }
 
-                        if (skills.hasSkill(SBSkills.OVERPOWER.value())) {
-                            var targetHandler = SpellUtil.getSpellCaster(livingEntity);
-                            targetHandler.consumeMana(5, true);
-                        }
+                                            spell.heatTracker.replace(entityID, livingEntity.tickCount);
+                                        } else {
+                                            spell.heatTracker.put(entityID, livingEntity.tickCount);
+                                            livingEntity.setData(SBData.HEAT_TICK, livingEntity.tickCount);
+                                        }
+                                    }
 
-                        if (skills.hasSkill(SBSkills.CONCENTRATED_HEAT.value())) {
-                            if (!spell.concentratedHeatSet.contains(livingEntity)) {
-                                spell.concentratedHeatSet.add(livingEntity);
-                                livingEntity.setData(SBData.HEAT_TICK, livingEntity.tickCount);
-                                spell.heatTracker.put(livingEntity, livingEntity.tickCount);
-                            } else {
-                                int heatTick = livingEntity.getData(SBData.HEAT_TICK);
-                                if (livingEntity.tickCount == heatTick + 20) {
-                                    livingEntity.setData(SBData.HEAT_TICK, livingEntity.tickCount);
-                                } else {
-                                    livingEntity.setData(SBData.HEAT_TICK, 0);
-                                    spell.concentratedHeatSet.remove(livingEntity);
-                                    spell.heatTracker.remove(livingEntity);
+                                    if (skills.hasSkill(SBSkills.BLINDING_LIGHT))
+                                        spell.addSkillBuff(
+                                            livingEntity,
+                                            SBSkills.BLINDING_LIGHT,
+                                            BuffCategory.HARMFUL,
+                                            SkillBuff.MOB_EFFECT,
+                                                new MobEffectInstance(MobEffects.BLINDNESS, 60, 0, false, false),
+                                            100
+                                        );
+                                    if (skills.hasSkill(SBSkills.AFTERGLOW)) {
+                                        spell.addSkillBuff(
+                                                livingEntity,
+                                                SBSkills.AFTERGLOW,
+                                                BuffCategory.HARMFUL,
+                                                SkillBuff.MOB_EFFECT,
+                                                new SBEffectInstance(caster, SBEffects.AFTERGLOW, 100, true, 0, false, false),
+                                                100
+                                        );
+                                        spell.addEventBuff(
+                                                livingEntity,
+                                                SBSkills.AFTERGLOW,
+                                                BuffCategory.HARMFUL,
+                                                SpellEventListener.Events.PRE_DAMAGE,
+                                                AFTERGLOW,
+                                                pre -> {
+                                                    DamageSource source = pre.getSource();
+                                                    if (source.is(SBDamageTypes.RUIN_FIRE) || source.is(DamageTypeTags.IS_FIRE))
+                                                        pre.setNewDamage(pre.getOriginalDamage() * 1.2F);
+                                                },
+                                                100
+                                        );
+                                    }
                                 }
                             }
                         }
-
-                        if (skills.hasSkill(SBSkills.BLINDING_LIGHT.value()))
-                            livingEntity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 60, 0, false, false));
-
-                        if (skills.hasSkill(SBSkills.AFTERGLOW.value())) {
-                            livingEntity.addEffect(new SBEffectInstance(caster, SBEffects.AFTERGLOW, 100, true, 0, false, false));
-                            spell.addSkillBuff(
-                                    caster,
-                                    SBSkills.AFTERGLOW.value(),
-                                    BuffCategory.HARMFUL,
-                                    SkillBuff.SPELL_MODIFIER,
-                                    SpellModifier.AFTERGLOW,
-                                    100
-                            );
-                        }
                     }
-                })
-                .typeDamage(SBDamageTypes.RUIN_FIRE, (entity, living) -> {
-                    float damage = 3F;
-                    if (entity instanceof LivingEntity livingEntity) {
-                        var handler = SpellUtil.getSpellCaster(livingEntity);
-                        var skills = SpellUtil.getSkills(livingEntity);
-                        SolarRaySpell spell = handler.getSpell(SBSpells.SOLAR_RAY.get());
-                        if (spell != null) {
-                            damage = spell.potency(damage);
-                            int startTick = spell.heatTracker.computeIfAbsent(living, target -> 0);
-                            int bonus = startTick > 0 && living.tickCount >= startTick + 60 ? 2 : 1;
-                            damage *= bonus;
-                            if (skills.hasSkill(SBSkills.POWER_OF_THE_SUN.value()) && livingEntity.level().isDay())
-                                damage *= 1.5F;
-
-                            if (spell.checkForCounterMagic(living))
-                                damage = 0;
-                        }
-                    }
-                    return damage;
                 }).build();
     }
 
@@ -299,21 +326,21 @@ public class SolarRaySpell extends ChanneledSpell {
                 .moverType(SentinelBox.MoverType.HEAD_NO_X)
                 .noDuration(entity -> false)
                 .activeTicks((entity, integer) -> integer % 60 == 0)
-                .attackCondition((entity, livingEntity) -> !entity.isAlliedTo(livingEntity) || !livingEntity.hasEffect(SBEffects.COUNTER_MAGIC) || (livingEntity instanceof OwnableEntity ownable && ownable.getOwner() != entity))
+                .attackCondition(NO_ATTACK)
                 .onBoxTick((entity, instance) -> {
                     Level level = entity.level();
                     if (!(entity instanceof LivingEntity livingEntity)) return;
 
                     var skills = SpellUtil.getSkills(livingEntity);
                     if (!level.isClientSide) {
-                        if (skills.hasSkill(SBSkills.SOLAR_BORE.value())) {
+                        if (skills.hasSkill(SBSkills.SOLAR_BORE)) {
                             Vec3 vec3 = instance.getCenter();
                             if (instance.tickCount > 20 && instance.tickCount % 20 == 0)
                                 level.explode(livingEntity, Explosion.getDefaultDamageSource(level, livingEntity), null, vec3.x(), vec3.y(), vec3.z(), 4.0F, true, Level.ExplosionInteraction.TNT);
                         }
                     }
                 })
-                .typeDamage(SBDamageTypes.RUIN_FIRE, POTENCY).build();
+                .onCollisionTick(SOLAR_RAY_HURT).build();
     }
 
     static {

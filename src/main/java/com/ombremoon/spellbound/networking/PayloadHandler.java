@@ -1,6 +1,8 @@
 package com.ombremoon.spellbound.networking;
 
 import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockHolder;
+import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.api.SpellType;
@@ -9,6 +11,8 @@ import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import com.ombremoon.spellbound.networking.clientbound.*;
 import com.ombremoon.spellbound.networking.serverbound.*;
 import com.ombremoon.spellbound.util.SpellUtil;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -16,6 +20,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -24,6 +29,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Set;
@@ -55,10 +61,6 @@ public class PayloadHandler {
         PacketDistributor.sendToServer(new CastStartPayload(spellType, recast));
     }
 
-    public static void whenCasting(SpellType<?> spellType, int castTime, boolean recast) {
-        PacketDistributor.sendToServer(new CastingPayload(spellType, castTime, recast));
-    }
-
     public static void castReset(SpellType<?> spellType, boolean recast) {
         PacketDistributor.sendToServer(new CastResetPayload(spellType, recast));
     }
@@ -78,8 +80,17 @@ public class PayloadHandler {
     public static void playAnimation(Player player, String animation) {
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getUUID().toString(), animation));
     }
-    public static void updateSpells(Player player, boolean isRecast, int castId, boolean forceReset) {
-        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new UpdateSpellsPayload(player.getUUID().toString(), isRecast, castId, forceReset));
+
+    public static void updateSpells(Player player, @Nullable CompoundTag spellData, boolean isRecast, int castId, boolean forceReset) {
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new UpdateSpellsPayload(player.getUUID().toString(), spellData, isRecast, castId, forceReset));
+    }
+
+    public static void updateSkillBuff(ServerPlayer player, SkillBuff<?> skillBuff, int duration, boolean removeBuff) {
+        PacketDistributor.sendToPlayer(player, new UpdateSkillBuffPayload(player.getId(), skillBuff, duration, removeBuff));
+    }
+
+    public static void setChargeOrChannel(Player player, boolean isChargingOrChanneling) {
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new ChargeOrChannelPayload(isChargingOrChanneling));
     }
 
     public static void endSpell(Player player, SpellType<?> spellType, int castId) {
@@ -114,6 +125,10 @@ public class PayloadHandler {
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new SetRotationPayload(entity.getId(), xRot, yRot));
     }
 
+    public static void createParticles(LivingEntity entity, ParticleOptions particle, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new CreateParticlesPayload(particle, x, y, z, xSpeed, ySpeed, zSpeed));
+    }
+
     public static void addGlowEffect(Player player, int entityId) {
         PacketDistributor.sendToPlayer((ServerPlayer) player, new AddGlowEffectPayload(entityId));
     }
@@ -134,9 +149,13 @@ public class PayloadHandler {
         sendToAll(server, new UpdateMultiblocksPayload(multiblocks));
     }
 
-    public static void changeHailLevel(ServerLevel level, float hailLevel) {
-        PacketDistributor.sendToPlayersInDimension(level, new ChangeHailLevelPayload(hailLevel));
+    public static void clearMultiblock(MinecraftServer server, CompoundTag tag) {
+        sendToAll(server, new ClearMultiblockPayload(tag));
     }
+
+/*    public static void changeHailLevel(ServerLevel level, float hailLevel) {
+        PacketDistributor.sendToPlayersInDimension(level, new ChangeHailLevelPayload(hailLevel));
+    }*/
 
     public static <PACKET extends CustomPacketPayload> void sendToAll(MinecraftServer server, PACKET packet) {
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
@@ -163,6 +182,11 @@ public class PayloadHandler {
                 UpdateSpellsPayload.TYPE,
                 UpdateSpellsPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleClientUpdateSpells
+        );
+        registrar.playToClient(
+                UpdateSkillBuffPayload.TYPE,
+                UpdateSkillBuffPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleClientUpdateSkillBuff
         );
         registrar.playToClient(
                 SyncSpellPayload.TYPE,
@@ -200,6 +224,11 @@ public class PayloadHandler {
                 ClientPayloadHandler::handleClientSetRotation
         );
         registrar.playToClient(
+                CreateParticlesPayload.TYPE,
+                CreateParticlesPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleCreateParticles
+        );
+        registrar.playToClient(
                 RemoveGlowEffectPayload.TYPE,
                 RemoveGlowEffectPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleRemoveGlowEffect
@@ -228,6 +257,11 @@ public class PayloadHandler {
                 UpdateMultiblocksPayload.TYPE,
                 UpdateMultiblocksPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleUpdateMultiblocks
+        );
+        registrar.playToClient(
+                ClearMultiblockPayload.TYPE,
+                ClearMultiblockPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleClearMultiblock
         );
 
         registrar.playToServer(
@@ -259,11 +293,6 @@ public class PayloadHandler {
                 CastStartPayload.TYPE,
                 CastStartPayload.STREAM_CODEC,
                 ServerPayloadHandler::handleNetworkCastStart
-        );
-        registrar.playToServer(
-                CastingPayload.TYPE,
-                CastingPayload.STREAM_CODEC,
-                ServerPayloadHandler::handleNetworkCasting
         );
         registrar.playToServer(
                 CastResetPayload.TYPE,

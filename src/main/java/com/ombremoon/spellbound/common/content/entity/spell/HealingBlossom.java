@@ -51,12 +51,12 @@ public class HealingBlossom extends SpellEntity<HealingBlossomSpell> {
         double d2 = (double)k + p_222506_.nextDouble();
         BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
 
-        for (int l = 0; l < 14; l++) {
-            blockpos$mutableblockpos.set(i + Mth.nextInt(p_222506_, -10, 10), j - p_222506_.nextInt(10), k + Mth.nextInt(p_222506_, -10, 10));
+        for (int l = 0; l < 2; l++) {
+            blockpos$mutableblockpos.set(i + Mth.nextInt(p_222506_, -5, 5), j - p_222506_.nextInt(5), k + Mth.nextInt(p_222506_, -5, 5));
             BlockState blockstate = p_222504_.getBlockState(blockpos$mutableblockpos);
             if (!blockstate.isCollisionShapeFullBlock(p_222504_, blockpos$mutableblockpos)) {
                 p_222504_.addParticle(
-                        ParticleTypes.SPORE_BLOSSOM_AIR,
+                        ParticleTypes.CHERRY_LEAVES,
                         (double)blockpos$mutableblockpos.getX() + p_222506_.nextDouble(),
                         (double)blockpos$mutableblockpos.getY() + p_222506_.nextDouble(),
                         (double)blockpos$mutableblockpos.getZ() + p_222506_.nextDouble(),

@@ -8,7 +8,7 @@ public interface MultiblockPart {
 
     MultiblockIndex getIndex();
 
-    void setIndex(Multiblock multiblock, MultiblockIndex index, Direction facing);
+    void assign(Multiblock multiblock, MultiblockIndex index, Direction facing);
 
     Direction getPartDirection();
 

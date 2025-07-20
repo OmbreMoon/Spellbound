@@ -59,16 +59,14 @@ public class SummonBlockEntity extends BlockEntity {
             MinecraftServer server = level.getServer();
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof SummonBlockEntity) {
-                ArenaSavedData data = ArenaSavedData.get(server);
+                ArenaSavedData data = ArenaSavedData.get((ServerLevel) level);
                 ResourceKey<Level> levelKey = data.getOrCreateKey(server, this.arenaId);
                 ServerLevel arena = DynamicDimensionFactory.createDimension(server, levelKey);
                 if (arena != null && this.spell != null) {
                     var handler = SpellUtil.getSpellCaster(livingEntity);
                     DynamicDimensionFactory.spawnInArena(entity, arena, this.spell, !this.hasEnteredPortal);
-                    if (handler.isArenaOwner(this.arenaId)) {
-                        handler.setLastArenaEntered(this.arenaId);
-                        handler.setLastArenaPosition(this.frontTopLeft);
-                    }
+                    if (handler.isArenaOwner(this.arenaId))
+                        handler.getLastArena().loadCache(this.arenaId, this.frontTopLeft, level.dimension());
 
                     if (!this.hasEnteredPortal) {
                         if (this.frontTopLeft != null) {
@@ -124,7 +122,7 @@ public class SummonBlockEntity extends BlockEntity {
     }
 
     public boolean shouldRenderFace(Direction face) {
-        return /*face.getAxis() == Direction.Axis.Y*/true;
+        return face.getAxis() == Direction.Axis.Y;
     }
 
     @Override

@@ -13,15 +13,14 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 
 // After I made the interface, I realized it could have been an abstract class, oops
-public abstract class AbstractMultiBlock extends Block implements MultiBlock, EntityBlock {
+public abstract class AbstractExtendedBlock extends Block implements ExtendedBlock, EntityBlock {
     public static final BooleanProperty CENTER = BooleanProperty.create("center");
 
-    public AbstractMultiBlock(Properties properties) {
+    public AbstractExtendedBlock(Properties properties) {
         super(properties);
     }
 

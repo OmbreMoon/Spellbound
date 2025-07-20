@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "powered=false": {
+      "model": "spellbound:block/summon_stone"
+    },
+    "powered=true": {
+      "model": "spellbound:block/summon_stone_activated"
+    }
+  }
+}

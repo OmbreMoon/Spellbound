@@ -127,7 +127,7 @@ public class HailstormSavedData extends SavedData implements HailstormData, Logg
         return level.getEntitiesOfClass(Cyclone.class, aabb, cyclone -> cyclone != null && level.canSeeSky(cyclone.blockPosition()));
     }
 
-    public void tickHailLevel(ServerLevel level) {
+/*    public void tickHailLevel(ServerLevel level) {
         this.oHailLevel = this.hailLevel;
         if (this.isHailing()) {
             this.hailLevel += 0.01F;
@@ -142,7 +142,7 @@ public class HailstormSavedData extends SavedData implements HailstormData, Logg
 
 
         this.setDirty();
-    }
+    }*/
 
     public boolean isHailingAt(Level level, BlockPos pos) {
         if (!this.isHailing()) {

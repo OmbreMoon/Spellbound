@@ -6,6 +6,7 @@ import com.ombremoon.sentinellib.api.Easing;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.client.renderer.types.EmissiveOutlineSpellRenderer;
 import com.ombremoon.spellbound.common.content.entity.spell.StormRift;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 
 public class StormRiftRenderer extends EmissiveOutlineSpellRenderer<StormRift> {
@@ -24,7 +25,6 @@ public class StormRiftRenderer extends EmissiveOutlineSpellRenderer<StormRift> {
         if (animatable.canRotate()) {
             float f = Easing.QUAD_IN.easing(3, (float) animatable.rotationTick / 200);
             animatable.rotationAngle += Math.min(3, f);
-            Constants.LOG.debug("{}", animatable.rotationAngle);
             poseStack.mulPose(Axis.YP.rotationDegrees(animatable.rotationAngle));
         }
     }

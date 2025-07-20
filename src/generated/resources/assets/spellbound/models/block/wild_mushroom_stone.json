@@ -1,0 +1,6 @@
+{
+  "parent": "spellbound:block/summon_stone",
+  "textures": {
+    "up": "spellbound:block/wild_mushroom_stone"
+  }
+}

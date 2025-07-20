@@ -30,7 +30,7 @@ public class SBEffects {
     public static final Holder<MobEffect> EARTH = EFFECTS.register("earth", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
     public static final Holder<MobEffect> DISEASE = EFFECTS.register("disease", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
 
-    //Restricting
+    //Crowd Control
     public static final Holder<MobEffect> ROOTED = EFFECTS.register("rooted", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
     public static final Holder<MobEffect> STUNNED = EFFECTS.register("stunned", () -> new SBEffect(MobEffectCategory.HARMFUL, 8889187));
     public static final Holder<MobEffect> SLEEP = EFFECTS.register("sleep", () -> new SleepEffect(MobEffectCategory.HARMFUL, 8889187));

@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.content.spell.transfiguration;
 
+import com.ombremoon.spellbound.common.init.SBDamageTypes;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.init.SBSpells;
@@ -34,7 +35,8 @@ public class StrideSpell extends AnimatedSpell {
                 .duration(600)
                 .manaCost(12)
                 .hasLayer()
-                .fullRecast();
+                .fullRecast()
+                .skipEndOnRecast();
     }
 
     private int initialFoodLevel;
@@ -55,10 +57,10 @@ public class StrideSpell extends AnimatedSpell {
             applyMovementBenefits(caster, skills);
 
             if (caster instanceof Player player) {
-                if (skills.hasSkill(SBSkills.MARATHON.value()))
+                if (skills.hasSkill(SBSkills.MARATHON))
                     this.initialFoodLevel = player.getFoodData().getFoodLevel();
 
-                if (skills.hasSkill(SBSkills.MOMENTUM.value()))
+                if (skills.hasSkill(SBSkills.MOMENTUM))
                     this.currentPos = context.getBlockPos();
             }
         }
@@ -71,8 +73,8 @@ public class StrideSpell extends AnimatedSpell {
         Level level = context.getLevel();
         var skills = context.getSkills();
 
-        if (skills.hasSkill(SBSkills.AQUA_TREAD.value())) {
-            boolean flag = caster.getVehicle() != null && skills.hasSkill(SBSkills.RIDERS_RESILIENCE.value());
+        if (skills.hasSkill(SBSkills.AQUA_TREAD)) {
+            boolean flag = caster.getVehicle() != null && skills.hasSkill(SBSkills.RIDERS_RESILIENCE);
             Entity entity = flag ? caster.getVehicle() : caster;
             entity.wasTouchingWater = false;
             Vec3 vec3 = entity.getDeltaMovement().scale(1.15F);
@@ -86,20 +88,20 @@ public class StrideSpell extends AnimatedSpell {
         }
 
         if (!level.isClientSide) {
-            if (skills.hasSkill(SBSkills.QUICK_SPRINT.value()) && this.ticks >= 200) {
+            if (skills.hasSkill(SBSkills.QUICK_SPRINT) && this.ticks >= 200) {
                 if (hasAttributeModifier(caster, Attributes.MOVEMENT_SPEED, QUICK_SPRINT)) {
-                    removeSkillBuff(caster, SBSkills.QUICK_SPRINT.value());
+                    removeSkillBuff(caster, SBSkills.QUICK_SPRINT);
                 } else if (caster.getVehicle() instanceof LivingEntity vehicle && hasAttributeModifier(vehicle, Attributes.MOVEMENT_SPEED, QUICK_SPRINT)) {
-                    removeSkillBuff(vehicle, SBSkills.QUICK_SPRINT.value());
+                    removeSkillBuff(vehicle, SBSkills.QUICK_SPRINT);
                 }
             }
 
-            if (skills.hasSkill(SBSkills.FLEETFOOTED.value())) {
+            if (skills.hasSkill(SBSkills.FLEETFOOTED)) {
                 var allies = level.getEntitiesOfClass(LivingEntity.class, caster.getBoundingBox().inflate(5), livingEntity -> livingEntity.isAlliedTo(caster));
                 for (LivingEntity ally : allies) {
                     addSkillBuff(
                             ally,
-                            SBSkills.FLEETFOOTED.value(),
+                            SBSkills.FLEETFOOTED,
                             BuffCategory.BENEFICIAL,
                             SkillBuff.ATTRIBUTE_MODIFIER,
                             new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(FLEETFOOTED, 1.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
@@ -107,7 +109,7 @@ public class StrideSpell extends AnimatedSpell {
                 }
             }
 
-            if (skills.hasSkill(SBSkills.RIDERS_RESILIENCE.value())) {
+            if (skills.hasSkill(SBSkills.RIDERS_RESILIENCE)) {
                 Entity entity = caster.getVehicle();
                 if (entity != null) {
                     this.mount = entity;
@@ -118,19 +120,19 @@ public class StrideSpell extends AnimatedSpell {
                 }
             }
 
-            if (skills.hasSkill(SBSkills.STAMPEDE.value())) {
+            if (skills.hasSkill(SBSkills.STAMPEDE)) {
                 var entities = level.getEntitiesOfClass(LivingEntity.class, caster.getBoundingBox().inflate(1.5), EntitySelector.NO_CREATIVE_OR_SPECTATOR);
-                boolean flag = caster.getVehicle() != null && skills.hasSkill(SBSkills.RIDERS_RESILIENCE.value());
+                boolean flag = caster.getVehicle() != null && skills.hasSkill(SBSkills.RIDERS_RESILIENCE);
                 for (LivingEntity living : entities) {
                     if (!isCaster(living) && !living.isAlliedTo(caster) && (caster.isSprinting() || flag && !living.is(caster.getVehicle()))) {
                         living.knockback(0.4, caster.getX() - living.getX(), caster.getZ() - living.getZ());
                         living.hurtMarked = true;
-                        this.hurt(living, level.damageSources().mobAttack(caster), 1.5F);
+                        this.hurt(living, SBDamageTypes.SB_GENERIC, 1.5F);
                     }
                 }
             }
 
-            if (skills.hasSkill(SBSkills.MOMENTUM.value())) {
+            if (skills.hasSkill(SBSkills.MOMENTUM)) {
                 if (this.ticks % 4 == 0) {
                     if (!this.currentPos.equals(caster.getOnPos())) {
                         this.movementTicks += 4;
@@ -138,7 +140,7 @@ public class StrideSpell extends AnimatedSpell {
                         if (this.movementTicks % 20 == 0)
                             addSkillBuff(
                                     caster,
-                                    SBSkills.MOMENTUM.value(),
+                                    SBSkills.MOMENTUM,
                                     BuffCategory.BENEFICIAL,
                                     SkillBuff.ATTRIBUTE_MODIFIER,
                                     new ModifierData(Attributes.ATTACK_SPEED, new AttributeModifier(MOMENTUM, Math.min(1 + (0.04 * this.movementTicks / 20), 1.2), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
@@ -149,7 +151,7 @@ public class StrideSpell extends AnimatedSpell {
                 }
             }
 
-            if (skills.hasSkill(SBSkills.MARATHON.value()) && caster instanceof Player player && player.getFoodData().getFoodLevel() < this.initialFoodLevel)
+            if (skills.hasSkill(SBSkills.MARATHON) && caster instanceof Player player && player.getFoodData().getFoodLevel() < this.initialFoodLevel)
                 player.getFoodData().eat(this.initialFoodLevel - player.getFoodData().getFoodLevel(), 0);
         }
     }
@@ -158,7 +160,7 @@ public class StrideSpell extends AnimatedSpell {
     protected void onSpellStop(SpellContext context) {
         LivingEntity caster = context.getCaster();
         removeMovementBenefits(caster);
-        removeSkillBuff(caster, SBSkills.MOMENTUM.value());
+        removeSkillBuff(caster, SBSkills.MOMENTUM);
         if (this.mount != null)
             removeMovementBenefits(this.mount);
     }
@@ -167,22 +169,22 @@ public class StrideSpell extends AnimatedSpell {
         if (entity instanceof LivingEntity livingEntity) {
             addSkillBuff(
                     livingEntity,
-                    SBSkills.STRIDE.value(),
+                    SBSkills.STRIDE,
                     BuffCategory.BENEFICIAL,
                     SkillBuff.ATTRIBUTE_MODIFIER,
-                    new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(THUNDEROUS_HOOVES, skills.hasSkill(SBSkills.GALLOPING_STRIDE.value()) ? 1.5 : 1.25, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)));
-            if (skills.hasSkill(SBSkills.QUICK_SPRINT.value()))
+                    new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(THUNDEROUS_HOOVES, skills.hasSkill(SBSkills.GALLOPING_STRIDE) ? 1.5 : 1.25, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)));
+            if (skills.hasSkill(SBSkills.QUICK_SPRINT))
                 addSkillBuff(
                         livingEntity,
-                        SBSkills.QUICK_SPRINT.value(),
+                        SBSkills.QUICK_SPRINT,
                         BuffCategory.BENEFICIAL,
                         SkillBuff.ATTRIBUTE_MODIFIER,
                         new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(QUICK_SPRINT, 1.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)));
 
-            if (skills.hasSkill(SBSkills.SUREFOOTED.value()))
+            if (skills.hasSkill(SBSkills.SUREFOOTED))
                 addSkillBuff(
                         livingEntity,
-                        SBSkills.SUREFOOTED.value(),
+                        SBSkills.SUREFOOTED,
                         BuffCategory.BENEFICIAL,
                         SkillBuff.ATTRIBUTE_MODIFIER,
                         new ModifierData(Attributes.STEP_HEIGHT, new AttributeModifier(SUREFOOTED, 0.4, AttributeModifier.Operation.ADD_VALUE)));
@@ -191,9 +193,9 @@ public class StrideSpell extends AnimatedSpell {
 
     private void removeMovementBenefits(Entity entity) {
         if (entity instanceof LivingEntity livingEntity) {
-            removeSkillBuff(livingEntity, SBSkills.STRIDE.value());
-            removeSkillBuff(livingEntity, SBSkills.QUICK_SPRINT.value());
-            removeSkillBuff(livingEntity, SBSkills.SUREFOOTED.value());
+            removeSkillBuff(livingEntity, SBSkills.STRIDE);
+            removeSkillBuff(livingEntity, SBSkills.QUICK_SPRINT);
+            removeSkillBuff(livingEntity, SBSkills.SUREFOOTED);
         }
     }
 }

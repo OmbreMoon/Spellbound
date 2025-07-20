@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.common.magic.skills;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.core.Holder;
 import net.minecraft.util.Mth;
 
 import java.util.Iterator;
@@ -32,8 +33,9 @@ public class SkillCooldowns {
         }
     }
 
-    public void addCooldown(Skill skill, int ticks) {
-        this.cooldowns.put(skill, new Instance(this.tickCount, this.tickCount + ticks));
+    public void addCooldown(Holder<Skill> skill, int ticks) {
+        if (!this.isOnCooldown(skill.value()))
+            this.cooldowns.put(skill.value(), new Instance(this.tickCount, this.tickCount + ticks));
     }
 
     record Instance(int startTime, int endTime) {}

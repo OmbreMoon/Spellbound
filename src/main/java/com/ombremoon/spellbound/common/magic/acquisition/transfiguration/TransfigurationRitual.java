@@ -24,7 +24,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import java.util.List;
 
 public record TransfigurationRitual(Component description, RitualDefinition definition, NonNullList<Ingredient> materials, List<RitualEffect> effects) {
-    public static final int DEFAULT_RITUAL_DURATION = 20;
+    public static final int DEFAULT_RITUAL_DURATION = 5;
     public static final Codec<TransfigurationRitual> DIRECT_CODEC = RecordCodecBuilder.create(
             p_344998_ -> p_344998_.group(
                             ComponentSerialization.CODEC.fieldOf("description").forGetter(TransfigurationRitual::description),
@@ -77,7 +77,7 @@ public record TransfigurationRitual(Component description, RitualDefinition defi
     }
 
     public static Builder ritual(int tier, int duration) {
-        return ritual(tier, duration, duration);
+        return ritual(tier, 100, duration);
     }
 
     public static Builder ritual(int tier) {

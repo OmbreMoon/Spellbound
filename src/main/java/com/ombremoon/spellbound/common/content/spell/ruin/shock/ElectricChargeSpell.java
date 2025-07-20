@@ -3,10 +3,17 @@ package com.ombremoon.spellbound.common.content.spell.ruin.shock;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
+import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
+import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
@@ -36,7 +43,9 @@ public class ElectricChargeSpell extends AnimatedSpell {
                         if (spell.entityIds.size() >= 3) spell.discharged = true;
                         return context.isRecast();
                     }
-                }).fullRecast().updateInterval(1);
+                })
+                .fullRecast()
+                .updateInterval(1);
     }
 
     private Set<Integer> entityIds = new IntOpenHashSet();
@@ -66,10 +75,11 @@ public class ElectricChargeSpell extends AnimatedSpell {
         Level level = context.getLevel();
         var skills = context.getSkills();
         boolean hasShard = context.hasCatalyst(SBItems.STORM_SHARD.get());
-        if (skills.hasSkill(SBSkills.AMPLIFY.value())) {
+        if (skills.hasSkill(SBSkills.AMPLIFY)) {
             context.getSpellHandler().setChargingOrChannelling(true);
             return;
         }
+
         if (context.getTarget() == null || this.discharged) {
             for (Integer entityId : this.entityIds) {
                 Entity entity = level.getEntity(entityId);
@@ -92,11 +102,13 @@ public class ElectricChargeSpell extends AnimatedSpell {
         var handler = context.getSpellHandler();
         var skills = context.getSkills();
         boolean hasShard = context.hasCatalyst(SBItems.STORM_SHARD.get());
-        if (skills.hasSkill(SBSkills.AMPLIFY.value())) {
+        if (skills.hasSkill(SBSkills.AMPLIFY)) {
             if ((context.isRecast() && context.getTarget() == null) || this.discharged) {
                 this.discharging = true;
                 if (handler.isChargingOrChannelling()) {
                     incrementTick();
+                    if (!level.isClientSide && this.ticks % 20 == 0)
+                        drainMana(context.getCaster(), 3);
                 } else {
                     for (Integer entityId : this.entityIds) {
                         Entity entity = level.getEntity(entityId);
@@ -107,6 +119,13 @@ public class ElectricChargeSpell extends AnimatedSpell {
                 }
             }
         }
+
+        for (Integer entityId : this.entityIds) {
+            Entity entity = level.getEntity(entityId);
+            if (entity instanceof LivingEntity && entity.tickCount % 3 == 0) {
+                this.createSurroundingParticles(entity, SBParticles.SPARK.get(), 1);
+            }
+        }
     }
 
     private void discharge(SpellContext context, LivingEntity target, boolean hasShard) {
@@ -114,57 +133,74 @@ public class ElectricChargeSpell extends AnimatedSpell {
         LivingEntity caster = context.getCaster();
         var handler = context.getSpellHandler();
         var skills = context.getSkills();
-        if (!level.isClientSide) {
-            float damage = this.getBaseDamage();
-            if (skills.hasSkillReady(SBSkills.OSCILLATION)) {
-                if (caster instanceof Player player) {
-                    for (ItemStack itemStack : player.getInventory().items) {
-                        if (itemStack.is(SBItems.STORM_SHARD.get())) {
-                            for (int i = 0; i < Math.min(itemStack.getCount(), 10); i++) {
-                                damage *= 1.05F;
-                            }
-                        }
+        float damage = this.getBaseDamage();
+
+        if (skills.hasSkillReady(SBSkills.OSCILLATION)) {
+            if (caster instanceof Player player) {
+                for (ItemStack itemStack : player.getInventory().items) {
+                    if (itemStack.is(SBItems.STORM_SHARD.get())) {
+                        damage *= 1.05F * itemStack.getCount();
+                        player.getInventory().removeItem(itemStack);
                     }
                 }
-                addCooldown(SBSkills.OSCILLATION, 600);
             }
-            float amplify = 1.0F + getPowerForTime(getDischargeTick(), 60);
-            damage *= amplify;
+            addCooldown(SBSkills.OSCILLATION, 600);
+        }
+        float amplify = 1.0F + getPowerForTime(getDischargeTick(), 60);
+        damage *= amplify;
 
-            var entities = level.getEntitiesOfClass(LivingEntity.class, target.getBoundingBox().inflate(4), EntitySelector.NO_CREATIVE_OR_SPECTATOR);
+        var entities = level.getEntitiesOfClass(LivingEntity.class, target.getBoundingBox().inflate(4), EntitySelector.NO_CREATIVE_OR_SPECTATOR);
+        if (!level.isClientSide) {
             if (hurt(target, damage)) {
                 if (target.isDeadOrDying()) {
                     if (skills.hasSkill(SBSkills.STORM_SURGE))
                         handler.awardMana(10 + (skills.getSpellLevel(getSpellType()) * 2));
 
-                    if (skills.hasSkill(SBSkills.UNLEASHED_STORM.value())) {
+                    if (skills.hasSkill(SBSkills.UNLEASHED_STORM)) {
+                        this.spawnDischargeParticles(target);
                         for (LivingEntity targetEntity : entities) {
-                            if (!isCaster(targetEntity))
-                                hurt(targetEntity, damage / 2);
+                            if (!isCaster(targetEntity)
+                                    && hurt(targetEntity, damage / 2)
+                                    && targetEntity.isDeadOrDying()
+                                    && skills.hasSkill(SBSkills.STORM_CHARGE)
+                                    && caster instanceof Player player) {
+                                player.addItem(new ItemStack(SBItems.STORM_SHARD.get()));
+                            }
                         }
                     }
 
-                    if (skills.hasSkill(SBSkills.STORM_CHARGE.value()) && caster instanceof Player player)
+                    if (skills.hasSkill(SBSkills.STORM_CHARGE) && caster instanceof Player player)
                         player.addItem(new ItemStack(SBItems.STORM_SHARD.get()));
                 }
             }
+        }
 
-            if (!checkForCounterMagic(target)) {
-                if (skills.hasSkill(SBSkills.ELECTRIFICATION.value()))
-                    handler.applyStormStrike(target, 60);
+        if (!checkForCounterMagic(target)) {
+            if (skills.hasSkill(SBSkills.ELECTRIFICATION))
+                handler.applyStormStrike(target, 60);
 
-                if (skills.hasSkill(SBSkills.HIGH_VOLTAGE.value()) && hasShard) {
-                    MobEffectInstance mobEffectInstance = new MobEffectInstance(SBEffects.STUNNED, 60, 0, false, false);
-                    target.addEffect(mobEffectInstance);
-                    for (LivingEntity paralysisTarget : entities) {
-                        if (!isCaster(paralysisTarget))
-                            paralysisTarget.addEffect(mobEffectInstance);
-                    }
-                    context.useCatalyst(SBItems.STORM_SHARD.get());
-                    addCooldown(SBSkills.HIGH_VOLTAGE, 600);
+            if (skills.hasSkill(SBSkills.HIGH_VOLTAGE) && hasShard) {
+                MobEffectInstance mobEffectInstance = new MobEffectInstance(SBEffects.STUNNED, 60, 0, false, false);
+                addSkillBuff(
+                        target,
+                        SBSkills.HIGH_VOLTAGE,
+                        BuffCategory.HARMFUL,
+                        SkillBuff.MOB_EFFECT,
+                        mobEffectInstance,
+                        60
+                );
+
+                for (LivingEntity paralysisTarget : entities) {
+                    if (!isCaster(paralysisTarget))
+                        paralysisTarget.addEffect(mobEffectInstance);
                 }
 
-                if (skills.hasSkill(SBSkills.ALTERNATING_CURRENT.value())) {
+                context.useCatalyst(SBItems.STORM_SHARD.get());
+                addCooldown(SBSkills.HIGH_VOLTAGE, 600);
+            }
+
+            if (!level.isClientSide) {
+                if (skills.hasSkill(SBSkills.ALTERNATING_CURRENT)) {
                     if (RandomUtil.percentChance(potency(0.03F)) && target.getHealth() < caster.getHealth() * 2) {
                         target.kill();
                         if (skills.hasSkill(SBSkills.STORM_CHARGE) && caster instanceof Player player)
@@ -173,16 +209,25 @@ public class ElectricChargeSpell extends AnimatedSpell {
                         hurt(caster, caster.getMaxHealth() * 0.05F);
                     }
                 }
+            }
 
-                if (skills.hasSkill(SBSkills.CHAIN_REACTION.value())) {
-                    for (LivingEntity livingEntity : entities) {
-                        if (!this.entityIds.contains(livingEntity.getId())) {
-                            this.entityIds.add(livingEntity.getId());
-                            discharge(context, target, hasShard);
-                        }
+            if (skills.hasSkill(SBSkills.CHAIN_REACTION)) {
+                for (LivingEntity livingEntity : entities) {
+                    if (!this.entityIds.contains(livingEntity.getId())) {
+                        this.entityIds.add(livingEntity.getId());
+                        discharge(context, target, hasShard);
                     }
                 }
             }
+        }
+    }
+
+    private void spawnDischargeParticles(Entity entity) {
+        for (int i = 0; i < 25; i++) {
+            double d0 = entity.getRandom().nextFloat() * 0.4;
+            double d1 = entity.getRandom().nextFloat() * 0.4;
+            double d2 = entity.getRandom().nextFloat() * 0.4;
+            this.createServerParticles(SBParticles.SPARK.get(), entity.xo, entity.getY(), entity.zo, d0, d1, d2);
         }
     }
 

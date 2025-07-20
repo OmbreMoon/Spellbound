@@ -42,7 +42,7 @@ public class LearnSkillsCommand {
         }
 
         var skillHandler = SpellUtil.getSkills(context.getPlayer());
-        skillHandler.unlockSkill(skill.value());
+        skillHandler.unlockSkill(skill.value(), false);
         skillHandler.sync();
         context.getPlayer().sendSystemMessage(Component.translatable("command.spellbound.singleskilllearnt",
                 skill.value().getName()));
@@ -63,7 +63,7 @@ public class LearnSkillsCommand {
         };
 
         for (Skill skill : spellType.getSkills()) {
-            skillHolder.unlockSkill(skill);
+            skillHolder.unlockSkill(skill, false);
         }
 
         skillHolder.sync();

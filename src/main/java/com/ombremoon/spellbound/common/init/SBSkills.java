@@ -67,7 +67,7 @@ public class SBSkills {
     public static final Holder<Skill> ELECTRIC_CHARGE = registerSkill("electric_charge");
     public static final Holder<Skill> ELECTRIFICATION = registerSkill("electrification", -25, 50, preReqs(ELECTRIC_CHARGE));
     public static final Holder<Skill> SUPERCONDUCTOR = registerSkill("superconductor", 25, 50, preReqs(ELECTRIC_CHARGE));
-    public static final Holder<Skill> STORM_CHARGE = registerSkill("cyclonic_fury", 50, 100, preReqs(ELECTRIFICATION, SUPERCONDUCTOR));
+    public static final Holder<Skill> STORM_CHARGE = registerSkill("storm_charge", 50, 100, preReqs(ELECTRIFICATION, SUPERCONDUCTOR));
     public static final Holder<Skill> OSCILLATION = registerSkill("oscillation", 50, 150, preReqs(STORM_CHARGE));
     public static final Holder<Skill> HIGH_VOLTAGE = registerSkill("high_voltage", 100, 150, preReqs(STORM_CHARGE));
     public static final Holder<Skill> UNLEASHED_STORM = registerSkill("unleashed_storm", -50, 100, preReqs(ELECTRIFICATION, SUPERCONDUCTOR));
@@ -103,7 +103,7 @@ public class SBSkills {
     public static final Holder<Skill> HAILSTORM = registerConditionalSkill("hailstorm", 0, 200, preReqs(GALE_FORCE, FROSTFRONT, STATIC_CHARGE), (player, holder) -> holder.hasSkill(FROSTFRONT.value()) && holder.hasSkill(STATIC_CHARGE.value()));
 
     //Shadow Gate
-    public static final Holder<Skill> SHADOW_GATE = registerSkill("shadow_gate");
+    public static final Holder<Skill> SHADOW_GATE = registerRadialSkill("shadow_gate");
     public static final Holder<Skill> REACH = registerSkill("reach", -50, 50, preReqs(SHADOW_GATE));
     public static final Holder<Skill> BLINK = registerSkill("blink", -75, 100, preReqs(REACH));
     public static final Holder<Skill> SHADOW_ESCAPE = registerSkill("shadow_escape", -75, 150, preReqs(BLINK));
@@ -112,7 +112,7 @@ public class SBSkills {
     public static final Holder<Skill> UNWANTED_GUESTS = registerSkill("unwanted_guests", 100, 100, preReqs(OPEN_INVITATION));
     public static final Holder<Skill> BAIT_AND_SWITCH = registerSkill("bait_and_switch", 100, 150, preReqs(UNWANTED_GUESTS));
     public static final Holder<Skill> DARKNESS_PREVAILS = registerSkill("darkness_prevails", 0, 100, preReqs(SHADOW_GATE));
-    public static final Holder<Skill> GRAVITY_SHIFT = registerSkill("gravity_shift", -25, 150, preReqs(DARKNESS_PREVAILS));
+    public static final Holder<Skill> GRAVITY_SHIFT = registerRadialSkill("gravity_shift", -25, 150, preReqs(DARKNESS_PREVAILS), 1);
     public static final Holder<Skill> DUAL_DESTINATION = registerSkill("dual_destination", 25, 150, preReqs(DARKNESS_PREVAILS));
 
     //Stride
@@ -202,7 +202,7 @@ public class SBSkills {
     public static Holder<Skill> SILENT_EXCHANGE = registerSkill("silent_exchange", 50, 50, preReqs(SHADOWBOND));
     public static Holder<Skill> SNARE = registerSkill("snare", 50, 100, preReqs(SILENT_EXCHANGE));
     public static Holder<Skill> DISORIENTED = registerSkill("disoriented", 100, 100, preReqs(SILENT_EXCHANGE));
-    public static Holder<Skill> EVERLASTING_BOND = registerModifierSkill("everlasting_bond", 0, 50, preReqs(SHADOWBOND), SpellModifier.EVERLASTING_BOND);
+    public static Holder<Skill> EVERLASTING_BOND = registerSkill("everlasting_bond", 0, 50, preReqs(SHADOWBOND));
     public static Holder<Skill> OBSERVANT = registerSkill("observant", 0, 100, preReqs(EVERLASTING_BOND));
     public static Holder<Skill> LIVING_SHADOW = registerSkill("living_shadow", -50, 150, preReqs(OBSERVANT));
     public static Holder<Skill> REVERSAL = registerSkill("reversal", 0, 150, preReqs(OBSERVANT));

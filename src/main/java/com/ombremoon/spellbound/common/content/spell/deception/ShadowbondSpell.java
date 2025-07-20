@@ -1,21 +1,24 @@
 package com.ombremoon.spellbound.common.content.spell.deception;
 
-import com.ombremoon.spellbound.common.magic.SpellMastery;
-import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.world.effect.SBEffectInstance;
+import com.ombremoon.spellbound.common.init.*;
+import com.ombremoon.spellbound.common.magic.SpellContext;
+import com.ombremoon.spellbound.common.magic.SpellMastery;
+import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
 import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;
 import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
-import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
-import com.ombremoon.spellbound.common.init.*;
-import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
-import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
+import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
+import com.ombremoon.spellbound.main.CommonClass;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -25,8 +28,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.UnknownNullability;
-
-import java.util.List;
 
 public class ShadowbondSpell extends AnimatedSpell {
     private static final ResourceLocation SNEAK_ATTACK = CommonClass.customLocation("sneak_attack");
@@ -41,7 +42,7 @@ public class ShadowbondSpell extends AnimatedSpell {
                     if (context.isRecast()) {
                         if (spell.canReverse) {
                             return true;
-                        } else if (context.getSkills().hasSkill(SBSkills.SHADOW_CHAIN.value()) && context.getTarget() != null && context.getTarget().getId() != spell.firstTarget) {
+                        } else if (context.getSkills().hasSkill(SBSkills.SHADOW_CHAIN) && context.getTarget() != null && context.getTarget().getId() != spell.firstTarget) {
                             return spell.secondTarget == 0;
                         } else if (!spell.isEarlyEnd() && !spell.canReverse) {
                             spell.spellData.set(EARLY_END, true);
@@ -49,13 +50,16 @@ public class ShadowbondSpell extends AnimatedSpell {
                         }
                     }
                     return !context.isRecast() && context.getTarget() instanceof LivingEntity target && !spell.checkForCounterMagic(target);
-                }).fullRecast();
+                })
+                .fullRecast()
+                .skipEndOnRecast()
+                .castAnimation(context -> "final01");
     }
 
     private int firstTarget;
     private int secondTarget;
     private boolean canReverse = false;
-    private List<Integer> targetList = new IntArrayList();
+    private IntList targetList = new IntArrayList();
 
     public ShadowbondSpell() {
         super(SBSpells.SHADOWBOND.get(), createShadowbondBuilder());
@@ -71,36 +75,50 @@ public class ShadowbondSpell extends AnimatedSpell {
     protected void onSpellStart(SpellContext context) {
         Level level = context.getLevel();
         Entity target = context.getTarget();
+        LivingEntity caster = context.getCaster();
         var skills = context.getSkills();
-        if (target == null) return;
+        if (target == null)
+            return;
+
         int id = target.getId();
-        boolean flag = skills.hasSkill(SBSkills.SHADOW_CHAIN.value());
+        boolean flag = skills.hasSkill(SBSkills.SHADOW_CHAIN);
 
         if (id > 0) {
             if (context.isRecast() && !this.canReverse && flag && this.secondTarget == 0) {
                 this.secondTarget = id;
+                this.targetList.add(id);
             } else if (!context.isRecast() && this.firstTarget == 0){
                 this.firstTarget = id;
+                this.targetList.add(id);
             }
         }
 
-        this.targetList.add(this.firstTarget);
-        this.targetList.add(this.secondTarget);
-        if (!level.isClientSide) {
-            if (!this.canReverse) {
-                MobEffectInstance mobEffectInstance = new SBEffectInstance(context.getCaster(), MobEffects.INVISIBILITY, -1, skills.hasSkill(SBSkills.OBSERVANT.value()), 0, false, false);
-                context.getCaster().addEffect(mobEffectInstance);
-                for (Integer entityId : this.targetList) {
-                    Entity entity = level.getEntity(entityId);
-                    if (entity instanceof LivingEntity living)
-                        addSkillBuff(
-                                living,
-                                SBSkills.SHADOWBOND.value(),
-                                BuffCategory.HARMFUL,
-                                SkillBuff.MOB_EFFECT,
-                                mobEffectInstance);
+        if (!this.canReverse) {
+            MobEffectInstance mobEffectInstance = new SBEffectInstance(caster, MobEffects.INVISIBILITY, -1, skills.hasSkill(SBSkills.OBSERVANT), 0, false, false);
+            addSkillBuff(
+                    caster,
+                    SBSkills.SHADOWBOND,
+                    BuffCategory.BENEFICIAL,
+                    SkillBuff.MOB_EFFECT,
+                    mobEffectInstance);
+
+            int size = this.targetList.size();
+            for (int i = 0; i < size + 1; i++) {
+                Entity entity = i < size ? level.getEntity(this.targetList.get(i)) : caster;
+                if (entity instanceof LivingEntity living) {
+                    addSkillBuff(
+                            living,
+                            SBSkills.SHADOWBOND,
+                            BuffCategory.HARMFUL,
+                            SkillBuff.MOB_EFFECT,
+                            mobEffectInstance);
+
+                    this.spawnTeleportParticles(entity, 40);
                 }
             }
+
+            level.playSound(null, caster.xo, caster.yo, caster.zo, SoundEvents.ENDERMAN_TELEPORT, caster.getSoundSource(), 1.0F, 1.0F);
+            caster.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
         }
     }
 
@@ -111,12 +129,13 @@ public class ShadowbondSpell extends AnimatedSpell {
         Level level = context.getLevel();
         var skills = context.getSkills();
         if (this.canReverse || this.isEarlyEnd()) {
-            swapTargets(caster, level);
+            swapTargets(context, caster, level, skills);
 
             if (this.isEarlyEnd()) {
-                this.canReverse = skills.hasSkill(SBSkills.REVERSAL.value()) && !this.targetList.isEmpty();
-                if (!level.isClientSide) handleSwapEffect(context, caster, level, skills);
-                if (!this.canReverse) endSpell();
+                this.setRemainingTicks(100);
+                this.canReverse = skills.hasSkill(SBSkills.REVERSAL) && !this.targetList.isEmpty();
+                if (!this.canReverse)
+                    endSpell();
             } else {
                 endSpell();
             }
@@ -129,24 +148,21 @@ public class ShadowbondSpell extends AnimatedSpell {
         LivingEntity caster = context.getCaster();
         Level level = context.getLevel();
         var skills = context.getSkills();
-        if (!level.isClientSide) {
-            for (Integer entityId : this.targetList) {
-                Entity entity = level.getEntity(entityId);
-                if (entity == null || (entity instanceof LivingEntity living && checkForCounterMagic(living)))
-                    this.targetList.remove(entityId);
-            }
+        for (Integer entityId : this.targetList) {
+            Entity entity = level.getEntity(entityId);
+            if (entity == null || (entity instanceof LivingEntity living && checkForCounterMagic(living)))
+                this.targetList.remove(entityId);
+        }
 
-            int extension = skills.hasSkill(SBSkills.EVERLASTING_BOND.value()) ? 200 : 100;
-            if (this.ticks == this.getDuration() - extension) {
-                swapTargets(caster, level);
-                handleSwapEffect(context, caster, level, skills);
-            } else if (this.ticks > this.getDuration() - extension) {
-                this.canReverse = skills.hasSkill(SBSkills.REVERSAL.value()) && !this.targetList.isEmpty();
-            }
+        int remainder = this.getRemainingTime();
+        if (remainder == 100) {
+            swapTargets(context, caster, level, skills);
+        } else if (remainder < 100) {
+            this.canReverse = skills.hasSkill(SBSkills.REVERSAL) && !this.targetList.isEmpty();
         }
-        if (this.isEarlyEnd() && this.ticks >= 100) {
+
+        if (this.targetList.isEmpty())
             endSpell();
-        }
     }
 
     @Override
@@ -154,76 +170,100 @@ public class ShadowbondSpell extends AnimatedSpell {
 
     }
 
+    @Override
+    protected int getDuration(SpellContext context) {
+        var skills = context.getSkills();
+        return skills.hasSkill(SBSkills.EVERLASTING_BOND) ? 500 :  super.getDuration(context);
+    }
+
     private void teleport(LivingEntity first, LivingEntity second) {
         Vec3 firstPos = first.position();
         Vec3 secondPosPos = second.position();
         first.teleportTo(secondPosPos.x, secondPosPos.y, secondPosPos.z);
         second.teleportTo(firstPos.x, firstPos.y, firstPos.z);
+
+        this.spawnTeleportParticles(first, 40);
+        this.spawnTeleportParticles(second, 40);
     }
 
-    private void swapTargets(LivingEntity caster, Level level) {
+    private void chainTeleport(LivingEntity caster, LivingEntity first, LivingEntity second) {
         Vec3 playerPos = caster.position();
+        Vec3 firstPos = first.position();
+        Vec3 secondPos = second.position();
+        caster.teleportTo(secondPos.x, secondPos.y, secondPos.z);
+        second.teleportTo(firstPos.x, firstPos.y, firstPos.z);
+        first.teleportTo(playerPos.x, playerPos.y, playerPos.z);
+
+        this.spawnTeleportParticles(caster, 40);
+        this.spawnTeleportParticles(first, 40);
+        this.spawnTeleportParticles(second, 40);
+    }
+
+    private void swapTargets(SpellContext context, LivingEntity caster, Level level, SkillHolder skills) {
         Entity entity = level.getEntity(this.firstTarget);
         Entity secondEntity = level.getEntity(this.secondTarget);
+        boolean flag = true;
         if (entity instanceof LivingEntity living && secondEntity instanceof LivingEntity secondLiving) {
-            Vec3 firstPos = living.position();
-            Vec3 secondPos = secondLiving.position();
-            caster.teleportTo(secondPos.x, secondPos.y, secondPos.z);
-            secondEntity.teleportTo(firstPos.x, firstPos.y, firstPos.z);
-            living.teleportTo(playerPos.x, playerPos.y, playerPos.z);
+            chainTeleport(caster, living, secondLiving);
         } else if (entity instanceof LivingEntity living) {
             teleport(caster, living);
         } else if (secondEntity instanceof LivingEntity secondLiving) {
             teleport(caster, secondLiving);
         } else {
-            endSpell();
+            flag = false;
         }
+
+        if (flag)
+            handleSwapEffect(context, caster, level, skills);
+
+        level.playSound(null, caster.xo, caster.yo, caster.zo, SoundEvents.ENDERMAN_TELEPORT, caster.getSoundSource(), 1.0F, 1.0F);
+        caster.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
     }
 
     private void handleSwapEffect(SpellContext context, LivingEntity caster, Level level, SkillHolder skills) {
-        if (skills.hasSkill(SBSkills.SHADOW_STEP.value()))
+        if (skills.hasSkill(SBSkills.SHADOW_STEP))
             addSkillBuff(
                     caster,
-                    SBSkills.BLINK.value(),
+                    SBSkills.SHADOW_STEP,
                     BuffCategory.BENEFICIAL,
                     SkillBuff.ATTRIBUTE_MODIFIER,
                     new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(CommonClass.customLocation("shadow_step"), 1.3F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
                     100);
 
-        if (skills.hasSkill(SBSkills.SNEAK_ATTACK.value())) {
+        if (skills.hasSkill(SBSkills.SNEAK_ATTACK)) {
             addSkillBuff(
                     caster,
-                    SBSkills.SNEAK_ATTACK.value(),
+                    SBSkills.SNEAK_ATTACK,
                     BuffCategory.BENEFICIAL,
                     SkillBuff.ATTRIBUTE_MODIFIER,
                     new ModifierData(Attributes.ATTACK_DAMAGE, new AttributeModifier(SNEAK_ATTACK, 1.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
                     100);
             addEventBuff(
                     caster,
-                    SBSkills.SNEAK_ATTACK.value(),
+                    SBSkills.SNEAK_ATTACK,
                     BuffCategory.BENEFICIAL,
                     SpellEventListener.Events.ATTACK,
                     SNEAK_ATTACK,
-                    pre -> removeSkillBuff(caster, SBSkills.SNEAK_ATTACK.value()),
+                    pre -> removeSkillBuff(caster, SBSkills.SNEAK_ATTACK),
                     100);
         }
 
-        caster.removeEffect(MobEffects.INVISIBILITY);
+        removeSkillBuff(caster, SBSkills.SHADOWBOND);
         for (Integer entityId : this.targetList) {
             Entity effectEntity = level.getEntity(entityId);
             if (effectEntity instanceof LivingEntity living) {
-                removeSkillBuff(living, SBSkills.SHADOWBOND.value());
-                if (skills.hasSkill(SBSkills.SILENT_EXCHANGE.value()))
+                removeSkillBuff(living, SBSkills.SHADOWBOND);
+                if (skills.hasSkill(SBSkills.SILENT_EXCHANGE))
                     living.addEffect(new MobEffectInstance(SBEffects.SILENCED, 100, 0, false, true));
 
-                if (skills.hasSkill(SBSkills.SNARE.value()))
+                if (skills.hasSkill(SBSkills.SNARE))
                     living.addEffect(new MobEffectInstance(SBEffects.ROOTED, 100, 0, false, true));
 
-                if (skills.hasSkill(SBSkills.DISORIENTED.value())) {
+                if (skills.hasSkill(SBSkills.DISORIENTED)) {
                     living.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 100, 0, false, false));
                     addEventBuff(
                             living,
-                            SBSkills.DISORIENTED.value(),
+                            SBSkills.DISORIENTED,
                             BuffCategory.HARMFUL,
                             SpellEventListener.Events.PRE_DAMAGE,
                             DISORIENTED,
@@ -231,13 +271,19 @@ public class ShadowbondSpell extends AnimatedSpell {
                             100);
 
                 }
-                context.getSpellHandler().applyFear(living, 100);
+//                context.getSpellHandler().applyFear(living, 100);
             }
         }
 
-        if (skills.hasSkill(SBSkills.LIVING_SHADOW.value())) {
+        if (skills.hasSkill(SBSkills.LIVING_SHADOW)) {
             summonEntity(context, SBEntities.LIVING_SHADOW.get(), caster.position(), livingShadow -> {});
             caster.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 100, 0, false, false));
+        }
+    }
+
+    private void spawnTeleportParticles(Entity entity ,int amount) {
+        for (int j = 0; j < amount; j++) {
+            this.createSurroundingParticles(entity, ParticleTypes.PORTAL, 0.5);
         }
     }
 

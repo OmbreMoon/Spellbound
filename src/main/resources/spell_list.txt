@@ -14,15 +14,15 @@
 - Ruin: Ice/Water
 
 11) Ice Bolt
-12) Bubble Shield
-13) Tidal Wave
-14) Hail
+12) Ice Skate
+13) Frost Bomb
+14) Bubble Shield
 15) Ice Spike
-16) Ice Skate
+16) Shattering Crystal
 17) Manifest Ice Dragon
-18) Shattering Crystal
+18) Hail
 19) Ice Storm
-20) Frost Bomb
+20) Glacial Fortress
 
 - Ruin: Shock
 
