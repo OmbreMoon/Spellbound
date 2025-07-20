@@ -41,6 +41,23 @@ public class ModItemModelProvider extends ItemModelProvider {
         simpleGeneratedModel(SBItems.TRANSFIGURER_HELMET.get());
         simpleGeneratedModel(SBItems.CHALK.get());
 
+
+        simpleGeneratedModel(SBItems.CRYOMANCER_BOOTS.get());
+        simpleGeneratedModel(SBItems.CRYOMANCER_CHESTPLATE.get());
+        simpleGeneratedModel(SBItems.CRYOMANCER_LEGGINGS.get());
+        simpleGeneratedModel(SBItems.CRYOMANCER_HELMET.get());
+
+        simpleGeneratedModel(SBItems.PYROMANCER_BOOTS.get());
+        simpleGeneratedModel(SBItems.PYROMANCER_CHESTPLATE.get());
+        simpleGeneratedModel(SBItems.PYROMANCER_LEGGINGS.get());
+        simpleGeneratedModel(SBItems.PYROMANCER_HELMET.get());
+
+        simpleGeneratedModel(SBItems.STORMWEAVER_BOOTS.get());
+        simpleGeneratedModel(SBItems.STORMWEAVER_CHESTPLATE.get());
+        simpleGeneratedModel(SBItems.STORMWEAVER_LEGGINGS.get());
+        simpleGeneratedModel(SBItems.STORMWEAVER_HELMET.get());
+
+
     }
 
     private void registerItemModels(Collection<Supplier<? extends Item>> registryObjects) {
