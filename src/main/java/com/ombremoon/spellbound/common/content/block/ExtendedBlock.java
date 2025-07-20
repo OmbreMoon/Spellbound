@@ -1,6 +1,6 @@
 package com.ombremoon.spellbound.common.content.block;
 
-import com.ombremoon.spellbound.common.content.block.entity.MultiBlockEntity;
+import com.ombremoon.spellbound.common.content.block.entity.ExtendedBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
@@ -54,8 +54,8 @@ public interface ExtendedBlock {
         fullBlockShape(pos, state).forEach(blockPos -> {
             blockPos = blockPos.immutable();
             int flags = level.isClientSide ? 0 : 3;
-            level.setBlock(blockPos, state.setValue(AbstractMultiBlock.CENTER, pos.equals(blockPos)), flags);
-            if(level.getBlockEntity(blockPos) instanceof MultiBlockEntity entity) {
+            level.setBlock(blockPos, state.setValue(AbstractExtendedBlock.CENTER, pos.equals(blockPos)), flags);
+            if(level.getBlockEntity(blockPos) instanceof ExtendedBlockEntity entity) {
                 entity.setCenter(pos);
             }
         });
