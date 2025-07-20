@@ -23,12 +23,22 @@ public abstract class ExtendedBlockEntity extends BlockEntity {
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("center", NbtUtils.writeBlockPos(this.center));
+        tag.putBoolean("isPlaced", this.isPlaced);
+
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = super.getUpdateTag(registries);
+        saveAdditional(tag, registries);
+        return tag;
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         this.center = NbtUtils.readBlockPos(tag,"center").get();
+        this.isPlaced = tag.getBoolean("isPlaced");
     }
 
     public BlockPos getCenter() {
