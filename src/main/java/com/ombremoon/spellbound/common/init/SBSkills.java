@@ -59,17 +59,17 @@ public class SBSkills {
     public static final Holder<Skill> REFRACTION = registerSkill("refraction", -37, 100, preReqs(ELECTRIFY));
     public static final Holder<Skill> CHARGED_ATMOSPHERE = registerSkill("charged_atmosphere", 37, 100, preReqs(ELECTRIFY));
     public static final Holder<Skill> PULSATION = registerSkill("pulsation", -37, 150, preReqs(REFRACTION, CHARGED_ATMOSPHERE));
-    public static final Holder<Skill> DISCHARGE = registerSkill("discharge", 37, 150, preReqs(REFRACTION, CHARGED_ATMOSPHERE));
-    public static final Holder<Skill> STORM_SHARD = registerSkill("storm_shard", -37, 200, preReqs(PULSATION, DISCHARGE));
-    public static final Holder<Skill> SUPERCHARGE = registerSkill("supercharge", 37, 200, preReqs(PULSATION, DISCHARGE));
+    public static final Holder<Skill> DISARM = registerSkill("disarm", 37, 150, preReqs(REFRACTION, CHARGED_ATMOSPHERE));
+    public static final Holder<Skill> STORM_SHARD = registerSkill("storm_shard", -37, 200, preReqs(PULSATION, DISARM));
+    public static final Holder<Skill> SUPERCHARGE = registerSkill("supercharge", 37, 200, preReqs(PULSATION, DISARM));
 
     //Electric Charge
     public static final Holder<Skill> ELECTRIC_CHARGE = registerSkill("electric_charge");
     public static final Holder<Skill> ELECTRIFICATION = registerSkill("electrification", -25, 50, preReqs(ELECTRIC_CHARGE));
     public static final Holder<Skill> SUPERCONDUCTOR = registerSkill("superconductor", 25, 50, preReqs(ELECTRIC_CHARGE));
-    public static final Holder<Skill> STORM_CHARGE = registerSkill("storm_charge", 50, 100, preReqs(ELECTRIFICATION, SUPERCONDUCTOR));
-    public static final Holder<Skill> OSCILLATION = registerSkill("oscillation", 50, 150, preReqs(STORM_CHARGE));
-    public static final Holder<Skill> HIGH_VOLTAGE = registerSkill("high_voltage", 100, 150, preReqs(STORM_CHARGE));
+    public static final Holder<Skill> PIEZOELECTRIC = registerSkill("piezoelectric", 50, 100, preReqs(ELECTRIFICATION, SUPERCONDUCTOR));
+    public static final Holder<Skill> OSCILLATION = registerSkill("oscillation", 50, 150, preReqs(PIEZOELECTRIC));
+    public static final Holder<Skill> HIGH_VOLTAGE = registerSkill("high_voltage", 100, 150, preReqs(PIEZOELECTRIC));
     public static final Holder<Skill> UNLEASHED_STORM = registerSkill("unleashed_storm", -50, 100, preReqs(ELECTRIFICATION, SUPERCONDUCTOR));
     public static final Holder<Skill> STORM_SURGE = registerSkill("storm_surge", 0, 100, preReqs(ELECTRIFICATION, SUPERCONDUCTOR));
     public static final Holder<Skill> CHAIN_REACTION = registerSkill("chain_reaction", -25, 150, preReqs(UNLEASHED_STORM, STORM_SURGE));

@@ -4,6 +4,7 @@ import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.content.block.*;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
@@ -28,17 +29,20 @@ public class SBBlocks {
             .noCollission()
             .pushReaction(PushReaction.DESTROY)
             .noLootTable()
-            .noOcclusion()));
+            .noOcclusion()),
+            false);
     public static final Supplier<SummonStoneBlock> SUMMON_STONE = registerBlock("summon_stone", () -> new SummonStoneBlock(BlockBehaviour.Properties.of()
             .lightLevel(state -> state.getValue(SummonStoneBlock.POWERED) ? 13 : 0)));
     public static final Supplier<Block> CRACKED_SUMMON_STONE = registerSimpleBlock("cracked_summon_stone");
     public static final Supplier<SummonPortalBlock> SUMMON_PORTAL = registerBlock("summon_portal", () -> new SummonPortalBlock(BlockBehaviour.Properties.of()
             .mapColor(MapColor.COLOR_BLACK)
             .noCollission()
-            .lightLevel(state -> 15)
-            .strength(-1.0F, 3600000.0F)
+            .lightLevel(state -> 11)
+            .strength(-1.0F)
+            .sound(SoundType.GLASS)
             .noLootTable()
-            .pushReaction(PushReaction.BLOCK)), false);
+            .pushReaction(PushReaction.BLOCK)),
+            false);
 
     public static void registerSummonStone(String name, String spell) {
         registerBlock(name, () -> new SummonStoneBlock(CommonClass.customLocation(spell), BlockBehaviour.Properties.of()));

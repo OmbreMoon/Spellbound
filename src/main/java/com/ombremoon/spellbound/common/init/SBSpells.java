@@ -45,9 +45,9 @@ public class SBSpells {
     public static final Supplier<SpellType<StormstrikeSpell>> STORMSTRIKE = registerSpell("stormstrike", shockRuinBuilder("stormstrike", StormstrikeSpell::new)
             .skills(SBSkills.STORMSTRIKE, SBSkills.STATIC_SHOCK, SBSkills.ELECTRIFY,
                     SBSkills.SHOCK_FACTOR, SBSkills.PURGE, SBSkills.REFRACTION, SBSkills.CHARGED_ATMOSPHERE,
-                    SBSkills.PULSATION, SBSkills.DISCHARGE, SBSkills.STORM_SHARD, SBSkills.SUPERCHARGE));
+                    SBSkills.PULSATION, SBSkills.DISARM, SBSkills.STORM_SHARD, SBSkills.SUPERCHARGE));
     public static final Supplier<SpellType<ElectricChargeSpell>> ELECTRIC_CHARGE = registerSpell("electric_charge", shockRuinBuilder("electric_charge", ElectricChargeSpell::new)
-            .skills(SBSkills.ELECTRIC_CHARGE, SBSkills.ELECTRIFICATION, SBSkills.SUPERCONDUCTOR, SBSkills.STORM_CHARGE,
+            .skills(SBSkills.ELECTRIC_CHARGE, SBSkills.ELECTRIFICATION, SBSkills.SUPERCONDUCTOR, SBSkills.PIEZOELECTRIC,
                     SBSkills.OSCILLATION, SBSkills.HIGH_VOLTAGE, SBSkills.UNLEASHED_STORM, SBSkills.STORM_SURGE,
                     SBSkills.CHAIN_REACTION, SBSkills.AMPLIFY, SBSkills.ALTERNATING_CURRENT));
     public static final Supplier<SpellType<StormRiftSpell>> STORM_RIFT = registerSpell("storm_rift", shockRuinBuilder("storm_rift", StormRiftSpell::new)

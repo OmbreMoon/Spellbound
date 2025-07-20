@@ -30,7 +30,7 @@
 22) Electric Charge
 23) Thunderclap
 24) Electric Orb
-25) Tesla Coil
+25) Tripwire
 26) Enhance
 27) Manifest Storm Dragon
 28) Storm Port

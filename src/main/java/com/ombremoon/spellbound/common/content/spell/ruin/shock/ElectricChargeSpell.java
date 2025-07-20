@@ -8,12 +8,7 @@ import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
@@ -162,14 +157,14 @@ public class ElectricChargeSpell extends AnimatedSpell {
                             if (!isCaster(targetEntity)
                                     && hurt(targetEntity, damage / 2)
                                     && targetEntity.isDeadOrDying()
-                                    && skills.hasSkill(SBSkills.STORM_CHARGE)
+                                    && skills.hasSkill(SBSkills.PIEZOELECTRIC)
                                     && caster instanceof Player player) {
                                 player.addItem(new ItemStack(SBItems.STORM_SHARD.get()));
                             }
                         }
                     }
 
-                    if (skills.hasSkill(SBSkills.STORM_CHARGE) && caster instanceof Player player)
+                    if (skills.hasSkill(SBSkills.PIEZOELECTRIC) && caster instanceof Player player)
                         player.addItem(new ItemStack(SBItems.STORM_SHARD.get()));
                 }
             }
@@ -203,7 +198,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
                 if (skills.hasSkill(SBSkills.ALTERNATING_CURRENT)) {
                     if (RandomUtil.percentChance(potency(0.03F)) && target.getHealth() < caster.getHealth() * 2) {
                         target.kill();
-                        if (skills.hasSkill(SBSkills.STORM_CHARGE) && caster instanceof Player player)
+                        if (skills.hasSkill(SBSkills.PIEZOELECTRIC) && caster instanceof Player player)
                             player.addItem(new ItemStack(SBItems.STORM_SHARD.get()));
                     } else {
                         hurt(caster, caster.getMaxHealth() * 0.05F);

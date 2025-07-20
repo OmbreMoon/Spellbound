@@ -6,7 +6,10 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.common.EffectCure;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Set;
 
 public class SBEffectInstance extends MobEffectInstance {
     private final LivingEntity causeEntity;
@@ -40,6 +43,11 @@ public class SBEffectInstance extends MobEffectInstance {
         super(effect, duration, amplifier, ambient, visible, showIcon, hiddenEffect);
         this.causeEntity = causeEntity;
         this.willGlow = willGlow;
+    }
+
+    @Override
+    public Set<EffectCure> getCures() {
+        return Set.of();
     }
 
     public LivingEntity getCauseEntity() {

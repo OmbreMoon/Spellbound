@@ -12,12 +12,16 @@ import net.minecraft.world.phys.AABB;
 import org.joml.Matrix4f;
 
 public class SummonPortalRenderer<T extends SummonBlockEntity> implements BlockEntityRenderer<T> {
-    private static final RenderType GATEWAY = RenderType.endGateway();
 
     public SummonPortalRenderer(BlockEntityRendererProvider.Context context) {
     }
 
     @Override
+    public void render(T blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+
+    }
+
+/*    @Override
     public void render(T blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
         Matrix4f matrix4f = poseStack.last().pose();
         this.renderCube(blockEntity, matrix4f, bufferSource.getBuffer(this.renderType()));
@@ -66,5 +70,5 @@ public class SummonPortalRenderer<T extends SummonBlockEntity> implements BlockE
 
     protected RenderType renderType() {
         return RenderType.endPortal();
-    }
+    }*/
 }

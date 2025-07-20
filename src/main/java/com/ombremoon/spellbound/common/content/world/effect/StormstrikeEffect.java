@@ -57,7 +57,7 @@ public class StormstrikeEffect extends SBEffect {
             if (skills.hasSkill(SBSkills.PURGE) && SpellUtil.isSummon(livingEntity) && !SpellUtil.isSummonOf(livingEntity, owner))
                 damage += (float) (caster.getMana() * 0.1F);
 
-            if (skills.hasSkill(SBSkills.DISCHARGE)) {
+            if (skills.hasSkill(SBSkills.DISARM)) {
                 ItemStack itemStack = livingEntity.getItemBySlot(EquipmentSlot.MAINHAND);
                 if (!itemStack.isEmpty() && RandomUtil.percentChance(0.2)) {
                     if (livingEntity instanceof Player player) {
