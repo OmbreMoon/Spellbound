@@ -32,7 +32,7 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
                 .manaCost(27)
                 .castCondition((context, purgeMagicSpell) -> {
                     if (context.getFlag() == 0)
-                        return context.getTarget() instanceof LivingEntity;
+                        return context.getSkills().hasSkill(SBSkills.RADIO_WAVES) || context.getTarget() instanceof LivingEntity;
                     return true;
                 })
                 .fullRecast();
@@ -109,8 +109,9 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
                     }
                 }
 
-                if (skills.hasSkillReady(SBSkills.EXPUNGE.value()) && context.hasCatalyst(SBItems.FOOL_SHARD.get())) {
-                    int randSpell = target.getRandom().nextInt(0, targetHandler.getSpellList().size());
+                var spellList = targetHandler.getSpellList();
+                if (skills.hasSkillReady(SBSkills.EXPUNGE.value()) && context.hasCatalyst(SBItems.FOOL_SHARD.get()) && !spellList.isEmpty()) {
+                    int randSpell = target.getRandom().nextInt(0, spellList.size());
                     SpellType<?> spellType = targetHandler.getSpellList().stream().toList().get(randSpell);
                     targetHandler.removeSpell(spellType);
                     addCooldown(SBSkills.EXPUNGE, 24000);

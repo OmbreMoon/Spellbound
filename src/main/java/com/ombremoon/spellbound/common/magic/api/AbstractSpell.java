@@ -591,7 +591,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
         float damageAfterResistance = this.getDamageAfterResistances(ownerEntity, targetEntity, hurtAmount);
         boolean flag = targetEntity.hurt(BoxUtil.damageSource(ownerEntity.level(), damageType, ownerEntity), damageAfterResistance);
-        if (flag) {
+        if (flag && !ownerEntity.level().isClientSide) {
             targetEntity.setLastHurtByMob(ownerEntity);
             this.incrementEffect(targetEntity, damageType, damageAfterResistance);
             this.awardXp(this.calculateHurtXP(damageAfterResistance));
