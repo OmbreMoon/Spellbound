@@ -1,7 +1,6 @@
 package com.ombremoon.spellbound.networking;
 
 import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockHolder;
-import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.init.SBData;
@@ -11,13 +10,13 @@ import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import com.ombremoon.spellbound.networking.clientbound.*;
 import com.ombremoon.spellbound.networking.serverbound.*;
 import com.ombremoon.spellbound.util.SpellUtil;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -89,6 +88,10 @@ public class PayloadHandler {
         PacketDistributor.sendToPlayer(player, new UpdateSkillBuffPayload(player.getId(), skillBuff, duration, removeBuff));
     }
 
+    public static void updateCooldowns(ServerPlayer player, Holder<Skill> skill, int duration) {
+        PacketDistributor.sendToPlayer(player, new UpdateCooldownsPayload(player.getId(), skill, duration));
+    }
+
     public static void setChargeOrChannel(Player player, boolean isChargingOrChanneling) {
         PacketDistributor.sendToPlayer((ServerPlayer) player, new ChargeOrChannelPayload(isChargingOrChanneling));
     }
@@ -105,12 +108,12 @@ public class PayloadHandler {
         PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncSkillPayload(SpellUtil.getSkills(player).serializeNBT(player.level().registryAccess())));
     }
 
-    public static void setSpellData(Player player, SpellType<?> spellType, int id, List<SyncedSpellData.DataValue<?>> packedItems) {
-        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new SetSpellDataPayload(spellType, id, packedItems));
+    public static void setSpellData(LivingEntity entity, SpellType<?> spellType, int id, List<SyncedSpellData.DataValue<?>> packedItems) {
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new SetSpellDataPayload(entity.getId(), spellType, id, packedItems));
     }
 
     public static void syncMana(Player player) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player, new ClientSyncManaPayload(player.getData(SBData.MANA)));
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncManaPayload(player.getData(SBData.MANA)));
     }
 
     public static void openWorkbenchScreen(Player player) {
@@ -189,6 +192,11 @@ public class PayloadHandler {
                 ClientPayloadHandler::handleClientUpdateSkillBuff
         );
         registrar.playToClient(
+                UpdateCooldownsPayload.TYPE,
+                UpdateCooldownsPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleClientUpdateCooldowns
+        );
+        registrar.playToClient(
                 SyncSpellPayload.TYPE,
                 SyncSpellPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleClientSpellSync
@@ -204,8 +212,8 @@ public class PayloadHandler {
                 ClientPayloadHandler::handleClientSetSpellData
         );
         registrar.playToClient(
-                ClientSyncManaPayload.TYPE,
-                ClientSyncManaPayload.STREAM_CODEC,
+                SyncManaPayload.TYPE,
+                SyncManaPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleClientManaSync
         );
         registrar.playToClient(

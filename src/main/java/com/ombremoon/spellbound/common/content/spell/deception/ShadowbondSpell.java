@@ -36,7 +36,7 @@ public class ShadowbondSpell extends AnimatedSpell {
     public static Builder<ShadowbondSpell> createShadowbondBuilder() {
         return createSimpleSpellBuilder(ShadowbondSpell.class)
                 .mastery(SpellMastery.ADEPT)
-                .duration(300)
+                .duration(200)
                 .manaCost(35)
                 .castCondition((context, spell) -> {
                     if (context.isRecast()) {
@@ -155,7 +155,7 @@ public class ShadowbondSpell extends AnimatedSpell {
         }
 
         int remainder = this.getRemainingTime();
-        if (remainder == 100) {
+        if (skills.hasSkill(SBSkills.REVERSAL) && remainder == 100) {
             swapTargets(context, caster, level, skills);
         } else if (remainder < 100) {
             this.canReverse = skills.hasSkill(SBSkills.REVERSAL) && !this.targetList.isEmpty();
@@ -167,13 +167,18 @@ public class ShadowbondSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStop(SpellContext context) {
-
+        if (!this.canReverse && !this.isEarlyEnd()) {
+            LivingEntity caster = context.getCaster();
+            var skills = context.getSkills();
+            this.swapTargets(context, caster, caster.level(), skills);
+        }
     }
 
     @Override
     protected int getDuration(SpellContext context) {
         var skills = context.getSkills();
-        return skills.hasSkill(SBSkills.EVERLASTING_BOND) ? 500 :  super.getDuration(context);
+        int duration = super.getDuration(context);
+        return skills.hasSkill(SBSkills.EVERLASTING_BOND) ? 500 : skills.hasSkill(SBSkills.REVERSAL) ? duration + 100 : duration;
     }
 
     private void teleport(LivingEntity first, LivingEntity second) {
@@ -244,7 +249,9 @@ public class ShadowbondSpell extends AnimatedSpell {
                     BuffCategory.BENEFICIAL,
                     SpellEventListener.Events.ATTACK,
                     SNEAK_ATTACK,
-                    pre -> removeSkillBuff(caster, SBSkills.SNEAK_ATTACK),
+                    pre -> {
+                        removeSkillBuff(caster, SBSkills.SNEAK_ATTACK);
+                    },
                     100);
         }
 
@@ -254,13 +261,34 @@ public class ShadowbondSpell extends AnimatedSpell {
             if (effectEntity instanceof LivingEntity living) {
                 removeSkillBuff(living, SBSkills.SHADOWBOND);
                 if (skills.hasSkill(SBSkills.SILENT_EXCHANGE))
-                    living.addEffect(new MobEffectInstance(SBEffects.SILENCED, 100, 0, false, true));
+                    addSkillBuff(
+                            living,
+                            SBSkills.SILENT_EXCHANGE,
+                            BuffCategory.HARMFUL,
+                            SkillBuff.MOB_EFFECT,
+                            new MobEffectInstance(SBEffects.SILENCED, 100, 0, false, false),
+                            100
+                    );
 
                 if (skills.hasSkill(SBSkills.SNARE))
-                    living.addEffect(new MobEffectInstance(SBEffects.ROOTED, 100, 0, false, true));
+                    addSkillBuff(
+                            living,
+                            SBSkills.SNARE,
+                            BuffCategory.HARMFUL,
+                            SkillBuff.MOB_EFFECT,
+                            new MobEffectInstance(SBEffects.ROOTED, 100, 0, false, false),
+                            100
+                    );
 
                 if (skills.hasSkill(SBSkills.DISORIENTED)) {
-                    living.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 100, 0, false, false));
+                    addSkillBuff(
+                            living,
+                            SBSkills.DISORIENTED,
+                            BuffCategory.HARMFUL,
+                            SkillBuff.MOB_EFFECT,
+                            new MobEffectInstance(MobEffects.CONFUSION, 200, 0, false, false),
+                            200
+                    );
                     addEventBuff(
                             living,
                             SBSkills.DISORIENTED,
@@ -283,7 +311,7 @@ public class ShadowbondSpell extends AnimatedSpell {
 
     private void spawnTeleportParticles(Entity entity ,int amount) {
         for (int j = 0; j < amount; j++) {
-            this.createSurroundingParticles(entity, ParticleTypes.PORTAL, 0.5);
+            this.createSurroundingServerParticles(entity, ParticleTypes.PORTAL, 0.5);
         }
     }
 

@@ -1,11 +1,9 @@
 package com.ombremoon.spellbound.common.content.spell.ruin.fire;
 
-import com.ombremoon.sentinellib.CommonClass;
 import com.ombremoon.sentinellib.api.box.AABBSentinelBox;
 import com.ombremoon.sentinellib.api.box.OBBSentinelBox;
 import com.ombremoon.sentinellib.api.box.SentinelBox;
 import com.ombremoon.sentinellib.common.ISentinel;
-import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
 import com.ombremoon.spellbound.common.content.entity.spell.SolarRay;
 import com.ombremoon.spellbound.common.content.world.effect.SBEffectInstance;
 import com.ombremoon.spellbound.common.init.*;
@@ -18,22 +16,19 @@ import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -48,9 +43,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 
-//TODO: CHANGE MODEL BASED ON SKILL
 //TODO: ADD SOLAR BURST ANIMATIONS
-//TODO: FIX ATTACK CONDITION
 //TODO: ADD BLUE TEXTURE FOR CONCENTRATED HEAT?
 
 public class SolarRaySpell extends ChanneledSpell {
@@ -130,6 +123,9 @@ public class SolarRaySpell extends ChanneledSpell {
         Level level = context.getLevel();
         if (!level.isClientSide) {
             this.summonEntity(context, SBEntities.SOLAR_RAY.get(), caster.position(), solarRay -> {
+                if (context.getSkills().hasSkill(SBSkills.SUNSHINE))
+                    solarRay.addSunshine();
+
                 solarRay.setSpellId(1);
                 solarRay.setStartTick(18);
                 this.setSolarRay(solarRay.getId());
@@ -279,22 +275,23 @@ public class SolarRaySpell extends ChanneledSpell {
                                         }
                                     }
 
-                                    if (skills.hasSkill(SBSkills.BLINDING_LIGHT))
-                                        spell.addSkillBuff(
+//                                    if (skills.hasSkill(SBSkills.BLINDING_LIGHT))
+                                    spell.addSkillBuff(
                                             livingEntity,
                                             SBSkills.BLINDING_LIGHT,
                                             BuffCategory.HARMFUL,
                                             SkillBuff.MOB_EFFECT,
-                                                new MobEffectInstance(MobEffects.BLINDNESS, 60, 0, false, false),
+                                            new MobEffectInstance(MobEffects.BLINDNESS, 100, 0, true, true),
                                             100
-                                        );
+                                    );
+
                                     if (skills.hasSkill(SBSkills.AFTERGLOW)) {
                                         spell.addSkillBuff(
                                                 livingEntity,
                                                 SBSkills.AFTERGLOW,
                                                 BuffCategory.HARMFUL,
                                                 SkillBuff.MOB_EFFECT,
-                                                new SBEffectInstance(caster, SBEffects.AFTERGLOW, 100, true, 0, false, false),
+                                                new SBEffectInstance(caster, SBEffects.AFTERGLOW, 100, true, 0, true, true),
                                                 100
                                         );
                                         spell.addEventBuff(

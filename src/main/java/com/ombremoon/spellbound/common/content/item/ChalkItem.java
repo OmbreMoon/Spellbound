@@ -39,7 +39,6 @@ public class ChalkItem extends Item {
                 DyedItemColor color = stack.get(DataComponents.DYED_COLOR);
                 if (color != null) {
                     runeBlock.setData(SBData.RUNE_COLOR, color.rgb());
-                    Constants.LOG.info("{}", color);
                 }
             }
 

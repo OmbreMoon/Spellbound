@@ -13,7 +13,7 @@ public class SolarRayModel extends GeoModel<SolarRay> {
 
     @Override
     public ResourceLocation getModelResource(SolarRay animatable) {
-        return CommonClass.customLocation("geo/entity/solar_ray.geo.json");
+        return CommonClass.customLocation("geo/entity/" + getName(animatable) + ".geo.json");
     }
 
     @Override
@@ -28,12 +28,9 @@ public class SolarRayModel extends GeoModel<SolarRay> {
 
     protected String getName(SolarRay animatable) {
         String name = "solar_ray";
-        Entity owner = animatable.getOwner();
-        if (owner instanceof LivingEntity living) {
-            var skills = SpellUtil.getSkills(living);
-            if (skills.hasSkill(SBSkills.SUNSHINE.value()))
-                name = name + "_extended";
-        }
+        if (animatable.hasSunshine())
+            name = name + "_extended";
+
         return name;
     }
 }

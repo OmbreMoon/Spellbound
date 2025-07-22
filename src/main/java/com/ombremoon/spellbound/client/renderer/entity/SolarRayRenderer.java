@@ -23,7 +23,6 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class SolarRayRenderer extends GeoEntityRenderer<SolarRay> {
-    private GeoModel<SolarRay> model;
 
     public SolarRayRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new SolarRayModel());
@@ -36,28 +35,6 @@ public class SolarRayRenderer extends GeoEntityRenderer<SolarRay> {
         Entity owner = animatable.getOwner();
         if (owner == null) return;
         poseStack.mulPose(Axis.YP.rotationDegrees(-Mth.lerp(partialTick, owner.yRotO, owner.getYRot())));
-    }
-
-    @Override
-    public void preRender(PoseStack poseStack, SolarRay animatable, BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
-        Entity owner = animatable.getOwner();
-        if (owner instanceof LivingEntity living) {
-            var skills = SpellUtil.getSkills(living);
-            if (skills.hasSkill(SBSkills.SUNSHINE.value()))
-                model = this.getGeoModel().getBakedModel(CommonClass.customLocation("geo/entity/solar_ray_extended.geo.json"));
-        }
-        super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
-    }
-
-    @Override
-    public void actuallyRender(PoseStack poseStack, SolarRay animatable, BakedGeoModel model, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
-        Entity owner = animatable.getOwner();
-        if (owner instanceof LivingEntity living) {
-            var skills = SpellUtil.getSkills(living);
-            if (skills.hasSkill(SBSkills.SUNSHINE.value()))
-                model = this.getGeoModel().getBakedModel(CommonClass.customLocation("geo/entity/solar_ray_extended.geo.json"));
-        }
-        super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
     }
 
     @Override

@@ -163,11 +163,8 @@ public class NeoForgeEvents {
                     SpellCastEvents.chargeOrChannelSpell(event);
             }
 
-            if (caster.isStationary()) {
-                entity.setDeltaMovement(0, -entity.getGravity(), 0);
-                if (entity instanceof Mob mob)
-                    mob.getNavigation().stop();
-            }
+            if (caster.isStationary() && entity instanceof Mob mob)
+                mob.getNavigation().stop();
         }
     }
 
@@ -356,6 +353,9 @@ public class NeoForgeEvents {
 
         if (livingEntity.hasEffect(SBEffects.SLEEP))
             livingEntity.removeEffect(SBEffects.SLEEP);
+
+        if (livingEntity instanceof Player)
+            Constants.LOG.info("{}", event.getNewDamage());
     }
 
     @SubscribeEvent

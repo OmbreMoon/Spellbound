@@ -77,7 +77,20 @@ public class ClientPayloadHandler {
                     caster.forceAddBuff(payload.skillBuff(), payload.duration());
                 } else {
                     caster.removeSkillBuff(payload.skillBuff());
+                    Constants.LOG.info("{}", payload.skillBuff());
                 }
+            }
+        });
+    }
+
+    public static void handleClientUpdateCooldowns(UpdateCooldownsPayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            var level = context.player().level();
+
+            Entity entity = level.getEntity(payload.entityId());
+            if (entity instanceof LivingEntity livingEntity) {
+                var skills = SpellUtil.getSkills(livingEntity);
+                skills.getCooldowns().addCooldown(payload.skill(), payload.duration());
             }
         });
     }
@@ -92,7 +105,7 @@ public class ClientPayloadHandler {
         });
     }
 
-    public static void handleClientManaSync(ClientSyncManaPayload payload, IPayloadContext context) {
+    public static void handleClientManaSync(SyncManaPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             context.player().setData(SBData.MANA, payload.mana());
         });
@@ -109,10 +122,14 @@ public class ClientPayloadHandler {
 
     public static void handleClientSetSpellData(SetSpellDataPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
-            var handler = SpellUtil.getSpellCaster(context.player());
-            AbstractSpell spell = handler.castTick > 0 ? handler.getCurrentlyCastSpell() : handler.getSpell(payload.spellType(), payload.id());
-            if (spell != null)
-                spell.getSpellData().assignValues(payload.packedItems());
+            Level level = context.player().level();
+            Entity entity = level.getEntity(payload.entityId());
+            if (entity instanceof LivingEntity livingEntity) {
+                var handler = SpellUtil.getSpellCaster(livingEntity);
+                AbstractSpell spell = handler.castTick > 0 ? handler.getCurrentlyCastSpell() : handler.getSpell(payload.spellType(), payload.id());
+                if (spell != null)
+                    spell.getSpellData().assignValues(payload.packedItems());
+            }
         });
     }
 

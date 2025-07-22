@@ -72,4 +72,11 @@ public record SpellModifier(ResourceLocation id, ModifierType modifierType, Pred
             return other instanceof SpellModifier spellModifier && id().equals(spellModifier.id());
         }
     }
+
+    @Override
+    public int hashCode() {
+        int i = this.id.hashCode();
+        i = 31 * i + this.modifierType.hashCode();
+        return 31 * i + Float.floatToIntBits(this.modifier);
+    }
 }

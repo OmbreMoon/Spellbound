@@ -70,7 +70,14 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
                 target.getActiveEffects().stream().filter(instance -> instance.getEffect().value().isBeneficial()).forEach(instance -> caster.removeEffect(instance.getEffect()));
 
                 if (skills.hasSkill(SBSkills.DOMINANT_MAGIC.value()))
-                    target.addEffect(new MobEffectInstance(SBEffects.SILENCED, 200, 0, false, false));
+                    addSkillBuff(
+                            target,
+                            SBSkills.DOMINANT_MAGIC,
+                            BuffCategory.HARMFUL,
+                            SkillBuff.MOB_EFFECT,
+                            new MobEffectInstance(SBEffects.SILENCED, 100, 0, false, false),
+                            100
+                    );
 
                 if (skills.hasSkill(SBSkills.RESIDUAL_DISRUPTION.value())) {
                     addSkillBuff(

@@ -11,6 +11,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.ombremoon.spellbound.common.init.SBMultiblockSerializers;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.PayloadHandler;
+import com.ombremoon.spellbound.util.Loggable;
 import it.unimi.dsi.fastutil.chars.CharArraySet;
 import it.unimi.dsi.fastutil.chars.CharSet;
 import net.minecraft.core.BlockPos;
@@ -37,6 +38,7 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 
 public abstract class Multiblock {
+    private static final Logger LOGGER = Constants.LOG;
     public static final Codec<Multiblock> CODEC = SBMultiblockSerializers.REGISTRY.byNameCodec().dispatch(Multiblock::getSerializer, MultiblockSerializer::codec);
     public static final StreamCodec<RegistryFriendlyByteBuf, Multiblock> STREAM_CODEC = ByteBufCodecs.registry(SBMultiblockSerializers.MULTIBLOCK_SERIALIZER_REGISTRY_KEY)
             .dispatch(Multiblock::getSerializer, MultiblockSerializer::streamCodec);
@@ -102,7 +104,7 @@ public abstract class Multiblock {
         }
 
 
-        Constants.LOG.debug("Found multiblock pattern for {} from {} to {}", this, origin, this.getFinalIndex().toPos(facing, origin));
+        LOGGER.debug("Found multiblock pattern for {} from {} to {}", this, origin, this.getFinalIndex().toPos(facing, origin));
         return new MultiblockPattern(this, origin, facing, up);
     }
 
@@ -146,7 +148,7 @@ public abstract class Multiblock {
             }
         }
 
-        Constants.LOG.debug("Successfully removed multiblock {} from {} to {}", this, blockPos, this.getFinalIndex().toPos(facing, blockPos));
+        LOGGER.debug("Successfully removed multiblock {} from {} to {}", this, blockPos, this.getFinalIndex().toPos(facing, blockPos));
     }
 
     public int getWidth() {
@@ -301,7 +303,6 @@ public abstract class Multiblock {
     }
 
     public record MultiblockPattern(Multiblock multiblock, BlockPos frontBottomLeft, Direction facing, Direction up) {
-        private static final Logger LOGGER = Constants.LOG;
 
         public BlockState getBlock(LevelAccessor level, MultiblockIndex index) {
             return this.getBlock(level, index.x(), index.y(), index.z());

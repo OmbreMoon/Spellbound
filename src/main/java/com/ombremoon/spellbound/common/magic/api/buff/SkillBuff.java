@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.common.magic.api.buff;
 import com.google.common.collect.Maps;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.util.SpellUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -17,6 +18,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 
+@SuppressWarnings("unchecked")
 public record SkillBuff<T>(Skill skill, BuffCategory category, BuffObject<T> buffObject, T object) {
     private static final Map<String, BuffObject<?>> REGISTERED_OBJECTS = Maps.newHashMap();
     public static final StreamCodec<RegistryFriendlyByteBuf, SkillBuff<?>> STREAM_CODEC = StreamCodec.ofMember(
@@ -27,7 +29,7 @@ public record SkillBuff<T>(Skill skill, BuffCategory category, BuffObject<T> buf
             "mob_effect",
             LivingEntity::addEffect,
             (livingEntity, mobEffectInstance) -> livingEntity.removeEffect(mobEffectInstance.getEffect()),
-            (o, o1) -> o instanceof MobEffectInstance instance && o1 instanceof MobEffectInstance instance1 && instance.is(instance1.getEffect()),
+            (effectInstance, effectInstance2) -> effectInstance.is(effectInstance2.getEffect()),
             MobEffectInstance.STREAM_CODEC);
 
     public static final BuffObject<ModifierData> ATTRIBUTE_MODIFIER = registerBuffObject(
@@ -42,7 +44,7 @@ public record SkillBuff<T>(Skill skill, BuffCategory category, BuffObject<T> buf
                 if (instance != null && instance.hasModifier(modifierData.attributeModifier().id()))
                     instance.removeModifier(modifierData.attributeModifier());
             },
-            (o, o1) -> o instanceof ModifierData data && o1 instanceof ModifierData data1 && data.attributeModifier().is(data1.attributeModifier().id()),
+            (data, data1) -> data.attributeModifier().is(data1.attributeModifier().id()),
             ModifierData.STREAM_CODEC);
 
     public static final BuffObject<SpellModifier> SPELL_MODIFIER = registerBuffObject(
@@ -55,7 +57,7 @@ public record SkillBuff<T>(Skill skill, BuffCategory category, BuffObject<T> buf
                 var skills = SpellUtil.getSkills(livingEntity);
                 skills.removeModifier(spellModifier);
             },
-            (o, o1) -> o instanceof SpellModifier modifier && o1 instanceof SpellModifier modifier1 && modifier.equals(modifier1),
+            SpellModifier::equals,
             SpellModifier.STREAM_CODEC);
 
     public static final BuffObject<ResourceLocation> EVENT = registerBuffObject(
@@ -66,7 +68,7 @@ public record SkillBuff<T>(Skill skill, BuffCategory category, BuffObject<T> buf
                 var handler = SpellUtil.getSpellCaster(livingEntity);
                 handler.getListener().removeListener(resourceLocation);
             },
-            (o, o1) -> o instanceof ResourceLocation location && o1 instanceof ResourceLocation location1 && location.equals(location1),
+            ResourceLocation::equals,
             ResourceLocation.STREAM_CODEC);
 
     private void toNetwork(RegistryFriendlyByteBuf buf) {
@@ -76,7 +78,6 @@ public record SkillBuff<T>(Skill skill, BuffCategory category, BuffObject<T> buf
         this.buffObject.objectStreamCodec.encode(buf, this.object);
     }
 
-    @SuppressWarnings("unchecked")
     private static <T> SkillBuff<T> fromNetwork(RegistryFriendlyByteBuf buf) {
         Skill skill = ByteBufCodecs.registry(SBSkills.SKILL_REGISTRY_KEY).decode(buf);
         BuffCategory category = NeoForgeStreamCodecs.enumCodec(BuffCategory.class).decode(buf);
@@ -89,7 +90,7 @@ public record SkillBuff<T>(Skill skill, BuffCategory category, BuffObject<T> buf
                                                         BiConsumer<LivingEntity,
                                                                 T> addObject,
                                                         BiConsumer<LivingEntity, T> removeObject,
-                                                        BiPredicate<Object, Object> equalCondition,
+                                                        BiPredicate<T, T> equalCondition,
                                                         StreamCodec<? super RegistryFriendlyByteBuf, T> objectStreamCodec) {
         BuffObject<T> object = new BuffObject<>(name, addObject, removeObject, equalCondition, objectStreamCodec);
         REGISTERED_OBJECTS.put(name, object);
@@ -118,21 +119,23 @@ public record SkillBuff<T>(Skill skill, BuffCategory category, BuffObject<T> buf
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
+        } else if (!(obj instanceof SkillBuff<?> skillBuff)) {
+            return false;
         } else {
-            return obj instanceof SkillBuff<?> skillBuff && skillBuff.buffObject.equalCondition.test(skillBuff.object, this.object);
+            return this.isSkill(skillBuff.skill) && this.buffObject.equalCondition.test(this.object, (T) skillBuff.object);
         }
     }
 
     @Override
     public String toString() {
-        return "SkillBuff: [" + "Skill: " + this.skill + ", Category: " + this.category + ", Buff: " + this.object + "]";
+        return "SkillBuff: [" + "Skill: " + this.skill + ", Type: " + this.buffObject.name + ", Category: " + this.category + ", Buff: " + this.object + "]";
     }
 
     public record BuffObject<T>(
             String name,
             BiConsumer<LivingEntity, T> addObject,
             BiConsumer<LivingEntity, T> removeObject,
-            BiPredicate<Object, Object> equalCondition,
+            BiPredicate<T, T> equalCondition,
             StreamCodec<? super RegistryFriendlyByteBuf, T> objectStreamCodec) {
 
         public static final StreamCodec<ByteBuf, BuffObject<?>> STREAM_CODEC = ByteBufCodecs.STRING_UTF8

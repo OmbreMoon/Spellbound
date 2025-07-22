@@ -12,14 +12,14 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.ArrayList;
 import java.util.List;
 
-public record SetSpellDataPayload(SpellType<?> spellType, int id, List<SyncedSpellData.DataValue<?>> packedItems) implements CustomPacketPayload {
+public record SetSpellDataPayload(int entityId, SpellType<?> spellType, int id, List<SyncedSpellData.DataValue<?>> packedItems) implements CustomPacketPayload {
     public static final Type<SetSpellDataPayload> TYPE = new Type<>(CommonClass.customLocation("set_spell_data"));
     public static final StreamCodec<RegistryFriendlyByteBuf, SetSpellDataPayload> STREAM_CODEC = StreamCodec.ofMember(
             SetSpellDataPayload::write, SetSpellDataPayload::new
     );
 
     private SetSpellDataPayload(RegistryFriendlyByteBuf registryFriendlyByteBuf) {
-        this(getSpellType(registryFriendlyByteBuf.readUtf()), registryFriendlyByteBuf.readVarInt(), unpack(registryFriendlyByteBuf));
+        this(registryFriendlyByteBuf.readVarInt(), getSpellType(registryFriendlyByteBuf.readUtf()), registryFriendlyByteBuf.readVarInt(), unpack(registryFriendlyByteBuf));
     }
 
     private static SpellType<?> getSpellType(String location) {
@@ -46,6 +46,7 @@ public record SetSpellDataPayload(SpellType<?> spellType, int id, List<SyncedSpe
     }
 
     private void write(RegistryFriendlyByteBuf buffer) {
+        buffer.writeVarInt(this.entityId);
         buffer.writeUtf(this.spellType.toString());
         buffer.writeVarInt(this.id);
         pack(this.packedItems, buffer);

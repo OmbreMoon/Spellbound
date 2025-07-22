@@ -50,7 +50,7 @@ public class RitualSavedData extends SavedData {
 
         tag.put("Transfiguration Rituals", ritualList);
 
-        Constants.LOG.info("Successfully saved rituals");
+        LOGGER.info("Successfully saved rituals");
         return tag;
     }
 

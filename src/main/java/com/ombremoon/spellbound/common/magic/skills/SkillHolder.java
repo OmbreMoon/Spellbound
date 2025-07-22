@@ -114,6 +114,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
                 modifiers.forEach(permanentModifiers::remove);
             }
         }
+        this.skillPoints.put(spellType, 0);
     }
 
     public void unlockSkill(Skill skill, boolean consumePoints) {

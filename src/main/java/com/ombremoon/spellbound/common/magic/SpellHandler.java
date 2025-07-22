@@ -410,10 +410,18 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
         }
     }
 
+    public void removeBuffEffect(SkillBuff<?> skillBuff) {
+        skillBuff.removeBuff(this.caster);
+
+        if (this.caster instanceof Player player && !player.level().isClientSide)
+            PayloadHandler.updateSkillBuff((ServerPlayer) player, skillBuff, 0, true);
+
+    }
+
     public void forceAddBuff(SkillBuff<?> skillBuff, int ticks) {
-        this.removeSkillBuff(skillBuff);
-        skillBuff.addBuff(this.caster);
-        this.skillBuffs.put(skillBuff, ticks);
+//        this.removeSkillBuff(skillBuff);
+//        skillBuff.addBuff(this.caster);
+//        this.skillBuffs.put(skillBuff, ticks);
     }
 
     public Set<SkillBuff<?>> getBuffs() {
@@ -425,12 +433,18 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     }
 
     private void tickSkillBuffs() {
-        if (!this.skillBuffs.isEmpty()) {
-            for (var entry : this.skillBuffs.entrySet()) {
-                if (entry.getValue() > 0 && entry.getValue() <= this.caster.tickCount)
-                    this.removeSkillBuff(entry.getKey());
+//        if (this.caster instanceof Player player && player.getName().getString().equals("Dev1"))
+//            log(skillBuffs);
+
+        this.skillBuffs.entrySet().removeIf(entry -> {
+            if (entry.getValue() > 0 && entry.getValue() <= this.caster.tickCount) {
+                log(entry.getKey());
+                this.removeBuffEffect(entry.getKey());
+                return true;
             }
-        }
+
+            return false;
+        });
     }
 
     public int getFlag(SpellType<?> spellType) {
