@@ -57,7 +57,7 @@ public class SummonPortalBlock extends BaseEntityBlock {
         double d0 = (double)pos.getX() + random.nextDouble();
         double d1 = (double)pos.getY() + 0.8;
         double d2 = (double)pos.getZ() + random.nextDouble();
-        level.addParticle(ParticleTypes.SMOKE, d0, d1, d2, 0.0, 0.0, 0.0);
+        level.addParticle(ParticleTypes.PORTAL, d0, d1, d2, 0.0, 0.0, 0.0);
     }
 
     @Override
