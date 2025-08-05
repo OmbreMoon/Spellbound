@@ -29,16 +29,15 @@ public abstract class SummonSpell extends AnimatedSpell {
     private static final ResourceLocation DAMAGE_EVENT = CommonClass.customLocation("summon_damage_event");
     private static final ResourceLocation TARGETING_EVENT = CommonClass.customLocation("summon_targeting_event");
     private final Set<Integer> summons = new IntOpenHashSet();
-    private final double spawnRange;
 
     @SuppressWarnings("unchecked")
     public static <T extends SummonSpell> Builder<T> createSummonBuilder(Class<T> spellClass) {
-        return (Builder<T>) new Builder<>().castCondition((context, spell) -> spell.hasValidSpawnPos(spell.spawnRange));
+        return (Builder<T>) new Builder<>()
+                .castCondition((context, spell) -> spell.hasValidSpawnPos());
     }
 
     public SummonSpell(SpellType<?> spellType, Builder<?> builder) {
         super(spellType, builder);
-        this.spawnRange = builder.spawnRange;
     }
 
     /**
@@ -128,7 +127,6 @@ public abstract class SummonSpell extends AnimatedSpell {
     }
 
     public static class Builder<T extends SummonSpell> extends AnimatedSpell.Builder<T> {
-        private double spawnRange = 5;
 
         public Builder<T> mastery(SpellMastery mastery) {
             this.spellMastery = mastery;
@@ -177,11 +175,6 @@ public abstract class SummonSpell extends AnimatedSpell {
 
         public Builder<T> additionalCondition(BiPredicate<SpellContext, T> castCondition) {
             this.castPredicate = this.castPredicate.and(castCondition);
-            return this;
-        }
-
-        public Builder<T> spawnRange(double spawnRange) {
-            this.spawnRange = spawnRange;
             return this;
         }
 

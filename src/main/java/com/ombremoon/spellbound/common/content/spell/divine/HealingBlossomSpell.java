@@ -47,7 +47,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
                 .manaCost(45)
                 .duration(400)
                 .castTime(20)
-                .castCondition((context, spell) -> spell.hasValidSpawnPos(5))
+                .castCondition((context, spell) -> spell.hasValidSpawnPos())
                 .fullRecast();
     }
 

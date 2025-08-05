@@ -7,6 +7,7 @@ import com.ombremoon.spellbound.client.particle.SparkParticle;
 import com.ombremoon.spellbound.client.renderer.blockentity.SummonPortalRenderer;
 import com.ombremoon.spellbound.client.renderer.blockentity.TransfigurationDisplayRenderer;
 import com.ombremoon.spellbound.client.renderer.entity.*;
+import com.ombremoon.spellbound.client.renderer.layer.FrozenLayer;
 import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
 import com.ombremoon.spellbound.client.renderer.types.EmissiveSpellProjectileRenderer;
 import com.ombremoon.spellbound.client.renderer.types.GenericLivingEntityRenderer;
@@ -26,17 +27,23 @@ import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.particle.DustParticle;
 import net.minecraft.client.particle.HeartParticle;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.common.Tags;
 import software.bernie.geckolib.util.Color;
 
 public class ClientEvents {
@@ -89,6 +96,17 @@ public class ClientEvents {
                     continue;
 
                 playerRenderer.addLayer(new GenericSpellLayer<>(playerRenderer));
+                playerRenderer.addLayer(new FrozenLayer<>(playerRenderer));
+            }
+
+            for (var entity : event.getEntityTypes()) {
+                if (entity != EntityType.PLAYER) {
+                    var renderer = event.getRenderer(entity);
+                    if (renderer instanceof LivingEntityRenderer<?, ?>) {
+                        LivingEntityRenderer<LivingEntity, EntityModel<LivingEntity>> livingRenderer = (LivingEntityRenderer<LivingEntity, EntityModel<LivingEntity>>) renderer;
+                        livingRenderer.addLayer(new FrozenLayer<>(livingRenderer));
+                    }
+                }
             }
         }
 

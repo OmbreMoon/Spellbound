@@ -88,7 +88,7 @@ public class EmptyChunkGenerator extends ChunkGenerator {
 
     @Override
     public int getBaseHeight(int x, int z, Heightmap.Types type, LevelHeightAccessor level, RandomState random) {
-        return 0;
+        return 64;
     }
 
     @Override

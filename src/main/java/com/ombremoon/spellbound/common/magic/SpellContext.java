@@ -103,6 +103,10 @@ public class SpellContext {
         return this.spellHandler.getActiveSpells(this.spellType).size() >= amount;
     }
 
+    public boolean canCastWithLevel() {
+        return this.spellHandler.getActiveSpells(this.spellType).size() <= this.skillHolder.getSpellLevel(this.spellType);
+    }
+
     public int getFlag() {
         return this.spellHandler.getFlag(this.spellType);
     }

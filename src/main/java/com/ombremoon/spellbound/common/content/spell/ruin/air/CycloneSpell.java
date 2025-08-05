@@ -26,7 +26,7 @@ public class CycloneSpell extends AnimatedSpell {
                 .mastery(SpellMastery.MASTER)
                 .duration(600)
                 .manaCost(95)
-                .castCondition((context, cycloneSpell) -> cycloneSpell.hasValidSpawnPos(100) && !context.hasActiveSpells(6));
+                .castCondition((context, cycloneSpell) -> cycloneSpell.hasValidSpawnPos(100) && context.canCastWithLevel());
     }
 
     public CycloneSpell() {
@@ -45,8 +45,8 @@ public class CycloneSpell extends AnimatedSpell {
             this.setCyclone(summonEntity(context, SBEntities.CYCLONE.get(), 100).getId());
 
             if (context.getSkills().hasSkill(SBSkills.HAILSTORM.value())) {
-                HailstormSavedData data = ((HailstormSavedData) HailstormSavedData.get(level));
-                data.toggleHailing((ServerLevel) level, this.getDuration());
+//                HailstormSavedData data = ((HailstormSavedData) HailstormSavedData.get(level));
+//                data.toggleHailing((ServerLevel) level, this.getDuration());
             }
         }
     }
@@ -55,9 +55,9 @@ public class CycloneSpell extends AnimatedSpell {
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
         Level level = context.getLevel();
+        if (!level.isClientSide) {
         Cyclone cyclone = this.getCyclone(context);
-        if (cyclone == null) {
-            if (!level.isClientSide)
+            if (cyclone == null)
                 endSpell();
         }
     }

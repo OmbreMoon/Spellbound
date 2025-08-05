@@ -136,6 +136,10 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
 
         this.tickSkillBuffs();
         this.skillHolder.getCooldowns().tick();
+
+        if (!this.caster.level().isClientSide && this.caster.tickCount % 5 == 0) {
+
+        }
     }
 
     public double getMana() {
@@ -279,7 +283,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * @param spell The AbstractSpell
      */
     public void activateSpell(AbstractSpell spell) {
-        this.activeSpells.put(spell.getSpellType(), spell);
+        this.activeSpells.put(spell.spellType(), spell);
     }
 
     /**
@@ -301,7 +305,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * @param spell
      */
     public void recastSpell(AbstractSpell spell) {
-        this.activeSpells.replaceValues(spell.getSpellType(), List.of(spell));
+        this.activeSpells.replaceValues(spell.spellType(), List.of(spell));
     }
 
     /**
@@ -402,15 +406,12 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
 
     public void removeSkillBuff(SkillBuff<?> skillBuff) {
         if (this.skillBuffs.containsKey(skillBuff)) {
-            skillBuff.removeBuff(this.caster);
             this.skillBuffs.remove(skillBuff);
-
-            if (this.caster instanceof Player player && !player.level().isClientSide)
-                PayloadHandler.updateSkillBuff((ServerPlayer) player, skillBuff, 0, true);
+            this.removeBuffEffect(skillBuff);
         }
     }
 
-    public void removeBuffEffect(SkillBuff<?> skillBuff) {
+    private void removeBuffEffect(SkillBuff<?> skillBuff) {
         skillBuff.removeBuff(this.caster);
 
         if (this.caster instanceof Player player && !player.level().isClientSide)
@@ -419,9 +420,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     }
 
     public void forceAddBuff(SkillBuff<?> skillBuff, int ticks) {
-//        this.removeSkillBuff(skillBuff);
-//        skillBuff.addBuff(this.caster);
-//        this.skillBuffs.put(skillBuff, ticks);
+        //ADD DATA ATTACHMENT FOR CLIENT BUFFS
     }
 
     public Set<SkillBuff<?>> getBuffs() {
@@ -438,7 +437,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
 
         this.skillBuffs.entrySet().removeIf(entry -> {
             if (entry.getValue() > 0 && entry.getValue() <= this.caster.tickCount) {
-                log(entry.getKey());
                 this.removeBuffEffect(entry.getKey());
                 return true;
             }

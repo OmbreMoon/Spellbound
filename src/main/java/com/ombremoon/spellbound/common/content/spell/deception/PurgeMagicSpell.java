@@ -16,6 +16,7 @@ import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
@@ -51,7 +52,7 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
         if (flag == 1) {
             caster.addEffect(new MobEffectInstance(SBEffects.COUNTER_MAGIC, 200, 0, false ,false));
             if (skills.hasSkill(SBSkills.CLEANSE.value()))
-                cleanseCaster();
+                this.cleanseCaster();
         } else {
             List<LivingEntity> targets = new ObjectArrayList<>();
             if (skills.hasSkill(SBSkills.RADIO_WAVES.value())) {
@@ -63,11 +64,11 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
             for (LivingEntity target : targets) {
                 var targetHandler = SpellUtil.getSpellCaster(target);
                 var activeSpells = targetHandler.getActiveSpells();
+                this.cleanse(target, 0, MobEffectCategory.HARMFUL);
                 targetHandler.getBuffs().stream().filter(SkillBuff::isBeneficial).forEach(skillBuff -> removeSkillBuff(target, skillBuff.skill()));
                 for (AbstractSpell spell : activeSpells) {
                     spell.endSpell();
                 }
-                target.getActiveEffects().stream().filter(instance -> instance.getEffect().value().isBeneficial()).forEach(instance -> caster.removeEffect(instance.getEffect()));
 
                 if (skills.hasSkill(SBSkills.DOMINANT_MAGIC.value()))
                     addSkillBuff(

@@ -77,7 +77,6 @@ public class ClientPayloadHandler {
                     caster.forceAddBuff(payload.skillBuff(), payload.duration());
                 } else {
                     caster.removeSkillBuff(payload.skillBuff());
-                    Constants.LOG.info("{}", payload.skillBuff());
                 }
             }
         });

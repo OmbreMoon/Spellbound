@@ -36,7 +36,8 @@ public class DebugItem extends Item implements Loggable {
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
         var multiblock = MultiblockManager.byKey(CommonClass.customLocation("one_ring")).value();
-        multiblock.tryCreateMultiblock(level, context.getPlayer(), context.getClickedPos(), Direction.NORTH);
+        log(multiblock);
+//        multiblock.tryCreateMultiblock(level, context.getPlayer(), context.getClickedPos(), Direction.NORTH);
 //        Constants.LOG.info("{}", multiblock.findPattern(level, context.getClickedPos(), Direction.EAST));
 //        multiblock.debugMultiblock(level, context.getClickedPos(), context.getHorizontalDirection());
 //        if (multiblock instanceof TransfigurationMultiblock transfigurationMultiblock)

@@ -7,8 +7,10 @@
   "mixins": [
     "DuckRangedAttribute",
     "LivingEntityMixin",
+    "ServerboundSetStructureBlockPacketMixin",
     "ServerLevelMixin",
     "ServerPlayerMixin",
+    "StructureBlockEntityMixin",
     "ZombieVillagerMixin"
   ],
   "client": [
@@ -16,7 +18,9 @@
     "EffectRenderingInventoryScreenMixin",
     "GameRendererMixin",
     "LevelRendererMixin",
-    "MinecraftMixin"
+    "LivingEntityRendererMixin",
+    "MinecraftMixin",
+    "StructureBlockRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

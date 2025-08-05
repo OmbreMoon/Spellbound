@@ -23,14 +23,16 @@ public class RitualHelper {
     }
 
     public static <T> void createItem(Level level, Vec3 pos, ItemStack item, Optional<DataComponentStorage> storage) {
-        storage.ifPresent(dataStorage -> {
-            for (var typeComponent : dataStorage.dataComponents()) {
-                item.set((DataComponentType<T>) typeComponent.type(), (T)typeComponent.value());
-            }
-        });
+        if (!level.isClientSide) {
+            storage.ifPresent(dataStorage -> {
+                for (var typeComponent : dataStorage.dataComponents()) {
+                    item.set((DataComponentType<T>) typeComponent.type(), (T) typeComponent.value());
+                }
+            });
 
-        ItemEntity entity = new ItemEntity(level, pos.x(), pos.y() + 1.5F, pos.z(), item);
-        entity.setDeltaMovement(Vec3.ZERO);
-        level.addFreshEntity(entity);
+            ItemEntity entity = new ItemEntity(level, pos.x(), pos.y() + 1.5F, pos.z(), item);
+            entity.setDeltaMovement(Vec3.ZERO);
+            level.addFreshEntity(entity);
+        }
     }
 }

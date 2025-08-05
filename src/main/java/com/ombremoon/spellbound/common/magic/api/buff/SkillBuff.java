@@ -122,8 +122,12 @@ public record SkillBuff<T>(Skill skill, BuffCategory category, BuffObject<T> buf
         } else if (!(obj instanceof SkillBuff<?> skillBuff)) {
             return false;
         } else {
-            return this.isSkill(skillBuff.skill) && this.buffObject.equalCondition.test(this.object, (T) skillBuff.object);
+            return this.isSkill(skillBuff.skill) && this.isOfType(skillBuff) && this.buffObject.equalCondition.test(this.object, (T) skillBuff.object);
         }
+    }
+
+    private boolean isOfType(SkillBuff<?> buff) {
+        return this.object.getClass().equals(buff.object.getClass());
     }
 
     @Override

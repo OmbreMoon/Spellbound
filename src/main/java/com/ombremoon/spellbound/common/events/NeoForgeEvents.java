@@ -309,7 +309,7 @@ public class NeoForgeEvents {
         if (event.getEntity().level().isClientSide) return;
 
         if (event.getSource().getEntity() instanceof LivingEntity livingEntity) {
-            SpellUtil.getSpellCaster(livingEntity).getListener().fireEvent(SpellEventListener.Events.PLAYER_KILL, new DeathEvent(livingEntity, event));
+            SpellUtil.getSpellCaster(livingEntity).getListener().fireEvent(SpellEventListener.Events.ENTITY_KILL, new DeathEvent(livingEntity, event));
         }
     }
 

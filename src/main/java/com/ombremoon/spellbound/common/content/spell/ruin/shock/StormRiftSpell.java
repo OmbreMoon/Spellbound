@@ -127,84 +127,82 @@ public class StormRiftSpell extends AnimatedSpell {
         Level level = context.getLevel();
         if (!level.isClientSide()) {
             var skills = context.getSkills();
-            if (!this.portalMap.isEmpty()) {
-                for (var entry : this.portalMap.entrySet()) {
-                    StormRift stormRift = (StormRift) level.getEntity(entry.getKey());
-                    if (stormRift != null) {
-                        float damage = skills.hasSkill(SBSkills.STORM_FURY) && stormRift.tickCount >= 100 ? 10 : 5;
-                        damage += Math.min(this.portalCharge, 5);
-                        if (this.portalMap.size() > 1 || skills.hasSkill(SBSkills.DISPLACEMENT_FIELD))
-                            this.pullTargets(context);
+            for (var entry : this.portalMap.entrySet()) {
+                StormRift stormRift = (StormRift) level.getEntity(entry.getKey());
+                if (stormRift != null) {
+                    float damage = skills.hasSkill(SBSkills.STORM_FURY) && stormRift.tickCount >= 100 ? 10 : 5;
+                    damage += Math.min(this.portalCharge, 5);
+                    if (this.portalMap.size() > 1 || skills.hasSkill(SBSkills.DISPLACEMENT_FIELD))
+                        this.pullTargets(context);
 
-                        List<Entity> teleportList = level.getEntities(stormRift, stormRift.getBoundingBox(), EntitySelector.NO_CREATIVE_OR_SPECTATOR.and(entity -> entity.isAlive() && ((entity instanceof LivingEntity livingEntity && !isCaster(livingEntity) && !livingEntity.isAlliedTo(caster)) || entity instanceof Projectile)));
-                        for (Entity entity : teleportList) {
-                            if (entity instanceof LivingEntity livingEntity && checkForCounterMagic(livingEntity))
-                                return;
+                    List<Entity> teleportList = level.getEntities(stormRift, stormRift.getBoundingBox(), EntitySelector.NO_CREATIVE_OR_SPECTATOR.and(entity -> entity.isAlive() && ((entity instanceof LivingEntity livingEntity && !isCaster(livingEntity) && !livingEntity.isAlliedTo(caster)) || entity instanceof Projectile)));
+                    for (Entity entity : teleportList) {
+                        if (entity instanceof LivingEntity livingEntity && checkForCounterMagic(livingEntity))
+                            return;
 
-                            if (this.portalMap.attemptTeleport(entity, stormRift)) {
-                                if (skills.hasSkill(SBSkills.CHARGED_RIFT))
-                                    this.portalCharge++;
+                        if (this.portalMap.attemptTeleport(entity, stormRift)) {
+                            if (skills.hasSkill(SBSkills.CHARGED_RIFT))
+                                this.portalCharge++;
 
-                                if (entity instanceof LivingEntity livingEntity) {
-                                    stormRift.addCooldown(livingEntity);
-                                    this.hurt(livingEntity, damage);
-                                    this.drainMana(livingEntity, damage);
-                                    if (skills.hasSkill(SBSkills.EVENT_HORIZON))
-                                        this.quicklyPullTargets(level, stormRift, caster, livingEntity);
-
-                                    if (skills.hasSkill(SBSkills.FORCED_WARP))
-                                        this.throwTarget(level, livingEntity);
-
-                                    if (skills.hasSkill(SBSkills.MOTION_SICKNESS)) {
-                                        this.addSkillBuff(
-                                                livingEntity,
-                                                SBSkills.MOTION_SICKNESS,
-                                                BuffCategory.HARMFUL,
-                                                SkillBuff.ATTRIBUTE_MODIFIER,
-                                                new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(MOTION_SICKNESS, 0.7, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
-                                                200
-                                        );
-                                        this.addSkillBuff(
-                                                livingEntity,
-                                                SBSkills.MOTION_SICKNESS,
-                                                BuffCategory.HARMFUL,
-                                                SkillBuff.ATTRIBUTE_MODIFIER,
-                                                new ModifierData(Attributes.ATTACK_SPEED, new AttributeModifier(MOTION_SICKNESS, 0.7, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
-                                                200
-                                        );
-                                        this.addSkillBuff(
-                                                livingEntity,
-                                                SBSkills.MOTION_SICKNESS,
-                                                BuffCategory.HARMFUL,
-                                                SkillBuff.ATTRIBUTE_MODIFIER,
-                                                new ModifierData(Attributes.BLOCK_BREAK_SPEED, new AttributeModifier(MOTION_SICKNESS, 0.7, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
-                                                200
-                                        );
-                                    }
-                                }
-                            } else if (entity instanceof LivingEntity livingEntity && skills.hasSkill(SBSkills.DISPLACEMENT_FIELD) && !stormRift.isOnCooldown(livingEntity)) {
-                                int i = Mth.floor(livingEntity.getX());
-                                int j = Mth.floor(livingEntity.getY());
-                                int k = Mth.floor(livingEntity.getZ());
-                                for (int l = 0; l < 50; ++l) {
-                                    int i1 = i + Mth.nextInt(livingEntity.getRandom(), 7, 15) * Mth.nextInt(livingEntity.getRandom(), -1, 1);
-                                    int j1 = j + Mth.nextInt(livingEntity.getRandom(), 7, 15) * Mth.nextInt(livingEntity.getRandom(), -1, 1);
-                                    int k1 = k + Mth.nextInt(livingEntity.getRandom(), 7, 15) * Mth.nextInt(livingEntity.getRandom(), -1, 1);
-                                    BlockPos blockpos = new BlockPos(i1, j1, k1);
-                                    if (level.getBlockState(blockpos).isAir()) {
-                                        livingEntity.teleportTo(blockpos.getX(), blockpos.getY(), blockpos.getZ());
-                                        this.hurt(livingEntity, damage);
-                                        this.drainMana(livingEntity, 15);
-                                        break;
-                                    }
-                                }
-
+                            if (entity instanceof LivingEntity livingEntity) {
+                                stormRift.addCooldown(livingEntity);
+                                this.hurt(livingEntity, damage);
+                                this.drainMana(livingEntity, damage);
                                 if (skills.hasSkill(SBSkills.EVENT_HORIZON))
                                     this.quicklyPullTargets(level, stormRift, caster, livingEntity);
 
-                                if (skills.hasSkill(SBSkills.FORCED_WARP) && !stormRift.isOnCooldown(livingEntity))
+                                if (skills.hasSkill(SBSkills.FORCED_WARP))
                                     this.throwTarget(level, livingEntity);
+
+                                if (skills.hasSkill(SBSkills.MOTION_SICKNESS)) {
+                                    this.addSkillBuff(
+                                            livingEntity,
+                                            SBSkills.MOTION_SICKNESS,
+                                            BuffCategory.HARMFUL,
+                                            SkillBuff.ATTRIBUTE_MODIFIER,
+                                            new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(MOTION_SICKNESS, -0.4, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                                            200
+                                    );
+                                    this.addSkillBuff(
+                                            livingEntity,
+                                            SBSkills.MOTION_SICKNESS,
+                                            BuffCategory.HARMFUL,
+                                            SkillBuff.ATTRIBUTE_MODIFIER,
+                                            new ModifierData(Attributes.ATTACK_SPEED, new AttributeModifier(MOTION_SICKNESS, -0.4, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                                            200
+                                    );
+                                    this.addSkillBuff(
+                                            livingEntity,
+                                            SBSkills.MOTION_SICKNESS,
+                                            BuffCategory.HARMFUL,
+                                            SkillBuff.ATTRIBUTE_MODIFIER,
+                                            new ModifierData(Attributes.BLOCK_BREAK_SPEED, new AttributeModifier(MOTION_SICKNESS, -0.4, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                                            200
+                                    );
+                                }
                             }
+                        } else if (entity instanceof LivingEntity livingEntity && skills.hasSkill(SBSkills.DISPLACEMENT_FIELD) && !stormRift.isOnCooldown(livingEntity)) {
+                            int i = Mth.floor(livingEntity.getX());
+                            int j = Mth.floor(livingEntity.getY());
+                            int k = Mth.floor(livingEntity.getZ());
+                            for (int l = 0; l < 50; ++l) {
+                                int i1 = i + Mth.nextInt(livingEntity.getRandom(), 7, 15) * Mth.nextInt(livingEntity.getRandom(), -1, 1);
+                                int j1 = j + Mth.nextInt(livingEntity.getRandom(), 7, 15) * Mth.nextInt(livingEntity.getRandom(), -1, 1);
+                                int k1 = k + Mth.nextInt(livingEntity.getRandom(), 7, 15) * Mth.nextInt(livingEntity.getRandom(), -1, 1);
+                                BlockPos blockpos = new BlockPos(i1, j1, k1);
+                                if (level.getBlockState(blockpos).isAir()) {
+                                    livingEntity.teleportTo(blockpos.getX(), blockpos.getY(), blockpos.getZ());
+                                    this.hurt(livingEntity, damage);
+                                    this.drainMana(livingEntity, 15);
+                                    break;
+                                }
+                            }
+
+                            if (skills.hasSkill(SBSkills.EVENT_HORIZON))
+                                this.quicklyPullTargets(level, stormRift, caster, livingEntity);
+
+                            if (skills.hasSkill(SBSkills.FORCED_WARP) && !stormRift.isOnCooldown(livingEntity))
+                                this.throwTarget(level, livingEntity);
                         }
                     }
                 }
@@ -251,7 +249,6 @@ public class StormRiftSpell extends AnimatedSpell {
     @Override
     public void onEntityTick(ISpellEntity<?> spellEntity, SpellContext context) {
         Level level = context.getLevel();
-        var handler = context.getSpellHandler();
         if (spellEntity instanceof StormCloud stormCloud) {
             if (!level.isClientSide) {
                 if (this.lightningTimer > 0) {
@@ -262,28 +259,23 @@ public class StormRiftSpell extends AnimatedSpell {
                     double y = stormCloud.getY() - 7;
                     double z = stormCloud.getZ() + (stormCloud.getRandom().nextDouble() * 8 - 4);
                     BlockPos blockPos = BlockPos.containing(x, y, z);
-                    if (handler != null) {
-                        StormRiftSpell spell = handler.getSpell(SBSpells.STORM_RIFT.get());
-                        if (spell != null) {
-                            spell.summonEntity(SpellContext.simple(SBSpells.STORM_RIFT.get(), handler.caster), SBEntities.STORM_BOLT.get(), Vec3.atBottomCenterOf(blockPos));
-                            level.playSound(
-                                    stormCloud,
-                                    stormCloud.getOnPos(),
-                                    SoundEvents.LIGHTNING_BOLT_THUNDER,
-                                    SoundSource.NEUTRAL,
-                                    10000.0F,
-                                    0.8F + stormCloud.getRandom().nextFloat() * 0.2F
-                            );
-                            level.playSound(
-                                    stormCloud,
-                                    stormCloud.getOnPos(),
-                                    SoundEvents.LIGHTNING_BOLT_IMPACT,
-                                    SoundSource.NEUTRAL,
-                                    2.0F,
-                                    0.5F + stormCloud.getRandom().nextFloat() * 0.2F
-                            );
-                        }
-                    }
+                    this.summonEntity(SpellContext.simple(SBSpells.STORM_RIFT.get(), context.getCaster()), SBEntities.STORM_BOLT.get(), Vec3.atBottomCenterOf(blockPos));
+                    level.playSound(
+                            stormCloud,
+                            stormCloud.getOnPos(),
+                            SoundEvents.LIGHTNING_BOLT_THUNDER,
+                            SoundSource.NEUTRAL,
+                            2500.0F,
+                            0.8F + stormCloud.getRandom().nextFloat() * 0.2F
+                    );
+                    level.playSound(
+                            stormCloud,
+                            stormCloud.getOnPos(),
+                            SoundEvents.LIGHTNING_BOLT_IMPACT,
+                            SoundSource.NEUTRAL,
+                            2.0F,
+                            0.5F + stormCloud.getRandom().nextFloat() * 0.2F
+                    );
                 }
             }
         } else if (spellEntity instanceof StormBolt stormBolt) {

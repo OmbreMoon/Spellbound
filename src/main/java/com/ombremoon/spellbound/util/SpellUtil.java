@@ -23,10 +23,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.function.BiPredicate;
-import java.util.function.Predicate;
 
 public class SpellUtil {
-    public static final BiPredicate<Entity, LivingEntity> CAN_ATTACK_ENTITY = (entity, livingEntity) -> !livingEntity.isAlliedTo(entity) && !livingEntity.hasEffect(SBEffects.COUNTER_MAGIC) && !(livingEntity instanceof OwnableEntity ownable && ownable.getOwner() == (entity));
+    public static final BiPredicate<Entity, LivingEntity> CAN_ATTACK_ENTITY = (entity, livingEntity) -> (!livingEntity.isAlliedTo(entity) || livingEntity.is(entity)) && !livingEntity.hasEffect(SBEffects.COUNTER_MAGIC) && !(livingEntity instanceof OwnableEntity ownable && ownable.getOwner() == (entity));
     public static final BiPredicate<Entity, LivingEntity> IS_ALLIED = (entity, livingEntity) -> livingEntity.isAlliedTo(entity) || (livingEntity instanceof OwnableEntity ownable && ownable.getOwner() == (entity));
 
     public static SpellHandler getSpellCaster(LivingEntity livingEntity) {
@@ -98,7 +97,7 @@ public class SpellUtil {
     public static void setSpell(@NotNull Entity entity, @NotNull AbstractSpell spell) {
         entity.setData(SBData.SPELL_ID, spell.getId());
         if (entity instanceof ISpellEntity<?> spellEntity)
-            spellEntity.setSpell(spell.getSpellType(), spell.getId());
+            spellEntity.setSpell(spell.spellType(), spell.getId());
     }
 
     public static float getCastRange(LivingEntity caster) {

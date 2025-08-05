@@ -69,7 +69,7 @@
   "skill.description.spellbound.cyclone": "Fire a tornado that blows away enemies with a 5-block radius for 10 seconds.",
   "skill.description.spellbound.darkness_prevails": "Portals can be spawned in any light level.",
   "skill.description.spellbound.decompose": "Spores deal extra damage, scaling with the caster's current mana, to poisoned or diseased enemies.",
-  "skill.description.spellbound.discharge": "Chance to disarm the target each damage tick.",
+  "skill.description.spellbound.disarm": "Chance to disarm the target each damage tick.",
   "skill.description.spellbound.disoriented": "After the swap, the target gets dizzy and deals 20% less damage for 5 seconds.",
   "skill.description.spellbound.displacement_field": "A single portal can now teleport enemies to a random location within 10 blocks.",
   "skill.description.spellbound.divine_balance": "Increases the duration of the spell by 100% and the mana cost by 50%.",

@@ -36,11 +36,11 @@ public class SpiritTotemSpell extends SummonSpell {
         SkillHolder skills = context.getSkills();
 
         if (!skills.hasSkill(SBSkills.TWIN_SPIRITS.value())) {
-            handler.getActiveSpells(getSpellType()).getFirst().endSpell();
+            handler.getActiveSpells(spellType()).getFirst().endSpell();
         } else {
-            SpiritTotemSpell twinSpell = (SpiritTotemSpell) handler.getActiveSpells(getSpellType()).get(1);
-            if (handler.getActiveSpells(getSpellType()).size() > 2) {
-                handler.getActiveSpells(getSpellType()).getFirst().endSpell();
+            SpiritTotemSpell twinSpell = (SpiritTotemSpell) handler.getActiveSpells(spellType()).get(1);
+            if (handler.getActiveSpells(spellType()).size() > 2) {
+                handler.getActiveSpells(spellType()).getFirst().endSpell();
             }
 
             TotemSpiritEntity entity = (TotemSpiritEntity) context.getLevel().getEntity(twinSpell.getSummons().iterator().next());
