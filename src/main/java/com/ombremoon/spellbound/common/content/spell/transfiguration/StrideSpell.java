@@ -104,7 +104,7 @@ public class StrideSpell extends AnimatedSpell {
                             SBSkills.FLEETFOOTED,
                             BuffCategory.BENEFICIAL,
                             SkillBuff.ATTRIBUTE_MODIFIER,
-                            new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(FLEETFOOTED, 1.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                            new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(FLEETFOOTED, 0.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
                             20);
                 }
             }
@@ -143,7 +143,7 @@ public class StrideSpell extends AnimatedSpell {
                                     SBSkills.MOMENTUM,
                                     BuffCategory.BENEFICIAL,
                                     SkillBuff.ATTRIBUTE_MODIFIER,
-                                    new ModifierData(Attributes.ATTACK_SPEED, new AttributeModifier(MOMENTUM, Math.min(1 + (0.04 * this.movementTicks / 20), 1.2), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                                    new ModifierData(Attributes.ATTACK_SPEED, new AttributeModifier(MOMENTUM, Math.min(0.04 * this.movementTicks / 20, 0.2), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
                                     100);
                     } else {
                         this.movementTicks = 0;
@@ -179,7 +179,7 @@ public class StrideSpell extends AnimatedSpell {
                         SBSkills.QUICK_SPRINT,
                         BuffCategory.BENEFICIAL,
                         SkillBuff.ATTRIBUTE_MODIFIER,
-                        new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(QUICK_SPRINT, 1.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)));
+                        new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(QUICK_SPRINT, 0.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)));
 
             if (skills.hasSkill(SBSkills.SUREFOOTED))
                 addSkillBuff(

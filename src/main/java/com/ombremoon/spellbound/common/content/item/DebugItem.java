@@ -9,7 +9,11 @@ import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.main.Keys;
 import com.ombremoon.spellbound.util.Loggable;
 import com.ombremoon.spellbound.util.SpellUtil;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -18,6 +22,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.levelgen.structure.structures.RuinedPortalPiece;
 
 public class DebugItem extends Item implements Loggable {
     public DebugItem(Properties properties) {
@@ -35,14 +44,10 @@ public class DebugItem extends Item implements Loggable {
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
-        var multiblock = MultiblockManager.byKey(CommonClass.customLocation("one_ring")).value();
-        log(multiblock);
-//        multiblock.tryCreateMultiblock(level, context.getPlayer(), context.getClickedPos(), Direction.NORTH);
-//        Constants.LOG.info("{}", multiblock.findPattern(level, context.getClickedPos(), Direction.EAST));
-//        multiblock.debugMultiblock(level, context.getClickedPos(), context.getHorizontalDirection());
-//        if (multiblock instanceof TransfigurationMultiblock transfigurationMultiblock)
-//            Constants.LOG.info("{}", transfigurationMultiblock.getDisplayPositions());
+        Player player = context.getPlayer();
+        if (!level.isClientSide) {
 
+        }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 

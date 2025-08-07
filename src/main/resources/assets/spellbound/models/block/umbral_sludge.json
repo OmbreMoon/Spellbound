@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "spellbound:block/summon_stone_cracked"
+    "all": "spellbound:block/umbral_sludge"
   }
 }

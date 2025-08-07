@@ -241,7 +241,7 @@ public class ShadowbondSpell extends AnimatedSpell {
                     SBSkills.SNEAK_ATTACK,
                     BuffCategory.BENEFICIAL,
                     SkillBuff.ATTRIBUTE_MODIFIER,
-                    new ModifierData(Attributes.ATTACK_DAMAGE, new AttributeModifier(SNEAK_ATTACK, 1.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                    new ModifierData(Attributes.ATTACK_DAMAGE, new AttributeModifier(SNEAK_ATTACK, 0.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
                     100);
             addEventBuff(
                     caster,

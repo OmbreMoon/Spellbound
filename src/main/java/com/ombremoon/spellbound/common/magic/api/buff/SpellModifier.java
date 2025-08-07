@@ -37,6 +37,7 @@ public record SpellModifier(ResourceLocation id, ModifierType modifierType, Pred
     public static final SpellModifier SUPERCHARGE = registerModifier("supercharge", ModifierType.POTENCY, spell -> spell.getPath() == SpellPath.RUIN && spell.getSubPath() == SpellPath.SHOCK, 1.5F);
     public static final SpellModifier DIVINE_BALANCE_MANA = registerModifier("divine_balance_mana", ModifierType.MANA, spell -> spell == SBSpells.HEALING_TOUCH.get(), 1.5F);
     public static final SpellModifier DIVINE_BALANCE_DURATION = registerModifier("divine_balance_duration", ModifierType.DURATION, spell -> spell == SBSpells.HEALING_TOUCH.get(), 2F);
+    public static final SpellModifier POISON_ESSENCE = registerModifier("poison_essence", ModifierType.POTENCY, spell -> spell == SBSpells.WILD_MUSHROOM.get(), 1.25F);
     public static final SpellModifier SYNTHESIS = registerModifier("synthesis", ModifierType.MANA, spell -> spell == SBSpells.WILD_MUSHROOM.get(), 0F);
     public static final SpellModifier ENDURANCE = registerModifier("endurance", ModifierType.DURATION, spell -> spell == SBSpells.STRIDE.get(), 2F);
     public static final SpellModifier FORESIGHT = registerModifier("foresight", ModifierType.MANA, spell -> spell == SBSpells.MYSTIC_ARMOR.get(), 0.85F);

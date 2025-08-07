@@ -321,11 +321,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @return The spells sub path
      */
     public SpellPath getSubPath() {
-        if (this.spellType.getPath() != SpellPath.RUIN)
-            throw new IllegalStateException("Tried to get a sub-path from invalid path: " + this.spellType.getPath().getSerializedName() + ". Only the ruin path can contain sub-paths");
-
-        if (this.spellType.getPath().isSubPath())
-            throw new IllegalStateException("Tried to get a sub-path from a sub-path: " + this.spellType.getPath().getSerializedName());
+        if (this.spellType.getPath() != SpellPath.RUIN || this.spellType.getPath().isSubPath())
+            return null;
 
         return this.spellType().getSubPath();
     }
@@ -716,6 +713,10 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         healEntity.heal(healAmount);
     }
 
+    public void awardMana(LivingEntity targetEntity, float amount) {
+        SpellUtil.getSpellCaster(targetEntity).awardMana(amount);
+    }
+
     public boolean drainMana(LivingEntity targetEntity, float amount) {
         return SpellUtil.getSpellCaster(targetEntity).consumeMana(amount);
     }
@@ -837,6 +838,10 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     public <T extends Entity & ISpellEntity<?>> T summonEntity(SpellContext context, EntityType<T> entityType, double range, Consumer<T> extraData) {
         BlockPos blockPos = this.getSpawnPos(range);
         if (blockPos == null) return null;
+        while (!context.getLevel().getBlockState(blockPos.below()).isSolid()) {
+            blockPos = blockPos.below();
+        }
+
         Vec3 spawnPos = Vec3.atBottomCenterOf(blockPos);
         return this.summonEntity(context, entityType, spawnPos, extraData);
     }

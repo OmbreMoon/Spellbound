@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.client.event;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.gui.CastModeOverlay;
 import com.ombremoon.spellbound.client.gui.SpellSelectScreen;
+import com.ombremoon.spellbound.client.particle.GenericParticle;
 import com.ombremoon.spellbound.client.particle.SparkParticle;
 import com.ombremoon.spellbound.client.renderer.blockentity.SummonPortalRenderer;
 import com.ombremoon.spellbound.client.renderer.blockentity.TransfigurationDisplayRenderer;
@@ -60,6 +61,8 @@ public class ClientEvents {
 
         @SubscribeEvent
         public static void onRegisterParticles(RegisterParticleProvidersEvent event) {
+            event.registerSpriteSet(SBParticles.SLUDGE.get(), GenericParticle.SludgeProvider::new);
+            event.registerSpriteSet(SBParticles.MUSHROOM_SPORE.get(), GenericParticle.MushroomSpore::new);
             event.registerSpriteSet(SBParticles.SPARK.get(), SparkParticle.Provider::new);
             event.registerSpriteSet(SBParticles.GOLD_HEART.get(), HeartParticle.Provider::new);
         }

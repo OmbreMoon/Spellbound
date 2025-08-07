@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.datagen;
 
 import com.google.common.collect.ImmutableMap;
+import com.ombremoon.spellbound.common.init.SBBlocks;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.init.SBItems;
@@ -40,7 +41,7 @@ public class ModLangProvider extends LanguageProvider {
         SBItems.ITEMS.getEntries().forEach(this::itemLang);
         SBSpells.SPELL_TYPES.getEntries().forEach(this::spellLang);
         SBSkills.SKILLS.getEntries().forEach(this::skillLang);
-//        BlockInit.BLOCKS.getEntries().forEach(this::blockLang);
+        SBBlocks.BLOCKS.getEntries().forEach(this::blockLang);
 //        EntityInit.ENTITIES.getEntries().forEach(this::entityLang);
 //        StatusEffectInit.STATUS_EFFECTS.getEntries().forEach(this::effectLang);
 

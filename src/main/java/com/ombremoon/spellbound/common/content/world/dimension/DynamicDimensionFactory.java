@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.content.world.dimension;
 
+import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;
 import net.minecraft.core.BlockPos;

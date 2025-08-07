@@ -99,12 +99,20 @@ public class SpellContext {
         this.getCatalyst(catalyst).shrink(1);
     }
 
+    public int getActiveSpells() {
+        return this.spellHandler.getActiveSpells(this.spellType).size();
+    }
+
     public boolean hasActiveSpells(int amount) {
-        return this.spellHandler.getActiveSpells(this.spellType).size() >= amount;
+        return this.getActiveSpells() >= amount;
+    }
+
+    public int getSpellLevel() {
+        return this.skillHolder.getSpellLevel(this.spellType);
     }
 
     public boolean canCastWithLevel() {
-        return this.spellHandler.getActiveSpells(this.spellType).size() <= this.skillHolder.getSpellLevel(this.spellType);
+        return this.getActiveSpells() <= this.getSpellLevel();
     }
 
     public int getFlag() {

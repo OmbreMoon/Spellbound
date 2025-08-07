@@ -43,9 +43,20 @@ public class SBBlocks {
             .noLootTable()
             .pushReaction(PushReaction.BLOCK)),
             false);
+    public static final Supplier<Block> UMBRAL_SLUDGE = registerSludge("umbral_sludge", true);
+    public static final Supplier<Block> PENUMBRAL_SLUDGE = registerSludge("penumbral_sludge", false);
+//    public static final Supplier<Block> WOVEN_SHADE = registerSimpleBlock("woven_shade");
 
     public static void registerSummonStone(String name, String spell) {
         registerBlock(name, () -> new SummonStoneBlock(CommonClass.customLocation(spell), BlockBehaviour.Properties.of()));
+    }
+
+    public static DeferredBlock<Block> registerSludge(String name, boolean causeHarm) {
+        return registerBlock(name, () -> new SludgeBlock(causeHarm, BlockBehaviour.Properties.of()
+                .mapColor(MapColor.COLOR_BLACK)
+                .forceSolidOn()
+                .noCollission()
+                .strength(50.0F, 1200.0F)));
     }
 
     private static DeferredBlock<Block> registerSimpleBlock(String name) {

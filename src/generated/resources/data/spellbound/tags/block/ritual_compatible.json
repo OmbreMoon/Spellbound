@@ -1064,6 +1064,8 @@
     "spellbound:summon_stone",
     "spellbound:cracked_summon_stone",
     "spellbound:summon_portal",
+    "spellbound:umbral_sludge",
+    "spellbound:penumbral_sludge",
     "spellbound:wild_mushroom_stone",
     "spellbound:conjure_spirit_totem_stone"
   ]

@@ -152,7 +152,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
             if (hurt(target, damage)) {
                 if (target.isDeadOrDying()) {
                     if (skills.hasSkill(SBSkills.STORM_SURGE))
-                        handler.awardMana(10 + (skills.getSpellLevel(spellType()) * 2));
+                        handler.awardMana(10 + (context.getSpellLevel() * 2));
 
                     if (skills.hasSkill(SBSkills.UNLEASHED_STORM)) {
                         this.spawnDischargeParticles(target);

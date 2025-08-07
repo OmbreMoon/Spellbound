@@ -12,6 +12,8 @@ import java.util.function.Supplier;
 public class SBParticles {
     public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(Registries.PARTICLE_TYPE, Constants.MOD_ID);
 
+    public static final Supplier<SimpleParticleType> SLUDGE = PARTICLES.register("sludge", () -> new SimpleParticleType(true));
+    public static final Supplier<SimpleParticleType> MUSHROOM_SPORE = PARTICLES.register("mushroom_spore", () -> new SimpleParticleType(true));
     public static final Supplier<SimpleParticleType> SPARK = PARTICLES.register("spark", () -> new SimpleParticleType(true));
     public static final Supplier<SimpleParticleType> GOLD_HEART = PARTICLES.register("gold_heart", () -> new SimpleParticleType(true));
 

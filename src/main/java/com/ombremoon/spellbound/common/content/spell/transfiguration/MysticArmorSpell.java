@@ -100,7 +100,7 @@ public class MysticArmorSpell extends AnimatedSpell {
                             SBSkills.ARCANE_VENGEANCE,
                             BuffCategory.BENEFICIAL,
                             SkillBuff.ATTRIBUTE_MODIFIER,
-                            new ModifierData(Attributes.ATTACK_DAMAGE, new AttributeModifier(ARCANE_VENGEANCE, 1.15F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                            new ModifierData(Attributes.ATTACK_DAMAGE, new AttributeModifier(ARCANE_VENGEANCE, 0.15F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
                             200));
         }
 
@@ -110,7 +110,7 @@ public class MysticArmorSpell extends AnimatedSpell {
                     SBSkills.PURSUIT,
                     BuffCategory.BENEFICIAL,
                     SkillBuff.ATTRIBUTE_MODIFIER,
-                    new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(PURSUIT, 1.15F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)));
+                    new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(PURSUIT, 0.15F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)));
 
         if (skills.hasSkill(SBSkills.CRYSTALLINE_ARMOR))
             addSkillBuff(
@@ -118,7 +118,7 @@ public class MysticArmorSpell extends AnimatedSpell {
                     SBSkills.CRYSTALLINE_ARMOR,
                     BuffCategory.BENEFICIAL,
                     SkillBuff.ATTRIBUTE_MODIFIER,
-                    new ModifierData(Attributes.ARMOR, new AttributeModifier(CRYSTALLINE_ARMOR, 1.25F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)));
+                    new ModifierData(Attributes.ARMOR, new AttributeModifier(CRYSTALLINE_ARMOR, 0.25F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)));
 
         context.getLevel()
                 .playSeededSound(
