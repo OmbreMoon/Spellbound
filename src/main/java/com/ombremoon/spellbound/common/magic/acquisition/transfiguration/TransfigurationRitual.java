@@ -21,7 +21,7 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 
-import java.util.List;
+import java.util.*;
 
 public record TransfigurationRitual(Component description, RitualDefinition definition, NonNullList<Ingredient> materials, List<RitualEffect> effects) {
     public static final int DEFAULT_RITUAL_DURATION = 5;
@@ -55,12 +55,11 @@ public record TransfigurationRitual(Component description, RitualDefinition defi
     }
 
     public boolean hasRequiredMaterials(List<ItemStack> items) {
-        int size = materials.size();
-        List<Ingredient> acceptedItems = materials
-                .stream()
-                .filter(ingredient -> items.stream().anyMatch(ingredient))
-                .toList();
-        return size == acceptedItems.size();
+        Collection<Ingredient> acceptedItems = new ArrayList<>(this.materials);
+        for (ItemStack stack : items) {
+            acceptedItems.removeIf(ingredient -> ingredient.test(stack));
+        }
+        return acceptedItems.isEmpty();
     }
 
     public boolean hasValidEffects(TransfigurationMultiblock multiblock) {
@@ -94,7 +93,14 @@ public record TransfigurationRitual(Component description, RitualDefinition defi
         }
 
         public Builder requires(Ingredient ingredient) {
-            this.materials.add(ingredient);
+            return this.requires(ingredient, 1);
+        }
+
+        public Builder requires(Ingredient ingredient, int count) {
+            for (int i = 0; i < count; i++) {
+                this.materials.add(ingredient);
+            }
+
             return this;
         }
 

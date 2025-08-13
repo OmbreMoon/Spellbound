@@ -26,7 +26,7 @@ public class TransfigurationDisplayRenderer implements BlockEntityRenderer<Trans
         ItemStack itemstack = blockEntity.currentItem;
         if (itemstack != null && !itemstack.isEmpty()) {
             poseStack.translate(0.5F, 1.15F, 0.5F);
-            float f = (float) blockEntity.time + partialTick;
+            float f = (float) blockEntity.itemTick + partialTick;
             poseStack.translate(0.0F, 0.1F + Mth.sin(f * 0.1F) * 0.01F, 0.0F);
             if (!blockEntity.active) {
                 float f1 = blockEntity.rot - blockEntity.oRot;

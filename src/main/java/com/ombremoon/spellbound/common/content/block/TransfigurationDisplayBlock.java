@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.EnchantingTableBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,26 +37,43 @@ public class TransfigurationDisplayBlock extends BaseEntityBlock {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         BlockEntity entity = level.getBlockEntity(pos);
-        if (entity instanceof TransfigurationDisplayBlockEntity transfigurationDisplay && transfigurationDisplay.currentItem != null) {
-            player.addItem(transfigurationDisplay.currentItem);
-            transfigurationDisplay.setItem(null);
-            level.sendBlockUpdated(pos, state, state, 3);
-            return InteractionResult.CONSUME;
+        if (entity instanceof TransfigurationDisplayBlockEntity display) {
+            if (display.currentItem == null) {
+                return InteractionResult.CONSUME;
+            } else {
+                ItemStack itemstack = display.currentItem;
+                if (player.addItem(itemstack)) {
+                    player.drop(itemstack, false);
+                }
+
+                display.setItem(null);
+                level.sendBlockUpdated(pos, state, state, 3);
+                level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
+                return InteractionResult.sidedSuccess(level.isClientSide);
+            }
         }
 
-        return InteractionResult.FAIL;
+        return InteractionResult.CONSUME;
     }
 
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         BlockEntity entity = level.getBlockEntity(pos);
-        if (entity instanceof TransfigurationDisplayBlockEntity transfigurationDisplay && transfigurationDisplay.currentItem == null) {
-            transfigurationDisplay.setItem(stack.copyWithCount(1));
-            level.sendBlockUpdated(pos, state, state, 3);
-            stack.shrink(1);
-            return ItemInteractionResult.CONSUME;
+        if (entity instanceof TransfigurationDisplayBlockEntity display) {
+            if (stack.isEmpty()) {
+                return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            } else if (display.currentItem != null) {
+                return ItemInteractionResult.CONSUME;
+            } else {
+                display.setItem(stack.copyWithCount(1));
+                level.sendBlockUpdated(pos, state, state, 3);
+                level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
+                stack.consume(1, player);
+                return ItemInteractionResult.sidedSuccess(level.isClientSide);
+            }
         }
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+
+        return ItemInteractionResult.FAIL;
     }
 
     @Override

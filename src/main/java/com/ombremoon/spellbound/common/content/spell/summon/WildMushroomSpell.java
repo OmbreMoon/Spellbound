@@ -12,7 +12,6 @@ import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
 import com.ombremoon.spellbound.main.CommonClass;
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -22,17 +21,14 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-//TODO: RANDOM TICK REMOVAL OF SPORES IN BLOCKSTATE
+//TODO: CHANGE CIRCLE OF LIFE SKILL TO A TAUNT
 
 public class WildMushroomSpell extends AnimatedSpell {
     protected static final SpellDataKey<Integer> MUSHROOM = SyncedSpellData.registerDataKey(WildMushroomSpell.class, SBDataTypes.INT.get());
@@ -65,7 +61,6 @@ public class WildMushroomSpell extends AnimatedSpell {
             var skills = context.getSkills();
             WildMushroom mushroom = this.summonEntity(context, SBEntities.MUSHROOM.get());
             this.setMushroom(mushroom.getId());
-            this.spreadSpores(level, caster, mushroom.blockPosition(), skills.hasSkill(SBSkills.VILE_INFLUENCE) ? 6 : 4);
 
             if (skills.hasSkill(SBSkills.FUNGAL_HARVEST) && context.hasActiveSpells(3))
                 this.addSkillBuff(
@@ -87,72 +82,71 @@ public class WildMushroomSpell extends AnimatedSpell {
             var skills = context.getSkills();
             WildMushroom mushroom = this.getMushroom(context);
             if (mushroom != null) {
-                float damage = this.getBaseDamage();
-                damage *= (float) (1.0 + 0.1F * context.getActiveSpells());
-                List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, mushroom.getBoundingBox().inflate(skills.hasSkill(SBSkills.VILE_INFLUENCE) ? 5 : 3));
-                for (LivingEntity entity : entities) {
-                    if (entity.hasEffect(MobEffects.POISON))
-                        damage += Mth.floor(5.0 * (handler.getMana() / handler.getMaxMana()));
+                int interval = skills.hasSkill(SBSkills.HASTENED_GROWTH) ? 40 : 60;
+                if (this.ticks % interval == 0) {
+                    float damage = this.getBaseDamage();
+                    damage *= (float) (1.0 + 0.1F * context.getActiveSpells());
+                    List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, mushroom.getBoundingBox().inflate(skills.hasSkill(SBSkills.VILE_INFLUENCE) ? 5 : 3));
+                    for (LivingEntity entity : entities) {
+                        if (entity.hasEffect(MobEffects.POISON))
+                            damage += Mth.floor(5.0 * (handler.getMana() / handler.getMaxMana()));
 
-                    if (this.hurt(entity, damage)) {
-                        if (skills.hasSkill(SBSkills.ENVENOM))
-                            this.addSkillBuff(
-                                    entity,
-                                    SBSkills.ENVENOM,
-                                    BuffCategory.HARMFUL,
-                                    SkillBuff.MOB_EFFECT,
-                                    new MobEffectInstance(MobEffects.POISON, 80),
-                                    80
-                            );
-
-                        if (skills.hasSkill(SBSkills.CATALEPSY)) {
-                            if (!this.catalepsyTracker.contains(entity.getId())) {
-                                this.catalepsyTracker.add(entity.getId());
-                            } else {
-                                this.catalepsyTracker.remove(entity.getId());
+                        if (!this.isCaster(entity) && this.hurt(entity, damage)) {
+                            if (skills.hasSkill(SBSkills.ENVENOM))
                                 this.addSkillBuff(
                                         entity,
-                                        SBSkills.CATALEPSY,
+                                        SBSkills.ENVENOM,
                                         BuffCategory.HARMFUL,
                                         SkillBuff.MOB_EFFECT,
-                                        new MobEffectInstance(SBEffects.CATALEPSY, 80),
+                                        new MobEffectInstance(MobEffects.POISON, 80),
                                         80
                                 );
+
+                            if (skills.hasSkill(SBSkills.CATALEPSY)) {
+                                if (!this.catalepsyTracker.contains(entity.getId())) {
+                                    this.catalepsyTracker.add(entity.getId());
+                                } else {
+                                    this.catalepsyTracker.remove(entity.getId());
+                                    this.addSkillBuff(
+                                            entity,
+                                            SBSkills.CATALEPSY,
+                                            BuffCategory.HARMFUL,
+                                            SkillBuff.MOB_EFFECT,
+                                            new MobEffectInstance(SBEffects.CATALEPSY, 80),
+                                            80
+                                    );
+                                }
                             }
-                        }
 
-                        if (entity.isDeadOrDying()) {
-                            if (skills.hasSkill(SBSkills.POISON_ESSENCE))
-                                this.addSkillBuff(
-                                        caster,
-                                        SBSkills.POISON_ESSENCE,
-                                        BuffCategory.BENEFICIAL,
-                                        SkillBuff.SPELL_MODIFIER,
-                                        SpellModifier.POISON_ESSENCE,
-                                        200
-                                );
+                            if (entity.isDeadOrDying()) {
+                                if (skills.hasSkill(SBSkills.POISON_ESSENCE))
+                                    this.addSkillBuff(
+                                            caster,
+                                            SBSkills.POISON_ESSENCE,
+                                            BuffCategory.BENEFICIAL,
+                                            SkillBuff.SPELL_MODIFIER,
+                                            SpellModifier.POISON_ESSENCE,
+                                            200
+                                    );
 
-                            if (skills.hasSkill(SBSkills.SYNTHESIS))
-                                this.addSkillBuff(
-                                        caster,
-                                        SBSkills.POISON_ESSENCE,
-                                        BuffCategory.BENEFICIAL,
-                                        SkillBuff.SPELL_MODIFIER,
-                                        SpellModifier.SYNTHESIS,
-                                        100
-                                );
+                                if (skills.hasSkill(SBSkills.SYNTHESIS))
+                                    this.addSkillBuff(
+                                            caster,
+                                            SBSkills.POISON_ESSENCE,
+                                            BuffCategory.BENEFICIAL,
+                                            SkillBuff.SPELL_MODIFIER,
+                                            SpellModifier.SYNTHESIS,
+                                            100
+                                    );
+                            }
                         }
                     }
                 }
+
+                if (level.random.nextFloat() < 0.15F)
+                    this.spreadSpores(level, caster, mushroom.blockPosition(), skills.hasSkill(SBSkills.VILE_INFLUENCE) ? 6 : 4);
             }
         }
-    }
-
-    @Override
-    protected boolean shouldTickSpellEffect(SpellContext context) {
-        var skills = context.getSkills();
-        int interval = skills.hasSkill(SBSkills.HASTENED_GROWTH) ? 40 : 60;
-        return this.ticks % interval == 0;
     }
 
     @Override
@@ -162,10 +156,8 @@ public class WildMushroomSpell extends AnimatedSpell {
             LivingEntity caster = context.getCaster();
             var skills = context.getSkills();
             WildMushroom mushroom = this.getMushroom(context);
-            if (mushroom != null) {
+            if (mushroom != null)
                 mushroom.setEndTick(5);
-                this.removeSpores(level, mushroom.blockPosition(), skills.hasSkill(SBSkills.VILE_INFLUENCE) ? 6 : 4);
-            }
 
             if (skills.hasSkill(SBSkills.CIRCLE_OF_LIFE))
                 this.awardMana(context.getCaster(), 7.0F + (8.0F * (context.getSpellLevel() / 5.0F)));
@@ -177,28 +169,38 @@ public class WildMushroomSpell extends AnimatedSpell {
     }
 
     private void spreadSpores(Level level, LivingEntity caster, BlockPos center, int range) {
-        BlockPos blockpos = BlockPos.containing(center.getCenter());
-        for (BlockPos blockpos1 : BlockPos.betweenClosed(blockpos.offset(-range, -2, -range), blockpos.offset(range, 0, range))) {
-            BlockPos blockPos2 = blockpos1.below();
-            BlockState blockState = level.getBlockState(blockpos1);
-            if (blockpos1.distToCenterSqr(center.getCenter().x(), (double)blockpos1.getY() + 0.5, center.getCenter().z()) < (double) Mth.square(range)
-                    && (blockState.isAir() || blockState.canBeReplaced()) && level.getBlockState(blockPos2).isSolid()
-                    && level.setBlockAndUpdate(blockpos1, Blocks.MOSS_CARPET.defaultBlockState())) {
-                level.gameEvent(caster, GameEvent.BLOCK_PLACE, blockpos1);
+        int i = Mth.floor(center.getX());
+        int j = Mth.floor(center.getY());
+        int k = Mth.floor(center.getZ());
+        for (int l = 0; l < 25; l++) {
+            int i1 = i + Mth.nextInt(level.random, 0, range) * Mth.nextInt(level.random, -1, 1);
+            int j1 = j + Mth.nextInt(level.random, 0, 2) * Mth.nextInt(level.random, -1, 1);
+            int k1 = k + Mth.nextInt(level.random, 0, range) * Mth.nextInt(level.random, -1, 1);
+            BlockPos blockpos = new BlockPos(i1, j1, k1);
+            BlockPos blockPos1 = blockpos.below();
+            BlockState blockState = level.getBlockState(blockpos);
+            if (blockpos.distToCenterSqr(center.getCenter().x(), (double) blockpos.getY() + 0.5, center.getCenter().z()) < (double) Mth.square(range)
+                    && (blockState.isAir() || blockState.canBeReplaced())
+//                    && level.getBlockState(blockPos1).isSolid()
+                    && SBBlocks.MYCELIUM_CARPET.get().defaultBlockState().canSurvive(level, blockpos)
+                    && !blockState.is(SBBlocks.MYCELIUM_CARPET.get())
+                    && level.setBlockAndUpdate(blockpos, SBBlocks.MYCELIUM_CARPET.get().defaultBlockState())) {
+                level.gameEvent(caster, GameEvent.BLOCK_PLACE, blockpos);
+                break;
             }
         }
     }
 
-    private void removeSpores(Level level, BlockPos center, int range) {
+/*    private void removeSpores(Level level, BlockPos center, int range) {
         BlockPos blockpos = BlockPos.containing(center.getCenter());
-        for (BlockPos blockpos1 : BlockPos.betweenClosed(blockpos.offset(-range, -2, -range), blockpos.offset(range, 0, range))) {
+        for (BlockPos blockpos1 : BlockPos.betweenClosed(blockpos.offset(-range, -2, -range), blockpos.offset(range, 2, range))) {
             BlockState blockState = level.getBlockState(blockpos1);
             if (blockpos1.distToCenterSqr(center.getCenter().x(), (double)blockpos1.getY() + 0.5, center.getCenter().z()) < (double) Mth.square(range)
-                    && blockState.is(Blocks.MOSS_CARPET)) {
-                level.setBlockAndUpdate(blockpos1, Blocks.AIR.defaultBlockState());
+                    && blockState.is(SBBlocks.MYCELIUM_CARPET.get())) {
+                level.setBlockAndUpdate(blockpos1, blockState.setValue(MyceliumCarpetBlock.DESPAWN, true));
             }
         }
-    }
+    }*/
 
     private void setMushroom(int cyclone) {
         this.spellData.set(MUSHROOM, cyclone);

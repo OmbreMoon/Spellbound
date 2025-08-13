@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Set;
 
-@EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = Constants.MOD_ID)
 public class PayloadHandler {
 
     public static void switchMode() {
@@ -152,10 +152,6 @@ public class PayloadHandler {
         sendToAll(server, new UpdateMultiblocksPayload(multiblocks));
     }
 
-    public static void clearMultiblock(MinecraftServer server, CompoundTag tag) {
-        sendToAll(server, new ClearMultiblockPayload(tag));
-    }
-
 /*    public static void changeHailLevel(ServerLevel level, float hailLevel) {
         PacketDistributor.sendToPlayersInDimension(level, new ChangeHailLevelPayload(hailLevel));
     }*/
@@ -265,11 +261,6 @@ public class PayloadHandler {
                 UpdateMultiblocksPayload.TYPE,
                 UpdateMultiblocksPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleUpdateMultiblocks
-        );
-        registrar.playToClient(
-                ClearMultiblockPayload.TYPE,
-                ClearMultiblockPayload.STREAM_CODEC,
-                ClientPayloadHandler::handleClearMultiblock
         );
 
         registrar.playToServer(

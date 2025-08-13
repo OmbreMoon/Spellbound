@@ -206,15 +206,6 @@ public class ClientPayloadHandler {
         });
     }
 
-    public static void handleClearMultiblock(ClearMultiblockPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            CompoundTag tag = payload.tag();
-            Multiblock.MultiblockPattern pattern = Multiblock.MultiblockPattern.load(tag);
-            Multiblock multiblock = pattern.multiblock();
-            multiblock.clearMultiblock(context.player(), context.player().level(), pattern);
-        });
-    }
-
     public static void handleUpdateDimensions(UpdateDimensionsPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             @SuppressWarnings("resource")

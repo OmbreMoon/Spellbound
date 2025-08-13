@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
-public abstract class Multiblock {
+public abstract class Multiblock implements Loggable {
     private static final Logger LOGGER = Constants.LOG;
     public static final Codec<Multiblock> CODEC = SBMultiblockSerializers.REGISTRY.byNameCodec().dispatch(Multiblock::getSerializer, MultiblockSerializer::codec);
     public static final StreamCodec<RegistryFriendlyByteBuf, Multiblock> STREAM_CODEC = ByteBufCodecs.registry(SBMultiblockSerializers.MULTIBLOCK_SERIALIZER_REGISTRY_KEY)
@@ -129,21 +129,22 @@ public abstract class Multiblock {
         if (!level.isClientSide) {
             this.onRemoved(player, level, pattern);
             this.clearMultiblock(level, pattern.frontBottomLeft, pattern.facing);
-            PayloadHandler.clearMultiblock(player.getServer(), pattern.save());
-        } else {
-            this.clearMultiblock(level, pattern.frontBottomLeft, pattern.facing);
         }
     }
 
-    private void clearMultiblock(LevelAccessor level, BlockPos blockPos, Direction facing) {
+    private void clearMultiblock(Level level, BlockPos blockPos, Direction facing) {
         for (int i = 0; i < this.width; i++) {
             for (int j = 0; j < this.height; j++) {
                 for (int k = 0; k < this.depth; k++) {
                     MultiblockIndex currentIndex = new MultiblockIndex(i, j, k);
                     BlockPos currentPos = currentIndex.toPos(facing, blockPos);
                     BlockEntity blockEntity = level.getBlockEntity(currentPos);
-                    if (blockEntity instanceof MultiblockPart part && part.getMultiblock() == this && part.isAssigned())
+                    if (blockEntity instanceof MultiblockPart part && part.getMultiblock() == this && part.isAssigned()) {
+                        BlockState state = blockEntity.getBlockState();
                         part.assign(null, MultiblockIndex.ORIGIN, facing);
+                        part.onCleared(level, currentPos);
+                        level.sendBlockUpdated(currentPos, state, state, 3);
+                    }
                 }
             }
         }
@@ -322,7 +323,7 @@ public abstract class Multiblock {
 
         void assignMultiblock(LevelAccessor level, BlockPos blockPos) {
             this.forEachBlock(level, (blockState, index) -> {
-                BlockEntity blockEntity = level.getBlockEntity(blockPos);
+                BlockEntity blockEntity = level.getBlockEntity(getIndexPos(index));
                 if (blockEntity instanceof MultiblockPart part)
                     part.assign(multiblock, index, facing);
             });

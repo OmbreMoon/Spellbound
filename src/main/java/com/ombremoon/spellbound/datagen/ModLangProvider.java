@@ -202,7 +202,7 @@ public class ModLangProvider extends LanguageProvider {
         addSkillTooltip(SBSkills.SUBLIME_BEACON, "Restores health equal to 25% of your armor points every 3 seconds.");
         addSkillTooltip(SBSkills.SOUL_RECHARGE, "Restores you to full health if your health drops below 10%, consuming a filled soul shard in the caster's inventory. 3 min. cooldown.");
 
-        addSkillTooltip(SBSkills.WILD_MUSHROOM, "Plants a wild mushroom at the target location, expelling poisonous spores every 3 seconds, dealing 2 damage to all nearby enemies.");
+        addSkillTooltip(SBSkills.WILD_MUSHROOM, "Plants a wild mushroom at the target location, expelling poisonous spores every 3 seconds, dealing 4 damage to all nearby enemies.");
         addSkillTooltip(SBSkills.VILE_INFLUENCE, "Increases the spore radius.");
         addSkillTooltip(SBSkills.HASTENED_GROWTH, "Decreases the explosion interval by 1 second.");
         addSkillTooltip(SBSkills.ENVENOM, "Spores now poison targets for 4 seconds.");

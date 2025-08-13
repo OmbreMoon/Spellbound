@@ -2,7 +2,7 @@
   "definition": {
     "duration": 5,
     "startupTime": 100,
-    "tier": 1
+    "tier": 2
   },
   "description": {
     "translate": "ritual.spellbound.create_shadow_gate"
@@ -11,7 +11,7 @@
     {
       "type": "spellbound:create_spell_tome",
       "spell": "spellbound:shadow_gate",
-      "tier": 1
+      "tier": 2
     }
   ],
   "materials": [

@@ -1066,6 +1066,9 @@
     "spellbound:summon_portal",
     "spellbound:umbral_sludge",
     "spellbound:penumbral_sludge",
+    "spellbound:green_spore_block",
+    "spellbound:purple_spore_block",
+    "spellbound:mycelium_carpet",
     "spellbound:wild_mushroom_stone",
     "spellbound:conjure_spirit_totem_stone"
   ]

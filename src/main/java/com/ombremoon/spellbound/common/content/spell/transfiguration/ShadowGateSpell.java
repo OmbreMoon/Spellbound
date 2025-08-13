@@ -111,11 +111,11 @@ public class ShadowGateSpell extends AnimatedSpell implements RadialSpell {
                                             SBSkills.BLINK,
                                             BuffCategory.BENEFICIAL,
                                             SkillBuff.ATTRIBUTE_MODIFIER,
-                                            new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(CommonClass.customLocation("blink"), 1.5F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                                            new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(CommonClass.customLocation("blink"), 0.25F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
                                             100);
 
                                 if (skills.hasSkillReady(SBSkills.QUICK_RECHARGE)) {
-                                    context.getSpellHandler().awardMana(20);
+                                    context.getSpellHandler().awardMana(10);
                                     addCooldown(SBSkills.QUICK_RECHARGE, 200);
                                 }
 

@@ -167,11 +167,13 @@ public class ShadowbondSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStop(SpellContext context) {
+        LivingEntity caster = context.getCaster();
         if (!this.canReverse && !this.isEarlyEnd()) {
-            LivingEntity caster = context.getCaster();
             var skills = context.getSkills();
             this.swapTargets(context, caster, caster.level(), skills);
         }
+
+        this.removeSkillBuff(caster, SBSkills.SHADOWBOND);
     }
 
     @Override
