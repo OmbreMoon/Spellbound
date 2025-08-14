@@ -7,6 +7,7 @@ import com.ombremoon.spellbound.common.content.spell.divine.HealingTouchSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.air.CycloneSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.VolcanoSpell;
+import com.ombremoon.spellbound.common.content.spell.ruin.ice.ShatteringCrystalSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.ElectricChargeSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.StormRiftSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.StormstrikeSpell;
@@ -42,6 +43,10 @@ public class SBSpells {
             .skills(SBSkills.VOLCANO, SBSkills.INFERNO_CORE, SBSkills.LAVA_FLOW, SBSkills.EXPLOSIVE_BARRAGE,
                     SBSkills.SHRAPNEL, SBSkills.HEATWAVE, SBSkills.SCORCHED_EARTH, SBSkills.SEISMIC_SHOCK,
                     SBSkills.MOLTEN_SHIELD, SBSkills.PYROCLASTIC_CLOUD, SBSkills.APOCALYPSE));
+    public static final Supplier<SpellType<ShatteringCrystalSpell>> SHATTERING_CRYSTAL = registerSpell("shattering_crystal", iceRuinBuilder("shattering_crystal", ShatteringCrystalSpell::new)
+            .skills(SBSkills.SHATTERING_CRYSTAL, SBSkills.ICE_SHARD, SBSkills.FRIGID_BLAST, SBSkills.CHILL,
+                    SBSkills.FROZEN_SHRAPNEL, SBSkills.HYPOTHERMIA, SBSkills.THIN_ICE, SBSkills.CHAOTIC_SHATTER,
+                    SBSkills.CRYSTAL_ECHO, SBSkills.LINGERING_FROST, SBSkills.GLACIAL_IMPACT));
     public static final Supplier<SpellType<StormstrikeSpell>> STORMSTRIKE = registerSpell("stormstrike", shockRuinBuilder("stormstrike", StormstrikeSpell::new)
             .skills(SBSkills.STORMSTRIKE, SBSkills.STATIC_SHOCK, SBSkills.ELECTRIFY,
                     SBSkills.SHOCK_FACTOR, SBSkills.PURGE, SBSkills.REFRACTION, SBSkills.CHARGED_ATMOSPHERE,
@@ -115,6 +120,10 @@ public class SBSpells {
 
     private static <T extends AbstractSpell> SpellType.Builder<T> fireRuinBuilder(String name, SpellType.SpellFactory<T> factory) {
         return new SpellType.Builder<>(name, factory).setPath(SpellPath.RUIN, SpellPath.FIRE);
+    }
+
+    private static <T extends AbstractSpell> SpellType.Builder<T> iceRuinBuilder(String name, SpellType.SpellFactory<T> factory) {
+        return new SpellType.Builder<>(name, factory).setPath(SpellPath.RUIN, SpellPath.FROST);
     }
 
     private static <T extends AbstractSpell> SpellType.Builder<T> shockRuinBuilder(String name, SpellType.SpellFactory<T> factory) {

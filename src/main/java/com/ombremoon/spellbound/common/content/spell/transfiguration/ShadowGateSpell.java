@@ -56,7 +56,9 @@ public class ShadowGateSpell extends AnimatedSpell implements RadialSpell {
                     if (skills.hasSkill(SBSkills.DARKNESS_PREVAILS)) return true;
                     int i = context.getLevel().getRawBrightness(blockPos, 0) + context.getLevel().getBrightness(LightLayer.BLOCK, blockPos) - context.getLevel().getSkyDarken();
                     return i <= 4;
-                }).fullRecast().skipEndOnRecast();
+                })
+                .fullRecast()
+                .skipEndOnRecast();
     }
     private static final ResourceLocation UNWANTED_GUESTS = CommonClass.customLocation("unwanted_guests");
 

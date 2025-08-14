@@ -81,6 +81,8 @@ public class SBData {
             builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT));
     public static final Supplier<DataComponentType<List<Integer>>> RUNES = COMPONENT_TYPES.registerComponentType("runes",
             builder -> builder.persistent(Codec.INT.listOf()).networkSynchronized(ByteBufCodecs.VAR_INT.apply(ByteBufCodecs.list())));
+    public static final Supplier<DataComponentType<Integer>> TALISMAN_RINGS = COMPONENT_TYPES.registerComponentType("talisman_rings",
+            builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT));
 
     public static void register(IEventBus modEventBus) {
         SBData.ATTACHMENT_TYPES.register(modEventBus);

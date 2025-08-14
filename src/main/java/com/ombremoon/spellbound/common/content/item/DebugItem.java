@@ -37,7 +37,7 @@ public class DebugItem extends Item implements Loggable {
         Level level = context.getLevel();
         Player player = context.getPlayer();
         if (!level.isClientSide) {
-            var multiblock = MultiblockManager.byKey(CommonClass.customLocation("one_ring")).value();
+            var multiblock = MultiblockManager.byKey(CommonClass.customLocation("two_ring")).value();
             multiblock.tryCreateMultiblock(level, context.getPlayer(), context.getClickedPos(), Direction.NORTH);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);

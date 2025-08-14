@@ -35,8 +35,7 @@ public class StrideSpell extends AnimatedSpell {
                 .duration(600)
                 .manaCost(12)
                 .hasLayer()
-                .fullRecast()
-                .skipEndOnRecast();
+                .fullRecast();
     }
 
     private int initialFoodLevel;

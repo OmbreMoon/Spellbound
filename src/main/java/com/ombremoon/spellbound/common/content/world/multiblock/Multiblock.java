@@ -112,7 +112,7 @@ public abstract class Multiblock implements Loggable {
         if (!this.checkForMultiblock(level, blockPos)) {
             Multiblock.MultiblockPattern pattern = this.findPattern(level, blockPos, facing);
             if (pattern != null) {
-                pattern.assignMultiblock(level, blockPos);
+                pattern.assignMultiblock(level);
                 this.onActivate(player, level, pattern);
                 return true;
             }
@@ -321,11 +321,14 @@ public abstract class Multiblock implements Loggable {
             return this.frontBottomLeft.relative(facing.getClockWise(), xOffset).relative(up, yOffset).relative(facing, zOffset);
         }
 
-        void assignMultiblock(LevelAccessor level, BlockPos blockPos) {
+        void assignMultiblock(Level level) {
             this.forEachBlock(level, (blockState, index) -> {
-                BlockEntity blockEntity = level.getBlockEntity(getIndexPos(index));
-                if (blockEntity instanceof MultiblockPart part)
+                BlockPos blockPos = getIndexPos(index);
+                BlockEntity blockEntity = level.getBlockEntity(blockPos);
+                if (blockEntity instanceof MultiblockPart part) {
                     part.assign(multiblock, index, facing);
+                    level.sendBlockUpdated(blockPos, blockState, blockState, 3);
+                }
             });
         }
 

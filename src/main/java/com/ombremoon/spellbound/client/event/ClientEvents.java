@@ -49,7 +49,7 @@ import software.bernie.geckolib.util.Color;
 
 public class ClientEvents {
 
-    @EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+    @EventBusSubscriber(modid = Constants.MOD_ID, value = Dist.CLIENT)
     public static class ClientModBusEvents {
 
         @SubscribeEvent
@@ -74,6 +74,7 @@ public class ClientEvents {
             event.registerEntityRenderer(SBEntities.MUSHROOM.get(), GenericSpellRenderer::new);
             event.registerEntityRenderer(SBEntities.SHADOW_GATE.get(), ShadowGateRenderer::new);
             event.registerEntityRenderer(SBEntities.SOLAR_RAY.get(), SolarRayRenderer::new);
+            event.registerEntityRenderer(SBEntities.SHATTERING_CRYSTAL.get(), ShatteringCrystalRenderer::new);
             event.registerEntityRenderer(SBEntities.STORMSTRIKE_BOLT.get(), EmissiveSpellProjectileRenderer::new);
             event.registerEntityRenderer(SBEntities.STORM_RIFT.get(), StormRiftRenderer::new);
             event.registerEntityRenderer(SBEntities.STORM_CLOUD.get(), StormCloudRenderer::new);

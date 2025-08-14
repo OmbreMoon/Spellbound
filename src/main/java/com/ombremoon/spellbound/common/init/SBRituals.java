@@ -33,10 +33,12 @@ public interface SBRituals {
                 context,
                 CREATE_SHADOW_GATE,
                 TransfigurationRitual.ritual(2)
-                        .requires(Ingredient.of(Items.WATER_BUCKET))
-                        .requires(Ingredient.of(Items.DIAMOND_SWORD))
-                        .requires(Ingredient.of(Items.IRON_INGOT))
-                        .requires(Ingredient.of(SBBlocks.ARCANTHUS.get()))
+                        .requires(Ingredient.of(Items.IRON_DOOR), 2)
+                        .requires(Ingredient.of(Items.ENDER_PEARL), 2)
+                        .requires(Ingredient.of(Items.FEATHER), 2)
+                        .requires(Ingredient.of(Items.INK_SAC), 2)
+                        .requires(Ingredient.of(Items.BLACKSTONE), 2)
+                        .requires(Ingredient.of(SBItems.MAGIC_ESSENCE.get()), 2)
                         .withEffect(new CreateSpellTome(SBSpells.SHADOW_GATE.get(), 2))
 
         );

@@ -29,6 +29,7 @@ public class SBEntities {
     public static final Supplier<EntityType<HealingBlossom>> HEALING_BLOSSOM = registerEntity("healing_blossom", HealingBlossom::new, 1f, 1f);
     public static final Supplier<EntityType<ShadowGate>> SHADOW_GATE = registerEntity("shadow_gate", ShadowGate::new, 1.2F, 2.5F);
     public static final Supplier<EntityType<SolarRay>> SOLAR_RAY = registerEntity("solar_ray", SolarRay::new, 1.8F, 3.6F);
+    public static final Supplier<EntityType<ShatteringCrystal>> SHATTERING_CRYSTAL = registerEntity("shattering_crystal", ShatteringCrystal::new, 1.2F, 2.5F);
     public static final Supplier<EntityType<StormstrikeBolt>> STORMSTRIKE_BOLT = registerEntity("stormstrike_bolt", StormstrikeBolt::new, 0.5F, 0.5F);
     public static final Supplier<EntityType<StormRift>> STORM_RIFT = registerEntity("storm_rift", StormRift::new, 1.9F, 2.9F);
     public static final Supplier<EntityType<StormCloud>> STORM_CLOUD = registerEntity("storm_cloud", StormCloud::new, 7.9F, 2.9F);

@@ -41,7 +41,7 @@ public class WildMushroomSpell extends AnimatedSpell {
                 .duration(240)
                 .manaCost(30)
                 .baseDamage(4.0F)
-                .castCondition((context, spell) -> spell.hasValidSpawnPos() && context.canCastWithLevel());
+                .castCondition((context, spell) -> spell.hasValidSpawnPos());
     }
 
     public WildMushroomSpell() {
@@ -75,6 +75,7 @@ public class WildMushroomSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellTick(SpellContext context) {
+        super.onSpellTick(context);
         Level level = context.getLevel();
         if (!level.isClientSide) {
             LivingEntity caster = context.getCaster();

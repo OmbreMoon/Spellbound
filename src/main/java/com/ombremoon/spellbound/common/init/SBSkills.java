@@ -1,12 +1,12 @@
 package com.ombremoon.spellbound.common.init;
 
-import com.ombremoon.spellbound.main.CommonClass;
-import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
 import com.ombremoon.spellbound.common.magic.skills.ModifierSkill;
 import com.ombremoon.spellbound.common.magic.skills.RadialSkill;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
+import com.ombremoon.spellbound.main.CommonClass;
+import com.ombremoon.spellbound.main.Constants;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
@@ -49,6 +49,19 @@ public class SBSkills {
     public static final Holder<Skill> AFTERGLOW = registerSkill("afterglow", 0, 200, preReqs(SOLAR_BURST));
     public static final Holder<Skill> BLINDING_LIGHT = registerSkill("blinding_light", -50, 250, preReqs(AFTERGLOW));
     public static final Holder<Skill> POWER_OF_THE_SUN = registerSkill("power_of_the_sun", 0, 250, preReqs(AFTERGLOW));
+
+    //Shattering Crystal
+    public static final Holder<Skill> SHATTERING_CRYSTAL = registerSkill("shattering_crystal");
+    public static final Holder<Skill> ICE_SHARD = registerSkill("ice_shard", 0, 50, preReqs(SHATTERING_CRYSTAL));
+    public static final Holder<Skill> FRIGID_BLAST = registerSkill("frigid_blast", -50, 50, preReqs(SHATTERING_CRYSTAL));
+    public static final Holder<Skill> FROZEN_SHRAPNEL = registerSkill("frozen_shrapnel", -75, 100, preReqs(FRIGID_BLAST));
+    public static final Holder<Skill> HYPOTHERMIA = registerSkill("hypothermia", -25, 100, preReqs(FRIGID_BLAST));
+    public static final Holder<Skill> CRYSTAL_ECHO = registerSkill("crystal_echo", -50, 150, preReqs(FROZEN_SHRAPNEL, HYPOTHERMIA));
+    public static final Holder<Skill> CHILL = registerSkill("chill", 50, 50, preReqs(SHATTERING_CRYSTAL));
+    public static final Holder<Skill> THIN_ICE = registerSkill("thin_ice", 25, 100, preReqs(CHILL));
+    public static final Holder<Skill> CHAOTIC_SHATTER = registerSkill("chaotic_shatter", 75, 100, preReqs(CHILL));
+    public static final Holder<Skill> LINGERING_FROST = registerSkill("lingering_frost", 50, 150, preReqs(THIN_ICE, CHAOTIC_SHATTER));
+    public static final Holder<Skill> GLACIAL_IMPACT = registerSkill("glacial_impact", 0, 200, preReqs(CRYSTAL_ECHO, LINGERING_FROST));
 
     //Stormstrike
     public static final Holder<Skill> STORMSTRIKE = registerSkill("stormstrike");

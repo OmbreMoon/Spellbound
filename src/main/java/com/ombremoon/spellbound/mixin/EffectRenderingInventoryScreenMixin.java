@@ -46,7 +46,7 @@ public class EffectRenderingInventoryScreenMixin<T extends AbstractContainerMenu
         Player player = this.minecraft.player;
         var handler = SpellUtil.getSpellCaster(player);
         int i = this.leftPos;
-        Collection<AbstractSpell> spells = handler.getActiveSpells();
+        Collection<AbstractSpell> spells = handler.getActiveSpells().stream().filter(spell -> !spell.shouldRender(spell.getContext())).toList();
         if (!spells.isEmpty() && i >= 32) {
             boolean flag = i >= 120;
             int j = 33;

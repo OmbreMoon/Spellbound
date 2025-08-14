@@ -59,7 +59,7 @@ public class ClientPayloadHandler {
                 var caster = SpellUtil.getSpellCaster(player);
                 AbstractSpell spell = caster.getCurrentlyCastSpell();
                 if (spell != null)
-                    spell.clientInitSpell(player, level,player.getOnPos(), payload.spellData(), payload.isRecast(), payload.castId(), payload.forceReset());
+                    spell.clientInitSpell(player, level,player.getOnPos(), payload.spellData(), payload.isRecast(), payload.castId(), payload.forceReset(), payload.shiftSpells());
 
                 caster.setCurrentlyCastingSpell(null);
             }

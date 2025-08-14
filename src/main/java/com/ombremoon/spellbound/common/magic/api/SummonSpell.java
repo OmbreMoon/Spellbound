@@ -197,6 +197,11 @@ public abstract class SummonSpell extends AnimatedSpell {
             return this;
         }
 
+        public Builder<T> noShift(Predicate<SpellContext> noShift) {
+            this.shiftSpells = noShift;
+            return this;
+        }
+
         public Builder<T> updateInterval(int updateInterval) {
             this.updateInterval = updateInterval;
             return this;

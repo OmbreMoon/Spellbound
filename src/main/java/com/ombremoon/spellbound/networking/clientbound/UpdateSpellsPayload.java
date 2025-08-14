@@ -7,7 +7,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-public record UpdateSpellsPayload(String playerId, CompoundTag spellData, boolean isRecast, int castId, boolean forceReset) implements CustomPacketPayload {
+public record UpdateSpellsPayload(String playerId, CompoundTag spellData, boolean isRecast, int castId, boolean forceReset, boolean shiftSpells) implements CustomPacketPayload {
     public static final Type<UpdateSpellsPayload> TYPE = new Type<>(CommonClass.customLocation("update_spells"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, UpdateSpellsPayload> STREAM_CODEC = StreamCodec.composite(
@@ -16,6 +16,7 @@ public record UpdateSpellsPayload(String playerId, CompoundTag spellData, boolea
             ByteBufCodecs.BOOL, UpdateSpellsPayload::isRecast,
             ByteBufCodecs.INT, UpdateSpellsPayload::castId,
             ByteBufCodecs.BOOL, UpdateSpellsPayload::forceReset,
+            ByteBufCodecs.BOOL, UpdateSpellsPayload::shiftSpells,
             UpdateSpellsPayload::new
     );
 

@@ -10,7 +10,7 @@
   "effects": [
     {
       "type": "spellbound:create_spell_tome",
-      "spell": "spellbound:shadow_gate",
+      "spell": "spellbound:mystic_armor",
       "tier": 2
     }
   ],

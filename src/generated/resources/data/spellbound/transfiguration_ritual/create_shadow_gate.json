@@ -16,16 +16,40 @@
   ],
   "materials": [
     {
-      "item": "minecraft:water_bucket"
+      "item": "minecraft:iron_door"
     },
     {
-      "item": "minecraft:diamond_sword"
+      "item": "minecraft:iron_door"
     },
     {
-      "item": "minecraft:iron_ingot"
+      "item": "minecraft:ender_pearl"
     },
     {
-      "item": "spellbound:arcanthus"
+      "item": "minecraft:ender_pearl"
+    },
+    {
+      "item": "minecraft:feather"
+    },
+    {
+      "item": "minecraft:feather"
+    },
+    {
+      "item": "minecraft:ink_sac"
+    },
+    {
+      "item": "minecraft:ink_sac"
+    },
+    {
+      "item": "minecraft:blackstone"
+    },
+    {
+      "item": "minecraft:blackstone"
+    },
+    {
+      "item": "spellbound:magic_essence"
+    },
+    {
+      "item": "spellbound:magic_essence"
     }
   ]
 }

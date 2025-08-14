@@ -67,7 +67,7 @@ public class CastModeOverlay implements LayeredDraw.Layer {
     }
 
     private void renderActiveSpells(GuiGraphics guiGraphics, SpellHandler handler) {
-        Set<AbstractSpell> spells = new ObjectOpenHashSet<>(handler.getActiveSpells());
+        Set<AbstractSpell> spells = new ObjectOpenHashSet<>(handler.getActiveSpells().stream().filter(spell -> !spell.shouldRender(spell.getContext())).toList());
         RenderSystem.enableBlend();
         int j1 = 0;
         List<Runnable> list = Lists.newArrayListWithExpectedSize(spells.size());
