@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "spellbound:block/purple_spore_block"
+      "model": "spellbound:block/pink_spore_block"
     }
   }
 }
