@@ -203,8 +203,8 @@ public class WildMushroomSpell extends AnimatedSpell {
         }
     }*/
 
-    private void setMushroom(int cyclone) {
-        this.spellData.set(MUSHROOM, cyclone);
+    private void setMushroom(int mushroom) {
+        this.spellData.set(MUSHROOM, mushroom);
     }
 
     private WildMushroom getMushroom(SpellContext context) {

@@ -66,6 +66,19 @@ public class ClientPayloadHandler {
         });
     }
 
+    public static void handleClientUpdateSpellTicks(UpdateSpellTicksPayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            var level = context.player().level();
+
+            Entity entity = level.getEntity(payload.entityId());
+            if (entity instanceof LivingEntity livingEntity) {
+                var caster = SpellUtil.getSpellCaster(livingEntity);
+                AbstractSpell spell = caster.getSpell(payload.spellType(), payload.castId());
+                spell.ticks = payload.ticks();
+            }
+        });
+    }
+
     public static void handleClientUpdateSkillBuff(UpdateSkillBuffPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             var level = context.player().level();

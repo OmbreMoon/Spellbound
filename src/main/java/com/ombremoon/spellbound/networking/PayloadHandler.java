@@ -84,6 +84,10 @@ public class PayloadHandler {
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new UpdateSpellsPayload(player.getUUID().toString(), spellData, isRecast, castId, forceReset, shiftSpells));
     }
 
+    public static void setSpellTicks(ServerPlayer player, SpellType<?> spellType, int castId, int ticks) {
+        PacketDistributor.sendToPlayer(player, new UpdateSpellTicksPayload(player.getId(), spellType, castId, ticks));
+    }
+
     public static void updateSkillBuff(ServerPlayer player, SkillBuff<?> skillBuff, int duration, boolean removeBuff) {
         PacketDistributor.sendToPlayer(player, new UpdateSkillBuffPayload(player.getId(), skillBuff, duration, removeBuff));
     }
@@ -181,6 +185,11 @@ public class PayloadHandler {
                 UpdateSpellsPayload.TYPE,
                 UpdateSpellsPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleClientUpdateSpells
+        );
+        registrar.playToClient(
+                UpdateSpellTicksPayload.TYPE,
+                UpdateSpellTicksPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleClientUpdateSpellTicks
         );
         registrar.playToClient(
                 UpdateSkillBuffPayload.TYPE,

@@ -49,8 +49,14 @@ public class SBBlocks {
     public static final Supplier<Block> PENUMBRAL_SLUDGE = registerSludge("penumbral_sludge", false);
 //    public static final Supplier<Block> WOVEN_SHADE = registerSimpleBlock("woven_shade");
 
-    public static final Supplier<Block> GREEN_SPORE = registerBlock("green_spore_block", () -> new SporeBlock(blockProperties()));
-    public static final Supplier<Block> PURPLE_SPORE = registerBlock("purple_spore_block", () -> new SporeBlock(blockProperties()));
+    public static final Supplier<Block> GREEN_SPORE_BLOCK = registerBlock("green_spore_block", () -> new SporeBlock(blockProperties()));
+    public static final Supplier<Block> GREEN_SPORE_SLAB = registerBlock("green_spore_slab", () -> new SporeSlabBlock(blockProperties()));
+    public static final Supplier<Block> PURPLE_SPORE_BLOCK = registerBlock("purple_spore_block", () -> new SporeBlock(blockProperties()));
+    public static final Supplier<Block> PURPLE_SPORE_SLAB = registerBlock("purple_spore_slab", () -> new SporeSlabBlock(blockProperties()));
+    public static final Supplier<Block> PINK_SPORE_BLOCK = registerBlock("pink_spore_block", () -> new SporeBlock(blockProperties()));
+    public static final Supplier<Block> PINK_SPORE_SLAB = registerBlock("pink_spore_slab", () -> new SporeSlabBlock(blockProperties()));
+    public static final Supplier<Block> RED_SPORE_BLOCK = registerBlock("red_spore_block", () -> new SporeBlock(blockProperties()));
+    public static final Supplier<Block> RED_SPORE_SLAB = registerBlock("red_spore_slab", () -> new SporeSlabBlock(blockProperties()));
     public static final Supplier<Block> MYCELIUM_CARPET = registerBlock("mycelium_carpet", () -> new MyceliumCarpetBlock(blockProperties()
             .mapColor(MapColor.COLOR_PURPLE)
             .strength(0.1F)

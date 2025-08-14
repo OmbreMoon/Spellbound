@@ -71,7 +71,6 @@ import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * The main class used to create spells. Spells exist on both the client and server and must be handled as such. In general, spells should extend {@link AnimatedSpell} unless you don't want the player to have an animation while casting the spells.
@@ -448,7 +447,6 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      */
     protected void onSpellTick(SpellContext context) {
 //        endSpell();
-        log(castId);
     }
 
     /**
@@ -521,6 +519,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      */
     public void setRemainingTicks(int ticks) {
         this.ticks = Mth.clamp(this.getDuration() - ticks, 0, this.getDuration());
+        if (!this.level.isClientSide && this.caster instanceof Player player)
+            PayloadHandler.setSpellTicks((ServerPlayer) player, this.spellType, this.castId, this.ticks);
     }
 
     public int getRemainingTime() {
