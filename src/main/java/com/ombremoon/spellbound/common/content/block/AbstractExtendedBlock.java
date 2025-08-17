@@ -11,28 +11,48 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
-
-// After I made the interface, I realized it could have been an abstract class, oops
 public abstract class AbstractExtendedBlock extends Block implements ExtendedBlock, EntityBlock {
     public static final BooleanProperty CENTER = BooleanProperty.create("center");
 
     public AbstractExtendedBlock(Properties properties) {
         super(properties);
+        if (getDirectionProperty() != null){
+            this.registerDefaultState(this.getStateDefinition().any().setValue(CENTER, false).setValue(getDirectionProperty(), Direction.NORTH));
+        } else {
+            this.registerDefaultState(this.getStateDefinition().any().setValue(CENTER, false));
+        }
     }
 
     @Override
-    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        place(level, pos, state, placer, stack);
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @org.jetbrains.annotations.Nullable LivingEntity placer, ItemStack stack) {
+        place(level, pos, state);
     }
 
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
-        return getStateForPlacementHelper(context, this);
+        return getStateForPlacementHelper(context);
     }
+
+    @Override
+    protected RenderShape getRenderShape(BlockState state) {
+        if (isCenter(state)) return RenderShape.ENTITYBLOCK_ANIMATED;
+        return RenderShape.INVISIBLE;
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
+        builder.add(CENTER);
+        if (getDirectionProperty() != null) builder.add(getDirectionProperty());
+    }
+
 
     @Override
     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
@@ -41,13 +61,13 @@ public abstract class AbstractExtendedBlock extends Block implements ExtendedBlo
 
     @Override
     public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
-        return canSurviveHelper(state, level, pos, this);
+        return canSurviveHelper(state, level, pos);
     }
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         preventCreativeDrops(player, level, pos);
-       return super.playerWillDestroy(level, pos, state, player);
+        return super.playerWillDestroy(level, pos, state, player);
     }
 
 }

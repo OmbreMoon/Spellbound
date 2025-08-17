@@ -3,28 +3,33 @@ package com.ombremoon.spellbound.common.content.block;
 import com.ombremoon.spellbound.common.content.block.entity.ExtendedBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.CropBlock;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 public interface ExtendedBlock {
 
+
     /*
    How to use:
    implement fullBlockShape and make it return the whole shape
-   directional = true if the fullBlockShape needs directions
+   getDirectionProperty = for directions in fullBlockShape, null if there are none
 
    For placement:
    Override setPlacedBy - return place
@@ -37,37 +42,66 @@ public interface ExtendedBlock {
    Optionally add preventCreativeDrops into playerWillDestroy
 
    growHelper - for bone meal and tick growth
+   voxelShapeHelper - pretty self-explanatory
 
-    */
+   */
 
     Stream<BlockPos> fullBlockShape(@Nullable Direction direction, BlockPos center);
-    boolean isDirectional(); // False if the BlockState doesn't have directions
 
-    default Stream<BlockPos> fullBlockShape(BlockPos center, @Nullable BlockState state){
-        if (!isDirectional() || state == null) return fullBlockShape(null, center);
-        return fullBlockShape(state.getValue(HorizontalDirectionalBlock.FACING), center);
+    default @Nullable DirectionProperty getDirectionProperty(){
+        return null; // null if block doesn't have directions
     }
 
+    default Direction getDirection(BlockState state){
+        if (getDirectionProperty() != null){
+            return state.getValue(getDirectionProperty());
+        }
+        throw new RuntimeException("Tried to get Direction, but DirectionProperty is null");
+    }
 
-    default void place(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity pPlacer, ItemStack stack){
-        if (level.isClientSide()) return;
-        fullBlockShape(pos, state).forEach(blockPos -> {
-            blockPos = blockPos.immutable();
+    default Block getBlock(){
+        if (this instanceof Block block){
+            return block;
+        } else {
+            throw new RuntimeException(this.getClass().getSimpleName() + " is not implemented on a Block");
+        }
+    }
+
+    default Stream<BlockPos> fullBlockShape(BlockPos center, @Nullable BlockState state){
+        if (getDirectionProperty() == null || state == null)
+            return fullBlockShape(null, center);
+
+        return fullBlockShape(getDirection(state), center);
+    }
+
+    default @Nullable BiFunction<BlockState, BlockPos, BlockState> getStateFromOffset() {
+        return null; // For use with json models, changes blockState based on offset from centre
+    };
+
+    default void place(Level level, BlockPos posOriginal, BlockState stateOriginal){
+        fullBlockShape(posOriginal, stateOriginal).forEach(posNew -> {
             int flags = level.isClientSide ? 0 : 3;
-            level.setBlock(blockPos, state.setValue(AbstractExtendedBlock.CENTER, pos.equals(blockPos)), flags);
-            if(level.getBlockEntity(blockPos) instanceof ExtendedBlockEntity entity) {
-                entity.setCenter(pos);
+
+            BlockState stateNew = stateOriginal.setValue(AbstractExtendedBlock.CENTER, posOriginal.equals(posNew));
+            if (getStateFromOffset() != null) stateNew = getStateFromOffset().apply(stateNew, posNew.subtract(posOriginal));
+
+            level.setBlock(posNew, stateNew, flags);
+            if(level.getBlockEntity(posNew) instanceof ExtendedBlockEntity entity) {
+                entity.setCenter(posOriginal);
             }
         });
     }
 
-    default BlockState getStateForPlacementHelper(BlockPlaceContext context, Block ts) {
+    default BlockState getStateForPlacementHelper(BlockPlaceContext context) {
+        return getStateForPlacementHelper(context, context.getHorizontalDirection());
+    }
+    default BlockState getStateForPlacementHelper(BlockPlaceContext context, Direction direction) {
         LevelReader level = context.getLevel();
         BlockPos pos = context.getClickedPos();
-        BlockState state = ts.defaultBlockState();
+        BlockState state = getBlock().defaultBlockState();
 
-        if (isDirectional()){
-            state = state.setValue(HorizontalDirectionalBlock.FACING, context.getHorizontalDirection());
+        if (getDirectionProperty() != null){
+            state = state.setValue(getDirectionProperty(), direction);
         }
 
         return canPlace(level, pos, state) ? state : null;
@@ -88,12 +122,11 @@ public interface ExtendedBlock {
         });
     }
 
-    default boolean allBlocksPresent(LevelReader level, BlockPos pos, BlockState state, Block originalBlock){
+    default boolean allBlocksPresent(LevelReader level, BlockPos pos, BlockState state){
         if (level.isClientSide()) return true;
         BlockPos center = getCenter(level, pos);
 
-        boolean ret;
-        ret = fullBlockShape(center, state).allMatch(blockPos -> level.getBlockState(blockPos).is(originalBlock));
+        boolean ret = fullBlockShape(center, state).allMatch(blockPos -> level.getBlockState(blockPos).is(getBlock()));
 
         if (ret && level.getBlockEntity(pos) instanceof ExtendedBlockEntity entity && !entity.isPlaced) {
             fullBlockShape(center, state).forEach(blockPos -> ExtendedBlockEntity.setPlaced(level, blockPos));
@@ -117,23 +150,24 @@ public interface ExtendedBlock {
         return state;
     }
 
-    default boolean canSurviveHelper(BlockState state, LevelReader level, BlockPos pos, Block thisBlock){
+    default boolean canSurviveHelper(BlockState state, LevelReader level, BlockPos pos){
         if (level.getBlockEntity(pos) instanceof ExtendedBlockEntity entity){
             //survive logic
             boolean extraSurvive = fullBlockShape(entity.getCenter(), state).allMatch(blockPos -> extraSurviveRequirements(level, blockPos, state));
-            return (allBlocksPresent(level, pos, state, thisBlock) || !entity.isPlaced) && extraSurvive;
+            return (allBlocksPresent(level, pos, state) || !entity.isPlaced) && extraSurvive;
         } else {
             //placement logic
             return canPlace(level, pos, state);
         }
     }
 
-    //Override this one to check for other blocks (like if there ground below etc...)
+    //Override this one to check for other blocks (like if bondripia can hang)
     //Runs for every single block
     default boolean extraSurviveRequirements(LevelReader level, BlockPos pos, BlockState state){
         return true;
     }
 
+    // Add this to playerWillDestroy
     default void preventCreativeDrops(Player player, Level level, BlockPos pos){
         if (player.isCreative() && level.getBlockEntity(pos) instanceof ExtendedBlockEntity entity) {
             level.destroyBlock(entity.center, false);
@@ -153,9 +187,73 @@ public interface ExtendedBlock {
         }
         return false;
     }
+
+    default boolean isCenter(BlockState state){
+        return state.getValue(AbstractExtendedBlock.CENTER);
+    }
+
+    default int getXOffset(BlockGetter level, BlockPos pos){
+        if (level.getBlockEntity(pos) instanceof ExtendedBlockEntity entity) {
+            return pos.getX() - entity.getCenter().getX();
+        }
+        return 0;
+    }
+
+    default int getYOffset(BlockGetter level, BlockPos pos){
+        if (level.getBlockEntity(pos) instanceof ExtendedBlockEntity entity) {
+            return pos.getY() - entity.getCenter().getY();
+        }
+        return 0;
+    }
+
+    default int getZOffset(BlockGetter level, BlockPos pos){
+        if (level.getBlockEntity(pos) instanceof ExtendedBlockEntity entity) {
+            return pos.getZ() - entity.getCenter().getZ();
+        }
+        return 0;
+    }
+
+    static Rotation rotationFromDirection(Direction direction){
+        return switch (direction){
+            case DOWN, NORTH, UP -> Rotation.NONE;
+            case SOUTH -> Rotation.CLOCKWISE_180;
+            case WEST -> Rotation.COUNTERCLOCKWISE_90;
+            case EAST -> Rotation.CLOCKWISE_90;
+        };
+    }
+
+    default VoxelShape voxelShapeHelper(BlockState state, BlockGetter level, BlockPos pos, VoxelShape shape){
+        return voxelShapeHelper(state,level,pos,shape, 0, 0, 0);
+    }
+
+    default VoxelShape voxelShapeHelper(BlockState state, BlockGetter level, BlockPos pos, VoxelShape shape, float xOffset, float yOffset, float zOffset){
+        return voxelShapeHelper(state,level,pos,shape, xOffset, yOffset, zOffset, false);
+    }
+
+
+    default VoxelShape voxelShapeHelper(BlockState state, BlockGetter level, BlockPos pos, VoxelShape shape, float xOffset, float yOffset, float zOffset, boolean hasDirectionOffsets){
+        if (level.getBlockEntity(pos) instanceof ExtendedBlockEntity entity) {
+            var x = entity.center.getX() - pos.getX() + xOffset;
+            var y = entity.center.getY() - pos.getY() + yOffset;
+            var z = entity.center.getZ() - pos.getZ() + zOffset;
+
+            if (getDirectionProperty() != null && hasDirectionOffsets) {
+                switch (state.getValue(getDirectionProperty())) {
+                    case EAST -> x += 1;
+                    case NORTH -> {
+                        x += 1;
+                        z -= 1;
+                    }
+                    case WEST -> z -= 1;
+                }
+            }
+            return shape.move(x,y,z);
+        }
+        return shape;
+    }
+
     default void growHelper(Level level, BlockPos blockPos, BlockState blockState){
         Block block = blockState.getBlock();
-        // This was originally using my own cropBlock, it may not work with the vanilla one idk
         if (block instanceof CropBlock cropBlock) {
             if(level.getBlockEntity(blockPos) instanceof ExtendedBlockEntity entity) {
                 fullBlockShape(entity.getCenter(), level.getBlockState(blockPos)).forEach(pos -> {

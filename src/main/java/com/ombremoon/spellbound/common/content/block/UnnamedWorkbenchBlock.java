@@ -14,7 +14,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,12 +27,17 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
+import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
-public class UnnamedWorkbenchBlock extends AbstractExtendedBlock {
+public class UnnamedWorkbenchBlock extends AbstractExtendedBlock implements PreviewableExtendedBlock {
     public static final MapCodec<UnnamedWorkbenchBlock> CODEC = simpleCodec(UnnamedWorkbenchBlock::new);
     public static final EnumProperty<WorkbenchPart> PART = EnumProperty.create("workbench", WorkbenchPart.class);
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    public static final VoxelShape SHAPE_NORTH = makeShapeNorth();
+    public static final VoxelShape SHAPE_SOUTH = makeShapeSouth();
+    public static final VoxelShape SHAPE_WEST = makeShapeWest();
+    public static final VoxelShape SHAPE_EAST = makeShapeEast();
 
     @Override
     protected MapCodec<? extends Block> codec() {
@@ -42,7 +46,22 @@ public class UnnamedWorkbenchBlock extends AbstractExtendedBlock {
 
     public UnnamedWorkbenchBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.getStateDefinition().any().setValue(PART, WorkbenchPart.LEFT).setValue(AbstractExtendedBlock.CENTER, false));
+        this.registerDefaultState(this.getStateDefinition().any().setValue(PART, WorkbenchPart.LEFT));
+    }
+
+    @Override
+    public @Nullable DirectionProperty getDirectionProperty() {
+        return FACING;
+    }
+
+    @Override
+    public BlockState getDefaultStateForPreviews(Direction direction) {
+        return PreviewableExtendedBlock.super.getDefaultStateForPreviews(direction).setValue(FACING, direction.getClockWise());
+    }
+
+    @Override
+    public @Nullable BiFunction<BlockState, BlockPos, BlockState> getStateFromOffset() {
+        return ((blockState, pos) -> blockState.setValue(PART, WorkbenchPart.fromOffset(pos, getDirection(blockState))));
     }
 
     @Override
@@ -51,8 +70,13 @@ public class UnnamedWorkbenchBlock extends AbstractExtendedBlock {
     }
 
     @Override
-    public boolean isDirectional() {
-        return true;
+    public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
+        return getStateForPlacementHelper(context, context.getHorizontalDirection().getClockWise());
+    }
+
+    @Override
+    protected RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
     }
 
     @Override
@@ -72,52 +96,39 @@ public class UnnamedWorkbenchBlock extends AbstractExtendedBlock {
     }
 
     @Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return super.getRenderShape(state);
-    }
-
-    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, PART, AbstractExtendedBlock.CENTER);
-    }
-
-    @Override
-    public @org.jetbrains.annotations.Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
-        LevelReader level = context.getLevel();
-        BlockPos pos = context.getClickedPos();
-        BlockState state = this.defaultBlockState();
-
-        if (isDirectional()){
-            state = state.setValue(HorizontalDirectionalBlock.FACING, context.getHorizontalDirection().getClockWise());
-        }
-
-        return canPlace(level, pos, state) ? state : null;
+        super.createBlockStateDefinition(builder);
+        builder.add(PART);
     }
 
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        super.setPlacedBy(level, pos, state, placer, stack);
-        if (!level.isClientSide) {
-            BlockPos blockpos = pos.relative(state.getValue(FACING));
-            level.setBlock(blockpos, state.setValue(PART, WorkbenchPart.RIGHT), 3);
-            level.setBlock(pos.above(), state.setValue(PART, WorkbenchPart.TOP_LEFT), 3);
-            level.setBlock(blockpos.above(), state.setValue(PART, WorkbenchPart.TOP_RIGHT), 3);
-
-            level.blockUpdated(pos, Blocks.AIR);
-            state.updateNeighbourShapes(level, pos, 3);
-        }
+        place(level, pos, state);
     }
 
     public enum WorkbenchPart implements StringRepresentable {
-        LEFT("left"),
-        RIGHT("right"),
-        TOP_LEFT("top_left"),
-        TOP_RIGHT("top_right");
+        LEFT("left", new BlockPos(0, 0, 0)),
+        RIGHT("right",  new BlockPos(0, 0, -1)),
+        TOP_LEFT("top_left",  new BlockPos(0, 1, 0)),
+        TOP_RIGHT("top_right",  new BlockPos(0, 1, -1));
 
         private final String name;
+        private final BlockPos offset;
 
-        WorkbenchPart(String name) {
+        WorkbenchPart(String name, BlockPos offset) {
             this.name = name;
+            this.offset = offset;
+        }
+
+        public static WorkbenchPart fromOffset(BlockPos offset, @Nullable Direction direction) {
+            for (WorkbenchPart part : WorkbenchPart.values()){
+               BlockPos offset1 = part.offset;
+               if (direction != null) offset1 = offset1.rotate(ExtendedBlock.rotationFromDirection(direction));
+
+               if (offset1.equals(offset)) return part;
+
+           }
+           return WorkbenchPart.LEFT;
         }
 
         @Override
@@ -127,36 +138,18 @@ public class UnnamedWorkbenchBlock extends AbstractExtendedBlock {
     }
 
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-       return switch (state.getValue(UnnamedWorkbenchBlock.FACING)){
+       VoxelShape shape = switch (getDirection(state)){
+           case NORTH -> SHAPE_NORTH;
+           case SOUTH -> SHAPE_SOUTH;
+           case WEST -> SHAPE_WEST;
+           case EAST -> SHAPE_EAST;
            case DOWN, UP -> Shapes.block();
-           case NORTH -> switch (state.getValue(UnnamedWorkbenchBlock.PART)){
-               case LEFT -> makeShapeWest();
-               case RIGHT -> makeShapeWest().move(0,0,1);
-               case TOP_LEFT -> makeShapeWest().move(0,-1,0);
-               case TOP_RIGHT -> makeShapeWest().move(0,-1,1);
-           };
-           case SOUTH -> switch (state.getValue(UnnamedWorkbenchBlock.PART)){
-               case LEFT -> makeShapeEast();
-               case RIGHT -> makeShapeEast().move(0,0,-1);
-               case TOP_LEFT -> makeShapeEast().move(0,-1,0);
-               case TOP_RIGHT -> makeShapeEast().move(0,-1,-1);
-           };
-           case WEST -> switch (state.getValue(UnnamedWorkbenchBlock.PART)){
-               case LEFT -> makeShapeNorth();
-               case RIGHT -> makeShapeNorth().move(1,0,0);
-               case TOP_LEFT -> makeShapeNorth().move(0,-1,0);
-               case TOP_RIGHT -> makeShapeNorth().move(1,-1,0);
-           };
-           case EAST -> switch (state.getValue(UnnamedWorkbenchBlock.PART)){
-               case LEFT -> makeShapeSouth();
-               case RIGHT -> makeShapeSouth().move(-1,0,0);
-               case TOP_LEFT -> makeShapeSouth().move(0,-1,0);
-               case TOP_RIGHT -> makeShapeSouth().move(-1,-1,0);
-           };
        };
+
+       return voxelShapeHelper(state, level, pos, shape);
     }
 
-    public VoxelShape makeShapeNorth(){
+    public static VoxelShape makeShapeWest(){
         VoxelShape shape = Shapes.empty();
         shape = Shapes.join(shape, Shapes.box(-1, 0, 0, 1, 0.875, 1), BooleanOp.OR);
         shape = Shapes.join(shape, Shapes.box(-1, 0.875, 0.875, 1, 1.75, 1), BooleanOp.OR);
@@ -165,7 +158,7 @@ public class UnnamedWorkbenchBlock extends AbstractExtendedBlock {
         return shape;
     }
 
-    public VoxelShape makeShapeEast(){
+    public static VoxelShape makeShapeSouth(){
         VoxelShape shape = Shapes.empty();
         shape = Shapes.join(shape, Shapes.box(0, 0, 0, 1, 0.875, 2), BooleanOp.OR);
         shape = Shapes.join(shape, Shapes.box(0.875, 0.875, 0, 1, 1.75, 2), BooleanOp.OR);
@@ -174,7 +167,7 @@ public class UnnamedWorkbenchBlock extends AbstractExtendedBlock {
         return shape;
     }
 
-    public VoxelShape makeShapeSouth(){
+    public static VoxelShape makeShapeEast(){
         VoxelShape shape = Shapes.empty();
         shape = Shapes.join(shape, Shapes.box(0, 0, 0, 2, 0.875, 1), BooleanOp.OR);
         shape = Shapes.join(shape, Shapes.box(0, 0.875, 0, 2, 1.75, 0.125), BooleanOp.OR);
@@ -184,7 +177,7 @@ public class UnnamedWorkbenchBlock extends AbstractExtendedBlock {
     }
 
 
-    public VoxelShape makeShapeWest(){
+    public static VoxelShape makeShapeNorth(){
         VoxelShape shape = Shapes.empty();
         shape = Shapes.join(shape, Shapes.box(0, 0, -1, 1, 0.875, 1), BooleanOp.OR);
         shape = Shapes.join(shape, Shapes.box(0, 0.875, -1, 0.125, 1.75, 1), BooleanOp.OR);

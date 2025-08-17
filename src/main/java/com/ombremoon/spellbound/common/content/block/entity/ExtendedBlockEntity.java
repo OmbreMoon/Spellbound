@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.content.block.entity;
 
+import com.ombremoon.spellbound.client.renderer.blockentity.ExtendedBlockPreviewRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -12,6 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public abstract class ExtendedBlockEntity extends BlockEntity {
     public BlockPos center;
     public boolean isPlaced; //True once the whole placing logic runs (to prevent updateShape from breaking it early)
+    public ExtendedBlockPreviewRenderer.PreviewMode previewMode = ExtendedBlockPreviewRenderer.PreviewMode.PLACED;
 
     public ExtendedBlockEntity(BlockEntityType<?> pType, BlockPos pPos, BlockState pBlockState) {
         super(pType, pPos, pBlockState);
