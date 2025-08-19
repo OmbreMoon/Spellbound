@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "center=true": {
+      "model": "spellbound:block/sandstone_divine_shrine_bottom"
+    },
+    "center=false": {
+      "model": "spellbound:block/sandstone_divine_shrine_top"
+    }
+  }
+}

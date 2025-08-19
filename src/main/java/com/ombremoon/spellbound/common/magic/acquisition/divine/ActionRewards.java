@@ -106,7 +106,7 @@ public record ActionRewards(int experience, int judgement, List<ResourceLocation
                 for (int k = z - 15; k <= z + 15; k++) {
                     mutableBlockPos.set(i, j, k);
                     BlockState blockState = player.level().getBlockState(mutableBlockPos);
-                    if (blockState.is(SBBlocks.DIVINE_SHRINE.get()))
+                    if (blockState.is(SBBlocks.SANDSTONE_DIVINE_SHRINE.get()))
                         return blockState;
                 }
             }

@@ -21,7 +21,10 @@ public class SBBlocks {
             .noOcclusion()));
     public static final Supplier<ArcanthusCropBlock> ARCANTHUS = registerBlock("arcanthus", () -> new ArcanthusCropBlock(blockProperties().
             noOcclusion()));
-    public static final Supplier<DivineShrineBlock> DIVINE_SHRINE = registerBlock("divine_shrine", () -> new DivineShrineBlock(blockProperties()));
+    public static final Supplier<DivineShrineBlock> SANDSTONE_DIVINE_SHRINE = registerBlock("sandstone_divine_shrine", () -> new DivineShrineBlock(blockProperties()));
+    public static final Supplier<DivineShrineBlock> PLAINS_DIVINE_SHRINE = registerBlock("plains_divine_shrine", () -> new DivineShrineBlock(blockProperties()));
+    public static final Supplier<DivineShrineBlock> JUNGLE_DIVINE_SHRINE = registerBlock("jungle_divine_shrine", () -> new DivineShrineBlock(blockProperties()));
+
     public static final Supplier<TransfigurationPedestalBlock> TRANSFIGURATION_PEDESTAL = registerBlock("transfiguration_pedestal", () -> new TransfigurationPedestalBlock(blockProperties()
             .noOcclusion()));
     public static final Supplier<TransfigurationDisplayBlock> TRANSFIGURATION_DISPLAY = registerBlock("transfiguration_display", () -> new TransfigurationDisplayBlock(blockProperties()

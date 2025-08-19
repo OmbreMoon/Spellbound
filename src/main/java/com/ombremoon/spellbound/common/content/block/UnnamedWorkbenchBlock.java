@@ -101,11 +101,6 @@ public class UnnamedWorkbenchBlock extends AbstractExtendedBlock implements Prev
         builder.add(PART);
     }
 
-    @Override
-    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        place(level, pos, state);
-    }
-
     public enum WorkbenchPart implements StringRepresentable {
         LEFT("left", new BlockPos(0, 0, 0)),
         RIGHT("right",  new BlockPos(0, 0, -1)),
