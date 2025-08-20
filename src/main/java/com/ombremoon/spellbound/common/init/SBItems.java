@@ -64,6 +64,11 @@ public class SBItems {
             .icon(() -> new ItemStack(SBBlocks.ARCANTHUS.get()))
             .displayItems(
                     (itemDisplayParameters,output)-> {
+                        for (int i = 0; i < 3; i++) {
+                            ItemStack stack = new ItemStack(RITUAL_TALISMAN.get());
+                            stack.set(SBData.TALISMAN_RINGS, i + 1);
+                            output.accept(stack);
+                        }
                         ITEMS.getEntries().forEach((registryObject)-> {
                             if (!EXCLUDED_ITEMS.contains(registryObject))
                                 output.accept(new ItemStack(registryObject.get()));
@@ -71,11 +76,6 @@ public class SBItems {
                         SBSpells.SPELL_TYPES.getEntries().forEach((registryObject) -> {
                             output.accept(SpellTomeItem.createWithSpell(registryObject.get()));
                         });
-                        for (int i = 0; i < 3; i++) {
-                            ItemStack stack = new ItemStack(RITUAL_TALISMAN.get());
-                            stack.set(SBData.TALISMAN_RINGS, i + 1);
-                            output.accept(stack);
-                        }
                     }).title(Component.translatable("itemGroup.spellbound"))
             .build());
 

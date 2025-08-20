@@ -32,8 +32,7 @@ import java.util.stream.Stream;
 @SuppressWarnings("unchecked")
 public final class BuildingBlock implements Predicate<BlockState> {
     public static final BuildingBlock EMPTY = of(Blocks.AIR);
-    public static final BuildingBlock ANY = of(SBTags.Blocks.RITUAL_INCOMPATIBLE);
-//    public static final BuildingBlock ANY = of(SBTags.Blocks.RITUAL_INCOMPATIBLE);
+    public static final BuildingBlock ANY = of(SBTags.Blocks.RITUAL_COMPATIBLE);
     private final Value[] values;
     @Nullable
     private Block[] blockStates;
@@ -232,8 +231,13 @@ public final class BuildingBlock implements Predicate<BlockState> {
         public Set<Block> getBlocks() {
             Set<Block> set = Sets.newHashSet();
 
-            for (Holder<Block> holder : BuiltInRegistries.BLOCK.getTagOrEmpty(this.tag)) {
-                set.add(holder.value());
+            if (this.tag == SBTags.Blocks.RITUAL_COMPATIBLE) {
+                var blocks = BuiltInRegistries.BLOCK.stream().filter(block -> !block.defaultBlockState().is(SBTags.Blocks.RITUAL_COMPATIBLE)).toList();
+                set.addAll(blocks);
+            } else {
+                for (Holder<Block> holder : BuiltInRegistries.BLOCK.getTagOrEmpty(this.tag)) {
+                    set.add(holder.value());
+                }
             }
 
             return set;

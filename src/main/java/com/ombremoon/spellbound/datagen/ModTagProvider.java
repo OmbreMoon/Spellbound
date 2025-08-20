@@ -50,7 +50,7 @@ public class ModTagProvider {
         @Override
         protected void addTags(HolderLookup.Provider pProvider) {
             for (Block block : TransfigurationMultiblock.EXCLUDED_BLOCKS) {
-                this.populateTag(SBTags.Blocks.RITUAL_INCOMPATIBLE, block);
+                this.populateTag(SBTags.Blocks.RITUAL_COMPATIBLE, block);
             }
             this.populateTag(BlockTags.FLOWERS, SBBlocks.ARCANTHUS.get());
             this.populateTag(SBTags.Blocks.DIVINE_SHRINE, SBBlocks.JUNGLE_DIVINE_SHRINE.get(), SBBlocks.PLAINS_DIVINE_SHRINE.get(), SBBlocks.SANDSTONE_DIVINE_SHRINE.get());
