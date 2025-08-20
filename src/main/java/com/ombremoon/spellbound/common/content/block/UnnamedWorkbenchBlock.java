@@ -70,11 +70,13 @@ public class UnnamedWorkbenchBlock extends AbstractExtendedBlock {
             return InteractionResult.CONSUME;
         }
     }
+/*
 
     @Override
     protected RenderShape getRenderShape(BlockState state) {
         return super.getRenderShape(state);
     }
+*/
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

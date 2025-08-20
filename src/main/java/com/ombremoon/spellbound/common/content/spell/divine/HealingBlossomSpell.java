@@ -1,10 +1,7 @@
 package com.ombremoon.spellbound.common.content.spell.divine;
 
 import com.ombremoon.spellbound.common.magic.SpellMastery;
-import com.ombremoon.spellbound.datagen.ModTagProvider;
 import com.ombremoon.spellbound.main.CommonClass;
-import com.ombremoon.spellbound.client.CameraEngine;
-import com.ombremoon.spellbound.client.renderer.entity.PlaceholderRenderer;
 import com.ombremoon.spellbound.common.content.entity.spell.HealingBlossom;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
@@ -17,13 +14,11 @@ import com.ombremoon.spellbound.common.magic.api.buff.events.DamageEvent;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
-import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -108,7 +103,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellTick(SpellContext context) {
-        if ((ticks-8) % 31 != 0 && ticks % 31 != 0 && ticks % 20 != 0) return;
+        if ((tickCount -8) % 31 != 0 && tickCount % 31 != 0 && tickCount % 20 != 0) return;
         HealingBlossom blossom = getBlossom(context);
         if (blossom == null) return;
         LivingEntity caster = context.getCaster();
@@ -138,12 +133,12 @@ public class HealingBlossomSpell extends AnimatedSpell {
 
         //Damage is done separately to healing to sync with animation better
         List<LivingEntity> effectedEntities = level.getEntitiesOfClass(LivingEntity.class, blossom.getBoundingBox().inflate(5));
-        if (skills.hasSkill(SBSkills.THORNY_VINES) && (ticks-8) % 31 == 0) {
+        if (skills.hasSkill(SBSkills.THORNY_VINES) && (tickCount -8) % 31 == 0) {
             for (LivingEntity entity : effectedEntities) {
                 if (canAttack(entity))
                     this.hurt(entity, SBDamageTypes.SB_GENERIC, 4f);
             }
-        } else if (skills.hasSkill(SBSkills.THORNY_VINES) && ticks % 31 == 0) {
+        } else if (skills.hasSkill(SBSkills.THORNY_VINES) && tickCount % 31 == 0) {
             for (LivingEntity entity : effectedEntities) {
                 if (canAttack(entity)) {
                     blossom.triggerAnim("actionController", "attack");
@@ -181,7 +176,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
 
     @Override
     protected boolean shouldTickSpellEffect(SpellContext context) {
-        return ((fastBloomed && ticks >= 20) || ticks >= 200);
+        return ((fastBloomed && tickCount >= 20) || tickCount >= 200);
     }
 
     @Override

@@ -69,7 +69,7 @@ public class ClientEvents {
 
         @SubscribeEvent
         public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
-            event.registerEntityRenderer(SBEntities.SPELL_BROKER.get(), PlaceholderRenderer::new);
+            event.registerEntityRenderer(SBEntities.TEST_DUMMY.get(), GenericLivingEntityRenderer::new);
 
             event.registerEntityRenderer(SBEntities.MUSHROOM.get(), GenericSpellRenderer::new);
             event.registerEntityRenderer(SBEntities.SHADOW_GATE.get(), ShadowGateRenderer::new);
@@ -83,8 +83,8 @@ public class ClientEvents {
             event.registerEntityRenderer(SBEntities.HAIL.get(), HailRenderer::new);
             event.registerEntityRenderer(SBEntities.HEALING_BLOSSOM.get(), HealingBlossomRenderer::new);
 
+            event.registerEntityRenderer(SBEntities.SPELL_BROKER.get(), PlaceholderRenderer::new);
             event.registerEntityRenderer(SBEntities.VALKYR.get(), GenericLivingEntityRenderer::new);
-
             event.registerEntityRenderer(SBEntities.LIVING_SHADOW.get(), LivingShadowRenderer::new);
             event.registerEntityRenderer(SBEntities.DUNGEON_SHADOW.get(), GenericLivingEntityRenderer::new);
 

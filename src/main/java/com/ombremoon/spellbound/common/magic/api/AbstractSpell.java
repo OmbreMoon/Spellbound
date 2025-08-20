@@ -112,7 +112,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     private SpellContext context;
     private SpellContext castContext;
     private boolean isRecast;
-    public int ticks = 0;
+    public int tickCount = 0;
     public boolean isInactive = false;
     public boolean init = false;
     private int castId = 0;
@@ -400,7 +400,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * Spell ticking logic. Should not be overridden. Override {@link AbstractSpell#onSpellTick(SpellContext)} for ticking functionality.
      */
     public final void tick() {
-        ticks++;
+        tickCount++;
 //        endSpell();
         if (init) {
             this.startSpell();
@@ -408,13 +408,13 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
             if (this.shouldTickSpellEffect(this.context)) {
                 this.onSpellTick(this.context);
             }
-            if (this.getCastType() != CastType.CHANNEL && ticks >= getDuration()) {
+            if (this.getCastType() != CastType.CHANNEL && tickCount >= getDuration()) {
                 this.endSpell();
             }
         }
 
         if (!this.level.isClientSide) {
-            if (this.spellData.isDirty() || this.ticks % this.updateInterval == 0)
+            if (this.spellData.isDirty() || this.tickCount % this.updateInterval == 0)
                 this.sendDirtySpellData();
         }
     }
@@ -436,7 +436,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         this.onSpellStop(this.context);
         this.init = false;
         this.isInactive = true;
-        this.ticks = 0;
+        this.tickCount = 0;
         if (!level.isClientSide && this.caster instanceof Player player)
             PayloadHandler.endSpell(player, spellType(), this.castId);
     }
@@ -518,13 +518,13 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param ticks The amount of ticks left for the spell
      */
     public void setRemainingTicks(int ticks) {
-        this.ticks = Mth.clamp(this.getDuration() - ticks, 0, this.getDuration());
+        this.tickCount = Mth.clamp(this.getDuration() - ticks, 0, this.getDuration());
         if (!this.level.isClientSide && this.caster instanceof Player player)
-            PayloadHandler.setSpellTicks((ServerPlayer) player, this.spellType, this.castId, this.ticks);
+            PayloadHandler.setSpellTicks((ServerPlayer) player, this.spellType, this.castId, this.tickCount);
     }
 
     public int getRemainingTime() {
-        return this.getDuration() - this.ticks;
+        return this.getDuration() - this.tickCount;
     }
 
     /**
@@ -713,7 +713,11 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         var effects = SpellUtil.getSpellEffects(this.caster);
         float judgementFactor = this.getPath() == SpellPath.DIVINE ? effects.getJudgementFactor(this.negativeScaling.test(this.context)) : 1.0F;
         float healAmount = potency(amount * (1 + HEAL_MODIFIER * skills.getSpellLevel(spellType())) * judgementFactor);
+        double health = healEntity.getHealth();
         healEntity.heal(healAmount);
+
+        if (!this.level.isClientSide && this.caster instanceof ServerPlayer player)
+            SBTriggers.ENTITY_HEALED.get().trigger(player, healEntity, health, healEntity.getHealth());
     }
 
     public void awardMana(LivingEntity targetEntity, float amount) {
@@ -738,7 +742,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         if (livingEntity.level().isClientSide || checkForCounterMagic(livingEntity) && buffCategory == BuffCategory.HARMFUL) return;
         SkillBuff<T> skillBuff = new SkillBuff<>(skill.value(), buffCategory, buffObject, skillObject);
         var handler = SpellUtil.getSpellCaster(livingEntity);
-        handler.addSkillBuff(skillBuff, duration);
+        handler.addSkillBuff(skillBuff, this.caster, duration);
     }
 
     public <T> void addSkillBuff(LivingEntity livingEntity, Holder<Skill> skill, BuffCategory buffCategory, SkillBuff.BuffObject<T> buffObject, T skillObject) {
@@ -1033,16 +1037,17 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      */
     protected void shakeScreen(Player player, int duration, float intensity, float maxOffset, int freq) {
         if (player.level().isClientSide())
-            CameraEngine.getOrAssignEngine(player).shakeScreen(player.getRandom().nextInt(), duration, intensity, maxOffset, freq);
+            CameraEngine.getEngine(player).shakeScreen(player.getRandom().nextInt(), duration, intensity, maxOffset, freq);
     }
 
     /**
-     * Plays an animation for the player. Must be called server-side for all players to see the animation
+     * Plays an animation for the player. This is called server-side for all players to see the animation
      * @param player The player performing the animation
      * @param animationName The animation path location
      */
     protected void playAnimation(Player player, String animationName) {
-        PayloadHandler.playAnimation(player, animationName);
+        if (!player.level().isClientSide)
+            PayloadHandler.playAnimation(player, animationName);
     }
 
     protected void stopAnimation(Player player) {
@@ -1399,7 +1404,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
     @Override
     public double getTick(Object object) {
-        return this.ticks;
+        return this.tickCount;
     }
 
     @Override
@@ -1425,7 +1430,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         protected int duration = 10;
         protected int manaCost;
         protected float baseDamage;
-        protected int castTime = 1;
+        protected int castTime = 20;
         protected float xpModifier = 0.2F;
         protected BiPredicate<SpellContext, T> castPredicate = (context, abstractSpell) -> true;
         protected CastType castType = CastType.INSTANT;

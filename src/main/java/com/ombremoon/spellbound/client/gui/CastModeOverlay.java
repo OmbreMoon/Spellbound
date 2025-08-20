@@ -5,7 +5,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.init.SBAttributes;
-import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.util.RenderUtil;
@@ -67,7 +66,7 @@ public class CastModeOverlay implements LayeredDraw.Layer {
     }
 
     private void renderActiveSpells(GuiGraphics guiGraphics, SpellHandler handler) {
-        Set<AbstractSpell> spells = new ObjectOpenHashSet<>(handler.getActiveSpells().stream().filter(spell -> !spell.shouldRender(spell.getContext())).toList());
+        Set<AbstractSpell> spells = new ObjectOpenHashSet<>(handler.getActiveSpells().stream().filter(spell -> spell.shouldRender(spell.getContext())).toList());
         RenderSystem.enableBlend();
         int j1 = 0;
         List<Runnable> list = Lists.newArrayListWithExpectedSize(spells.size());
@@ -80,8 +79,8 @@ public class CastModeOverlay implements LayeredDraw.Layer {
             j1++;
             float f = 1.0F;
             guiGraphics.blit(BACKGROUND, i, j, 0, 0, 26, 26, 26, 26);
-            if (spell.getDuration() - spell.ticks < 200 && spell.getCastType() != AbstractSpell.CastType.CHANNEL) {
-                int k = spell.ticks;
+            if (spell.getDuration() - spell.tickCount < 200 && spell.getCastType() != AbstractSpell.CastType.CHANNEL) {
+                int k = spell.tickCount;
                 int l = 10 - k / 20;
                 f = Mth.clamp((float)k / 10.0F / 5.0F * 0.5F, 0.0F, 0.5F)
                         + Mth.cos((float)k * (float) Math.PI / 5.0F) * Mth.clamp((float)l / 10.0F * 0.25F, 0.0F, 0.25F);

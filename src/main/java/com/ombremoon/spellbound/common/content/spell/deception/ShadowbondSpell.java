@@ -52,8 +52,7 @@ public class ShadowbondSpell extends AnimatedSpell {
                     return !context.isRecast() && context.getTarget() instanceof LivingEntity target && !spell.checkForCounterMagic(target);
                 })
                 .fullRecast()
-                .skipEndOnRecast()
-                .castAnimation(context -> "final01");
+                .skipEndOnRecast();
     }
 
     private int firstTarget;

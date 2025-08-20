@@ -118,7 +118,7 @@ public interface ExtendedBlock {
     }
 
     default boolean canSurviveHelper(BlockState state, LevelReader level, BlockPos pos, Block thisBlock){
-        if (level.getBlockEntity(pos) instanceof ExtendedBlockEntity entity){
+        if (level.getBlockEntity(pos) instanceof ExtendedBlockEntity entity) {
             //survive logic
             boolean extraSurvive = fullBlockShape(entity.getCenter(), state).allMatch(blockPos -> extraSurviveRequirements(level, blockPos, state));
             return (allBlocksPresent(level, pos, state, thisBlock) || !entity.isPlaced) && extraSurvive;

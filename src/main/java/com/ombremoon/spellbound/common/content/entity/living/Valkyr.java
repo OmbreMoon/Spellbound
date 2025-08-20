@@ -61,7 +61,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class Valkyr extends SBLivingEntity implements NeutralMob {
-    protected static final String CONTROLLER = "controller";
     private static final EntityDataAccessor<Boolean> IN_FLIGHT = SynchedEntityData.defineId(Valkyr.class, EntityDataSerializers.BOOLEAN);
     private final PathNavigation groundNav;
     private final PathNavigation flightNav;

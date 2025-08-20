@@ -1,8 +1,6 @@
 package com.ombremoon.spellbound.common.init;
 
 import com.mojang.serialization.Codec;
-import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
-import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
@@ -73,6 +71,10 @@ public class SBData {
     //Misc
     public static final Supplier<AttachmentType<Integer>> RUNE_COLOR = ATTACHMENT_TYPES.register(
             "rune_color", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
+    public static final Supplier<AttachmentType<Integer>> INTERACT_HEAL_TARGET = ATTACHMENT_TYPES.register(
+            "interact_heal_target", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
+    public static final Supplier<AttachmentType<Integer>> EFFECT_HEAL_TARGET = ATTACHMENT_TYPES.register(
+            "effect_heal_target", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
 
     //Components
     public static final Supplier<DataComponentType<String>> SPELL = COMPONENT_TYPES.registerComponentType("spells",

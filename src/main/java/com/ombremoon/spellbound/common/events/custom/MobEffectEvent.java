@@ -36,7 +36,7 @@ public abstract class MobEffectEvent extends LivingEvent {
         }
     }
 
-    public static class Added extends net.neoforged.neoforge.event.entity.living.MobEffectEvent {
+    public static class Added extends MobEffectEvent {
         private final MobEffectInstance oldEffectInstance;
         private final Entity source;
 

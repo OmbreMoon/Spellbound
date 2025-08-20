@@ -47,5 +47,10 @@ public class ModDivineActionProvider extends DivineActionProvider {
                                 MinMaxBounds.Ints.exactly(5)))
                 .rewards(ActionRewards.Builder.spell(SBSpells.STORM_RIFT/*SIPHON*/.get()).addExperience(20))
                 .save(writer, CommonClass.customLocation("kill_villager"));
+        DivineAction.Builder.divineAction()
+                .addCriterion("decorate_shrine",
+                        SpecialTrigger.TriggerInstance.decoratedShrine())
+                .rewards(ActionRewards.Builder.spell(SBSpells.HEALING_BLOSSOM.get()).addExperience(20))
+                .save(writer, CommonClass.customLocation("decorate_shrine"));
     }
 }

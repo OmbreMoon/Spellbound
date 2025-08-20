@@ -23,6 +23,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -102,9 +103,9 @@ public class SolarRaySpell extends ChanneledSpell {
                 .manaCost(40)
                 .manaTickCost(10)
                 .baseDamage(3)
-                .castTime(18)
-                .castAnimation(context -> "name")
-                .channelAnimation("solar_ray1");
+                .castTime(23)
+                .castAnimation(context -> "solar_ray_cast")
+                .channelAnimation(context -> "solar_ray_channel");
     }
 
     public SolarRaySpell() {
@@ -189,7 +190,7 @@ public class SolarRaySpell extends ChanneledSpell {
         LivingEntity caster = context.getCaster();
         var handler = context.getSpellHandler();
         var skills = context.getSkills();
-        if (skills.hasSkill(SBSkills.OVERHEAT) && this.ticks == 100)
+        if (skills.hasSkill(SBSkills.OVERHEAT) && this.tickCount == 100)
             ((ISentinel)caster).triggerSentinelBox(OVERHEAT);
 
         SolarRay solarRay = getSolarRay(context);

@@ -17,34 +17,106 @@ import java.util.function.Supplier;
 public class SBBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Constants.MOD_ID);
 
-    public static final Supplier<UnnamedWorkbenchBlock> UNNAMED = registerBlock("unnamed_workbench", () -> new UnnamedWorkbenchBlock(blockProperties()
-            .noOcclusion()));
-    public static final Supplier<ArcanthusCropBlock> ARCANTHUS = registerBlock("arcanthus", () -> new ArcanthusCropBlock(blockProperties().
-            noOcclusion()));
-    public static final Supplier<DivineShrineBlock> DIVINE_SHRINE = registerBlock("divine_shrine", () -> new DivineShrineBlock(blockProperties()));
-    public static final Supplier<TransfigurationPedestalBlock> TRANSFIGURATION_PEDESTAL = registerBlock("transfiguration_pedestal", () -> new TransfigurationPedestalBlock(blockProperties()
-            .noOcclusion()));
-    public static final Supplier<TransfigurationDisplayBlock> TRANSFIGURATION_DISPLAY = registerBlock("transfiguration_display", () -> new TransfigurationDisplayBlock(blockProperties()
-            .noOcclusion()));
-    public static final Supplier<RuneBlock> RUNE = registerBlock("rune", () -> new RuneBlock(blockProperties()
-            .strength(0.1F)
-            .noCollission()
-            .pushReaction(PushReaction.DESTROY)
-            .noLootTable()
-            .noOcclusion()),
-            false);
-    public static final Supplier<SummonStoneBlock> SUMMON_STONE = registerBlock("summon_stone", () -> new SummonStoneBlock(blockProperties()
-            .lightLevel(state -> state.getValue(SummonStoneBlock.POWERED) ? 13 : 0)));
+    public static final Supplier<Block> ARCANE_WORKBENCH = registerBlock(
+            "unnamed_workbench", () -> new UnnamedWorkbenchBlock(
+                    blockProperties()
+                            .noOcclusion()
+            )
+    );
+    public static final Supplier<Block> ARCANTHUS = registerBlock(
+            "arcanthus", () -> new ArcanthusCropBlock(
+                    blockProperties()
+                            .noOcclusion()
+            )
+    );
+    public static final Supplier<Block> FROZEN_CRYSTAL_BLOCK = registerBlock(
+            "frozen_crystal_block", () -> new CrystalBlock(
+                    CrystalBlock.CrystalType.FROZEN, blockProperties()
+                        .mapColor(MapColor.COLOR_LIGHT_BLUE)
+                        .strength(1.5F)
+                        .sound(SoundType.AMETHYST)
+                        .requiresCorrectToolForDrops()
+            )
+    );
+    public static final Supplier<Block> BUDDING_FROZEN_CRYSTAL = registerBlock(
+            "budding_frozen_crystal", () -> new BuddingCrystalBlock(
+                    CrystalBlock.CrystalType.FROZEN, blockProperties()
+                    .mapColor(MapColor.COLOR_LIGHT_BLUE)
+                    .randomTicks()
+                    .strength(1.5F)
+                    .sound(SoundType.AMETHYST)
+                    .requiresCorrectToolForDrops()
+                    .pushReaction(PushReaction.DESTROY)
+            )
+    );
+    public static final Supplier<Block> FROZEN_CRYSTAL_CLUSTER = registerBlock(
+            "frozen_crystal_cluster", () -> new CrystalClusterBlock(
+                    CrystalBlock.CrystalType.FROZEN, 7.0F, 3.0F, blockProperties()
+                    .mapColor(MapColor.COLOR_LIGHT_BLUE)
+                    .randomTicks()
+                    .strength(1.5F)
+                    .sound(SoundType.AMETHYST)
+                    .requiresCorrectToolForDrops()
+                    .pushReaction(PushReaction.DESTROY)
+            )
+    );
+    public static final Supplier<Block> LARGE_FROZEN_CRYSTAL_BUD = registerBlock(
+            "large_frozen_crystal_bud", () -> new CrystalClusterBlock(
+                    CrystalBlock.CrystalType.FROZEN, 5.0F, 4.0F, BlockBehaviour.Properties.ofLegacyCopy(FROZEN_CRYSTAL_CLUSTER.get())
+            )
+    );
+    public static final Supplier<Block> MEDIUM_FROZEN_CRYSTAL_BUD = registerBlock(
+            "medium_frozen_crystal_bud", () -> new CrystalClusterBlock(
+                    CrystalBlock.CrystalType.FROZEN, 4.0F, 4.0F, BlockBehaviour.Properties.ofLegacyCopy(FROZEN_CRYSTAL_CLUSTER.get())
+            )
+    );
+    public static final Supplier<Block> SMALL_FROZEN_CRYSTAL_BUD = registerBlock(
+            "small_frozen_crystal_bud", () -> new CrystalClusterBlock(
+                    CrystalBlock.CrystalType.FROZEN, 3.0F, 4.0F, BlockBehaviour.Properties.ofLegacyCopy(FROZEN_CRYSTAL_CLUSTER.get())
+            )
+    );
+    public static final Supplier<Block> DIVINE_SHRINE = registerBlock("divine_shrine", () -> new DivineShrineBlock(blockProperties()));
+    public static final Supplier<Block> TRANSFIGURATION_PEDESTAL = registerBlock(
+            "transfiguration_pedestal", () -> new TransfigurationPedestalBlock(
+                    blockProperties()
+                        .noOcclusion()
+            )
+    );
+    public static final Supplier<Block> TRANSFIGURATION_DISPLAY = registerBlock(
+            "transfiguration_display", () -> new TransfigurationDisplayBlock(
+                    blockProperties()
+                        .noOcclusion()
+            )
+    );
+    public static final Supplier<Block> RUNE = registerBlock(
+            "rune", () -> new RuneBlock(
+                blockProperties()
+                    .strength(0.1F)
+                    .noCollission()
+                    .pushReaction(PushReaction.DESTROY)
+                    .noLootTable()
+                    .noOcclusion()
+            ), false
+    );
+    public static final Supplier<Block> SUMMON_STONE = registerBlock(
+            "summon_stone", () -> new SummonStoneBlock(
+                    blockProperties()
+                        .lightLevel(state -> state.getValue(SummonStoneBlock.POWERED) ? 13 : 0)
+            )
+    );
     public static final Supplier<Block> CRACKED_SUMMON_STONE = registerSimpleBlock("cracked_summon_stone");
-    public static final Supplier<SummonPortalBlock> SUMMON_PORTAL = registerBlock("summon_portal", () -> new SummonPortalBlock(blockProperties()
-            .mapColor(MapColor.COLOR_BLACK)
-            .noCollission()
-            .lightLevel(state -> 11)
-            .strength(-1.0F)
-            .sound(SoundType.GLASS)
-            .noLootTable()
-            .pushReaction(PushReaction.BLOCK)),
-            false);
+    public static final Supplier<Block> SUMMON_PORTAL = registerBlock(
+            "summon_portal", () -> new SummonPortalBlock(
+                    blockProperties()
+                        .mapColor(MapColor.COLOR_BLACK)
+                        .noCollission()
+                        .lightLevel(state -> 11)
+                        .strength(-1.0F)
+                        .sound(SoundType.GLASS)
+                        .noLootTable()
+                        .pushReaction(PushReaction.BLOCK)
+            ), false
+    );
     public static final Supplier<Block> UMBRAL_SLUDGE = registerSludge("umbral_sludge", true);
     public static final Supplier<Block> PENUMBRAL_SLUDGE = registerSludge("penumbral_sludge", false);
 //    public static final Supplier<Block> WOVEN_SHADE = registerSimpleBlock("woven_shade");
@@ -57,12 +129,13 @@ public class SBBlocks {
     public static final Supplier<Block> PINK_SPORE_SLAB = registerBlock("pink_spore_slab", () -> new SporeSlabBlock(blockProperties()));
     public static final Supplier<Block> RED_SPORE_BLOCK = registerBlock("red_spore_block", () -> new SporeBlock(blockProperties()));
     public static final Supplier<Block> RED_SPORE_SLAB = registerBlock("red_spore_slab", () -> new SporeSlabBlock(blockProperties()));
-    public static final Supplier<Block> MYCELIUM_CARPET = registerBlock("mycelium_carpet", () -> new MyceliumCarpetBlock(blockProperties()
-            .mapColor(MapColor.COLOR_PURPLE)
-            .strength(0.1F)
-            .sound(SoundType.MOSS_CARPET)
-            .pushReaction(PushReaction.DESTROY)
-            .randomTicks()));
+    public static final Supplier<Block> MYCELIUM_CARPET = registerBlock(
+            "mycelium_carpet", () -> new MyceliumCarpetBlock(blockProperties()
+                        .mapColor(MapColor.COLOR_PURPLE)
+                        .strength(0.1F)
+                        .sound(SoundType.MOSS_CARPET)
+                        .pushReaction(PushReaction.DESTROY)
+                        .randomTicks()));
 
     public static void registerSummonStone(String name, String spell) {
         registerBlock(name, () -> new SummonStoneBlock(CommonClass.customLocation(spell), blockProperties()));

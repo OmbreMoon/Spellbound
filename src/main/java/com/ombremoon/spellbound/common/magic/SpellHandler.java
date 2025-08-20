@@ -25,13 +25,16 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.slf4j.Logger;
@@ -66,8 +69,10 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     private boolean channelling;
     private int stationaryTicks;
     private float zoomModifier = 1.0F;
-    public boolean dirty;
     private boolean initialized;
+
+    //TEMPORARY
+    public Vec3 handPos;
 
     /**
      * Syncs spells handler data from the server to the client.
@@ -136,6 +141,9 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
 
         this.tickSkillBuffs();
         this.skillHolder.getCooldowns().tick();
+
+        if (handPos != null)
+            this.caster.level().addParticle(ParticleTypes.SNOWFLAKE, handPos.x, handPos.y, handPos.z, 0, 0, 0);
 
         if (!this.caster.level().isClientSide && this.caster.tickCount % 5 == 0) {
 
@@ -391,13 +399,13 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
         this.currentlyCastingSpell = abstractSpell;
     }
 
-    public void addSkillBuff(SkillBuff<?> skillBuff, int ticks) {
+    public void addSkillBuff(SkillBuff<?> skillBuff, Entity source, int ticks) {
         this.removeSkillBuff(skillBuff);
         int duration = this.caster.tickCount + ticks;
         if (ticks == -1)
             duration = -1;
 
-        skillBuff.addBuff(this.caster);
+        skillBuff.addBuff(source, this.caster);
         this.skillBuffs.put(skillBuff, duration);
 
         if (this.caster instanceof Player player)
@@ -595,11 +603,14 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     }
 
     public PlayerDivineActions getDivineActions() {
-        if (!(this.caster instanceof Player)) return null;
+        if (!(this.caster instanceof Player))
+            return null;
+
         if (this.caster.level().isClientSide) {
             warn("Tried to retrieve Divine Actions from the client, but they do not exist.");
             return null;
         }
+
         if (this.divineActions == null)
             this.divineActions = new PlayerDivineActions((ServerPlayer) this.caster);
 

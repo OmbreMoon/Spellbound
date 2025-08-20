@@ -38,7 +38,7 @@ public record DivineAction(ActionRewards rewards, Map<String, ActionCriterion<?>
     public static final Codec<Optional<WithConditions<DivineAction>>> CONDITIONAL_CODEC = ConditionalOps.createConditionalCodecWithConditions(CODEC);
 
     private static DataResult<DivineAction> validate(DivineAction action) {
-        return action.requirements().validate(action.criteria().keySet()).map(p_311382_ -> action);
+        return action.requirements().validate(action.criteria().keySet()).map(requirements -> action);
     }
 
     private void write(RegistryFriendlyByteBuf buffer) {

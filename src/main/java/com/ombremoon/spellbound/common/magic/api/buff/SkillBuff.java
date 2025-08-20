@@ -11,8 +11,10 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
+import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -27,14 +29,14 @@ public record SkillBuff<T>(Skill skill, BuffCategory category, BuffObject<T> buf
 
     public static final BuffObject<MobEffectInstance> MOB_EFFECT = registerBuffObject(
             "mob_effect",
-            LivingEntity::addEffect,
+            (source, livingEntity, effectInstance) -> livingEntity.addEffect(effectInstance, source),
             (livingEntity, mobEffectInstance) -> livingEntity.removeEffect(mobEffectInstance.getEffect()),
             (effectInstance, effectInstance2) -> effectInstance.is(effectInstance2.getEffect()),
             MobEffectInstance.STREAM_CODEC);
 
     public static final BuffObject<ModifierData> ATTRIBUTE_MODIFIER = registerBuffObject(
             "attribute_modifier",
-            (livingEntity, modifierData) -> {
+            (source, livingEntity, modifierData) -> {
                 var instance = livingEntity.getAttribute(modifierData.attribute());
                 if (instance != null && !instance.hasModifier(modifierData.attributeModifier().id()))
                     instance.addTransientModifier(modifierData.attributeModifier());
@@ -49,7 +51,7 @@ public record SkillBuff<T>(Skill skill, BuffCategory category, BuffObject<T> buf
 
     public static final BuffObject<SpellModifier> SPELL_MODIFIER = registerBuffObject(
             "spell_modifier",
-            (livingEntity, spellModifier) -> {
+            (source, livingEntity, spellModifier) -> {
                 var skills = SpellUtil.getSkills(livingEntity);
                 skills.addModifierWithExpiry(spellModifier);
             },
@@ -62,7 +64,7 @@ public record SkillBuff<T>(Skill skill, BuffCategory category, BuffObject<T> buf
 
     public static final BuffObject<ResourceLocation> EVENT = registerBuffObject(
             "event",
-            (livingEntity, resourceLocation) -> {
+            (source, livingEntity, resourceLocation) -> {
             },
             (livingEntity, resourceLocation) -> {
                 var handler = SpellUtil.getSpellCaster(livingEntity);
@@ -87,8 +89,7 @@ public record SkillBuff<T>(Skill skill, BuffCategory category, BuffObject<T> buf
     }
 
     private static <T> BuffObject<T> registerBuffObject(String name,
-                                                        BiConsumer<LivingEntity,
-                                                                T> addObject,
+                                                        TriConsumer<Entity, LivingEntity, T> addObject,
                                                         BiConsumer<LivingEntity, T> removeObject,
                                                         BiPredicate<T, T> equalCondition,
                                                         StreamCodec<? super RegistryFriendlyByteBuf, T> objectStreamCodec) {
@@ -97,9 +98,9 @@ public record SkillBuff<T>(Skill skill, BuffCategory category, BuffObject<T> buf
         return object;
     }
 
-    public void addBuff(LivingEntity livingEntity) {
+    public void addBuff(Entity source, LivingEntity livingEntity) {
         if (this.buffObject != null)
-            this.buffObject.addObject().accept(livingEntity, this.object);
+            this.buffObject.addObject().accept(source, livingEntity, this.object);
     }
 
     public void removeBuff(LivingEntity livingEntity) {
@@ -137,7 +138,7 @@ public record SkillBuff<T>(Skill skill, BuffCategory category, BuffObject<T> buf
 
     public record BuffObject<T>(
             String name,
-            BiConsumer<LivingEntity, T> addObject,
+            TriConsumer<Entity, LivingEntity, T> addObject,
             BiConsumer<LivingEntity, T> removeObject,
             BiPredicate<T, T> equalCondition,
             StreamCodec<? super RegistryFriendlyByteBuf, T> objectStreamCodec) {

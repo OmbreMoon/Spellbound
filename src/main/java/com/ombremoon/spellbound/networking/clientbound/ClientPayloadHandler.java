@@ -4,7 +4,6 @@ import com.ombremoon.spellbound.client.AnimationHelper;
 import com.ombremoon.spellbound.client.event.SpellCastEvents;
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormData;
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
-import com.ombremoon.spellbound.common.content.world.multiblock.Multiblock;
 import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockManager;
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
@@ -14,7 +13,6 @@ import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.serverbound.ChargeOrChannelPayload;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -74,7 +72,8 @@ public class ClientPayloadHandler {
             if (entity instanceof LivingEntity livingEntity) {
                 var caster = SpellUtil.getSpellCaster(livingEntity);
                 AbstractSpell spell = caster.getSpell(payload.spellType(), payload.castId());
-                spell.ticks = payload.ticks();
+                if (spell != null)
+                    spell.tickCount = payload.ticks();
             }
         });
     }

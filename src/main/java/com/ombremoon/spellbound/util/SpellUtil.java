@@ -70,7 +70,6 @@ public class SpellUtil {
         var spellType = findNextSpellInList(handler.getEquippedSpells(), activeSpell);
         if (spellType != activeSpell) {
             handler.setSelectedSpell(spellType);
-            handler.dirty = true;
         }
     }
 
