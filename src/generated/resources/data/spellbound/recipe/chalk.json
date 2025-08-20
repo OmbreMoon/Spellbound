@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "minecraft:calcite"
+    },
+    "M": {
+      "item": "spellbound:magic_essence"
+    }
+  },
+  "pattern": [
+    "C  ",
+    " M ",
+    "  C"
+  ],
+  "result": {
+    "count": 1,
+    "id": "spellbound:chalk"
+  }
+}

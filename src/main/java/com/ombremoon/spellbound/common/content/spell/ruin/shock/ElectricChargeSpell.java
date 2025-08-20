@@ -103,7 +103,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
                 this.discharging = true;
                 if (handler.isChargingOrChannelling()) {
                     incrementTick();
-                    if (!level.isClientSide && this.ticks % 20 == 0)
+                    if (!level.isClientSide && this.tickCount % 20 == 0)
                         drainMana(context.getCaster(), 3);
                 } else {
                     for (Integer entityId : this.entityIds) {

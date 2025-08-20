@@ -1,13 +1,17 @@
 package com.ombremoon.spellbound.common.magic.acquisition.divine;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.ombremoon.spellbound.common.content.block.DivineShrineBlock;
 import com.ombremoon.spellbound.common.content.item.SpellTomeItem;
 import com.ombremoon.spellbound.common.init.SBBlocks;
 import com.ombremoon.spellbound.common.init.SBSpells;
+import com.ombremoon.spellbound.common.magic.acquisition.transfiguration.RitualHelper;
 import com.ombremoon.spellbound.common.magic.api.SpellType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -22,6 +26,7 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -46,7 +51,7 @@ public record ActionRewards(int experience, int judgement, List<ResourceLocation
                 .create(LootContextParamSets.ADVANCEMENT_REWARD);
         boolean flag = false;
 
-        BlockState blockState = this.getNearestShrine(player);
+        Pair<BlockPos, BlockState> blockState = DivineShrineBlock.getNearestShrine(player);
         if (blockState != null) {
             for (var key : this.loot) {
                 for (ItemStack stack : player.server.reloadableRegistries().getLootTable(key).getRandomItems(lootParams)) {
@@ -59,8 +64,9 @@ public record ActionRewards(int experience, int judgement, List<ResourceLocation
                 SpellType<?> spellType = SBSpells.REGISTRY.get(location);
                 if (spellType != null) {
                     ItemStack itemStack = SpellTomeItem.createWithSpell(spellType);
-                    if (this.addOrDropItem(player, itemStack))
-                        flag = true;
+                    RitualHelper.createItem(player.level(), Vec3.atBottomCenterOf(blockState.getFirst().above()), itemStack);
+//                    if (this.addOrDropItem(player, itemStack))
+//                        flag = true;
                 }
             }
 
@@ -92,26 +98,6 @@ public record ActionRewards(int experience, int judgement, List<ResourceLocation
             }
             return false;
         }
-    }
-
-    @Nullable
-    private BlockState getNearestShrine(ServerPlayer player) {
-        BlockPos pos = player.getOnPos();
-        int x = pos.getX();
-        int y = pos.getY();
-        int z = pos.getZ();
-        BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
-        for (int i = x - 15; i <= x + 15; i++) {
-            for (int j = y - 7; j <= y + 7; j++) {
-                for (int k = z - 15; k <= z + 15; k++) {
-                    mutableBlockPos.set(i, j, k);
-                    BlockState blockState = player.level().getBlockState(mutableBlockPos);
-                    if (blockState.is(SBBlocks.SANDSTONE_DIVINE_SHRINE.get()))
-                        return blockState;
-                }
-            }
-        }
-        return null;
     }
 
     public static class Builder {

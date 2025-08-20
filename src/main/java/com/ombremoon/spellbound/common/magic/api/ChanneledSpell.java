@@ -15,7 +15,7 @@ import java.util.function.Predicate;
 
 public abstract class ChanneledSpell extends AnimatedSpell {
     protected int manaTickCost;
-    protected String channelAnimation;
+    protected Function<SpellContext, String> channelAnimation;
 
     public static <T extends ChanneledSpell> Builder<T> createChannelledSpellBuilder(Class<T> spellClass) {
         return new Builder<>();
@@ -37,9 +37,9 @@ public abstract class ChanneledSpell extends AnimatedSpell {
         var handler = SpellUtil.getSpellCaster(caster);
         handler.setChargingOrChannelling(true);
 
-        if (!context.getLevel().isClientSide && !this.channelAnimation.isEmpty() && context.getCaster() instanceof Player player) {
-            playAnimation(player, this.channelAnimation);
-        }
+        String animation = this.channelAnimation.apply(context);
+        if (!animation.isEmpty() && context.getCaster() instanceof Player player)
+            playAnimation(player, animation);
     }
 
     @Override
@@ -48,7 +48,7 @@ public abstract class ChanneledSpell extends AnimatedSpell {
         LivingEntity caster = context.getCaster();
         var handler = SpellUtil.getSpellCaster(caster);
         if (!caster.level().isClientSide) {
-            if ((this.ticks > 0 && this.ticks % 20 == 0 && !handler.consumeMana(this.manaTickCost, true)) || !handler.isChargingOrChannelling()) {
+            if ((this.tickCount > 0 && this.tickCount % 20 == 0 && !handler.consumeMana(this.manaTickCost, true)) || !handler.isChargingOrChannelling()) {
                 this.endSpell();
             }
         }
@@ -59,14 +59,18 @@ public abstract class ChanneledSpell extends AnimatedSpell {
         LivingEntity caster = context.getCaster();
         var handler = SpellUtil.getSpellCaster(caster);
         handler.setChargingOrChannelling(false);
-        if (caster.level().isClientSide)
+        if (caster.level().isClientSide) {
             KeyBinds.getSpellCastMapping().setDown(false);
-        //Stop Channel Anim
+            String animation = this.channelAnimation.apply(context);
+            if (!animation.isEmpty() && context.getCaster() instanceof Player player)
+                //Fade to fail animation
+                stopAnimation(player);
+        }
     }
 
     public static class Builder<T extends ChanneledSpell> extends AnimatedSpell.Builder<T> {
         protected int manaTickCost;
-        protected String channelAnimation;
+        protected Function<SpellContext, String> channelAnimation;
 
         public Builder() {
             this.castType = CastType.CHANNEL;
@@ -107,7 +111,7 @@ public abstract class ChanneledSpell extends AnimatedSpell {
             return this;
         }
 
-        public Builder<T> channelAnimation(String channelAnimation) {
+        public Builder<T> channelAnimation(Function<SpellContext, String> channelAnimation) {
             this.channelAnimation = channelAnimation;
             return this;
         }

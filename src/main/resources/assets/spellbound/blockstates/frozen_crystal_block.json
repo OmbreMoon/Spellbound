@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "spellbound:block/frozen_crystal_block"
+    }
+  }
+}

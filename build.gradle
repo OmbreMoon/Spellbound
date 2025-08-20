@@ -98,6 +98,17 @@ neoForge {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
     maven {
         url "https://cursemaven.com"
         content {
@@ -119,6 +130,15 @@ repositories {
         name = "SmartBrainLib (SBL) Maven Repo"
         url = "https://dl.cloudsmith.io/public/tslat/sbl/maven/"
     }
+    maven { url = "https://maven.firstdarkdev.xyz/snapshots" }
+    maven {
+        name = "Jared's maven"
+        url = "https://maven.blamejared.com/"
+    }
+    maven {
+        name = "TerraformersMC"
+        url = "https://maven.terraformersmc.com/"
+    }
     flatDir {
         dir 'libs'
     }
@@ -129,8 +149,19 @@ dependencies {
     implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
     implementation "net.tslat.smartbrainlib:SmartBrainLib-neoforge-${project.minecraft_version}:${project.sbl_version}"
     implementation("local:sentinellib:1.2.0-test")
-//    implementation("local:sentinellib:1.1.6")
+
+    runtimeOnly "maven.modrinth:sodium:mc1.21.1-0.6.13-neoforge"
+    runtimeOnly "maven.modrinth:iris:1.8.12+1.21.1-neoforge"
+
+    compileOnly "mezz.jei:jei-1.21.1-neoforge-api:19.22.1.316"
+    runtimeOnly "mezz.jei:jei-1.21.1-neoforge:19.22.1.316"
+    compileOnly "dev.emi:emi-neoforge:1.1.22+1.21.1:api"
+    runtimeOnly "dev.emi:emi-neoforge:1.1.22+1.21.1"
+    jarJar(implementation("com.lowdragmc.photon:photon-neoforge-1.21.1:2.0.5"))
+    jarJar(implementation("com.lowdragmc.ldlib2:ldlib2-neoforge-1.21.1:2.0.3"))
 }
+
+jarJar.enabled(true)
 
 tasks.named('jarJar') {
     // ...

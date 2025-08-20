@@ -5,11 +5,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.common.damagesource.DamageContainer;
 import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
 
-public class BlockEvent extends SpellEvent {
+public class LivingBlockEvent extends SpellEvent {
     private final LivingShieldBlockEvent shieldBlockEvent;
     private final DamageContainer container;
 
-    public BlockEvent(LivingEntity caster, LivingShieldBlockEvent shieldBlockEvent) {
+    public LivingBlockEvent(LivingEntity caster, LivingShieldBlockEvent shieldBlockEvent) {
         super(caster, shieldBlockEvent);
         this.shieldBlockEvent = shieldBlockEvent;
         this.container = this.shieldBlockEvent.getDamageContainer();

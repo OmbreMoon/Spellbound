@@ -42,6 +42,7 @@ public class StrideSpell extends AnimatedSpell {
     private BlockPos currentPos;
     private int movementTicks;
     private Entity mount;
+    private float moveDist;
 
     public StrideSpell() {
         super(SBSpells.STRIDE.get(), createStrideBuilder());
@@ -87,7 +88,11 @@ public class StrideSpell extends AnimatedSpell {
         }
 
         if (!level.isClientSide) {
-            if (skills.hasSkill(SBSkills.QUICK_SPRINT) && this.ticks >= 200) {
+//            if (caster instanceof Player player) {
+//                playAnimation(player, "base");
+//            }
+
+            if (skills.hasSkill(SBSkills.QUICK_SPRINT) && this.tickCount >= 200) {
                 if (hasAttributeModifier(caster, Attributes.MOVEMENT_SPEED, QUICK_SPRINT)) {
                     removeSkillBuff(caster, SBSkills.QUICK_SPRINT);
                 } else if (caster.getVehicle() instanceof LivingEntity vehicle && hasAttributeModifier(vehicle, Attributes.MOVEMENT_SPEED, QUICK_SPRINT)) {
@@ -132,7 +137,7 @@ public class StrideSpell extends AnimatedSpell {
             }
 
             if (skills.hasSkill(SBSkills.MOMENTUM)) {
-                if (this.ticks % 4 == 0) {
+                if (this.tickCount % 4 == 0) {
                     if (!this.currentPos.equals(caster.getOnPos())) {
                         this.movementTicks += 4;
                         this.currentPos = caster.getOnPos();
@@ -162,6 +167,15 @@ public class StrideSpell extends AnimatedSpell {
         removeSkillBuff(caster, SBSkills.MOMENTUM);
         if (this.mount != null)
             removeMovementBenefits(this.mount);
+    }
+
+    private boolean isMoving(LivingEntity caster) {
+        if (caster.moveDist != this.moveDist) {
+            this.moveDist = caster.moveDist;
+            return true;
+        }
+
+        return false;
     }
 
     private void applyMovementBenefits(Entity entity, SkillHolder skills) {

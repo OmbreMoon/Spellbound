@@ -24,6 +24,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.neoforged.neoforge.event.EventHooks;
 
 import java.util.List;
 import java.util.Set;
@@ -84,7 +85,7 @@ public class WildMushroomSpell extends AnimatedSpell {
             WildMushroom mushroom = this.getMushroom(context);
             if (mushroom != null) {
                 int interval = skills.hasSkill(SBSkills.HASTENED_GROWTH) ? 40 : 60;
-                if (this.ticks % interval == 0) {
+                if (this.tickCount % interval == 0) {
                     float damage = this.getBaseDamage();
                     damage *= (float) (1.0 + 0.1F * context.getActiveSpells());
                     List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, mushroom.getBoundingBox().inflate(skills.hasSkill(SBSkills.VILE_INFLUENCE) ? 5 : 3));
@@ -144,7 +145,7 @@ public class WildMushroomSpell extends AnimatedSpell {
                     }
                 }
 
-                if (level.random.nextFloat() < 0.15F)
+                if (level.random.nextFloat() < 0.15F && EventHooks.canEntityGrief(level, mushroom))
                     this.spreadSpores(level, caster, mushroom.blockPosition(), skills.hasSkill(SBSkills.VILE_INFLUENCE) ? 6 : 4);
             }
         }

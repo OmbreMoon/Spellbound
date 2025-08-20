@@ -1,10 +1,7 @@
 package com.ombremoon.spellbound.common.init;
 
-import com.ombremoon.spellbound.common.content.entity.living.DungeonShadow;
+import com.ombremoon.spellbound.common.content.entity.living.*;
 import com.ombremoon.spellbound.main.Constants;
-import com.ombremoon.spellbound.common.content.entity.living.LivingShadow;
-import com.ombremoon.spellbound.common.content.entity.living.SpellBrokerEntity;
-import com.ombremoon.spellbound.common.content.entity.living.Valkyr;
 import com.ombremoon.spellbound.common.content.entity.spell.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.*;
@@ -21,6 +18,8 @@ public class SBEntities {
     public static final List<Supplier<? extends EntityType<?>>> MOBS = new ArrayList<>();
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister
             .create(Registries.ENTITY_TYPE, Constants.MOD_ID);
+
+    public static final Supplier<EntityType<TestDummy>> TEST_DUMMY = registerMob("test_dummy", TestDummy::new, MobCategory.MISC, 0.6F, 1.8F, 8, TestDummy::createTestDummyAttributes);
 
     public static final Supplier<EntityType<SpellBrokerEntity>> SPELL_BROKER = registerMob("spell_broker", SpellBrokerEntity::new, MobCategory.CREATURE, 1f, 1f, 8, SpellBrokerEntity::createAttributes);
 

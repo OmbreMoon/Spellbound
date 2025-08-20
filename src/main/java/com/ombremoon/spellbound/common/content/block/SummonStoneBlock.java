@@ -130,7 +130,6 @@ public class SummonStoneBlock extends Block {
             } else {
                 BlockState blockState = state.setValue(POWERED, Boolean.TRUE);
                 level.setBlock(pos, blockState, 3);
-                level.updateNeighbourForOutputSignal(pos, SBBlocks.SUMMON_STONE.get());
             }
 
             level.levelEvent(1503, pos, 0);

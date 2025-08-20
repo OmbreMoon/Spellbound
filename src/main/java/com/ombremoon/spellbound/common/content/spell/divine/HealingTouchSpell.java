@@ -9,7 +9,6 @@ import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.events.DamageEvent;
 import com.ombremoon.spellbound.util.SpellUtil;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -93,7 +92,7 @@ public class HealingTouchSpell extends AnimatedSpell {
 
     @Override
     protected boolean shouldTickSpellEffect(SpellContext context) {
-        return ticks % 20 == 0;
+        return tickCount % 20 == 0;
     }
 
     private void onDamagePost(DamageEvent.Post event) {

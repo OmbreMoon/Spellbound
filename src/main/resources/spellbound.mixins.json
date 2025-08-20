@@ -6,7 +6,9 @@
   "refmap": "spellbound.refmap.json",
   "mixins": [
     "DuckRangedAttribute",
+    "HealOrHarmMobEffectMixin",
     "LivingEntityMixin",
+    "MobMixin",
     "ServerboundSetStructureBlockPacketMixin",
     "ServerLevelMixin",
     "ServerPlayerMixin",
@@ -17,6 +19,7 @@
     "ClientLevelMixin",
     "EffectRenderingInventoryScreenMixin",
     "GameRendererMixin",
+    "PlayerModelMixin",
     "LevelRendererMixin",
     "LivingEntityRendererMixin",
     "MinecraftMixin",

@@ -42,7 +42,7 @@ public class TransfigurationDisplayBlock extends BaseEntityBlock {
                 return InteractionResult.CONSUME;
             } else {
                 ItemStack itemstack = display.currentItem;
-                if (player.addItem(itemstack)) {
+                if (!player.addItem(itemstack)) {
                     player.drop(itemstack, false);
                 }
 

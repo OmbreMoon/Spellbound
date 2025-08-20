@@ -1,16 +1,44 @@
 package com.ombremoon.spellbound.common.magic.acquisition.divine;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+import com.ombremoon.spellbound.common.content.block.DivineShrineBlock;
+import com.ombremoon.spellbound.common.events.custom.MobEffectEvent;
+import com.ombremoon.spellbound.common.events.custom.MobInteractEvent;
+import com.ombremoon.spellbound.common.init.SBBlocks;
+import com.ombremoon.spellbound.common.init.SBData;
+import com.ombremoon.spellbound.common.init.SBTags;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.init.SBTriggers;
 import com.ombremoon.spellbound.util.Loggable;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.advancements.CriterionTriggerInstance;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.HealOrHarmMobEffect;
+import net.minecraft.world.effect.InstantenousMobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -20,7 +48,12 @@ public class PlayerDivineActions implements Loggable {
     private final Map<ActionHolder, ActionProgress> progress = new LinkedHashMap<>();
     private final Map<ActionHolder, Integer> recentActions = new Object2IntOpenHashMap<>();
     private final ServerPlayer player;
-
+    private int undeadKilled = 0;
+    private int undeadKillTick;
+    private int villagersKilled = 0;
+    private int villagerKillTick;
+    private final Multimap<BlockPos, Block> shrineDecorations = ArrayListMultimap.create();
+    private Entity healTarget;
 
     public PlayerDivineActions(ServerPlayer player) {
         this.player = player;
@@ -74,6 +107,16 @@ public class PlayerDivineActions implements Loggable {
         return flag;
     }
 
+    public void resetProgress(ActionHolder action) {
+        var progress = this.getOrStartProgress(action);
+        this.unregisterListeners(action);
+        action.value().rewards().grant(this.player);
+        this.recentActions.put(action, this.player.tickCount + 600);
+        for (String s : progress.getCompletedCriteria()) {
+            this.revoke(action, s);
+        }
+    }
+
     private void registerListeners(ActionHolder action) {
         ActionProgress progress = this.getOrStartProgress(action);
         if (!progress.isDone()) {
@@ -124,5 +167,143 @@ public class PlayerDivineActions implements Loggable {
             var actions = handler.getDivineActions();
             actions.reload();
         }
+    }
+
+    @SubscribeEvent
+    public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
+        LevelAccessor accessor = event.getLevel();
+        Entity entity = event.getEntity();
+        BlockState state = event.getPlacedBlock();
+        BlockPos blockPos = event.getPos();
+        if (accessor instanceof Level level && !level.isClientSide && entity instanceof ServerPlayer player && state.is(BlockTags.FLOWERS)) {
+            var actions = SpellUtil.getSpellCaster(player).getDivineActions();
+            var shrine = DivineShrineBlock.getNearestShrine(level, blockPos);
+            if (shrine != null) {
+                BlockPos shrinePos = shrine.getFirst();
+                var decorations = actions.shrineDecorations.get(shrinePos);
+                if (decorations.isEmpty() || !decorations.contains(state.getBlock())) {
+                    actions.shrineDecorations.put(shrinePos, state.getBlock());
+                    decorations = actions.shrineDecorations.get(shrinePos);
+                }
+
+                if (decorations.size() >= 18) {
+                    SBTriggers.DECORATED_SHRINE.get().trigger(player);
+                    actions.shrineDecorations.removeAll(shrinePos);
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onBlockBreak(BlockEvent.BreakEvent event) {
+        LevelAccessor accessor = event.getLevel();
+        Player player = event.getPlayer();
+        BlockState state = event.getState();
+        BlockPos blockPos = event.getPos();
+        if (accessor instanceof Level level && !level.isClientSide) {
+            var actions = SpellUtil.getSpellCaster(player).getDivineActions();
+            if (state.is(BlockTags.FLOWERS)) {
+                var shrine = DivineShrineBlock.getNearestShrine(level, blockPos);
+                if (shrine != null) {
+                    BlockPos shrinePos = shrine.getFirst();
+                    var decorations = actions.shrineDecorations.get(shrinePos);
+                    if (!decorations.isEmpty())
+                        actions.shrineDecorations.removeAll(shrinePos);
+                }
+            } else if (state.is(SBBlocks.DIVINE_SHRINE.get()) && actions.shrineDecorations.containsKey(blockPos)) {
+                actions.shrineDecorations.removeAll(blockPos);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLivingDeath(LivingDeathEvent event) {
+        LivingEntity livingEntity = event.getEntity();
+        DamageSource source = event.getSource();
+        if (livingEntity.level().isClientSide)
+            return;
+
+        if (event.getSource().getEntity() instanceof ServerPlayer player) {
+            PlayerDivineActions actions = SpellUtil.getSpellCaster(player).getDivineActions();
+            SBTriggers.PLAYER_KILL.get().trigger(player, livingEntity, source, 0);
+
+            if (livingEntity.getType().is(EntityTypeTags.UNDEAD)) {
+                if (player.tickCount > actions.undeadKillTick + 200 || actions.undeadKilled > 10) {
+                    actions.undeadKilled = 1;
+                } else {
+                    actions.undeadKilled++;
+                }
+
+                actions.undeadKillTick = player.tickCount;
+                SBTriggers.KILL_UNDEAD.get().trigger(player, livingEntity, source, actions.undeadKilled);
+            }
+
+            if (livingEntity instanceof Villager) {
+                if (player.tickCount > actions.villagerKillTick + 200 || actions.villagersKilled > 5) {
+                    actions.villagersKilled = 1;
+                } else {
+                    actions.villagersKilled++;
+                }
+
+                actions.villagerKillTick = player.tickCount;
+                SBTriggers.KILL_VILLAGER.get().trigger(player, livingEntity, source, actions.villagersKilled);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onEffectAdded(MobEffectEvent.Added event) {
+        LivingEntity livingEntity = event.getEntity();
+        Level level = livingEntity.level();
+        Entity entity = event.getEffectSource();
+        MobEffectInstance instance = event.getEffectInstance();
+        if (!level.isClientSide && entity instanceof Player player && instance != null && instance.getEffect().is(SBTags.MobEffects.HEALING))
+            livingEntity.setData(SBData.EFFECT_HEAL_TARGET, player.getId());
+    }
+
+    @SubscribeEvent
+    public static void onEffectRemoved(MobEffectEvent.Remove event) {
+        LivingEntity livingEntity = event.getEntity();
+        Level level = livingEntity.level();
+        MobEffectInstance instance = event.getEffectInstance();
+        if (!level.isClientSide && instance != null && instance.getEffect().is(SBTags.MobEffects.HEALING))
+            livingEntity.removeData(SBData.EFFECT_HEAL_TARGET);
+    }
+
+    @SubscribeEvent
+    public static void onEntityInteract(MobInteractEvent.Pre event) {
+        Player player = event.getEntity();
+        Level level = player.level();
+        Mob mob = event.getMob();
+        if (!level.isClientSide) {
+            mob.setData(SBData.INTERACT_HEAL_TARGET, player.getId());
+        }
+    }
+
+    @SubscribeEvent
+    public static void onEntityHeal(LivingHealEvent event) {
+        LivingEntity livingEntity = event.getEntity();
+        Level level = livingEntity.level();
+        if (!level.isClientSide) {
+            float f = livingEntity.getHealth();
+            Entity entity = level.getEntity(livingEntity.getData(SBData.INTERACT_HEAL_TARGET));
+            if (entity instanceof ServerPlayer player) {
+                SBTriggers.ENTITY_HEALED.get().trigger(player, livingEntity, f, Mth.clamp(f + event.getAmount(), 0, livingEntity.getMaxHealth()));
+            }
+
+            Entity entity1 = level.getEntity(livingEntity.getData(SBData.EFFECT_HEAL_TARGET));
+            if (entity1 instanceof ServerPlayer player) {
+                SBTriggers.ENTITY_HEALED.get().trigger(player, livingEntity, f, Mth.clamp(f + event.getAmount(), 0, livingEntity.getMaxHealth()));
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onEntityInteract(MobInteractEvent.Post event) {
+        Player player = event.getEntity();
+        Level level = player.level();
+        Mob mob = event.getMob();
+        if (!level.isClientSide)
+            mob.setData(SBData.INTERACT_HEAL_TARGET, 0);
     }
 }

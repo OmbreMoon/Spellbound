@@ -33,6 +33,11 @@ public class DebugItem extends Item implements Loggable {
     }
 
     @Override
+    public void onCraftedBy(ItemStack stack, Level level, Player player) {
+        super.onCraftedBy(stack, level, player);
+    }
+
+    @Override
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
         Player player = context.getPlayer();

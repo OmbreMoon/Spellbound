@@ -64,4 +64,20 @@ public class DivineShrineBlock extends AbstractExtendedBlock implements Previewa
         return shape;
     }
 
+    @Nullable
+    public static Pair<BlockPos, BlockState> getNearestShrine(Player player) {
+        return getNearestShrine(player.level(), player.getOnPos());
+    }
+
+    @Nullable
+    public static Pair<BlockPos, BlockState> getNearestShrine(Level level, BlockPos blockPos) {
+        for (BlockPos pos : BlockPos.betweenClosed(blockPos.subtract(new Vec3i(7, 7, 7)), blockPos.offset(new Vec3i(7, 7, 7)))) {
+            BlockState state = level.getBlockState(pos);
+
+            if (state.is(SBBlocks.DIVINE_SHRINE.get()))
+                return Pair.of(pos, state);
+        }
+
+        return null;
+    }
 }

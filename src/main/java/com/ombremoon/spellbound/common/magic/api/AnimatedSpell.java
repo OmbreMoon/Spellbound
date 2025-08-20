@@ -29,7 +29,7 @@ public abstract class AnimatedSpell extends AbstractSpell {
     public void onCastStart(SpellContext context) {
         super.onCastStart(context);
         String animation = this.castAnimation.apply(context);
-        if (!context.getLevel().isClientSide && !animation.isEmpty() && context.getCaster() instanceof Player player)
+        if (!animation.isEmpty() && context.getCaster() instanceof Player player)
             playAnimation(player, animation);
 
     }
@@ -44,7 +44,7 @@ public abstract class AnimatedSpell extends AbstractSpell {
     }
 
     public static class Builder<T extends AnimatedSpell> extends AbstractSpell.Builder<T> {
-        protected Function<SpellContext, String> castAnimation = context -> "";
+        protected Function<SpellContext, String> castAnimation = context -> "simple_cast";
         protected Function<SpellContext, String> failAnimation = context -> "";
 
         public Builder<T> mastery(SpellMastery mastery) {

@@ -63,7 +63,8 @@ public class ShatteringCrystalSpell extends AnimatedSpell {
         var skills = context.getSkills();
         if (!level.isClientSide) {
             if (context.getTarget() instanceof ShatteringCrystal crystal && crystal.getOwner().is(caster)) {
-                this.primeCrystal(context, crystal, true);
+                this.primeCrystal(context, crystal);
+                endSpell();
             } else {
                 ShatteringCrystal crystal = this.summonEntity(context, SBEntities.SHATTERING_CRYSTAL.get());
                 this.setCrystal(crystal.getId());
@@ -77,28 +78,30 @@ public class ShatteringCrystalSpell extends AnimatedSpell {
         Level level = context.getLevel();
         LivingEntity caster = context.getCaster();
         var skills = context.getSkills();
-        ShatteringCrystal crystal = this.getCrystal(context);
-        if (crystal != null && (skills.hasSkill(SBSkills.THIN_ICE) || skills.hasSkill(SBSkills.CHILL))) {
-            List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, crystal.getBoundingBox().inflate(4))
-                    .stream()
-                    .filter(livingEntity -> !this.isCaster(livingEntity) || SpellUtil.IS_ALLIED.test(caster, livingEntity))
-                    .toList();
+        if (!level.isClientSide) {
+            ShatteringCrystal crystal = this.getCrystal(context);
+            if (crystal != null && (skills.hasSkill(SBSkills.THIN_ICE) || skills.hasSkill(SBSkills.CHILL))) {
+                List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, crystal.getBoundingBox().inflate(4))
+                        .stream()
+                        .filter(livingEntity -> !this.isCaster(livingEntity) || SpellUtil.IS_ALLIED.test(caster, livingEntity))
+                        .toList();
 
-            if (skills.hasSkill(SBSkills.CHILL) && this.ticks % 20 == 0) {
-                for (LivingEntity entity : entities) {
-                    this.hurt(entity, this.getBaseDamage() / 2);
+                if (skills.hasSkill(SBSkills.CHILL) && this.tickCount % 20 == 0) {
+                    for (LivingEntity entity : entities) {
+                        this.hurt(entity, this.getBaseDamage() / 2);
+                    }
                 }
+
+                if (skills.hasSkill(SBSkills.THIN_ICE) && !entities.isEmpty() && !this.primedExternally)
+                    this.primeCrystal(context, crystal);
             }
 
-            if (skills.hasSkill(SBSkills.THIN_ICE) && !entities.isEmpty() && !this.primedExternally)
-                this.primeCrystal(context, crystal, false);
-        }
-
-        if (this.primed) {
-            if (this.primeTick > 0) {
-                this.primeTick--;
-            } else {
-                this.explodeCrystal(context);
+            if (this.primed) {
+                if (this.primeTick > 0) {
+                    this.primeTick--;
+                } else {
+                    this.explodeCrystal(context);
+                }
             }
         }
     }
@@ -118,10 +121,10 @@ public class ShatteringCrystalSpell extends AnimatedSpell {
 
     @Override
     public boolean shouldRender(SpellContext context) {
-        return context.getTarget() instanceof ShatteringCrystal crystal && crystal.getOwner().is(context.getCaster());
+        return !(context.getTarget() instanceof ShatteringCrystal crystal && crystal.getOwner().is(context.getCaster()));
     }
 
-    private void primeCrystal(SpellContext context, ShatteringCrystal crystal, boolean endSpell) {
+    private void primeCrystal(SpellContext context, ShatteringCrystal crystal) {
         var skills = context.getSkills();
         ShatteringCrystalSpell spell = crystal.getSpell();
         int count = skills.hasSkill(SBSkills.CRYSTAL_ECHO) ? 2 : 1;
@@ -130,9 +133,6 @@ public class ShatteringCrystalSpell extends AnimatedSpell {
             spell.primeTick = 10;
             spell.primeCount++;
         }
-
-        if (endSpell)
-            endSpell();
     }
 
     private void explodeCrystal(SpellContext context) {
@@ -147,7 +147,7 @@ public class ShatteringCrystalSpell extends AnimatedSpell {
                     ShatteringCrystalSpell spell = crystal1.getSpell();
                     int count = flag ? 2 : 1;
                     if (!spell.primedExternally && spell.primeCount < count) {
-                        this.primeCrystal(context, crystal, false);
+                        spell.primeCrystal(context, crystal1);
                         spell.primedExternally = true;
                     }
                 } else if (entity instanceof LivingEntity livingEntity && !this.isCaster(livingEntity) && this.hurt(livingEntity)) {
