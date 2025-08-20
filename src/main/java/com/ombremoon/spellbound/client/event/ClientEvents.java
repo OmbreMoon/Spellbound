@@ -1,10 +1,12 @@
 package com.ombremoon.spellbound.client.event;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.gui.CastModeOverlay;
 import com.ombremoon.spellbound.client.gui.SpellSelectScreen;
 import com.ombremoon.spellbound.client.particle.GenericParticle;
 import com.ombremoon.spellbound.client.particle.SparkParticle;
+import com.ombremoon.spellbound.client.renderer.blockentity.ExtendedBlockPreviewRenderer;
 import com.ombremoon.spellbound.client.renderer.blockentity.SummonPortalRenderer;
 import com.ombremoon.spellbound.client.renderer.blockentity.TransfigurationDisplayRenderer;
 import com.ombremoon.spellbound.client.renderer.entity.*;
@@ -26,12 +28,15 @@ import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
+import net.minecraft.client.Camera;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.particle.DustParticle;
 import net.minecraft.client.particle.HeartParticle;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.EntityTypeTags;
@@ -40,11 +45,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.component.DyedItemColor;
+import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.common.Tags;
+import org.joml.Matrix4f;
 import software.bernie.geckolib.util.Color;
 
 public class ClientEvents {
@@ -195,15 +202,29 @@ public class ClientEvents {
 
         @SubscribeEvent
         public static void onRenderLevel(RenderLevelStageEvent event) {
-            if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_WEATHER) {
-                ClientHailstormData data = (ClientHailstormData) HailstormSavedData.get(Minecraft.getInstance().level);
+            RenderLevelStageEvent.Stage stage = event.getStage();
+            PoseStack poseStack = event.getPoseStack();
+            Camera camera = event.getCamera();
+            Matrix4f projectionMatrix = event.getProjectionMatrix();
+            Minecraft minecraft = Minecraft.getInstance();
+            Level level = minecraft.level;
+            Frustum frustum = event.getFrustum();
+            DeltaTracker partialTick = event.getPartialTick();
+
+            if (stage == RenderLevelStageEvent.Stage.AFTER_WEATHER) {
+                ClientHailstormData data = (ClientHailstormData) HailstormSavedData.get(level);
 //                data.renderHailstorm(event);
             }
 
-            if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL) {
+            if (stage == RenderLevelStageEvent.Stage.AFTER_LEVEL) {
                 SBShaders.setupPoseStack(event.getPoseStack());
                 SBShaders.processShaders();
             }
+
+            if (stage == RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) {
+                ExtendedBlockPreviewRenderer.renderMultiblockPreviews(event.getPartialTick(), minecraft, level, camera, poseStack);
+            }
+
         }
 
         @SubscribeEvent

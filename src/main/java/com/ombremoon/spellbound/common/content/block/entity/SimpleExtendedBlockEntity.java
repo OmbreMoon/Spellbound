@@ -11,7 +11,7 @@ public class SimpleExtendedBlockEntity extends ExtendedBlockEntity {
     }
 
     public SimpleExtendedBlockEntity(BlockPos pPos, BlockState pBlockState) {
-        super(SBBlockEntities.SIMPLE_MULTIBLOCK.get(), pPos, pBlockState);
+        super(SBBlockEntities.SIMPLE_EXTENDED_BLOCK.get(), pPos, pBlockState);
     }
 
 }

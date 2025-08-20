@@ -193,7 +193,7 @@ public class Valkyr extends SBLivingEntity implements NeutralMob {
                             return !player.getAbilities().invulnerable && effects.getJudgement() < 100;
                         }),
                 new HurtBySensor<>(),
-                new NearbyBlocksSensor<SBLivingEntity>().setRadius(15).setPredicate((blockState, spellEntity) -> blockState.is(SBBlocks.DIVINE_SHRINE.get()))
+                new NearbyBlocksSensor<SBLivingEntity>().setRadius(15).setPredicate((blockState, spellEntity) -> blockState.is(SBBlocks.SANDSTONE_DIVINE_SHRINE.get()))
         );
     }
 
