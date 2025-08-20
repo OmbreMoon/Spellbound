@@ -1,11 +1,17 @@
 package com.ombremoon.spellbound.common.content.block;
 
+import com.mojang.datafixers.util.Pair;
 import com.ombremoon.spellbound.common.content.block.entity.SimpleExtendedBlockEntity;
 import com.ombremoon.spellbound.common.init.SBBlockEntities;
+import com.ombremoon.spellbound.common.init.SBBlocks;
+import com.ombremoon.spellbound.common.init.SBTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -74,7 +80,7 @@ public class DivineShrineBlock extends AbstractExtendedBlock implements Previewa
         for (BlockPos pos : BlockPos.betweenClosed(blockPos.subtract(new Vec3i(7, 7, 7)), blockPos.offset(new Vec3i(7, 7, 7)))) {
             BlockState state = level.getBlockState(pos);
 
-            if (state.is(SBBlocks.DIVINE_SHRINE.get()))
+            if (state.is(SBTags.Blocks.DIVINE_SHRINE))
                 return Pair.of(pos, state);
         }
 

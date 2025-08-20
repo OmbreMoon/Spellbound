@@ -9,9 +9,12 @@ import com.ombremoon.spellbound.client.particle.SparkParticle;
 import com.ombremoon.spellbound.client.renderer.blockentity.ExtendedBlockPreviewRenderer;
 import com.ombremoon.spellbound.client.renderer.blockentity.SummonPortalRenderer;
 import com.ombremoon.spellbound.client.renderer.blockentity.TransfigurationDisplayRenderer;
+import com.ombremoon.spellbound.client.renderer.blockentity.ValkyrStatueRenderer;
 import com.ombremoon.spellbound.client.renderer.entity.*;
 import com.ombremoon.spellbound.client.renderer.layer.FrozenLayer;
 import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
+import com.ombremoon.spellbound.client.renderer.layer.SpellCastLayer;
+import com.ombremoon.spellbound.client.renderer.layer.SpellCastRenderLayer;
 import com.ombremoon.spellbound.client.renderer.types.EmissiveSpellProjectileRenderer;
 import com.ombremoon.spellbound.client.renderer.types.GenericLivingEntityRenderer;
 import com.ombremoon.spellbound.client.renderer.types.GenericSpellRenderer;
@@ -95,6 +98,7 @@ public class ClientEvents {
             event.registerEntityRenderer(SBEntities.LIVING_SHADOW.get(), LivingShadowRenderer::new);
             event.registerEntityRenderer(SBEntities.DUNGEON_SHADOW.get(), GenericLivingEntityRenderer::new);
 
+            event.registerBlockEntityRenderer(SBBlockEntities.VALKY_STATUE.get(), ValkyrStatueRenderer::new);
             event.registerBlockEntityRenderer(SBBlockEntities.SUMMON_PORTAL.get(), SummonPortalRenderer::new);
             event.registerBlockEntityRenderer(SBBlockEntities.TRANSFIGURATION_DISPLAY.get(), TransfigurationDisplayRenderer::new);
         }
@@ -107,6 +111,7 @@ public class ClientEvents {
                     continue;
 
                 playerRenderer.addLayer(new GenericSpellLayer<>(playerRenderer));
+                playerRenderer.addLayer(new SpellCastRenderLayer<>(playerRenderer));
                 playerRenderer.addLayer(new FrozenLayer<>(playerRenderer));
             }
 

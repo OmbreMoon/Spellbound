@@ -210,7 +210,7 @@ public class PlayerDivineActions implements Loggable {
                     if (!decorations.isEmpty())
                         actions.shrineDecorations.removeAll(shrinePos);
                 }
-            } else if (state.is(SBBlocks.DIVINE_SHRINE.get()) && actions.shrineDecorations.containsKey(blockPos)) {
+            } else if (state.is(SBTags.Blocks.DIVINE_SHRINE) && actions.shrineDecorations.containsKey(blockPos)) {
                 actions.shrineDecorations.removeAll(blockPos);
             }
         }

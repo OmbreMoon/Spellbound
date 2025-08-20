@@ -142,8 +142,8 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
         this.tickSkillBuffs();
         this.skillHolder.getCooldowns().tick();
 
-        if (handPos != null)
-            this.caster.level().addParticle(ParticleTypes.SNOWFLAKE, handPos.x, handPos.y, handPos.z, 0, 0, 0);
+//        if (handPos != null)
+//            this.caster.level().addParticle(ParticleTypes.SNOWFLAKE, handPos.x, handPos.y, handPos.z, 0, 0, 0);
 
         if (!this.caster.level().isClientSide && this.caster.tickCount % 5 == 0) {
 

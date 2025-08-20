@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import com.ombremoon.spellbound.common.content.entity.behavior.target.ExtendedInvalidateAttackTarget;
 import com.ombremoon.spellbound.common.content.entity.SBLivingEntity;
 import com.ombremoon.spellbound.common.init.SBBlocks;
+import com.ombremoon.spellbound.common.init.SBTags;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.BlockPos;
@@ -193,7 +194,7 @@ public class Valkyr extends SBLivingEntity implements NeutralMob {
                             return !player.getAbilities().invulnerable && effects.getJudgement() < 100;
                         }),
                 new HurtBySensor<>(),
-                new NearbyBlocksSensor<SBLivingEntity>().setRadius(15).setPredicate((blockState, spellEntity) -> blockState.is(SBBlocks.SANDSTONE_DIVINE_SHRINE.get()))
+                new NearbyBlocksSensor<SBLivingEntity>().setRadius(15).setPredicate((blockState, spellEntity) -> blockState.is(SBTags.Blocks.DIVINE_SHRINE))
         );
     }
 

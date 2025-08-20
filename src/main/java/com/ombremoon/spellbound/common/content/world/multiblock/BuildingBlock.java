@@ -1,6 +1,5 @@
 package com.ombremoon.spellbound.common.content.world.multiblock;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
@@ -18,7 +17,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.item.enchantment.effects.SetValue;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,7 +32,8 @@ import java.util.stream.Stream;
 @SuppressWarnings("unchecked")
 public final class BuildingBlock implements Predicate<BlockState> {
     public static final BuildingBlock EMPTY = of(Blocks.AIR);
-    public static final BuildingBlock ANY = of(SBTags.Blocks.RITUAL_COMPATIBLE);
+    public static final BuildingBlock ANY = of(SBTags.Blocks.RITUAL_INCOMPATIBLE);
+//    public static final BuildingBlock ANY = of(SBTags.Blocks.RITUAL_INCOMPATIBLE);
     private final Value[] values;
     @Nullable
     private Block[] blockStates;
