@@ -16,10 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public record GuideBookPage(ResourceLocation id, String insertAfter, List<GuideImage> images, List<GuideText> text) {
+public record GuideBookPage(ResourceLocation id, ResourceLocation insertAfter, List<GuideImage> images, List<GuideText> text) {
     public static final Codec<GuideBookPage> CODEC = RecordCodecBuilder.<GuideBookPage>create(inst -> inst.group(
             ResourceLocation.CODEC.fieldOf("id").forGetter(GuideBookPage::id),
-            Codec.STRING.optionalFieldOf("insertAfter", null).forGetter(GuideBookPage::insertAfter),
+            ResourceLocation.CODEC.optionalFieldOf("insertAfter", null).forGetter(GuideBookPage::insertAfter),
             GuideImage.CODEC.listOf().optionalFieldOf("images", new ArrayList<>()).forGetter(GuideBookPage::images),
             GuideText.CODEC.listOf().optionalFieldOf("text", new ArrayList<>()).forGetter(GuideBookPage::text)
     ).apply(inst, GuideBookPage::new));
@@ -33,7 +33,7 @@ public record GuideBookPage(ResourceLocation id, String insertAfter, List<GuideI
 
     private void write(FriendlyByteBuf buffer) {
         buffer.writeResourceLocation(id);
-        buffer.writeUtf(insertAfter);
+        buffer.writeResourceLocation(insertAfter);
         buffer.writeCollection(images, (buf, image) -> image.write(buf));
         buffer.writeCollection(text, (buf, text) -> text.write(buf));
     }
@@ -41,7 +41,7 @@ public record GuideBookPage(ResourceLocation id, String insertAfter, List<GuideI
     private static GuideBookPage read(FriendlyByteBuf buffer) {
         return new GuideBookPage(
                 buffer.readResourceLocation(),
-                buffer.readUtf(),
+                buffer.readResourceLocation(),
                 buffer.readList(GuideImage::read),
                 buffer.readList(GuideText::read));
     }

@@ -3,6 +3,7 @@ package com.ombremoon.spellbound.common.magic.acquisition.guides;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.main.Constants;
@@ -52,7 +53,7 @@ public class GuideBookManager extends SimpleJsonResourceReloadListener {
 
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler) {
-        Map<ResourceLocation, List<GuideBookPage>> pages = new HashMap<>();
+        Map<ResourceLocation, List<Pair<ResourceLocation, GuideBookPage>>> pages = new HashMap<>();
         object.forEach((location, json) -> {
             try {
                 GuideBookPage page = GuideBookPage.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();
@@ -61,7 +62,7 @@ public class GuideBookManager extends SimpleJsonResourceReloadListener {
                     return;
                 }
                 pages.computeIfAbsent(page.id(), k -> new ArrayList<>());
-                pages.get(page.id()).add(page);
+                pages.get(page.id()).add(Pair.of(location, page));
             } catch (Exception e) {
                 LOGGER.error("Parsing error loading custom guide book page {}: {}", location, e.getMessage());
             }
@@ -72,28 +73,29 @@ public class GuideBookManager extends SimpleJsonResourceReloadListener {
         }
     }
 
-    private List<GuideBookPage> sortPages(List<GuideBookPage> book) {
-        List<GuideBookPage> result = new ArrayList<>();
+    private List<GuideBookPage> sortPages(List<Pair<ResourceLocation, GuideBookPage>> book) {
+        List<Pair<ResourceLocation, GuideBookPage>> result = new ArrayList<>();
 
-        for (GuideBookPage page : book) {
+        for (Pair<ResourceLocation, GuideBookPage> pair : book) {
+            GuideBookPage page = pair.getSecond();
             int index = -1;
             if (page.insertAfter() == null) {
-                result.addFirst(page);
+                result.addFirst(pair);
                 continue;
             }
 
             for (int i = 0; i < result.size(); i++) {
-                if (result.get(i).id().equals(page.insertAfter())) {
+                if (result.get(i).getFirst().equals(page.insertAfter())) {
                     index = i + 1;
                     break;
                 }
             }
 
-            if (index == -1) result.add(page);
-            else result.add(index, page);
+            if (index == -1) result.add(pair);
+            else result.add(index, pair);
         }
 
-        return result;
+        return result.stream().map(Pair::getSecond).toList();
     }
 
     public static List<GuideBookPage> getBook(ResourceLocation id) {
