@@ -1,5 +1,6 @@
 {
   "id": "spellbound:starter_book",
+  "insertAfter": "spellbound:null",
   "text": [
     {
       "translation": "book.spellbound.starter_book.hello",

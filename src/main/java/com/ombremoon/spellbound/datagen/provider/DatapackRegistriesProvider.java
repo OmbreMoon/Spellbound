@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.datagen;
+package com.ombremoon.spellbound.datagen.provider;
 
 import com.ombremoon.spellbound.common.init.SBDamageTypes;
 import com.ombremoon.spellbound.common.init.SBRituals;
