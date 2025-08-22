@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.common.content.block;
 
 import com.mojang.datafixers.util.Pair;
+import com.ombremoon.spellbound.common.content.block.entity.ExtendedBlockEntity;
 import com.ombremoon.spellbound.common.content.block.entity.SimpleExtendedBlockEntity;
 import com.ombremoon.spellbound.common.init.SBBlockEntities;
 import com.ombremoon.spellbound.common.init.SBBlocks;

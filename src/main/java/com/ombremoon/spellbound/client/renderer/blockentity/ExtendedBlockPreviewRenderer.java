@@ -106,6 +106,7 @@ public class ExtendedBlockPreviewRenderer {
                 }
             };
 
+            buffer.endLastBatch();
             blockRenderer.renderBatched(state, pos, level, poseStack, tintedConsumer, false, minecraft.level.getRandom());
 
             poseStack.translate(-offset.getX(),  -offset.getY(), -offset.getZ());

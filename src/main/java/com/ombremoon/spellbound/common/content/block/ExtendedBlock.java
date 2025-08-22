@@ -3,10 +3,7 @@ package com.ombremoon.spellbound.common.content.block;
 import com.ombremoon.spellbound.common.content.block.entity.ExtendedBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -15,8 +12,6 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
@@ -172,6 +167,42 @@ public interface ExtendedBlock {
         if (player.isCreative() && level.getBlockEntity(pos) instanceof ExtendedBlockEntity entity) {
             level.destroyBlock(entity.center, false);
         }
+    }
+
+    default void fixInStructures(BlockState state, Level level, BlockPos pos, BlockState oldState){
+        if (
+                level.getBlockEntity(pos) instanceof ExtendedBlockEntity blockEntity
+                && !blockEntity.isPlaced
+                && !oldState.is(getBlock())
+                && isCenter(state)
+        ) {
+            level.scheduleTick(pos, state.getBlock(), 5);
+        }
+    }
+
+    default void fixTick(BlockState state, Level level, BlockPos pos){
+        if (isCenter(state)){
+
+            fullBlockShape(pos, state).forEach(posNew -> {
+                if (level.getBlockEntity(posNew) instanceof ExtendedBlockEntity entity) {
+                    entity.setCenter(pos);
+
+                    entity.setChanged();
+                    level.sendBlockUpdated(posNew, state, state, 2);
+                }
+            });
+        }
+    }
+
+    default boolean isBroken(LevelReader level, BlockPos pos, BlockState state){
+        if (!isCenter(state)) return false;
+
+        return fullBlockShape(pos, state).anyMatch(blockPos -> {
+           if (level.getBlockEntity(blockPos) instanceof ExtendedBlockEntity entity){
+              return !(entity.center.equals(pos) && !isCenter(level.getBlockState(blockPos)));
+           }
+           return true;
+        });
     }
 
     default BlockPos getCenter(LevelReader level, BlockPos pos){
