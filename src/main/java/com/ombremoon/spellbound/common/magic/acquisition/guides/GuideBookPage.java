@@ -5,6 +5,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.ombremoon.spellbound.common.magic.acquisition.guides.elements.GuideImage;
 import com.ombremoon.spellbound.common.magic.acquisition.guides.elements.GuideText;
+import com.ombremoon.spellbound.main.CommonClass;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -19,10 +20,10 @@ import java.util.Optional;
 public record GuideBookPage(ResourceLocation id, ResourceLocation insertAfter, List<GuideImage> images, List<GuideText> text) {
     public static final Codec<GuideBookPage> CODEC = RecordCodecBuilder.<GuideBookPage>create(inst -> inst.group(
             ResourceLocation.CODEC.fieldOf("id").forGetter(GuideBookPage::id),
-            ResourceLocation.CODEC.optionalFieldOf("insertAfter", null).forGetter(GuideBookPage::insertAfter),
+            ResourceLocation.CODEC.optionalFieldOf("insertAfter", CommonClass.customLocation("first_page_dont_use")).forGetter(GuideBookPage::insertAfter),
             GuideImage.CODEC.listOf().optionalFieldOf("images", new ArrayList<>()).forGetter(GuideBookPage::images),
             GuideText.CODEC.listOf().optionalFieldOf("text", new ArrayList<>()).forGetter(GuideBookPage::text)
-    ).apply(inst, GuideBookPage::new));
+    ).apply(inst, GuideBookPage::new)).validate(GuideBookPage::validate);
 
     public static final StreamCodec<FriendlyByteBuf, GuideBookPage> STREAM_CODEC = StreamCodec.ofMember(GuideBookPage::write, GuideBookPage::read);
 

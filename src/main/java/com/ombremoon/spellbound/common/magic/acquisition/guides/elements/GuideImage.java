@@ -7,7 +7,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 
-public record GuideImage(ResourceLocation loc, int width, int height, ElementPosition position) {
+public record GuideImage(ResourceLocation loc, int width, int height, ElementPosition position) implements PageElement {
     public static final Codec<GuideImage> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             ResourceLocation.CODEC.fieldOf("location").forGetter(GuideImage::loc),
             Codec.INT.fieldOf("width").forGetter(GuideImage::width),
@@ -26,7 +26,8 @@ public record GuideImage(ResourceLocation loc, int width, int height, ElementPos
         return new GuideImage(buffer.readResourceLocation(), buffer.readInt(), buffer.readInt(), ElementPosition.read(buffer));
     }
 
+    @Override
     public void render(GuiGraphics graphics, int leftPos, int topPos) {
-        graphics.blit(loc, leftPos + position.xOffset(), topPos + position.yOffset(), 0, 0, width, height);
+        graphics.blit(loc, leftPos + position.xOffset(), topPos + position.yOffset(), 0, 0, width, height, width, height);
     }
 }

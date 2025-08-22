@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
 import com.ombremoon.spellbound.common.magic.SpellPath;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.RegistryOps;
@@ -17,15 +18,17 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import org.jline.utils.Log;
 import org.slf4j.Logger;
 
 import java.util.*;
 
 @EventBusSubscriber(modid = Constants.MOD_ID)
 public class GuideBookManager extends SimpleJsonResourceReloadListener {
+    private static final ResourceLocation FIRST_PAGE = CommonClass.customLocation("first_page_dont_use");
     private static final Logger LOGGER = Constants.LOG;
     private static final Gson GSON = new GsonBuilder().create();
-    private static Map<ResourceLocation, List<GuideBookPage>> BOOKS = Map.of();
+    private static Map<ResourceLocation, List<GuideBookPage>> BOOKS = new HashMap<>();
     private final HolderLookup.Provider registries;
 
     public GuideBookManager(HolderLookup.Provider registries) {
@@ -79,7 +82,7 @@ public class GuideBookManager extends SimpleJsonResourceReloadListener {
         for (Pair<ResourceLocation, GuideBookPage> pair : book) {
             GuideBookPage page = pair.getSecond();
             int index = -1;
-            if (page.insertAfter() == null) {
+            if (page.insertAfter().equals(FIRST_PAGE)) {
                 result.addFirst(pair);
                 continue;
             }
@@ -95,7 +98,8 @@ public class GuideBookManager extends SimpleJsonResourceReloadListener {
             else result.add(index, pair);
         }
 
-        return result.stream().map(Pair::getSecond).toList();
+        List<GuideBookPage> toRet = result.stream().map(Pair::getSecond).toList();
+        return toRet;
     }
 
     public static List<GuideBookPage> getBook(ResourceLocation id) {

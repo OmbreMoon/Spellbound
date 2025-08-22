@@ -1,5 +1,6 @@
 {
   "id": "spellbound:starter_book",
+  "insertAfter": "spellbound:first_page",
   "text": [
     {
       "translation": "book.spellbound.starter_book.hello",
@@ -13,17 +14,6 @@
       "position": {
         "xOffset": 0,
         "yOffset": 10
-      }
-    }
-  ],
-  "images": [
-    {
-      "location": "spellbound:textures/gui/books/starter_book.png",
-      "width": 103,
-      "height": 91,
-      "position": {
-        "xOffset": 0,
-        "yOffset": 20
       }
     }
   ]
