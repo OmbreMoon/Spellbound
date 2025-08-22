@@ -1,0 +1,19 @@
+{
+  "id": "spellbound:starter_book",
+  "text": [
+    {
+      "translation": "book.spellbound.starter_book.hello",
+      "position": {
+        "xOffset": 10,
+        "yOffset": 20
+      }
+    },
+    {
+      "translation": "book.spellbound.starter_book.bye",
+      "position": {
+        "xOffset": 10,
+        "yOffset": 70
+      }
+    }
+  ]
+}
