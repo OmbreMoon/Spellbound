@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.content.block;
 
 import com.google.common.base.Predicates;
 import com.mojang.serialization.MapCodec;
+import com.ombremoon.spellbound.common.init.SBItems;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.block.entity.SummonBlockEntity;
 import com.ombremoon.spellbound.common.init.SBBlocks;
@@ -83,7 +84,7 @@ public class SummonStoneBlock extends Block {
 
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (stack.is(Items.REDSTONE)) {
+        if (stack.is(SBItems.MAGIC_ESSENCE.get())) {
             if (level.isClientSide) {
                 return ItemInteractionResult.SUCCESS;
             } else if (!ArenaSavedData.isArena(level)) {

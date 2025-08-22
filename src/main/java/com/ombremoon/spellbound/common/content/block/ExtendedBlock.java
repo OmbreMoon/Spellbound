@@ -142,7 +142,7 @@ public interface ExtendedBlock {
                 destroy(entity.getCenter(), (Level) level, state);
                 return Blocks.AIR.defaultBlockState();
             }
-        }else {
+        } else {
             level.destroyBlock(pos, true);
             return Blocks.AIR.defaultBlockState();
         }
