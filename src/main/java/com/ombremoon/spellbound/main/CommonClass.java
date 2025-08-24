@@ -26,6 +26,7 @@ public class CommonClass {
         SBFeatures.register(modEventBus);
         SBMultiblockSerializers.register(modEventBus);
         SBRitualEffects.register(modEventBus);
+        SBPageElements.register(modEventBus);
 //        fixAttributes();
     }
 

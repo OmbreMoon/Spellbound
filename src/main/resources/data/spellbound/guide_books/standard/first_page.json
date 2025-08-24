@@ -1,30 +1,35 @@
 {
   "id": "spellbound:starter_book",
-  "text": [
+  "elements": [
+
     {
+      "type": "spellbound:text",
       "translation": "book.spellbound.starter_book.hello",
       "position": {
         "xOffset": 0,
         "yOffset": 0
       }
     },
+
     {
+      "type": "spellbound:text",
       "translation": "book.spellbound.starter_book.bye",
       "position": {
         "xOffset": 0,
         "yOffset": 10
       }
-    }
-  ],
-  "images": [
+    },
+
     {
+      "type": "spellbound:image",
       "location": "spellbound:textures/gui/books/starter_book.png",
       "width": 103,
       "height": 91,
       "position": {
-        "xOffset": 0,
+        "xOffset": -20,
         "yOffset": 20
       }
     }
+
   ]
 }
