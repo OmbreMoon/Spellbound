@@ -32,10 +32,10 @@ public abstract class AbstractExtendedBlock extends Block implements ExtendedBlo
         }
     }
 
-    @Override
+/*    @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @org.jetbrains.annotations.Nullable LivingEntity placer, ItemStack stack) {
         place(level, pos, state);
-    }
+    }*/
 
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
@@ -59,14 +59,19 @@ public abstract class AbstractExtendedBlock extends Block implements ExtendedBlo
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
 
-        fixInStructures(state, level, pos, oldState);
+        if (state.getValue(CENTER)) {
+            place(level, pos, state);
+        }
+
+        // fixInStructures(state, level, pos, oldState);
     }
 
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         super.tick(state, level, pos, random);
 
-       if (isBroken(level, pos, state)) fixTick(state, level , pos);
+       if (isBroken(level, pos, state))
+           fixTick(state, level , pos);
     }
 
     @Override
