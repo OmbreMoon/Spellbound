@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.networking;
 
 import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockHolder;
+import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.init.SBData;
@@ -52,12 +53,12 @@ public class PayloadHandler {
         PacketDistributor.sendToServer(new CastSpellPayload());
     }
 
-    public static void setCastingSpell(SpellType<?> spellType, boolean isRecast) {
-        PacketDistributor.sendToServer(new SetCastingSpellPayload(spellType, isRecast));
+    public static void setCastingSpell(SpellType<?> spellType, SpellContext context) {
+        PacketDistributor.sendToServer(new SetCastingSpellPayload(spellType, context.getTarget() == null ? 0 : context.getTarget().getId(), context.isRecast()));
     }
 
-    public static void castStart(SpellType<?> spellType, boolean recast) {
-        PacketDistributor.sendToServer(new CastStartPayload(spellType, recast));
+    public static void castStart() {
+        PacketDistributor.sendToServer(new CastStartPayload());
     }
 
     public static void castReset(SpellType<?> spellType, boolean recast) {

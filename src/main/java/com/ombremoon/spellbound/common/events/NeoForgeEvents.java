@@ -363,9 +363,6 @@ public class NeoForgeEvents {
 
         if (livingEntity.hasEffect(SBEffects.SLEEP))
             livingEntity.removeEffect(SBEffects.SLEEP);
-
-        if (livingEntity instanceof Player)
-            Constants.LOG.info("{}", event.getNewDamage());
     }
 
     @SubscribeEvent

@@ -20,9 +20,9 @@ public class SpellCastLayer<T extends AbstractSpell> extends SpellCastRenderer<T
     public void renderFinal(PoseStack poseStack, T animatable, BakedGeoModel model, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay, int colour) {
         var optional = model.getBone("bipedRightArm");
 //        Constants.LOG.info("{}", optional.get().getWorldPosition());
-        /*if (optional.isPresent() && this.currentEntity.tickCount % 20 == 0) {
+        if (optional.isPresent() && this.currentEntity.tickCount % 5 == 0) {
             Vector3d vec3 = optional.get().getWorldPosition();
-            Constants.LOG.info("{}", vec3);
+//            Constants.LOG.info("{}", vec3);
             ClientUtil.getLevel().addParticle(
                     ParticleTypes.SNOWFLAKE,
                     vec3.x,
@@ -32,6 +32,6 @@ public class SpellCastLayer<T extends AbstractSpell> extends SpellCastRenderer<T
                     0,
                     0
             );
-        }*/
+        }
     }
 }

@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -221,12 +222,6 @@ public class SpellCastRenderer<T extends AbstractSpell> extends HumanoidModel im
     }
 
     /**
-     * Being removed now that the injection point has been moved to a safer spot
-     */
-    @Deprecated(forRemoval = true)
-    public void doArmourPostRenderCleanup() {}
-
-    /**
      * Renders the provided {@link GeoBone} and its associated child bones
      */
     @Override
@@ -243,7 +238,7 @@ public class SpellCastRenderer<T extends AbstractSpell> extends HumanoidModel im
             Matrix4f localMatrix = RenderUtil.invertAndMultiplyMatrices(poseState, this.entityRenderTranslations);
 
             bone.setModelSpaceMatrix(RenderUtil.invertAndMultiplyMatrices(poseState, this.modelRenderTranslations));
-            bone.setLocalSpaceMatrix(RenderUtil.invertAndMultiplyMatrices(poseState, this.entityRenderTranslations));
+            bone.setLocalSpaceMatrix(RenderUtil.translateMatrix(localMatrix, Vec3.ZERO.toVector3f()));
             bone.setWorldSpaceMatrix(RenderUtil.translateMatrix(new Matrix4f(localMatrix), this.currentEntity.position().add(0, this.currentEntity.getEyeHeight(), 0).toVector3f()));
         }
 

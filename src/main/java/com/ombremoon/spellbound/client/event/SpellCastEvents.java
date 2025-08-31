@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.client.event;
 
 import com.ombremoon.spellbound.client.gui.WorkbenchScreen;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.common.magic.EffectManager;
@@ -63,44 +64,51 @@ public class SpellCastEvents {
         if (spellType == null) return;
 
         AbstractSpell spell = handler.getCurrentlyCastSpell();
-        boolean isRecast = handler.getActiveSpells(spellType).size() > 1;
-        SpellContext spellContext;
         if (spell != null) {
-            spellContext = spell.getCastContext();
-        } else {
-            spellContext = new SpellContext(spellType, player, isRecast);
-            spell = spellType.createSpell();
-            spell.setCastContext(spellContext);
-            handler.setCurrentlyCastingSpell(spell);
-            PayloadHandler.setCastingSpell(spellType, isRecast);
-        }
-
-        if (handler.castTick < 0 && !SpellUtil.canCastSpell(player, spell)) {
-            spell.resetCast(handler);
-        }
-
-        boolean flag = KeyBinds.getSpellCastMapping().isDown();
-        if (flag) {
-            int castTime = spell.getCastTime();
-            if (handler.castTick >= castTime && !handler.isChargingOrChannelling()) {
-                if (spell.getCastType() == AbstractSpell.CastType.INSTANT)
-                    KeyBinds.getSpellCastMapping().setDown(false);
-
-                castSpell(player);
-                handler.castTick = 0;
-            } else if (!handler.isChargingOrChannelling()) {
-                handler.castTick++;
-                if (handler.castTick == 1) {
-                    spell.onCastStart(spellContext);
-                    PayloadHandler.castStart(spellType, isRecast);
-                }
+            if (handler.castTick < 0 && !SpellUtil.canCastSpell(player, spell)) {
+                SpellContext spellContext = createContext(player, handler, spell);
+                spell.resetCast(handler, spellContext);
             }
-        } else if (!KeyBinds.getSpellCastMapping().isDown() && handler.castTick > 0) {
-            spell.resetCast(handler);
-        } else if (handler.isChargingOrChannelling()) {
-            handler.setChargingOrChannelling(false);
-            PayloadHandler.setChargeOrChannel(false);
+
+            boolean flag = KeyBinds.getSpellCastMapping().isDown();
+            if (flag) {
+                int castTime = spell.getCastTime();
+                if (handler.castTick >= castTime && !handler.isChargingOrChannelling()) {
+                    if (spell.getCastType() == AbstractSpell.CastType.INSTANT)
+                        KeyBinds.getSpellCastMapping().setDown(false);
+
+                    castSpell(player);
+                    handler.castTick = 0;
+                } else if (!handler.isChargingOrChannelling()) {
+                    handler.castTick++;
+                    if (handler.castTick == 1) {
+                        SpellContext spellContext = createContext(player, handler, spell);
+                        spell.onCastStart(spellContext);
+                        PayloadHandler.castStart();
+                    }
+                }
+            } else if (!KeyBinds.getSpellCastMapping().isDown() && handler.castTick > 0) {
+                spell.resetCast(handler);
+            } else if (handler.isChargingOrChannelling()) {
+                handler.setChargingOrChannelling(false);
+                PayloadHandler.setChargeOrChannel(false);
+            }
+        } else {
+            spell = spellType.createSpell();
+            handler.setCurrentlyCastingSpell(spell);
+            createContext(player, handler, spell);
         }
+    }
+
+    public static SpellContext createContext(Player player, SpellHandler handler, AbstractSpell spell) {
+        SpellType<?> spellType = spell.spellType();
+        boolean isRecast = handler.getActiveSpells(spellType).size() > 1;
+        Entity target = spell.getTargetEntity(player, SpellUtil.getCastRange(player));
+        target = target == null || target.isRemoved() ? null : target;
+        SpellContext context = new SpellContext(spellType, player, target, isRecast);
+        spell.setCastContext(context);
+        PayloadHandler.setCastingSpell(spellType, context);
+        return context;
     }
 
     private static boolean isAbleToSpellCast() {

@@ -59,7 +59,7 @@ public class ClientPayloadHandler {
                 if (spell != null)
                     spell.clientInitSpell(player, level,player.getOnPos(), payload.spellData(), payload.isRecast(), payload.castId(), payload.forceReset(), payload.shiftSpells());
 
-                caster.setCurrentlyCastingSpell(null);
+//                caster.setCurrentlyCastingSpell(null);
             }
         });
     }

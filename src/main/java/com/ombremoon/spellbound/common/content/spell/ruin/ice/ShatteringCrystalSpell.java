@@ -21,24 +21,27 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 public class ShatteringCrystalSpell extends AnimatedSpell {
     protected static final SpellDataKey<Integer> CRYSTAL = SyncedSpellData.registerDataKey(ShatteringCrystalSpell.class, SBDataTypes.INT.get());
     private static final ResourceLocation FRIGID_BLAST = CommonClass.customLocation("frigid_blast");
     private static final ResourceLocation HYPOTHERMIA = CommonClass.customLocation("hypothermia");
+    private static final Predicate<SpellContext> CRYSTAL_PREDICATE = context -> context.getTarget() instanceof ShatteringCrystal crystal && crystal.getOwner().is(context.getCaster());
 
     public static Builder<ShatteringCrystalSpell> createShatteringCrystalBuild() {
         return createSimpleSpellBuilder(ShatteringCrystalSpell.class)
                 .duration(300)
                 .manaCost(20)
                 .baseDamage(5)
+                .castAnimation(context -> context.quickOrSimpleCast(CRYSTAL_PREDICATE.test(context)))
                 .castCondition((context, shatteringCrystalSpell) -> {
-                    if (context.getTarget() instanceof ShatteringCrystal crystal && crystal.getOwner().is(context.getCaster())) {
+                    if (CRYSTAL_PREDICATE.test(context)) {
                         return true;
                     }
                     return shatteringCrystalSpell.hasValidSpawnPos();
                 })
-                .noShift(context -> context.getTarget() instanceof ShatteringCrystal crystal && crystal.getOwner().is(context.getCaster()));
+                .noShift(CRYSTAL_PREDICATE);
     }
 
     private boolean primed;
@@ -120,8 +123,13 @@ public class ShatteringCrystalSpell extends AnimatedSpell {
     }
 
     @Override
+    public int getCastTime(SpellContext context) {
+        return CRYSTAL_PREDICATE.test(context) ? 5 : super.getCastTime(context);
+    }
+
+    @Override
     public boolean shouldRender(SpellContext context) {
-        return !(context.getTarget() instanceof ShatteringCrystal crystal && crystal.getOwner().is(context.getCaster()));
+        return !(CRYSTAL_PREDICATE.test(context));
     }
 
     private void primeCrystal(SpellContext context, ShatteringCrystal crystal) {

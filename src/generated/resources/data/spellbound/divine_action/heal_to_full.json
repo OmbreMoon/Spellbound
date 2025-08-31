@@ -1,19 +1,608 @@
 {
   "criteria": {
-    "heal_to_full": {
+    "minecraft:allay": {
       "conditions": {
-        "amount_healed": {
-          "health": {
-            "min": 19.0
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:allay"
+            }
           }
-        }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:armadillo": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:armadillo"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:axolotl": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:axolotl"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:bat": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:bat"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:bee": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:bee"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:camel": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:camel"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:cat": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:cat"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:chicken": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:chicken"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:cod": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:cod"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:cow": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:cow"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:dolphin": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:dolphin"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:donkey": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:donkey"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:fox": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:fox"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:frog": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:frog"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:glow_squid": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:glow_squid"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:goat": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:goat"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:horse": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:horse"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:iron_golem": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:iron_golem"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:llama": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:llama"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:mooshroom": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:mooshroom"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:mule": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:mule"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:ocelot": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:ocelot"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:panda": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:panda"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:parrot": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:parrot"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:pig": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:pig"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:polar_bear": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:polar_bear"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:pufferfish": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:pufferfish"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:rabbit": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:rabbit"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:salmon": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:salmon"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:sheep": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:sheep"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:sniffer": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:sniffer"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:squid": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:squid"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:strider": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:strider"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:tadpole": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:tadpole"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:trader_llama": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:trader_llama"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:tropical_fish": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:tropical_fish"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:turtle": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:turtle"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:villager": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:villager"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:wandering_trader": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:wandering_trader"
+            }
+          }
+        ]
+      },
+      "trigger": "spellbound:heal_to_full"
+    },
+    "minecraft:wolf": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:wolf"
+            }
+          }
+        ]
       },
       "trigger": "spellbound:heal_to_full"
     }
   },
   "requirements": [
     [
-      "heal_to_full"
+      "minecraft:allay",
+      "minecraft:armadillo",
+      "minecraft:axolotl",
+      "minecraft:bat",
+      "minecraft:bee",
+      "minecraft:camel",
+      "minecraft:cat",
+      "minecraft:chicken",
+      "minecraft:cod",
+      "minecraft:cow",
+      "minecraft:dolphin",
+      "minecraft:donkey",
+      "minecraft:fox",
+      "minecraft:frog",
+      "minecraft:glow_squid",
+      "minecraft:goat",
+      "minecraft:horse",
+      "minecraft:iron_golem",
+      "minecraft:llama",
+      "minecraft:mooshroom",
+      "minecraft:mule",
+      "minecraft:ocelot",
+      "minecraft:panda",
+      "minecraft:parrot",
+      "minecraft:pig",
+      "minecraft:polar_bear",
+      "minecraft:pufferfish",
+      "minecraft:rabbit",
+      "minecraft:salmon",
+      "minecraft:sheep",
+      "minecraft:sniffer",
+      "minecraft:squid",
+      "minecraft:strider",
+      "minecraft:tadpole",
+      "minecraft:trader_llama",
+      "minecraft:tropical_fish",
+      "minecraft:turtle",
+      "minecraft:villager",
+      "minecraft:wandering_trader",
+      "minecraft:wolf"
     ]
   ],
   "rewards": {
