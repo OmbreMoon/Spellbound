@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.datagen;
+package com.ombremoon.spellbound.datagen.provider;
 
 import com.ombremoon.spellbound.common.magic.acquisition.divine.ActionHolder;
 import com.ombremoon.spellbound.common.magic.acquisition.divine.DivineAction;

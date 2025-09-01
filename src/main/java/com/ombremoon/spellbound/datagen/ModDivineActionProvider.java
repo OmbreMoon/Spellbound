@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.datagen;
 
 import com.ombremoon.spellbound.common.magic.acquisition.divine.ActionRequirements;
 import com.ombremoon.spellbound.common.magic.acquisition.divine.triggers.*;
+import com.ombremoon.spellbound.datagen.provider.DivineActionProvider;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.acquisition.divine.ActionHolder;

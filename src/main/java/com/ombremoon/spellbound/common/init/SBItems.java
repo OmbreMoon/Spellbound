@@ -2,6 +2,8 @@ package com.ombremoon.spellbound.common.init;
 
 import com.ombremoon.spellbound.common.content.item.*;
 import com.ombremoon.spellbound.common.magic.SpellPath;
+import com.ombremoon.spellbound.common.magic.acquisition.guides.GuideBookManager;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.magic.api.SpellType;
 import net.minecraft.core.Holder;
@@ -59,6 +61,9 @@ public class SBItems {
     public static final Supplier<Item> RITUAL_TALISMAN = registerItem("ritual_talisman", () -> new RitualTalismanItem(getItemProperties().durability(25)), true, true);
     public static final Supplier<Item> MANA_TEAR = registerItem("mana_tear", () -> new ManaTearItem(getItemProperties()));
     public static final Supplier<Item> CHALK = registerItem("chalk", () -> new ChalkItem(getItemProperties().stacksTo(16)));
+
+    //Guide Books
+    public static final Supplier<Item> STARTER_BOOK = registerItem("studies_in_the_arcane", () -> new GuideBookItem(CommonClass.customLocation("starter_book")));
 
     public static final Supplier<CreativeModeTab> SPELL_TAB = CREATIVE_MODE_TABS.register("spell_tab", () -> CreativeModeTab.builder(CreativeModeTab.Row.TOP,0)
             .icon(() -> new ItemStack(SBBlocks.ARCANTHUS.get()))
