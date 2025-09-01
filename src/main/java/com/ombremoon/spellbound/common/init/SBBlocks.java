@@ -120,7 +120,7 @@ public class SBBlocks {
     public static final Supplier<Block> SANDSTONE_DIVINE_SHRINE = registerBlock("sandstone_divine_shrine", () -> new DivineShrineBlock(blockProperties()));
     public static final Supplier<Block> PLAINS_DIVINE_SHRINE = registerBlock("plains_divine_shrine", () -> new DivineShrineBlock(blockProperties()));
     public static final Supplier<Block> JUNGLE_DIVINE_SHRINE = registerBlock("jungle_divine_shrine", () -> new DivineShrineBlock(blockProperties()));
-    public static final Supplier<Block> VALKYR_STATUE = registerBlock("valkyr_statue", () -> new ValkyrStatueBlock(blockProperties().noOcclusion()));
+    public static final Supplier<Block> VALKYR_STATUE = registerBlock("valkyr_statue", () -> new ValkyrStatueBlock(blockProperties().noOcclusion().strength(5f)));
     public static final Supplier<Block> UMBRAL_SLUDGE = registerSludge("umbral_sludge", true);
     public static final Supplier<Block> PENUMBRAL_SLUDGE = registerSludge("penumbral_sludge", false);
 //    public static final Supplier<Block> WOVEN_SHADE = registerSimpleBlock("woven_shade");

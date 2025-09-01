@@ -13,16 +13,17 @@
     "ServerLevelMixin",
     "ServerPlayerMixin",
     "StructureBlockEntityMixin",
+    "StructureTemplateMixin",
     "ZombieVillagerMixin"
   ],
   "client": [
     "ClientLevelMixin",
     "EffectRenderingInventoryScreenMixin",
     "GameRendererMixin",
-    "PlayerModelMixin",
     "LevelRendererMixin",
     "LivingEntityRendererMixin",
     "MinecraftMixin",
+    "PlayerModelMixin",
     "StructureBlockRendererMixin"
   ],
   "injectors": {
