@@ -1,5 +1,6 @@
 {
   "id": "spellbound:starter_book",
+  "insertAfter": "spellbound:first_page",
   "elements": [
 
     {
@@ -17,17 +18,6 @@
       "position": {
         "xOffset": 0,
         "yOffset": 10
-      }
-    },
-
-    {
-      "type": "spellbound:image",
-      "location": "spellbound:textures/gui/books/starter_book.png",
-      "width": 103,
-      "height": 91,
-      "position": {
-        "xOffset": -20,
-        "yOffset": 20
       }
     }
 

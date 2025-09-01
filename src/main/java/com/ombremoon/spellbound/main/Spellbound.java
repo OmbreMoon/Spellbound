@@ -85,5 +85,6 @@ public class Spellbound {
         event.register(SBTriggers.REGISTRY);
         event.register(SBMultiblockSerializers.REGISTRY);
         event.register(SBRitualEffects.REGISTRY);
+        event.register(SBPageElements.REGISTRY);
     }
 }
