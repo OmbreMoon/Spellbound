@@ -171,7 +171,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
 
     private boolean canAttack(LivingEntity entity) {
         return entity instanceof Mob mob
-                && !mob.isAlliedTo(getCastContext().getCaster());
+                /*&& !mob.isAlliedTo(getCastContext().getCaster())*/;
     }
 
     @Override
@@ -187,7 +187,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
     }
 
     private void onDamagePre(DamageEvent.Pre pre) {
-        HealingBlossom blossom = getBlossom(getCastContext());
+        /*HealingBlossom blossom = getBlossom(getCastContext());
         if (blossom == null) return;
         if (!blossom.isEmpowered()) return;
 
@@ -198,7 +198,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
             blossom.setEmpowered(false);
             if (pre.getCaster() instanceof Player player)
                 shakeScreen(player); //TODO: Sort intensity and add revive anim
-        }
+        }*/
     }
 
     @Override

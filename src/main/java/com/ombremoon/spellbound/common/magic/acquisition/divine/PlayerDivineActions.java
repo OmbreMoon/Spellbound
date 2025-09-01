@@ -286,14 +286,20 @@ public class PlayerDivineActions implements Loggable {
         Level level = livingEntity.level();
         if (!level.isClientSide) {
             float f = livingEntity.getHealth();
+            float f1 = Mth.clamp(f + event.getAmount(), 0, livingEntity.getMaxHealth());
+            boolean flag = f < livingEntity.getMaxHealth() && f1 >= livingEntity.getMaxHealth();
             Entity entity = level.getEntity(livingEntity.getData(SBData.INTERACT_HEAL_TARGET));
             if (entity instanceof ServerPlayer player) {
-                SBTriggers.ENTITY_HEALED.get().trigger(player, livingEntity, f, Mth.clamp(f + event.getAmount(), 0, livingEntity.getMaxHealth()));
+                SBTriggers.ENTITY_HEALED.get().trigger(player, livingEntity, f, f1);
+                if (flag)
+                    SBTriggers.HEAL_TO_FULL.get().trigger(player, livingEntity, f, f1);
             }
 
             Entity entity1 = level.getEntity(livingEntity.getData(SBData.EFFECT_HEAL_TARGET));
             if (entity1 instanceof ServerPlayer player) {
-                SBTriggers.ENTITY_HEALED.get().trigger(player, livingEntity, f, Mth.clamp(f + event.getAmount(), 0, livingEntity.getMaxHealth()));
+                SBTriggers.ENTITY_HEALED.get().trigger(player, livingEntity, f, f1);
+                if (flag)
+                    SBTriggers.HEAL_TO_FULL.get().trigger(player, livingEntity, f, f1);
             }
         }
     }

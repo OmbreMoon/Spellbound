@@ -22,6 +22,7 @@ public class StormstrikeEffect extends SBEffect {
         super(category, color);
     }
 
+
     @Override
     public void onEffectStarted(LivingEntity livingEntity, int amplifier) {
         int ownerId = livingEntity.getData(SBData.STORMSTRIKE_OWNER);

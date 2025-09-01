@@ -224,8 +224,12 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * Returns the amount of time it takes to cast the spells.
      * @return The cast time
      */
-    public int getCastTime() {
+    public int getCastTime(SpellContext context) {
         return this.castTime;
+    }
+
+    public int getCastTime() {
+        return this.getCastTime(this.castContext);
     }
 
     /**
@@ -486,15 +490,18 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param context The casting specific spells context
      */
     public void onCastReset(SpellContext context) {
-        context.getSpellHandler().setCurrentlyCastingSpell(null);
         if (context.getLevel().isClientSide)
             KeyBinds.getSpellCastMapping().setDown(false);
     }
 
     public void resetCast(SpellHandler handler) {
+        this.resetCast(handler, this.castContext);
+    }
+
+    public void resetCast(SpellHandler handler, SpellContext context) {
         handler.castTick = 0;
-        this.onCastReset(this.castContext);
         PayloadHandler.castReset(this.spellType(), this.isRecast);
+        this.onCastReset(context);
     }
 
     /**
@@ -632,7 +639,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     public boolean hurt(LivingEntity targetEntity, float hurtAmount) {
         SpellPath subPath = this.getSubPath();
         if (subPath == null)
-            return hurt(targetEntity, SBDamageTypes.SB_GENERIC, hurtAmount);;
+            return hurt(targetEntity, SBDamageTypes.SB_GENERIC, hurtAmount);
 
         var effect = subPath.getEffect();
         if (effect == null)
@@ -1216,7 +1223,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
             this.initNoCast(caster, level, blockPos, target);
 
             var handler = SpellUtil.getSpellCaster(caster);
-            handler.setCurrentlyCastingSpell(null);
+//            handler.setCurrentlyCastingSpell(null);
             boolean incrementId = true;
             boolean shiftSpells = false;
             CompoundTag nbt = new CompoundTag();
@@ -1306,7 +1313,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         this.loadData(spellData);
 
         var handler = SpellUtil.getSpellCaster(caster);
-        handler.setCurrentlyCastingSpell(null);
+//        handler.setCurrentlyCastingSpell(null);
         activateSpell();
         EventFactory.onSpellCast(caster, this, this.context);
 

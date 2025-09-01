@@ -105,7 +105,8 @@ public class SolarRaySpell extends ChanneledSpell {
                 .baseDamage(3)
                 .castTime(23)
                 .castAnimation(context -> "solar_ray_cast")
-                .channelAnimation(context -> "solar_ray_channel");
+                .channelAnimation(context -> "solar_ray_channel")
+                .stopChannelAnimation("solar_ray_end");
     }
 
     public SolarRaySpell() {
@@ -210,7 +211,7 @@ public class SolarRaySpell extends ChanneledSpell {
         LivingEntity caster = context.getCaster();
         var handler = context.getSpellHandler();
         var skills = context.getSkills();
-        handler.setStationaryTicks(16);
+        handler.setStationaryTicks(20);
         removeSkillBuff(caster, SBSkills.OVERPOWER);
         for (SentinelBox box : BOXES) {
             ((ISentinel) caster).removeSentinelInstance(box);
@@ -276,15 +277,15 @@ public class SolarRaySpell extends ChanneledSpell {
                                         }
                                     }
 
-//                                    if (skills.hasSkill(SBSkills.BLINDING_LIGHT))
-                                    spell.addSkillBuff(
-                                            livingEntity,
-                                            SBSkills.BLINDING_LIGHT,
-                                            BuffCategory.HARMFUL,
-                                            SkillBuff.MOB_EFFECT,
-                                            new MobEffectInstance(MobEffects.BLINDNESS, 100, 0, true, true),
-                                            100
-                                    );
+                                    if (skills.hasSkill(SBSkills.BLINDING_LIGHT))
+                                        spell.addSkillBuff(
+                                                livingEntity,
+                                                SBSkills.BLINDING_LIGHT,
+                                                BuffCategory.HARMFUL,
+                                                SkillBuff.MOB_EFFECT,
+                                                new MobEffectInstance(MobEffects.BLINDNESS, 100, 0, true, true),
+                                                100
+                                        );
 
                                     if (skills.hasSkill(SBSkills.AFTERGLOW)) {
                                         spell.addSkillBuff(

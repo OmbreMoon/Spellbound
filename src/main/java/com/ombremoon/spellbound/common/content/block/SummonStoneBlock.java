@@ -97,7 +97,8 @@ public class SummonStoneBlock extends Block {
 
     public void activateStone(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand) {
         if (!state.getValue(POWERED)) {
-            if (this.hasSpell()) {
+            boolean canTeleportInDimension = level.dimension() == Level.NETHER || level.dimension() == Level.OVERWORLD;
+            if (this.hasSpell() && canTeleportInDimension) {
                 BlockPattern.BlockPatternMatch blockPatternMatch = getOrCreatePortalShape().find(level, pos);
                 if (blockPatternMatch != null) {
                     var handler = SpellUtil.getSpellCaster(player);
@@ -153,7 +154,7 @@ public class SummonStoneBlock extends Block {
                     )
                     .where('*',
                             BlockInWorld.hasState(
-                                    state -> state.getBlock() instanceof SummonStoneBlock block && block.spell != null/* && state.getValue(POWERED)*/
+                                    state -> state.getBlock() instanceof SummonStoneBlock block && block.spell != null
                             )
                     )
                     .build();
