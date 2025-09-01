@@ -1,20 +1,32 @@
 package com.ombremoon.spellbound.mixin;
 
+import com.ombremoon.spellbound.common.content.block.ExtendedBlock;
 import com.ombremoon.spellbound.common.content.world.hailstorm.ClientHailstormData;
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.CubicSampler;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ClientLevel.class)
 public abstract class ClientLevelMixin {
+
+    @Shadow
+    @Final
+    private LevelRenderer levelRenderer;
 
     @Inject(method = "getSkyDarken", at = @At("RETURN"), cancellable = true)
     private void getSkyDarken(float partialTick, CallbackInfoReturnable<Float> cir) {
@@ -28,7 +40,7 @@ public abstract class ClientLevelMixin {
         f1 *= 1.0F - level.getRainLevel(partialTick) * 5.0F / 16.0F;
         f1 *= 1.0F - level.getThunderLevel(partialTick) * 5.0F / 16.0F;
         f1 *= 1.0F - f2 * 5.0F / 16.0F;
-        cir.setReturnValue(f1 * 0.8F + 0.2F);
+        cir.setReturnValue(Float.valueOf(f1 * 0.8F + 0.2F));
     }
 
     @Inject(method = "getSkyColor", at = @At("RETURN"), cancellable = true)
@@ -82,5 +94,18 @@ public abstract class ClientLevelMixin {
             f4 = f4 * f7 + f6 * (1.0F - f7);
         }
         cir.setReturnValue(new Vec3(f2, f3, f4));
+    }
+
+    @Inject(method = "destroyBlockProgress", at = @At(value = "HEAD"), cancellable = true)
+    public void destroyBlockProgress(int breakerId, BlockPos pos, int progress, CallbackInfo ci) {
+        ClientLevel level = (ClientLevel) (Object)this;
+        BlockState blockState = level.getBlockState(pos);
+
+        if (blockState.getBlock() instanceof ExtendedBlock multiBlock && !blockState.getRenderShape().equals(RenderShape.MODEL)) {
+
+            levelRenderer.destroyBlockProgress(breakerId, multiBlock.getCenter(level, pos), progress);
+
+            ci.cancel();
+        }
     }
 }

@@ -5,10 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
@@ -93,7 +90,7 @@ public interface ExtendedBlock {
     default BlockState getStateForPlacementHelper(BlockPlaceContext context, Direction direction) {
         LevelReader level = context.getLevel();
         BlockPos pos = context.getClickedPos();
-        BlockState state = getBlock().defaultBlockState();
+        BlockState state = getBlock().defaultBlockState().setValue(AbstractExtendedBlock.CENTER, true);
 
         if (getDirectionProperty() != null){
             state = state.setValue(getDirectionProperty(), direction);
@@ -169,14 +166,9 @@ public interface ExtendedBlock {
         }
     }
 
-    default void fixInStructures(BlockState state, Level level, BlockPos pos, BlockState oldState){
-        if (
-                level.getBlockEntity(pos) instanceof ExtendedBlockEntity blockEntity
-                && !blockEntity.isPlaced
-                && !oldState.is(getBlock())
-                && isCenter(state)
-        ) {
-            level.scheduleTick(pos, state.getBlock(), 5);
+    default void fixInStructures(BlockState state, ServerLevelAccessor level, BlockPos pos){
+        if (isCenter(state)) {
+            level.scheduleTick(pos, state.getBlock(), 3);
         }
     }
 
@@ -198,9 +190,11 @@ public interface ExtendedBlock {
         if (!isCenter(state)) return false;
 
         return fullBlockShape(pos, state).anyMatch(blockPos -> {
+
            if (level.getBlockEntity(blockPos) instanceof ExtendedBlockEntity entity){
               return !(entity.center.equals(pos) && !isCenter(level.getBlockState(blockPos)));
            }
+
            return true;
         });
     }
