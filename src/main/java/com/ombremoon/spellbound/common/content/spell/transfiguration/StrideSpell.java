@@ -34,6 +34,8 @@ public class StrideSpell extends AnimatedSpell {
         return createSimpleSpellBuilder(StrideSpell.class)
                 .duration(600)
                 .manaCost(12)
+                .castTime(20)
+                .castAnimation(context -> "self_buff")
                 .hasLayer()
                 .fullRecast();
     }

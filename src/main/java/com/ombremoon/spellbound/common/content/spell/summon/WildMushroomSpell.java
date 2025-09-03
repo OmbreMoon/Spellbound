@@ -42,6 +42,7 @@ public class WildMushroomSpell extends AnimatedSpell {
                 .duration(240)
                 .manaCost(30)
                 .baseDamage(4.0F)
+                .summonCast()
                 .castCondition((context, spell) -> spell.hasValidSpawnPos());
     }
 

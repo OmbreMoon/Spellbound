@@ -1223,7 +1223,6 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
             this.initNoCast(caster, level, blockPos, target);
 
             var handler = SpellUtil.getSpellCaster(caster);
-//            handler.setCurrentlyCastingSpell(null);
             boolean incrementId = true;
             boolean shiftSpells = false;
             CompoundTag nbt = new CompoundTag();
@@ -1275,7 +1274,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
                 player.awardStat(SBStats.SPELLS_CAST.get());
             }
 
-
+            handler.setCurrentlyCastingSpell(null);
             activateSpell();
             EventFactory.onSpellCast(caster, this, this.context);
 
@@ -1312,8 +1311,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
         this.loadData(spellData);
 
-        var handler = SpellUtil.getSpellCaster(caster);
-//        handler.setCurrentlyCastingSpell(null);
+        this.context.getSpellHandler().setCurrentlyCastingSpell(null);
         activateSpell();
         EventFactory.onSpellCast(caster, this, this.context);
 

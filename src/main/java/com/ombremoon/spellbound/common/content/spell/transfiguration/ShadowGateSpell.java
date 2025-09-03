@@ -37,7 +37,6 @@ public class ShadowGateSpell extends AnimatedSpell implements RadialSpell {
                 .mastery(SpellMastery.ADEPT)
                 .manaCost(25)
                 .duration(1200)
-                .castTime(20)
                 .castCondition((context, spell) -> {
                     var skills = context.getSkills();
                     int activePortals = spell.portalMap.size();
@@ -57,6 +56,7 @@ public class ShadowGateSpell extends AnimatedSpell implements RadialSpell {
                     int i = context.getLevel().getRawBrightness(blockPos, 0) + context.getLevel().getBrightness(LightLayer.BLOCK, blockPos) - context.getLevel().getSkyDarken();
                     return i <= 4;
                 })
+                .summonCast()
                 .fullRecast()
                 .skipEndOnRecast();
     }

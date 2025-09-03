@@ -192,7 +192,7 @@ public class Valkyr extends SBLivingEntity implements NeutralMob {
     public static AttributeSupplier.Builder createValkyrAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 400.0D)
-                .add(Attributes.MOVEMENT_SPEED, 0.25)
+                .add(Attributes.MOVEMENT_SPEED, 0.20)
                 .add(Attributes.FLYING_SPEED, 0.45)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0);
     }
@@ -312,6 +312,10 @@ public class Valkyr extends SBLivingEntity implements NeutralMob {
 
         private float angle;
 
+        public CircleAroundShrine() {
+            this.noTimeout();
+        }
+
         @Override
         protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
             return MEMORY_REQUIREMENTS;
@@ -340,7 +344,7 @@ public class Valkyr extends SBLivingEntity implements NeutralMob {
         }
         protected boolean touchingTarget() {
             WalkTarget target = BrainUtils.getMemory(Valkyr.this, MemoryModuleType.WALK_TARGET);
-            return target == null || target.getTarget().currentPosition().distanceToSqr(Valkyr.this.getX(), Valkyr.this.getY(), Valkyr.this.getZ()) < 2.0;
+            return target == null || target.getTarget().currentPosition().distanceToSqr(Valkyr.this.getX(), Valkyr.this.getY(), Valkyr.this.getZ()) < 4.0;
         }
 
         private void selectNext() {

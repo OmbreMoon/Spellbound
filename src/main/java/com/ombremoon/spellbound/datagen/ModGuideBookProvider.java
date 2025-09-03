@@ -19,7 +19,7 @@ public class ModGuideBookProvider extends GuideBookProvider {
 
     @Override
     public void generate(HolderLookup.Provider registries, Consumer<GuideBookPage> writer) {
-        var book = new GuideBookPage(CommonClass.customLocation("test"), CommonClass.customLocation("null"), List.of(), List.of(new GuideText("hi", new ElementPosition(3, 5))));
-        writer.accept(book);
+//        var book = new GuideBookPage(CommonClass.customLocation("test"), CommonClass.customLocation("null"), List.of(), List.of(new GuideText("hi", new ElementPosition(3, 5))));
+//        writer.accept(book);
     }
 }

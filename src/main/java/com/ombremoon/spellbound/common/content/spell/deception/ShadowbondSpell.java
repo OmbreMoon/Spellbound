@@ -51,6 +51,7 @@ public class ShadowbondSpell extends AnimatedSpell {
                     }
                     return !context.isRecast() && context.getTarget() instanceof LivingEntity target && !spell.checkForCounterMagic(target);
                 })
+                .instantCast()
                 .fullRecast()
                 .skipEndOnRecast();
     }

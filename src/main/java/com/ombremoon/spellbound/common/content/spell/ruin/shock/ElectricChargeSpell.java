@@ -40,6 +40,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
                         return context.isRecast();
                     }
                 })
+                .instantCast()
                 .fullRecast()
                 .updateInterval(1);
     }

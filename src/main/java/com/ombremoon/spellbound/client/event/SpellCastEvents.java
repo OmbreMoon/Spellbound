@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.client.event;
 
+import com.ombremoon.spellbound.client.AnimationHelper;
 import com.ombremoon.spellbound.client.gui.WorkbenchScreen;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.api.SpellType;
@@ -52,12 +53,13 @@ public class SpellCastEvents {
     }
 
     public static void chargeOrChannelSpell(EntityTickEvent.Post event) {
-        if (!isAbleToSpellCast()) return;
-
         Entity entity = event.getEntity();
         if (!(entity instanceof Player player)) return;
 
+        AnimationHelper.tick();
         var handler = SpellUtil.getSpellCaster(player);
+
+        if (!isAbleToSpellCast()) return;
         if (!handler.inCastMode()) return;
 
         var spellType = handler.getSelectedSpell();

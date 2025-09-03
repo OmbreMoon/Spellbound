@@ -30,6 +30,8 @@ public class HealingTouchSpell extends AnimatedSpell {
         return createSimpleSpellBuilder(HealingTouchSpell.class)
                 .manaCost(15)
                 .duration(100)
+                .castTime(20)
+                .castAnimation(context -> "self_buff")
                 .fullRecast();
     }
 

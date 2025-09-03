@@ -87,6 +87,23 @@ public abstract class AnimatedSpell extends AbstractSpell {
             return this;
         }
 
+        public Builder<T> instantCast() {
+            this.castAnimation = context -> "instant_cast";
+            this.castTime = 5;
+            return this;
+        }
+
+        public Builder<T> simpleCast() {
+            this.castAnimation = context -> "simple_cast";
+            return this;
+        }
+
+        public Builder<T> summonCast() {
+            this.castAnimation = context -> "summon";
+            this.castTime = 30;
+            return this;
+        }
+
         public Builder<T> castCondition(BiPredicate<SpellContext, T> castCondition) {
             this.castPredicate = castCondition;
             return this;
