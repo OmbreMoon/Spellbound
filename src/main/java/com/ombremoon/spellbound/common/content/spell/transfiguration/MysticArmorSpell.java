@@ -52,7 +52,7 @@ public class MysticArmorSpell extends AnimatedSpell {
                 PRE_DAMAGE,
                 pre -> {
                     if (isSpellDamage(pre.getSource())) {
-                        float f = 0.15F + 0.03F * Math.min(10, context.getSkills().getPathLevel(SpellPath.TRANSFIGURATION));
+                        float f = 0.15F + 0.03F * Math.min(10, context.getSkills().getPathLevel(SpellPath.TRANSFIGURATION)) + (0.05F * context.getSpellLevel());
                         pre.setNewDamage(pre.getOriginalDamage() * f);
                     }
 

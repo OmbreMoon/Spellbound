@@ -15,6 +15,7 @@ import java.util.function.Predicate;
  */
 public abstract class AnimatedSpell extends AbstractSpell {
     private final Function<SpellContext, String> castAnimation;
+    private final Function<SpellContext, String> failAnimation;
 
     public static <T extends AnimatedSpell> Builder<T> createSimpleSpellBuilder(Class<T> spellClass) {
         return new Builder<>();
@@ -23,6 +24,7 @@ public abstract class AnimatedSpell extends AbstractSpell {
     public AnimatedSpell(SpellType<?> spellType, Builder<?> builder) {
         super(spellType, EventFactory.getAnimatedBuilder(spellType, builder));
         this.castAnimation = builder.castAnimation;
+        this.failAnimation = builder.failAnimation;
     }
 
     @Override
@@ -37,15 +39,15 @@ public abstract class AnimatedSpell extends AbstractSpell {
     @Override
     public void onCastReset(SpellContext context) {
         super.onCastReset(context);
-        String animation = this.castAnimation.apply(context);
-        if (context.getLevel().isClientSide && !animation.isEmpty() && context.getCaster() instanceof Player player)
-            //Fade to fail animation
-            stopAnimation(player);
+//        context.getSpellHandler().setStationaryTicks(this.getCastTime());
+//        String animation = this.failAnimation.apply(context);
+//        if (!context.getLevel().isClientSide && !animation.isEmpty() && context.getCaster() instanceof Player player)
+//            playAnimation(player, animation);
     }
 
     public static class Builder<T extends AnimatedSpell> extends AbstractSpell.Builder<T> {
         protected Function<SpellContext, String> castAnimation = context -> "simple_cast";
-        protected Function<SpellContext, String> failAnimation = context -> "";
+        protected Function<SpellContext, String> failAnimation = context -> "spell_fail";
 
         public Builder<T> mastery(SpellMastery mastery) {
             this.spellMastery = mastery;
@@ -72,8 +74,15 @@ public abstract class AnimatedSpell extends AbstractSpell {
             return this;
         }
 
+        public Builder<T> castTime(int castTime, int stationaryTicks) {
+            this.castTime = castTime;
+            this.stationaryTicks = stationaryTicks;
+            return this;
+        }
+
         public Builder<T> castTime(int castTime) {
             this.castTime = castTime;
+            this.stationaryTicks = castTime;
             return this;
         }
 
@@ -90,17 +99,20 @@ public abstract class AnimatedSpell extends AbstractSpell {
         public Builder<T> instantCast() {
             this.castAnimation = context -> "instant_cast";
             this.castTime = 5;
-            return this;
-        }
-
-        public Builder<T> simpleCast() {
-            this.castAnimation = context -> "simple_cast";
+            this.stationaryTicks = 11;
             return this;
         }
 
         public Builder<T> summonCast() {
             this.castAnimation = context -> "summon";
             this.castTime = 30;
+            this.stationaryTicks = 62;
+            return this;
+        }
+
+        public Builder<T> selfBuffCast() {
+            this.castAnimation = context -> "self_buff";
+            this.stationaryTicks = 43;
             return this;
         }
 
@@ -135,11 +147,6 @@ public abstract class AnimatedSpell extends AbstractSpell {
 
         public Builder<T> skipEndOnRecast() {
             this.skipEndOnRecast = context -> true;
-            return this;
-        }
-
-        public Builder<T> noShift(Predicate<SpellContext> noShift) {
-            this.shiftSpells = noShift;
             return this;
         }
 

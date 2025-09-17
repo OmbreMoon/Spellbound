@@ -41,7 +41,7 @@ public record SpellModifier(ResourceLocation id, ModifierType modifierType, Pred
     public static final SpellModifier SYNTHESIS = registerModifier("synthesis", ModifierType.MANA, spell -> spell == SBSpells.WILD_MUSHROOM.get(), 0F);
     public static final SpellModifier ENDURANCE = registerModifier("endurance", ModifierType.DURATION, spell -> spell == SBSpells.STRIDE.get(), 2F);
     public static final SpellModifier FORESIGHT = registerModifier("foresight", ModifierType.MANA, spell -> spell == SBSpells.MYSTIC_ARMOR.get(), 0.85F);
-    public static final SpellModifier GALE_FORCE = registerModifier("gale_force", ModifierType.DURATION, spell -> spell == SBSpells.CYCLONE.get(), 2F);
+//    public static final SpellModifier GALE_FORCE = registerModifier("gale_force", ModifierType.DURATION, spell -> spell == SBSpells.CYCLONE.get(), 2F);
     public static final SpellModifier RESIDUAL_DISRUPTION = registerModifier("residual_disruption", ModifierType.CAST_CHANCE, spell -> true, 0.5F);
     public static final SpellModifier UNFOCUSED = registerModifier("unfocused", ModifierType.POTENCY, spell -> true, 0.8F);
 

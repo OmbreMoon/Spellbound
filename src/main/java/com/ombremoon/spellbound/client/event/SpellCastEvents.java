@@ -67,7 +67,7 @@ public class SpellCastEvents {
 
         AbstractSpell spell = handler.getCurrentlyCastSpell();
         if (spell != null) {
-            if (handler.castTick < 0 && !SpellUtil.canCastSpell(player, spell)) {
+            if (handler.castTick > 0 && !SpellUtil.canCastSpell(player, spell)) {
                 SpellContext spellContext = createContext(player, handler, spell);
                 spell.resetCast(handler, spellContext);
             }
@@ -124,9 +124,5 @@ public class SpellCastEvents {
     public static void castSpell(Player player) {
         if (player.isSpectator()) return;
         PayloadHandler.castSpell();
-    }
-
-    public static void openWorkbench() {
-        Minecraft.getInstance().setScreen(new WorkbenchScreen(Component.translatable("screen.spellbound.workbench")));
     }
 }

@@ -23,12 +23,7 @@ import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.Loggable;
 import com.ombremoon.spellbound.util.SpellUtil;
-import dev.kosmx.playerAnim.api.layered.IAnimation;
-import dev.kosmx.playerAnim.api.layered.KeyframeAnimationPlayer;
-import dev.kosmx.playerAnim.api.layered.ModifierLayer;
-import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
 import net.minecraft.Util;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -94,12 +89,12 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     private final float baseDamage;
     private final float xpModifier;
     private final int castTime;
+    private final int stationaryTicks;
     private final BiPredicate<SpellContext, AbstractSpell> castPredicate;
     private final CastType castType;
     private final SoundEvent castSound;
     private final boolean fullRecast;
     private final Predicate<SpellContext> skipEndOnRecast;
-    private final Predicate<SpellContext> shiftSpells;
     private final boolean hasLayer;
     private final Predicate<SpellContext> negativeScaling;
     private final int updateInterval;
@@ -141,12 +136,12 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         this.baseDamage = builder.baseDamage;
         this.xpModifier = builder.xpModifier;
         this.castTime = builder.castTime;
+        this.stationaryTicks = builder.stationaryTicks;
         this.castPredicate = (BiPredicate<SpellContext, AbstractSpell>) builder.castPredicate;
         this.castType = builder.castType;
         this.castSound = builder.castSound;
         this.fullRecast = builder.fullRecast;
         this.skipEndOnRecast = builder.skipEndOnRecast;
-        this.shiftSpells = builder.shiftSpells;
         this.hasLayer = builder.hasLayer;
         this.negativeScaling = builder.negativeScaling;
         this.updateInterval = builder.updateInterval;
@@ -216,8 +211,13 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * Returns the type of cast the spells takes. Instant spells will cast instantly after spells cast, charged spells have the capability to be charged after spells cast, and channeled spells must be channeled to keep the spells active.
      * @return The cast type
      */
-    public CastType getCastType() {
+    public CastType getCastType(SpellContext context) {
         return this.castType;
+    }
+
+    public CastType getCastType() {
+        SpellContext context = this.isCasting() ? this.castContext : this.context;
+        return this.getCastType(context);
     }
 
     /**
@@ -230,6 +230,10 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
     public int getCastTime() {
         return this.getCastTime(this.castContext);
+    }
+
+    public boolean isCasting() {
+        return !this.init && this.context == null;
     }
 
     /**
@@ -482,6 +486,8 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         if (!context.getLevel().isClientSide) {
             this.spellData.set(CAST_POS, context.getBlockPos());
             this.sendDirtySpellData();
+        } else {
+            context.getSpellHandler().setStationaryTicks(this.stationaryTicks);
         }
     }
 
@@ -490,8 +496,10 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param context The casting specific spells context
      */
     public void onCastReset(SpellContext context) {
-        if (context.getLevel().isClientSide)
+        if (context.getLevel().isClientSide) {
             KeyBinds.getSpellCastMapping().setDown(false);
+//            context.getSpellHandler().setStationaryTicks(0);
+        }
     }
 
     public void resetCast(SpellHandler handler) {
@@ -535,7 +543,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     /**
-     * Checks if the spells should tick. Can be used to start/stop spells effects in certain conditions
+     * Checks if the spells should tick. Can be used to start/stopAnimation spells effects in certain conditions
      * @param context The spells context
      * @return Whether the spells should tick
      */
@@ -842,11 +850,11 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     public <T extends Entity & ISpellEntity<?>> T summonEntity(SpellContext context, EntityType<T> entityType) {
-        return this.summonEntity(context, entityType, SpellUtil.getCastRange(this.caster));
+        return this.summonEntity(context, entityType, entity -> {});
     }
 
-    public <T extends Entity & ISpellEntity<?>> T summonEntity(SpellContext context, EntityType<T> entityType, double range) {
-        return this.summonEntity(context, entityType, range, entity -> {});
+    public <T extends Entity & ISpellEntity<?>> T summonEntity(SpellContext context, EntityType<T> entityType, Consumer<T> extraData) {
+        return this.summonEntity(context, entityType, SpellUtil.getCastRange(this.caster), extraData);
     }
 
     public <T extends Entity & ISpellEntity<?>> T summonEntity(SpellContext context, EntityType<T> entityType, double range, Consumer<T> extraData) {
@@ -1053,17 +1061,30 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param animationName The animation path location
      */
     protected void playAnimation(Player player, String animationName) {
-        if (!player.level().isClientSide)
-            PayloadHandler.playAnimation(player, animationName);
+        if (!player.level().isClientSide) {
+            var handler = SpellUtil.getSpellCaster(player);
+            handler.playAnimation(player, animationName, SpellUtil.getCastSpeed(player));
+        }
     }
 
-    protected void stopAnimation(Player player) {
-        var animation = (ModifierLayer<IAnimation>) PlayerAnimationAccess.getPlayerAssociatedData((AbstractClientPlayer) player).get(CommonClass.customLocation("animation"));
-        if (animation == null) return;
+    protected void stopAnimation(Player player, String animationName) {
+        if (!player.level().isClientSide)
+            PayloadHandler.handleAnimation(player, animationName, 0.0F, true);
+    }
 
-        var layer = ((KeyframeAnimationPlayer)animation.getAnimation());
-        if (layer != null)
-            layer.stop();
+    protected void playMovementAnimation(Player player, String animationName, @Nullable String fallbackAnimation) {
+        var caster = SpellUtil.getSpellCaster(player);
+        if (caster.isMoving() && !caster.movementDirty) {
+            caster.movementDirty = true;
+            playAnimation(player, animationName);
+        } else if (!caster.isMoving() && caster.movementDirty) {
+            caster.movementDirty = false;
+            if (fallbackAnimation != null) {
+                playAnimation(player, fallbackAnimation);
+            } else {
+                stopAnimation(player, animationName);
+            }
+        }
     }
 
     public boolean shouldRender(SpellContext context) {
@@ -1256,20 +1277,23 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
             if (!SpellUtil.canCastSpell(caster, this) || !(this.castPredicate.test(this.context, this) && RandomUtil.percentChance(getCastChance()))) {
                 onCastReset(this.context);
-                if (caster instanceof Player player)
-                    PayloadHandler.updateSpells(player, nbt, this.isRecast, this.castId, true, shiftSpells);
+                if (caster instanceof Player player) {
+                    CompoundTag initTag = this.initTag(this.isRecast, true, shiftSpells);
+                    PayloadHandler.updateSpells(player, this.spellType, this.castId, initTag, nbt);
+                }
 
                 return;
             }
 
             int spellCap = this.context.getSpellLevel() + 1;
-            if (this.castId > spellCap && !this.shiftSpells.test(this.context)) {
+            if (this.castId > spellCap) {
                 this.shiftSpells(this.context.getActiveSpells() >= spellCap, false);
                 shiftSpells = true;
             }
 
             if (caster instanceof Player player) {
-                PayloadHandler.updateSpells(player, nbt, this.isRecast, this.castId, false, shiftSpells);
+                CompoundTag initTag = this.initTag(this.isRecast, false, shiftSpells);
+                PayloadHandler.updateSpells(player, this.spellType, this.castId, initTag, nbt);
                 awardXp(this.manaCost * this.xpModifier);
                 player.awardStat(SBStats.SPELLS_CAST.get());
             }
@@ -1291,13 +1315,13 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * @param castId The specific numeric id for the spell instance
      * @param forceReset Whether the spell failed casting on the server
      */
-    public void clientInitSpell(LivingEntity caster, Level level, BlockPos blockPos, CompoundTag spellData, boolean isRecast, int castId, boolean forceReset, boolean shiftSpells) {
+    public void clientInitSpell(LivingEntity caster, Level level, BlockPos blockPos, int castId, CompoundTag spellData, boolean isRecast, boolean forceReset, boolean shiftSpells) {
         this.level = level;
         this.caster = caster;
         this.blockPos = blockPos;
 
         this.isRecast = isRecast;
-        this.context = new SpellContext(this.spellType(), this.caster, this.level, this.blockPos, this.getTargetEntity(), this.isRecast);
+        this.context = new SpellContext(this.spellType(), this.caster, this.level, this.blockPos, this.getTargetEntity(), isRecast);
 
         if (forceReset) {
             onCastReset(this.context);
@@ -1332,7 +1356,9 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
 
         var handler = SpellUtil.getSpellCaster(caster);
         var list = handler.getActiveSpells(spellType());
-        if (!list.isEmpty()) this.isRecast = true;
+        if (!list.isEmpty())
+            this.isRecast = true;
+
         this.context = new SpellContext(this.spellType(), this.caster, this.level, this.blockPos, target, this.isRecast);
     }
 
@@ -1344,7 +1370,7 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
      * Returns the spells cast prior to this one of the same spells type. Necessary for saving/loading data on recast spells.
      * @return The previously cast spells
      */
-    private AbstractSpell getPreviouslyCastSpell() {
+    protected AbstractSpell getPreviouslyCastSpell() {
         var handler = this.context.getSpellHandler();
         var spells = handler.getActiveSpells(spellType());
         AbstractSpell spell = this;
@@ -1373,6 +1399,14 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         }
 
         this.castId = list.size() + 1;
+    }
+
+    private CompoundTag initTag(boolean isRecast, boolean forceReset, boolean shiftSpells) {
+        CompoundTag nbt = new CompoundTag();
+        nbt.putBoolean("isRecast", isRecast);
+        nbt.putBoolean("forceReset", forceReset);
+        nbt.putBoolean("shiftSpells", shiftSpells);
+        return nbt;
     }
 
     /**
@@ -1435,14 +1469,14 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         protected int duration = 10;
         protected int manaCost;
         protected float baseDamage;
-        protected int castTime = 20;
+        protected int castTime = 10;
+        protected int stationaryTicks = 20;
         protected float xpModifier = 0.2F;
         protected BiPredicate<SpellContext, T> castPredicate = (context, abstractSpell) -> true;
         protected CastType castType = CastType.INSTANT;
         protected SoundEvent castSound;
         protected boolean fullRecast;
         protected Predicate<SpellContext> skipEndOnRecast = context -> false;
-        protected Predicate<SpellContext> shiftSpells = context -> false;
         protected boolean hasLayer;
         protected Predicate<SpellContext> negativeScaling = context -> false;
         protected int updateInterval = 3;
@@ -1502,8 +1536,15 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
          * @param castTime The cast time
          * @return The spells builder
          */
+        public Builder<T> castTime(int castTime, int stationaryTicks) {
+            this.castTime = castTime;
+            this.stationaryTicks = stationaryTicks;
+            return this;
+        }
+
         public Builder<T> castTime(int castTime) {
             this.castTime = castTime;
+            this.stationaryTicks = castTime;
             return this;
         }
 
@@ -1571,15 +1612,6 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
         }
 
         /**
-         * Condition to stop spell id shifting on recast. Only use if {@link Builder#fullRecast()} is not in use.
-         * @return The spells builder
-         */
-        public Builder<T> noShift(Predicate<SpellContext> noShift) {
-            this.shiftSpells = noShift;
-            return this;
-        }
-
-        /**
          * Must be set to render the layer set by this spell.
          * @return The spells builder
          */
@@ -1614,6 +1646,6 @@ public abstract class AbstractSpell implements GeoAnimatable, SpellDataHolder, L
     }
 
     public enum CastType {
-        INSTANT, CHARGING, CHANNEL
+        INSTANT, CHANNEL
     }
 }

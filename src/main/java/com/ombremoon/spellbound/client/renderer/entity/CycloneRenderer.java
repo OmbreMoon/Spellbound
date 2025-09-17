@@ -1,3 +1,4 @@
+/*
 package com.ombremoon.spellbound.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -17,3 +18,4 @@ public class CycloneRenderer extends OutlineSpellRenderer<Cyclone> {
         poseStack.scale(scale, scale, scale);
     }
 }
+*/

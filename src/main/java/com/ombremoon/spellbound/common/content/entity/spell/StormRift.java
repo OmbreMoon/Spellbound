@@ -171,9 +171,9 @@ public class StormRift extends PortalEntity<StormRiftSpell> {
 
     protected <T extends GeoAnimatable> PlayState stormRiftController(AnimationState<T> data) {
         if (isStarting()) {
-//            data.setAnimation(RawAnimation.begin().thenPlay("spawn"));
+            data.setAnimation(RawAnimation.begin().thenPlay("spawn"));
         } else if (isEnding()) {
-            data.setAnimation(RawAnimation.begin().thenPlay("explosion"));
+            data.setAnimation(RawAnimation.begin().thenPlay("death"));
         } else {
             data.setAnimation(RawAnimation.begin().thenLoop("idle"));
         }

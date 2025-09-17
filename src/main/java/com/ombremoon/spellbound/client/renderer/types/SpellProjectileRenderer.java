@@ -6,11 +6,15 @@ import com.ombremoon.spellbound.client.model.entity.SpellProjectileModel;
 import com.ombremoon.spellbound.common.content.entity.SpellProjectile;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.util.Mth;
+import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 public class SpellProjectileRenderer<T extends SpellProjectile> extends GeoEntityRenderer<T> {
     public SpellProjectileRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new SpellProjectileModel<>());
+    }
+    public SpellProjectileRenderer(EntityRendererProvider.Context renderManager, GeoModel<T> model) {
+        super(renderManager, model);
     }
 
     @Override

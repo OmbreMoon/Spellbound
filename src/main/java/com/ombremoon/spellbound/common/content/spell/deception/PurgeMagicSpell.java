@@ -49,81 +49,83 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
         Level level = context.getLevel();
         var skills = context.getSkills();
         int flag = context.getFlag();
-        if (flag == 1) {
-            caster.addEffect(new MobEffectInstance(SBEffects.COUNTER_MAGIC, 200, 0, false ,false));
-            if (skills.hasSkill(SBSkills.CLEANSE.value()))
-                this.cleanseCaster();
-        } else {
-            List<LivingEntity> targets = new ObjectArrayList<>();
-            if (skills.hasSkill(SBSkills.RADIO_WAVES.value())) {
-                targets.addAll(level.getEntitiesOfClass(LivingEntity.class, caster.getBoundingBox().inflate(3), EntitySelector.NO_CREATIVE_OR_SPECTATOR));
+        if (!level.isClientSide) {
+            if (flag == 1) {
+                caster.addEffect(new MobEffectInstance(SBEffects.COUNTER_MAGIC, 200, 0, false, false));
+                if (skills.hasSkill(SBSkills.CLEANSE.value()))
+                    this.cleanseCaster();
             } else {
-                targets.add((LivingEntity) context.getTarget());
-            }
-
-            for (LivingEntity target : targets) {
-                var targetHandler = SpellUtil.getSpellCaster(target);
-                var activeSpells = targetHandler.getActiveSpells();
-                this.cleanse(target, 0, MobEffectCategory.HARMFUL);
-                targetHandler.getBuffs().stream().filter(SkillBuff::isBeneficial).forEach(skillBuff -> removeSkillBuff(target, skillBuff.skill()));
-                for (AbstractSpell spell : activeSpells) {
-                    spell.endSpell();
+                List<LivingEntity> targets = new ObjectArrayList<>();
+                if (skills.hasSkill(SBSkills.RADIO_WAVES.value())) {
+                    targets.addAll(level.getEntitiesOfClass(LivingEntity.class, caster.getBoundingBox().inflate(3), EntitySelector.NO_CREATIVE_OR_SPECTATOR));
+                } else {
+                    targets.add((LivingEntity) context.getTarget());
                 }
 
-                if (skills.hasSkill(SBSkills.DOMINANT_MAGIC.value()))
-                    addSkillBuff(
-                            target,
-                            SBSkills.DOMINANT_MAGIC,
-                            BuffCategory.HARMFUL,
-                            SkillBuff.MOB_EFFECT,
-                            new MobEffectInstance(SBEffects.SILENCED, 100, 0, false, false),
-                            100
-                    );
-
-                if (skills.hasSkill(SBSkills.RESIDUAL_DISRUPTION.value())) {
-                    addSkillBuff(
-                            target,
-                            SBSkills.RESIDUAL_DISRUPTION,
-                            BuffCategory.HARMFUL,
-                            SkillBuff.SPELL_MODIFIER,
-                            SpellModifier.RESIDUAL_DISRUPTION,
-                            100
-                    );
-                }
-
-                if (skills.hasSkill(SBSkills.UNFOCUSED))
-                    addSkillBuff(
-                            target,
-                            SBSkills.UNFOCUSED,
-                            BuffCategory.HARMFUL,
-                            SkillBuff.SPELL_MODIFIER,
-                            SpellModifier.UNFOCUSED,
-                            200
-                    );
-
-                if (skills.hasSkill(SBSkills.MAGIC_POISONING.value()))
-                    targetHandler.consumeMana(Math.max(20 * activeSpells.size(), 20));
-
-                if (skills.hasSkill(SBSkills.NULLIFICATION.value())) {
-                    List<ItemStack> itemSlots = new ObjectArrayList<>();
-                    target.getAllSlots().forEach(itemSlots::add);
-                    itemSlots = itemSlots.stream().filter(ItemStack::isEnchanted).toList();
-                    if (!itemSlots.isEmpty()) {
-                        int randSlot = target.getRandom().nextInt(0, itemSlots.size());
-                        ItemStack stack = itemSlots.get(randSlot);
-                        var enchantments = stack.getAllEnchantments(target.registryAccess().lookupOrThrow(Registries.ENCHANTMENT)).keySet().stream().toList();
-                        int randEnchant = target.getRandom().nextInt(0, enchantments.size());
-                        stack.enchant(enchantments.get(randEnchant), 0);
+                for (LivingEntity target : targets) {
+                    var targetHandler = SpellUtil.getSpellCaster(target);
+                    var activeSpells = targetHandler.getActiveSpells();
+                    this.cleanse(target, 0, MobEffectCategory.HARMFUL);
+                    targetHandler.getBuffs().stream().filter(SkillBuff::isBeneficial).forEach(skillBuff -> removeSkillBuff(target, skillBuff.skill()));
+                    for (AbstractSpell spell : activeSpells) {
+                        spell.endSpell();
                     }
-                }
 
-                var spellList = targetHandler.getSpellList();
-                if (skills.hasSkillReady(SBSkills.EXPUNGE.value()) && context.hasCatalyst(SBItems.FOOL_SHARD.get()) && !spellList.isEmpty()) {
-                    int randSpell = target.getRandom().nextInt(0, spellList.size());
-                    SpellType<?> spellType = targetHandler.getSpellList().stream().toList().get(randSpell);
-                    targetHandler.removeSpell(spellType);
-                    addCooldown(SBSkills.EXPUNGE, 24000);
-                    context.useCatalyst(SBItems.FOOL_SHARD.get());
+                    if (skills.hasSkill(SBSkills.DOMINANT_MAGIC.value()))
+                        addSkillBuff(
+                                target,
+                                SBSkills.DOMINANT_MAGIC,
+                                BuffCategory.HARMFUL,
+                                SkillBuff.MOB_EFFECT,
+                                new MobEffectInstance(SBEffects.SILENCED, 100, 0, false, false),
+                                100
+                        );
+
+                    if (skills.hasSkill(SBSkills.RESIDUAL_DISRUPTION.value())) {
+                        addSkillBuff(
+                                target,
+                                SBSkills.RESIDUAL_DISRUPTION,
+                                BuffCategory.HARMFUL,
+                                SkillBuff.SPELL_MODIFIER,
+                                SpellModifier.RESIDUAL_DISRUPTION,
+                                100
+                        );
+                    }
+
+                    if (skills.hasSkill(SBSkills.UNFOCUSED))
+                        addSkillBuff(
+                                target,
+                                SBSkills.UNFOCUSED,
+                                BuffCategory.HARMFUL,
+                                SkillBuff.SPELL_MODIFIER,
+                                SpellModifier.UNFOCUSED,
+                                200
+                        );
+
+                    if (skills.hasSkill(SBSkills.MAGIC_POISONING.value()))
+                        targetHandler.consumeMana(Math.max(20 * activeSpells.size(), 20));
+
+                    if (skills.hasSkill(SBSkills.NULLIFICATION.value())) {
+                        List<ItemStack> itemSlots = new ObjectArrayList<>();
+                        target.getAllSlots().forEach(itemSlots::add);
+                        itemSlots = itemSlots.stream().filter(ItemStack::isEnchanted).toList();
+                        if (!itemSlots.isEmpty()) {
+                            int randSlot = target.getRandom().nextInt(0, itemSlots.size());
+                            ItemStack stack = itemSlots.get(randSlot);
+                            var enchantments = stack.getAllEnchantments(target.registryAccess().lookupOrThrow(Registries.ENCHANTMENT)).keySet().stream().toList();
+                            int randEnchant = target.getRandom().nextInt(0, enchantments.size());
+                            stack.enchant(enchantments.get(randEnchant), 0);
+                        }
+                    }
+
+                    var spellList = targetHandler.getSpellList();
+                    if (skills.hasSkillReady(SBSkills.EXPUNGE.value()) && context.hasCatalyst(SBItems.FOOL_SHARD.get()) && !spellList.isEmpty()) {
+                        int randSpell = target.getRandom().nextInt(0, spellList.size());
+                        SpellType<?> spellType = targetHandler.getSpellList().stream().toList().get(randSpell);
+                        targetHandler.removeSpell(spellType);
+                        addCooldown(SBSkills.EXPUNGE, 24000);
+                        context.useCatalyst(SBItems.FOOL_SHARD.get());
+                    }
                 }
             }
         }

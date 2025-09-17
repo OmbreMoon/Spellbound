@@ -14,6 +14,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import software.bernie.geckolib.util.Color;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -51,10 +52,10 @@ public class SBData {
     //Spell Data
     public static final Supplier<AttachmentType<Integer>> SPELL_ID = ATTACHMENT_TYPES.register(
             "spell_id", () -> AttachmentType.builder(() -> 0).build());
-    public static final Supplier<AttachmentType<Integer>> FEAR_TICK = ATTACHMENT_TYPES.register(
-            "fear_tick", () -> AttachmentType.builder(() -> 0).build());
-    public static final Supplier<AttachmentType<Vec3>> FEAR_SOURCE = ATTACHMENT_TYPES.register(
-            "fear_source", () -> AttachmentType.builder(() -> Vec3.ZERO).build());
+    public static final Supplier<AttachmentType<Integer>> MOVEMENT_TICK = ATTACHMENT_TYPES.register(
+            "movement_tick", () -> AttachmentType.builder(() -> 0).build());
+    public static final Supplier<AttachmentType<Vec3>> MOVEMENT_SOURCE = ATTACHMENT_TYPES.register(
+            "movement_source", () -> AttachmentType.builder(() -> Vec3.ZERO).build());
     public static final Supplier<AttachmentType<Integer>> HEAT_TICK = ATTACHMENT_TYPES.register(
             "heat_tick", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
     public static final Supplier<AttachmentType<Boolean>> FORCE_WARP = ATTACHMENT_TYPES.register(
@@ -70,7 +71,7 @@ public class SBData {
 
     //Misc
     public static final Supplier<AttachmentType<Integer>> RUNE_COLOR = ATTACHMENT_TYPES.register(
-            "rune_color", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
+            "rune_color", () -> AttachmentType.builder(Color.WHITE::argbInt).serialize(Codec.INT).build());
     public static final Supplier<AttachmentType<Integer>> INTERACT_HEAL_TARGET = ATTACHMENT_TYPES.register(
             "interact_heal_target", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
     public static final Supplier<AttachmentType<Integer>> EFFECT_HEAL_TARGET = ATTACHMENT_TYPES.register(

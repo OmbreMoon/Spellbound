@@ -16,6 +16,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -25,6 +26,7 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+@SuppressWarnings("unchecked")
 public abstract class SpellEntity<T extends AbstractSpell> extends Entity implements ISpellEntity<T>, Loggable {
     private static final EntityDataAccessor<String> SPELL_TYPE = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Integer> SPELL_ID = SynchedEntityData.defineId(SpellEntity.class, EntityDataSerializers.INT);
@@ -44,7 +46,7 @@ public abstract class SpellEntity<T extends AbstractSpell> extends Entity implem
 
     @Override
     public boolean isAlliedTo(Entity entity) {
-        return (entity instanceof LivingEntity livingEntity && isOwner(livingEntity)) || super.isAlliedTo(entity);
+        return entity instanceof LivingEntity livingEntity && (this.isOwner(livingEntity) || SpellUtil.IS_ALLIED.test(this.getOwner(), livingEntity)) || super.isAlliedTo(entity);
     }
 
     protected boolean isOwner(LivingEntity entity) {
@@ -79,12 +81,13 @@ public abstract class SpellEntity<T extends AbstractSpell> extends Entity implem
             this.skills = SpellUtil.getSkills(livingEntity);
         }
 
-        if (!this.hasOwner() || (this.isEnding() && this.tickCount >= this.getEndTick()))
-            discard();
+        if (!this.level().isClientSide) {
+            if (!this.hasOwner() || (this.isEnding() && this.tickCount >= this.getEndTick()) || (this.isInitialized() && this.spell != null && this.spell.isInactive))
+                discard();
 
-        T spell = this.getSpell();
-        if (spell != null)
-            spell.onEntityTick(this, spell.getContext());
+            if (this.spell != null)
+                this.spell.onEntityTick(this, this.spell.getContext());
+        }
     }
 
     @Override
@@ -112,6 +115,11 @@ public abstract class SpellEntity<T extends AbstractSpell> extends Entity implem
         }
     }
 
+    @Override
+    public boolean isInitialized() {
+        return this.handler != null;
+    }
+
     public T getSpell() {
         if (this.spell == null) {
             SpellType<T> spellType = this.getSpellType();
@@ -122,12 +130,12 @@ public abstract class SpellEntity<T extends AbstractSpell> extends Entity implem
         return this.spell;
     }
 
-    public void setSpell(SpellType<?> spellType, int spellId) {
-        this.setSpellType(spellType);
-        this.setSpellId(spellId);
+    public void setSpell(@NotNull AbstractSpell spell) {
+        this.spell = (T) spell;
+        this.setSpellType(spell.spellType());
+        this.setSpellId(spell.getId());
     }
 
-    @SuppressWarnings("unchecked")
     public SpellType<T> getSpellType(){
         return (SpellType<T>) SBSpells.REGISTRY.get(ResourceLocation.tryParse(this.entityData.get(SPELL_TYPE)));
     }
@@ -168,8 +176,8 @@ public abstract class SpellEntity<T extends AbstractSpell> extends Entity implem
         this.entityData.set(END_TICK, this.tickCount + endTick);
     }
 
-    public void setOwner(LivingEntity livingEntity) {
-        this.entityData.set(OWNER_ID, livingEntity.getId());
+    public void setOwner(Entity entity) {
+        this.entityData.set(OWNER_ID, entity.getId());
     }
 
     @Override

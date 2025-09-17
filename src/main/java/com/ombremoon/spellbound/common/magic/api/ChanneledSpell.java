@@ -108,8 +108,15 @@ public abstract class ChanneledSpell extends AnimatedSpell {
             return this;
         }
 
+        public Builder<T> castTime(int castTime, int stationaryTicks) {
+            this.castTime = castTime;
+            this.stationaryTicks = stationaryTicks;
+            return this;
+        }
+
         public Builder<T> castTime(int castTime) {
             this.castTime = castTime;
+            this.stationaryTicks = castTime;
             return this;
         }
 

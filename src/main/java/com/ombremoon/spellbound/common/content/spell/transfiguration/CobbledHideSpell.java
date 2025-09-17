@@ -72,8 +72,8 @@ public class CobbledHideSpell extends AnimatedSpell {
         if (skills.hasSkill(SBSkills.INFECTIOUS)) {
             Predicate<LivingEntity> predicate;
             if (skills.hasSkill(SBSkills.VIRAL))
-                predicate = entity -> entity instanceof Player || (entity instanceof OwnableEntity ownable && ownable.getOwner().is(context.getCaster()));
-            else predicate = entity -> entity instanceof OwnableEntity ownable && ownable.getOwner().is(context.getCaster());
+                predicate = entity -> entity instanceof Player || (entity instanceof OwnableEntity ownable && context.getCaster() == ownable.getOwner());
+            else predicate = entity -> entity instanceof OwnableEntity ownable && context.getCaster() == ownable.getOwner();
 
             this.buffedTargets = context.getLevel().getEntitiesOfClass(LivingEntity.class,
                     context.getCaster().getBoundingBox().inflate(8d), predicate);

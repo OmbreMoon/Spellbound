@@ -15,8 +15,7 @@ public class ShatteringCrystalRenderer extends EmissiveOutlineSpellRenderer<Shat
     @Override
     protected void applyRotations(ShatteringCrystal animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float nativeScale) {
         super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick, nativeScale);
-        float f1 = Mth.sin((animatable.tickCount + partialTick) / 10.0F + animatable.bobOffs) * 0.1F + 0.1F;
-        poseStack.translate(0.0F, f1 + 0.25F - 0.25F, 0.0F);
+        poseStack.translate(0.0F, 0.75F, 0.0F);
         float f3 = animatable.getSpin(partialTick);
         poseStack.mulPose(Axis.YP.rotation(f3));
     }

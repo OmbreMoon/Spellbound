@@ -311,7 +311,7 @@ public class ShadowbondSpell extends AnimatedSpell {
         }
     }
 
-    private void spawnTeleportParticles(Entity entity ,int amount) {
+    private void spawnTeleportParticles(Entity entity, int amount) {
         for (int j = 0; j < amount; j++) {
             this.createSurroundingServerParticles(entity, ParticleTypes.PORTAL, 0.5);
         }

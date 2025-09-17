@@ -4,17 +4,16 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.client.gui.CastModeOverlay;
 import com.ombremoon.spellbound.client.gui.SpellSelectScreen;
+import com.ombremoon.spellbound.client.particle.CircleAroundPositionParticle;
 import com.ombremoon.spellbound.client.particle.GenericParticle;
 import com.ombremoon.spellbound.client.particle.SparkParticle;
-import com.ombremoon.spellbound.client.renderer.blockentity.ExtendedBlockPreviewRenderer;
-import com.ombremoon.spellbound.client.renderer.blockentity.SummonPortalRenderer;
-import com.ombremoon.spellbound.client.renderer.blockentity.TransfigurationDisplayRenderer;
-import com.ombremoon.spellbound.client.renderer.blockentity.ValkyrStatueRenderer;
+import com.ombremoon.spellbound.client.renderer.blockentity.*;
 import com.ombremoon.spellbound.client.renderer.entity.*;
 import com.ombremoon.spellbound.client.renderer.layer.FrozenLayer;
 import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
 import com.ombremoon.spellbound.client.renderer.layer.SpellCastLayer;
 import com.ombremoon.spellbound.client.renderer.layer.SpellCastRenderLayer;
+import com.ombremoon.spellbound.client.renderer.types.EmissiveOutlineSpellRenderer;
 import com.ombremoon.spellbound.client.renderer.types.EmissiveSpellProjectileRenderer;
 import com.ombremoon.spellbound.client.renderer.types.GenericLivingEntityRenderer;
 import com.ombremoon.spellbound.client.renderer.types.GenericSpellRenderer;
@@ -76,6 +75,7 @@ public class ClientEvents {
             event.registerSpriteSet(SBParticles.MUSHROOM_SPORE.get(), GenericParticle.MushroomSpore::new);
             event.registerSpriteSet(SBParticles.SPARK.get(), SparkParticle.Provider::new);
             event.registerSpriteSet(SBParticles.GOLD_HEART.get(), HeartParticle.Provider::new);
+            event.registerSpriteSet(SBParticles.TEST.get(), CircleAroundPositionParticle.Provider::new);
         }
 
         @SubscribeEvent
@@ -84,22 +84,26 @@ public class ClientEvents {
 
             event.registerEntityRenderer(SBEntities.MUSHROOM.get(), GenericSpellRenderer::new);
             event.registerEntityRenderer(SBEntities.SHADOW_GATE.get(), ShadowGateRenderer::new);
-            event.registerEntityRenderer(SBEntities.SOLAR_RAY.get(), SolarRayRenderer::new);
+            event.registerEntityRenderer(SBEntities.SOLAR_RAY.get(), SolarRayRendererTest::new);
             event.registerEntityRenderer(SBEntities.SHATTERING_CRYSTAL.get(), ShatteringCrystalRenderer::new);
+            event.registerEntityRenderer(SBEntities.ICE_SHRAPNEL.get(), EmissiveSpellProjectileRenderer::new);
+            event.registerEntityRenderer(SBEntities.ICE_MIST.get(), EmissiveOutlineSpellRenderer::new);
             event.registerEntityRenderer(SBEntities.STORMSTRIKE_BOLT.get(), EmissiveSpellProjectileRenderer::new);
             event.registerEntityRenderer(SBEntities.STORM_RIFT.get(), StormRiftRenderer::new);
             event.registerEntityRenderer(SBEntities.STORM_CLOUD.get(), StormCloudRenderer::new);
             event.registerEntityRenderer(SBEntities.STORM_BOLT.get(), StormBoltRenderer::new);
-            event.registerEntityRenderer(SBEntities.CYCLONE.get(), CycloneRenderer::new);
+//            event.registerEntityRenderer(SBEntities.CYCLONE.get(), CycloneRenderer::new);
             event.registerEntityRenderer(SBEntities.HAIL.get(), HailRenderer::new);
             event.registerEntityRenderer(SBEntities.HEALING_BLOSSOM.get(), HealingBlossomRenderer::new);
 
             event.registerEntityRenderer(SBEntities.SPELL_BROKER.get(), PlaceholderRenderer::new);
             event.registerEntityRenderer(SBEntities.VALKYR.get(), GenericLivingEntityRenderer::new);
+            event.registerEntityRenderer(SBEntities.MINI_MUSHROOM.get(), MiniMushroomRenderer::new);
             event.registerEntityRenderer(SBEntities.LIVING_SHADOW.get(), LivingShadowRenderer::new);
             event.registerEntityRenderer(SBEntities.DUNGEON_SHADOW.get(), GenericLivingEntityRenderer::new);
 
             event.registerBlockEntityRenderer(SBBlockEntities.VALKY_STATUE.get(), ValkyrStatueRenderer::new);
+            event.registerBlockEntityRenderer(SBBlockEntities.RUNE.get(), RuneBlockRenderer::new);
             event.registerBlockEntityRenderer(SBBlockEntities.SUMMON_PORTAL.get(), SummonPortalRenderer::new);
             event.registerBlockEntityRenderer(SBBlockEntities.TRANSFIGURATION_DISPLAY.get(), TransfigurationDisplayRenderer::new);
         }
@@ -203,6 +207,14 @@ public class ClientEvents {
                 event.getInput().leftImpulse = 0;
                 event.getInput().forwardImpulse = 0;
                 event.getInput().jumping = false;
+            } else if (event.getEntity().tickCount % 10 == 0) {
+                float forward = handler.forwardImpulse;
+                float left = handler.leftImpulse;
+                handler.forwardImpulse = event.getInput().forwardImpulse;
+                handler.leftImpulse = event.getInput().leftImpulse;
+                if (forward != handler.forwardImpulse || left != handler.leftImpulse) {
+                    PayloadHandler.updateMovement(event.getInput().forwardImpulse, event.getInput().leftImpulse);
+                }
             }
         }
 

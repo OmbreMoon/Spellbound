@@ -1,3 +1,4 @@
+/*
 package com.ombremoon.spellbound.common.content.spell.ruin.air;
 
 import com.ombremoon.spellbound.common.content.entity.spell.Cyclone;
@@ -40,7 +41,7 @@ public class CycloneSpell extends AnimatedSpell {
     protected void onSpellStart(SpellContext context) {
         Level level = context.getLevel();
         if (!level.isClientSide) {
-            this.setCyclone(summonEntity(context, SBEntities.CYCLONE.get(), 100).getId());
+            this.setCyclone(summonEntity(context, SBEntities.CYCLONE.get()).getId());
 
             if (context.getSkills().hasSkill(SBSkills.HAILSTORM.value())) {
 //                HailstormSavedData data = ((HailstormSavedData) HailstormSavedData.get(level));
@@ -82,3 +83,4 @@ public class CycloneSpell extends AnimatedSpell {
         return entity instanceof Cyclone cyclone ? cyclone : null;
     }
 }
+*/

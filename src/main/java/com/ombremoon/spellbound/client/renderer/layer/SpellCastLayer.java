@@ -23,15 +23,15 @@ public class SpellCastLayer<T extends AbstractSpell> extends SpellCastRenderer<T
         if (optional.isPresent() && this.currentEntity.tickCount % 5 == 0) {
             Vector3d vec3 = optional.get().getWorldPosition();
 //            Constants.LOG.info("{}", vec3);
-            ClientUtil.getLevel().addParticle(
-                    ParticleTypes.SNOWFLAKE,
-                    vec3.x,
-                    vec3.y,
-                    vec3.z,
-                    0,
-                    0,
-                    0
-            );
+//            ClientUtil.getLevel().addParticle(
+//                    ParticleTypes.SNOWFLAKE,
+//                    vec3.x,
+//                    vec3.y,
+//                    vec3.z,
+//                    0,
+//                    0,
+//                    0
+//            );
         }
     }
 }

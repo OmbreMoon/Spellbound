@@ -149,8 +149,6 @@ public class ShadowGateSpell extends AnimatedSpell implements RadialSpell {
 
                                 ShadowGate adjacentGate = this.portalMap.getAdjacentPortal(shadowGate, level);
                                 if (adjacentGate.isShifted()) {
-//                                if (skills.hasSkill(SBSkills.GRAVITY_SHIFT)) {
-//                                    ShadowGate adjacentGate = this.portalMap.getAdjacentPortal(shadowGate, level);
                                     Vec3 lookVec = adjacentGate.getViewVector(1.0F);
                                     entity.setDeltaMovement(lookVec.x, 2, lookVec.z);
                                     entity.hurtMarked = true;

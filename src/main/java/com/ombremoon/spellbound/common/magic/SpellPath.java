@@ -11,10 +11,7 @@ public enum SpellPath implements StringRepresentable {
     DECEPTION(0x541675, false, "deception", null),
     FIRE(0xD73502, true, "fire", EffectManager.Effect.FIRE),
     FROST(0x4F9CC8, true, "frost", EffectManager.Effect.FROST),
-    WATER(0x4F9CC8, true, "water", EffectManager.Effect.WATER),
-    SHOCK(0x9543C9, true, "shock", EffectManager.Effect.SHOCK),
-    EARTH(0x9543C9, true, "earth", EffectManager.Effect.EARTH),
-    AIR(0x9543C9, true, "air", EffectManager.Effect.AIR);
+    SHOCK(0x9543C9, true, "shock", EffectManager.Effect.SHOCK);
 
     private final int color;
     private final boolean isSubPath;

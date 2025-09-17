@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.common.content.entity;
 
 import com.ombremoon.spellbound.common.init.SBData;
+import com.ombremoon.spellbound.common.init.SBMemoryTypes;
 import com.ombremoon.spellbound.common.init.SBSpells;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.api.SpellType;
@@ -19,6 +20,7 @@ import net.minecraft.world.level.Level;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
 import net.tslat.smartbrainlib.api.core.navigation.SmoothGroundNavigation;
 import net.tslat.smartbrainlib.util.BrainUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
@@ -26,10 +28,10 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.function.Predicate;
 
+@SuppressWarnings("unchecked")
 public abstract class SmartSpellEntity<T extends AbstractSpell> extends SBLivingEntity implements ISpellEntity<T> {
     private static final EntityDataAccessor<String> SPELL_TYPE = SynchedEntityData.defineId(SmartSpellEntity.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Integer> SPELL_ID = SynchedEntityData.defineId(SmartSpellEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(SmartSpellEntity.class, EntityDataSerializers.INT);
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     protected T spell;
     protected SpellHandler handler;
@@ -45,6 +47,13 @@ public abstract class SmartSpellEntity<T extends AbstractSpell> extends SBLiving
     }
 
     @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(SPELL_TYPE, "");
+        builder.define(SPELL_ID, -1);
+    }
+
+    @Override
     protected void customServerAiStep() {
         tickBrain(this);
     }
@@ -55,9 +64,8 @@ public abstract class SmartSpellEntity<T extends AbstractSpell> extends SBLiving
         return livingEntity -> !isOwner(livingEntity) && ((target != null &&  target.is(livingEntity)) || isOwnersTarget(livingEntity));
     }
 
-    @Override
-    public boolean isAlliedTo(Entity entity) {
-        return (entity instanceof LivingEntity livingEntity && isOwner(livingEntity)) || super.isAlliedTo(entity);
+    protected boolean wasSummoned() {
+        return BrainUtils.hasMemory(this, SBMemoryTypes.SUMMON_OWNER.get());
     }
 
     @Override
@@ -67,6 +75,16 @@ public abstract class SmartSpellEntity<T extends AbstractSpell> extends SBLiving
             this.handler = SpellUtil.getSpellCaster(livingEntity);
             this.skills = SpellUtil.getSkills(livingEntity);
         }
+
+        if (!this.level().isClientSide) {
+            if (!this.hasOwner() || (this.isInitialized() && (this.spell == null ||  this.spell.isInactive)))
+                discard();
+        }
+    }
+
+    @Override
+    public boolean isInitialized() {
+        return this.handler != null;
     }
 
     public T getSpell() {
@@ -79,12 +97,12 @@ public abstract class SmartSpellEntity<T extends AbstractSpell> extends SBLiving
         return this.spell;
     }
 
-    public void setSpell(SpellType<?> spellType, int spellId) {
-        this.setSpellType(spellType);
-        this.setSpellId(spellId);
+    public void setSpell(@NotNull AbstractSpell spell) {
+        this.spell = (T) spell;
+        this.setSpellType(spell.spellType());
+        this.setSpellId(spell.getId());
     }
 
-    @SuppressWarnings("unchecked")
     public SpellType<T> getSpellType(){
         return (SpellType<T>) SBSpells.REGISTRY.get(ResourceLocation.tryParse(this.entityData.get(SPELL_TYPE)));
     }
@@ -101,30 +119,29 @@ public abstract class SmartSpellEntity<T extends AbstractSpell> extends SBLiving
         this.entityData.set(SPELL_ID, id);
     }
 
-    @Nullable
-    public LivingEntity getOwner() {
-        return (LivingEntity) this.level().getEntity(this.entityData.get(OWNER_ID));
+    @Override
+    public @Nullable Entity getOwner() {
+        return super.getOwner();
     }
 
-    public void setOwner(LivingEntity entity) {
-        this.entityData.set(OWNER_ID, entity.getId());
+    @Override
+    public void setOwner(@NotNull Entity entity) {
+        super.setOwner(entity);
     }
 
     protected boolean isOwner(LivingEntity entity) {
-        return getOwner() != null && getOwner().is(entity);
+        Entity owner = this.getOwner();
+        return owner != null && owner.is(entity);
+    }
+
+    public boolean hasOwner() {
+        Entity owner = this.getOwner();
+        return owner != null && owner.isAlive();
     }
 
     protected boolean isOwnersTarget(LivingEntity entity) {
         if (!this.hasData(SBData.TARGET_ID)) return false;
         return entity.getId() == this.getData(SBData.TARGET_ID);
-    }
-
-    @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        super.defineSynchedData(builder);
-        builder.define(SPELL_TYPE, "");
-        builder.define(SPELL_ID, -1);
-        builder.define(OWNER_ID, 0);
     }
 
     @Override

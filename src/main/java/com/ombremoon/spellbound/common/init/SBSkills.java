@@ -103,17 +103,17 @@ public class SBSkills {
     public static final Holder<Skill> ORBITAL_SHELL = registerSkill("orbital_shell", 25, 250, preReqs(FORCED_WARP, MOTION_SICKNESS, STORM_CALLER));
 
     //Cyclone
-    public static final Holder<Skill> CYCLONE = registerSkill("cyclone");
-    public static final Holder<Skill> EYE_OF_THE_STORM = registerSkill("eye_of_the_storm", -50, 50, preReqs(CYCLONE));
-    public static final Holder<Skill> FALLING_DEBRIS = registerSkill("falling_debris", -50, 100, preReqs(EYE_OF_THE_STORM));
-    public static final Holder<Skill> WHIRLING_TEMPEST = registerSkill("whirling_tempest", 0, 50, preReqs(CYCLONE));
-    public static final Holder<Skill> HURRICANE = registerSkill("hurricane", 50, 50, preReqs(CYCLONE));
-    public static final Holder<Skill> MAELSTROM = registerSkill("maelstrom", 50, 100, preReqs(HURRICANE));
-    public static final Holder<Skill> VORTEX = registerSkill("vortex", 0, 100, preReqs(WHIRLING_TEMPEST));
-    public static final Holder<Skill> GALE_FORCE = registerModifierSkill("gale_force", -50, 150, preReqs(WHIRLING_TEMPEST), SpellModifier.GALE_FORCE);
-    public static final Holder<Skill> FROSTFRONT = registerSkill("frostfront", 0, 150, preReqs(WHIRLING_TEMPEST));
-    public static final Holder<Skill> STATIC_CHARGE = registerSkill("static_charge", 50, 150, preReqs(WHIRLING_TEMPEST));
-    public static final Holder<Skill> HAILSTORM = registerConditionalSkill("hailstorm", 0, 200, preReqs(GALE_FORCE, FROSTFRONT, STATIC_CHARGE), (player, holder) -> holder.hasSkill(FROSTFRONT.value()) && holder.hasSkill(STATIC_CHARGE.value()));
+//    public static final Holder<Skill> CYCLONE = registerSkill("cyclone");
+//    public static final Holder<Skill> EYE_OF_THE_STORM = registerSkill("eye_of_the_storm", -50, 50, preReqs(CYCLONE));
+//    public static final Holder<Skill> FALLING_DEBRIS = registerSkill("falling_debris", -50, 100, preReqs(EYE_OF_THE_STORM));
+//    public static final Holder<Skill> WHIRLING_TEMPEST = registerSkill("whirling_tempest", 0, 50, preReqs(CYCLONE));
+//    public static final Holder<Skill> HURRICANE = registerSkill("hurricane", 50, 50, preReqs(CYCLONE));
+//    public static final Holder<Skill> MAELSTROM = registerSkill("maelstrom", 50, 100, preReqs(HURRICANE));
+//    public static final Holder<Skill> VORTEX = registerSkill("vortex", 0, 100, preReqs(WHIRLING_TEMPEST));
+//    public static final Holder<Skill> GALE_FORCE = registerModifierSkill("gale_force", -50, 150, preReqs(WHIRLING_TEMPEST), SpellModifier.GALE_FORCE);
+//    public static final Holder<Skill> FROSTFRONT = registerSkill("frostfront", 0, 150, preReqs(WHIRLING_TEMPEST));
+//    public static final Holder<Skill> STATIC_CHARGE = registerSkill("static_charge", 50, 150, preReqs(WHIRLING_TEMPEST));
+//    public static final Holder<Skill> HAILSTORM = registerConditionalSkill("hailstorm", 0, 200, preReqs(GALE_FORCE, FROSTFRONT, STATIC_CHARGE), (player, holder) -> holder.hasSkill(FROSTFRONT.value()) && holder.hasSkill(STATIC_CHARGE.value()));
 
     //Shadow Gate
     public static final Holder<Skill> SHADOW_GATE = registerRadialSkill("shadow_gate");
@@ -172,14 +172,15 @@ public class SBSkills {
     public static final Holder<Skill> WILD_MUSHROOM = registerSkill("wild_mushroom");
     public static final Holder<Skill> VILE_INFLUENCE = registerSkill("vile_influence", -50, 50, preReqs(WILD_MUSHROOM));
     public static final Holder<Skill> HASTENED_GROWTH = registerSkill("hastened_growth", -50, 100, preReqs(VILE_INFLUENCE));
-    public static final Holder<Skill> ENVENOM = registerSkill("envenom", -50, 150, preReqs(HASTENED_GROWTH));
-    public static final Holder<Skill> DECOMPOSE = registerSkill("decompose", 50, 50, preReqs(WILD_MUSHROOM));
-    public static final Holder<Skill> NATURES_DOMINANCE = registerSkill("natures_dominance", 50, 100, preReqs(DECOMPOSE));
+    public static final Holder<Skill> PARASITIC_FUNGUS = registerSkill("parasitic_fungus", 50, 50, preReqs(WILD_MUSHROOM));
+    public static final Holder<Skill> ENVENOM = registerSkill("envenom", 0, 50, preReqs(WILD_MUSHROOM));
+    public static final Holder<Skill> NATURES_DOMINANCE = registerSkill("natures_dominance", 0, 100, preReqs(ENVENOM));
     public static final Holder<Skill> POISON_ESSENCE = registerSkill("poison_essence", 50, 150, preReqs(NATURES_DOMINANCE));
-    public static final Holder<Skill> CIRCLE_OF_LIFE = registerSkill("circle_of_life", 50, 200, preReqs(POISON_ESSENCE));
-    public static final Holder<Skill> CATALEPSY = registerSkill("catalepsy", 50, 250, preReqs(CIRCLE_OF_LIFE));
-    public static final Holder<Skill> FUNGAL_HARVEST = registerSkill("fungal_harvest", 100, 150, preReqs(NATURES_DOMINANCE));
-    public static final Holder<Skill> SYNTHESIS = registerSkill("synthesis", 100, 200, preReqs(POISON_ESSENCE));
+    public static final Holder<Skill> SYNTHESIS = registerSkill("synthesis", 50, 200, preReqs(POISON_ESSENCE));
+    public static final Holder<Skill> FUNGAL_HARVEST = registerSkill("fungal_harvest", 0, 150, preReqs(NATURES_DOMINANCE));
+    public static final Holder<Skill> LIVING_FUNGUS = registerSkill("living_fungus", 0, 200, preReqs(FUNGAL_HARVEST));
+    public static final Holder<Skill> PROLIFERATION = registerSkill("proliferation", 50, 250, preReqs(LIVING_FUNGUS));
+
 
     //Healing Touch
     //TODO: Tree

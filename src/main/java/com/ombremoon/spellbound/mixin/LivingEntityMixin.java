@@ -22,9 +22,9 @@ public class LivingEntityMixin {
 
     @Shadow @Final private Map<Holder<MobEffect>, MobEffectInstance> activeEffects;
 
-    @Inject(method = "onEffectRemoved", at = @At(value = "TAIL"), cancellable = true)
+    @Inject(method = "onEffectRemoved", at = @At(value = "TAIL"))
     private void onEffectRemoved(MobEffectInstance instance, CallbackInfo info) {
-        if (EventFactory.onEffectRemoved(spellbound$self(), instance)) info.cancel();
+        EventFactory.onEffectRemoved(spellbound$self(), instance);
     }
 
     @Inject(method = "addEffect(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z", at = @At(value = "INVOKE", target = "Ljava/util/Map;get(Ljava/lang/Object;)Ljava/lang/Object;"))

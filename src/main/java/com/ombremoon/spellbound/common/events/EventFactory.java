@@ -24,8 +24,8 @@ public class EventFactory {
         NeoForge.EVENT_BUS.post(new MobEffectEvent.Added(entity, oldEffectInstance, newEffectInstance, source));
     }
 
-    public static boolean onEffectRemoved(LivingEntity entity, MobEffectInstance effectInstance) {
-        return NeoForge.EVENT_BUS.post(new MobEffectEvent.Remove(entity, effectInstance)).isCanceled();
+    public static void onEffectRemoved(LivingEntity entity, MobEffectInstance effectInstance) {
+        NeoForge.EVENT_BUS.post(new MobEffectEvent.Remove(entity, effectInstance));
     }
 
     public static InteractionResult onMobInteractPre(Player player, Mob mob, InteractionHand hand) {

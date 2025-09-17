@@ -77,12 +77,20 @@ public class PayloadHandler {
         PacketDistributor.sendToServer(new UnlockSkillPayload(skill));
     }
 
-    public static void playAnimation(Player player, String animation) {
-        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getUUID().toString(), animation));
+    public static void updateMovement(float forwardImpulse, float leftImpulse) {
+        PacketDistributor.sendToServer(new PlayerMovementPayload(PlayerMovementPayload.Movement.MOVE, forwardImpulse, leftImpulse, 0));
     }
 
-    public static void updateSpells(Player player, @Nullable CompoundTag spellData, boolean isRecast, int castId, boolean forceReset, boolean shiftSpells) {
-        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new UpdateSpellsPayload(player.getUUID().toString(), spellData, isRecast, castId, forceReset, shiftSpells));
+    public static void updateRotation(float yRot) {
+        PacketDistributor.sendToServer(new PlayerMovementPayload(PlayerMovementPayload.Movement.ROTATE, 0, 0, yRot));
+    }
+
+    public static void handleAnimation(Player player, String animation, float animationSpeed, boolean stopAnimation) {
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new HandleAnimationPayload(player.getUUID().toString(), animation, animationSpeed, stopAnimation));
+    }
+
+    public static void updateSpells(Player player, SpellType<?> spellType, int castId,CompoundTag initTag, @Nullable CompoundTag spellData) {
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new UpdateSpellsPayload(player.getUUID().toString(), spellType, castId, initTag, spellData));
     }
 
     public static void setSpellTicks(ServerPlayer player, SpellType<?> spellType, int castId, int ticks) {
@@ -145,10 +153,6 @@ public class PayloadHandler {
         PacketDistributor.sendToPlayer(player, new RemoveGlowEffectPayload(entityId));
     }
 
-    public static void removeFearEffect(ServerPlayer player) {
-        PacketDistributor.sendToPlayer(player, new RemoveFearEffectPayload());
-    }
-
     public static void updateDimensions(MinecraftServer server, Set<ResourceKey<Level>> keys, boolean add) {
         sendToAll(server, new UpdateDimensionsPayload(keys, add));
     }
@@ -173,9 +177,9 @@ public class PayloadHandler {
     public static void register(final RegisterPayloadHandlersEvent event) {
         final PayloadRegistrar registrar = event.registrar(Constants.MOD_ID).optional();
         registrar.playToClient(
-                PlayAnimationPayload.TYPE,
-                PlayAnimationPayload.STREAM_CODEC,
-                ClientPayloadHandler::handlePlayAnimation
+                HandleAnimationPayload.TYPE,
+                HandleAnimationPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleAnimation
         );
         registrar.playToClient(
                 EndSpellPayload.TYPE,
@@ -248,11 +252,6 @@ public class PayloadHandler {
                 ClientPayloadHandler::handleRemoveGlowEffect
         );
         registrar.playToClient(
-                RemoveFearEffectPayload.TYPE,
-                RemoveFearEffectPayload.STREAM_CODEC,
-                ClientPayloadHandler::handleRemoveFearEffect
-        );
-        registrar.playToClient(
                 AddGlowEffectPayload.TYPE,
                 AddGlowEffectPayload.STREAM_CODEC,
                 ClientPayloadHandler::handleAddGlowEffect
@@ -316,7 +315,12 @@ public class PayloadHandler {
         registrar.playToServer(
                 UnlockSkillPayload.TYPE,
                 UnlockSkillPayload.STREAM_CODEC,
-                ServerPayloadHandler::handleNetworkUnlockSKill
+                ServerPayloadHandler::handleNetworkUnlockSkill
+        );
+        registrar.playToServer(
+                PlayerMovementPayload.TYPE,
+                PlayerMovementPayload.STREAM_CODEC,
+                ServerPayloadHandler::handleNetworkPlayerMovement
         );
 
         registrar.playBidirectional(

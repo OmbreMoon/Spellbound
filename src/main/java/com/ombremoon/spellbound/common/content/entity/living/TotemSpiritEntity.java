@@ -1,3 +1,4 @@
+/*
 package com.ombremoon.spellbound.common.content.entity.living;
 
 import com.ombremoon.spellbound.common.content.entity.SBLivingEntity;
@@ -292,3 +293,4 @@ public class TotemSpiritEntity extends SmartSpellEntity<SpiritTotemSpell> {
     }
 
 }
+*/

@@ -192,7 +192,7 @@ public class Valkyr extends SBLivingEntity implements NeutralMob {
     public static AttributeSupplier.Builder createValkyrAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 400.0D)
-                .add(Attributes.MOVEMENT_SPEED, 0.20)
+                .add(Attributes.MOVEMENT_SPEED, 0.2)
                 .add(Attributes.FLYING_SPEED, 0.45)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0);
     }

@@ -4,6 +4,7 @@ import com.ombremoon.sentinellib.api.box.AABBSentinelBox;
 import com.ombremoon.sentinellib.api.box.OBBSentinelBox;
 import com.ombremoon.sentinellib.api.box.SentinelBox;
 import com.ombremoon.sentinellib.common.ISentinel;
+import com.ombremoon.spellbound.client.AnimationHelper;
 import com.ombremoon.spellbound.common.content.entity.spell.SolarRay;
 import com.ombremoon.spellbound.common.content.world.effect.SBEffectInstance;
 import com.ombremoon.spellbound.common.init.*;
@@ -49,7 +50,8 @@ import java.util.function.BiPredicate;
 
 public class SolarRaySpell extends ChanneledSpell {
     protected static final SpellDataKey<Integer> SOLAR_RAY_ID = SyncedSpellData.registerDataKey(SolarRaySpell.class, SBDataTypes.INT.get());
-    protected static final ResourceLocation OVERPOWER = CommonClass.customLocation("overpower");
+    protected static final ResourceLocation OVERPOWER_WALK = CommonClass.customLocation("overpower_walk");
+    protected static final ResourceLocation OVERPOWER_JUMP = CommonClass.customLocation("overpower_jump");
     protected static final ResourceLocation AFTERGLOW = CommonClass.customLocation("afterglow");
     protected static final BiPredicate<Entity, LivingEntity> NO_ATTACK = (entity, livingEntity) -> false;
     private static final List<SentinelBox> BOXES = new ObjectArrayList<>();
@@ -143,7 +145,7 @@ public class SolarRaySpell extends ChanneledSpell {
         super.onCastReset(context);
         SolarRay solarRay = getSolarRay(context);
         if (solarRay != null)
-            solarRay.setEndTick(context.getSkills().hasSkill(SBSkills.SUNSHINE) ? 15 : 9);
+            solarRay.setEndTick(9);
 
         context.getSpellHandler().setStationaryTicks(0);
     }
@@ -162,7 +164,6 @@ public class SolarRaySpell extends ChanneledSpell {
 
             if (skills.hasSkill(SBSkills.SOLAR_BURST)) {
                 boxOwner.triggerSentinelBox(SOLAR_BURST_FRONT);
-                boxOwner.triggerSentinelBox(rayBox);
                 boxOwner.triggerSentinelBox(burstBox);
             }
             
@@ -172,14 +173,14 @@ public class SolarRaySpell extends ChanneledSpell {
                         SBSkills.OVERPOWER,
                         BuffCategory.BENEFICIAL,
                         SkillBuff.ATTRIBUTE_MODIFIER,
-                        new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(OVERPOWER, -0.75, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL))
+                        new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(OVERPOWER_WALK, -0.75, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL))
                 );
                 this.addSkillBuff(
                         caster,
                         SBSkills.OVERPOWER,
                         BuffCategory.BENEFICIAL,
                         SkillBuff.ATTRIBUTE_MODIFIER,
-                        new ModifierData(Attributes.JUMP_STRENGTH, new AttributeModifier(OVERPOWER, -1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL))
+                        new ModifierData(Attributes.JUMP_STRENGTH, new AttributeModifier(OVERPOWER_JUMP, -1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL))
                 );
             }
         }
@@ -194,15 +195,17 @@ public class SolarRaySpell extends ChanneledSpell {
         if (skills.hasSkill(SBSkills.OVERHEAT) && this.tickCount == 100)
             ((ISentinel)caster).triggerSentinelBox(OVERHEAT);
 
-        SolarRay solarRay = getSolarRay(context);
-        if (solarRay != null)
-            solarRay.setPos(caster.position());
-
-        if (!skills.hasSkill(SBSkills.OVERPOWER))
+        boolean overPower = skills.hasSkill(SBSkills.OVERPOWER);
+        if (!overPower)
             handler.setStationaryTicks(1);
 
-        if (context.getLevel().isClientSide && caster instanceof Player player)
-            shakeScreen(player, 10, 5);
+        if (caster instanceof Player player) {
+            if (!context.getLevel().isClientSide && overPower) {
+                playMovementAnimation(player, "solar_walk", "solar_ray_channel");
+            } else {
+//                shakeScreen(player, 10, 5);
+            }
+        }
     }
 
     @Override
@@ -210,7 +213,6 @@ public class SolarRaySpell extends ChanneledSpell {
         super.onSpellStop(context);
         LivingEntity caster = context.getCaster();
         var handler = context.getSpellHandler();
-        var skills = context.getSkills();
         handler.setStationaryTicks(20);
         removeSkillBuff(caster, SBSkills.OVERPOWER);
         for (SentinelBox box : BOXES) {
@@ -219,7 +221,7 @@ public class SolarRaySpell extends ChanneledSpell {
 
         SolarRay solarRay = getSolarRay(context);
         if (solarRay != null)
-            solarRay.setEndTick(skills.hasSkill(SBSkills.SUNSHINE) ? 15 : 9);
+            solarRay.setEndTick(9);
     }
 
     private void setSolarRay(int solarRay) {
@@ -330,12 +332,21 @@ public class SolarRaySpell extends ChanneledSpell {
                     Level level = entity.level();
                     if (!(entity instanceof LivingEntity livingEntity)) return;
 
+                    var handler = SpellUtil.getSpellCaster(livingEntity);
                     var skills = SpellUtil.getSkills(livingEntity);
                     if (!level.isClientSide) {
                         if (skills.hasSkill(SBSkills.SOLAR_BORE)) {
                             Vec3 vec3 = instance.getCenter();
-                            if (instance.tickCount > 20 && instance.tickCount % 20 == 0)
+                            if (instance.tickCount % 60 == 0)
                                 level.explode(livingEntity, Explosion.getDefaultDamageSource(level, livingEntity), null, vec3.x(), vec3.y(), vec3.z(), 4.0F, true, Level.ExplosionInteraction.TNT);
+                        }
+
+                        SolarRaySpell spell = handler.getSpell(SBSpells.SOLAR_RAY.get());
+                        if (spell != null) {
+                            SolarRay solarRay = spell.getSolarRay(spell.getContext());
+                            String extended = skills.hasSkill(SBSkills.SUNSHINE) ? "_extended" : "";
+                            if (solarRay != null && instance.tickCount % 60 == 0)
+                                solarRay.triggerAnim("burst" + extended, "solar_burst" + extended);
                         }
                     }
                 })

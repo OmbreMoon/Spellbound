@@ -12,6 +12,7 @@ import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
 import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;
 import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
+import com.ombremoon.spellbound.util.SpellUtil;
 import com.ombremoon.spellbound.util.portal.PortalInfo;
 import com.ombremoon.spellbound.util.portal.PortalMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
@@ -236,7 +237,7 @@ public class StormRiftSpell extends AnimatedSpell {
             this.portalMap.forEach((id, portalInfo) -> {
                 Entity entity = context.getLevel().getEntity(id);
                 if (entity instanceof StormRift stormRift)
-                    stormRift.setEndTick(14);
+                    stormRift.setEndTick(20);
             });
             this.stormClouds.forEach(id -> {
                 Entity entity = level.getEntity(id);
@@ -250,33 +251,31 @@ public class StormRiftSpell extends AnimatedSpell {
     public void onEntityTick(ISpellEntity<?> spellEntity, SpellContext context) {
         Level level = context.getLevel();
         if (spellEntity instanceof StormCloud stormCloud) {
-            if (!level.isClientSide) {
-                if (this.lightningTimer > 0) {
-                    this.lightningTimer--;
-                } else {
-                    this.lightningTimer = 40 + stormCloud.getRandom().nextInt(40);
-                    double x = stormCloud.getX() + (stormCloud.getRandom().nextDouble() * 8 - 4);
-                    double y = stormCloud.getY() - 7;
-                    double z = stormCloud.getZ() + (stormCloud.getRandom().nextDouble() * 8 - 4);
-                    BlockPos blockPos = BlockPos.containing(x, y, z);
-                    this.summonEntity(SpellContext.simple(SBSpells.STORM_RIFT.get(), context.getCaster()), SBEntities.STORM_BOLT.get(), Vec3.atBottomCenterOf(blockPos));
-                    level.playSound(
-                            stormCloud,
-                            stormCloud.getOnPos(),
-                            SoundEvents.LIGHTNING_BOLT_THUNDER,
-                            SoundSource.NEUTRAL,
-                            2500.0F,
-                            0.8F + stormCloud.getRandom().nextFloat() * 0.2F
-                    );
-                    level.playSound(
-                            stormCloud,
-                            stormCloud.getOnPos(),
-                            SoundEvents.LIGHTNING_BOLT_IMPACT,
-                            SoundSource.NEUTRAL,
-                            2.0F,
-                            0.5F + stormCloud.getRandom().nextFloat() * 0.2F
-                    );
-                }
+            if (this.lightningTimer > 0) {
+                this.lightningTimer--;
+            } else {
+                this.lightningTimer = 40 + stormCloud.getRandom().nextInt(40);
+                double x = stormCloud.getX() + (stormCloud.getRandom().nextDouble() * 8 - 4);
+                double y = stormCloud.getY() - 7;
+                double z = stormCloud.getZ() + (stormCloud.getRandom().nextDouble() * 8 - 4);
+                BlockPos blockPos = BlockPos.containing(x, y, z);
+                this.summonEntity(SpellContext.simple(SBSpells.STORM_RIFT.get(), context.getCaster()), SBEntities.STORM_BOLT.get(), Vec3.atBottomCenterOf(blockPos));
+                level.playSound(
+                        stormCloud,
+                        stormCloud.getOnPos(),
+                        SoundEvents.LIGHTNING_BOLT_THUNDER,
+                        SoundSource.NEUTRAL,
+                        2500.0F,
+                        0.8F + stormCloud.getRandom().nextFloat() * 0.2F
+                );
+                level.playSound(
+                        stormCloud,
+                        stormCloud.getOnPos(),
+                        SoundEvents.LIGHTNING_BOLT_IMPACT,
+                        SoundSource.NEUTRAL,
+                        2.0F,
+                        0.5F + stormCloud.getRandom().nextFloat() * 0.2F
+                );
             }
         } else if (spellEntity instanceof StormBolt stormBolt) {
             List<Entity> list = level
@@ -288,12 +287,12 @@ public class StormRiftSpell extends AnimatedSpell {
 
             for (Entity entity : list) {
                 if (!isCaster(entity)) {
-                    entity.setRemainingFireTicks(entity.getRemainingFireTicks() + 1);
-                    if (entity.getRemainingFireTicks() == 0)
-                        entity.igniteForSeconds(8.0F);
+                    if (entity instanceof LivingEntity target && this.hurt(target, DamageTypes.LIGHTNING_BOLT, 5.0F)) {
+                        target.setRemainingFireTicks(entity.getRemainingFireTicks() + 1);
+                        if (target.getRemainingFireTicks() == 0)
+                            target.igniteForSeconds(8.0F);
+                    }
 
-                    if (entity instanceof LivingEntity target)
-                        this.hurt(target, DamageTypes.LIGHTNING_BOLT, 5.0F);
                 }
             }
 

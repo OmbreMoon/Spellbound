@@ -1,6 +1,8 @@
 package com.ombremoon.spellbound.common.content.entity;
 
 import com.ombremoon.spellbound.util.Loggable;
+import com.ombremoon.spellbound.util.SpellUtil;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -14,6 +16,8 @@ import net.minecraft.world.level.Level;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
 import net.tslat.smartbrainlib.api.core.navigation.SmoothGroundNavigation;
+import net.tslat.smartbrainlib.util.BrainUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -41,26 +45,45 @@ public abstract class SBLivingEntity extends PathfinderMob implements SmartBrain
 
     @Override
     public boolean isAlliedTo(Entity entity) {
-        return (entity instanceof LivingEntity livingEntity && isOwner(livingEntity)) || super.isAlliedTo(entity);
+        return entity instanceof LivingEntity livingEntity && (this.isOwner(livingEntity) || SpellUtil.IS_ALLIED.test(this.getOwner(), livingEntity)) || super.isAlliedTo(entity);
     }
 
     @Nullable
-    public LivingEntity getOwner() {
-        return (LivingEntity) this.level().getEntity(this.entityData.get(OWNER_ID));
+    public Entity getOwner() {
+        return this.level().getEntity(this.entityData.get(OWNER_ID));
     }
 
-    public void setOwner(LivingEntity entity) {
-        this.entityData.set(OWNER_ID, entity.getId());
+    public void setOwner(Entity entity) {
+        this.setOwner(entity.getId());
+    }
+
+    public void setOwner(int id) {
+        this.entityData.set(OWNER_ID, id);
     }
 
     protected boolean isOwner(LivingEntity entity) {
-        return getOwner() != null && getOwner().is(entity);
+        Entity owner = this.getOwner();
+        return owner != null && owner.is(entity);
     }
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(OWNER_ID, 0);
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
+        Entity entity = this.getOwner();
+        if (entity != null)
+            compound.putInt("SpellboundOwner", this.getOwner().getId());
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
+        this.setOwner(compound.getInt("SpellboundOwner"));
     }
 
     @Override

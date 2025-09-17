@@ -1,10 +1,12 @@
 package com.ombremoon.spellbound.common.content.spell.summon;
 
+import com.ombremoon.spellbound.common.content.entity.living.MiniMushroom;
 import com.ombremoon.spellbound.common.content.entity.spell.WildMushroom;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
+import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
 import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;
 import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
@@ -28,22 +30,35 @@ import net.neoforged.neoforge.event.EventHooks;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
 //TODO: CHANGE CIRCLE OF LIFE SKILL TO A TAUNT
 
-public class WildMushroomSpell extends AnimatedSpell {
+public class WildMushroomSpell extends SummonSpell {
     protected static final SpellDataKey<Integer> MUSHROOM = SyncedSpellData.registerDataKey(WildMushroomSpell.class, SBDataTypes.INT.get());
+    protected static final SpellDataKey<Integer> MINI_MUSHROOM = SyncedSpellData.registerDataKey(WildMushroomSpell.class, SBDataTypes.INT.get());
+    protected static final SpellDataKey<Integer> GIANT_MUSHROOM = SyncedSpellData.registerDataKey(WildMushroomSpell.class, SBDataTypes.INT.get());
     private static final ResourceLocation FUNGAL_HARVEST = CommonClass.customLocation("fungal_harvest");
-    private final Set<Integer> catalepsyTracker = new IntOpenHashSet();
 
     public static Builder<WildMushroomSpell> createMushroomBuilder() {
-        return createSimpleSpellBuilder(WildMushroomSpell.class)
+        return createSummonBuilder(WildMushroomSpell.class)
                 .mastery(SpellMastery.ADEPT)
                 .duration(240)
                 .manaCost(30)
                 .baseDamage(4.0F)
-                .summonCast()
-                .castCondition((context, spell) -> spell.hasValidSpawnPos());
+                .castCondition((context, spell) -> {
+                    var skills = context.getSkills();
+                    if (skills.hasSkill(SBSkills.LIVING_FUNGUS) && context.getTarget() instanceof WildMushroom mushroom && context.getCaster() == mushroom.getOwner()) {
+                        WildMushroomSpell mushroomSpell = mushroom.getSpell();
+                        MiniMushroom miniMushroom = mushroomSpell.summonEntity(context, SBEntities.MINI_MUSHROOM.get(), mushroom.position());
+                        mushroomSpell.setMiniMushroom(miniMushroom.getId());
+                        mushroomSpell.setRemainingTicks(600);
+                        mushroom.discard();
+                        return false;
+                    }
+
+                    return spell.hasValidSpawnPos();
+                });
     }
 
     public WildMushroomSpell() {
@@ -53,10 +68,13 @@ public class WildMushroomSpell extends AnimatedSpell {
     @Override
     protected void defineSpellData(SyncedSpellData.Builder builder) {
         builder.define(MUSHROOM, 0);
+        builder.define(MINI_MUSHROOM, 0);
+        builder.define(GIANT_MUSHROOM, 0);
     }
 
     @Override
     protected void onSpellStart(SpellContext context) {
+        super.onSpellStart(context);
         Level level = context.getLevel();
         if (!level.isClientSide) {
             LivingEntity caster = context.getCaster();
@@ -105,20 +123,8 @@ public class WildMushroomSpell extends AnimatedSpell {
                                         80
                                 );
 
-                            if (skills.hasSkill(SBSkills.CATALEPSY)) {
-                                if (!this.catalepsyTracker.contains(entity.getId())) {
-                                    this.catalepsyTracker.add(entity.getId());
-                                } else {
-                                    this.catalepsyTracker.remove(entity.getId());
-                                    this.addSkillBuff(
-                                            entity,
-                                            SBSkills.CATALEPSY,
-                                            BuffCategory.HARMFUL,
-                                            SkillBuff.MOB_EFFECT,
-                                            new MobEffectInstance(SBEffects.CATALEPSY, 80),
-                                            80
-                                    );
-                                }
+                            if (skills.hasSkill(SBSkills.PARASITIC_FUNGUS) && !entity.hasEffect(SBEffects.TAUNT)) {
+                                handler.applyTauntEffect(entity, mushroom.position(), 60);
                             }
 
                             if (entity.isDeadOrDying()) {
@@ -154,21 +160,29 @@ public class WildMushroomSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStop(SpellContext context) {
+        super.onSpellStop(context);
         Level level = context.getLevel();
         if (!level.isClientSide) {
             LivingEntity caster = context.getCaster();
             var skills = context.getSkills();
             WildMushroom mushroom = this.getMushroom(context);
+
             if (mushroom != null)
                 mushroom.setEndTick(5);
-
-            if (skills.hasSkill(SBSkills.CIRCLE_OF_LIFE))
-                this.awardMana(context.getCaster(), 7.0F + (8.0F * (context.getSpellLevel() / 5.0F)));
 
             if (skills.hasSkill(SBSkills.FUNGAL_HARVEST) && context.hasActiveSpells(3))
                 this.removeSkillBuff(caster, SBSkills.FUNGAL_HARVEST);
 
         }
+    }
+
+    @Override
+    protected int getDuration(SpellContext context) {
+        return this.hasEvolvedMushroom(context) ? 600 : super.getDuration(context);
+    }
+
+    private boolean hasEvolvedMushroom(SpellContext context) {
+        return this.getMiniMushroom(context) != null /*|| this.getGiantMushroom(context) != null*/;
     }
 
     private void spreadSpores(Level level, LivingEntity caster, BlockPos center, int range) {
@@ -180,11 +194,9 @@ public class WildMushroomSpell extends AnimatedSpell {
             int j1 = j + Mth.nextInt(level.random, 0, 2) * Mth.nextInt(level.random, -1, 1);
             int k1 = k + Mth.nextInt(level.random, 0, range) * Mth.nextInt(level.random, -1, 1);
             BlockPos blockpos = new BlockPos(i1, j1, k1);
-            BlockPos blockPos1 = blockpos.below();
             BlockState blockState = level.getBlockState(blockpos);
             if (blockpos.distToCenterSqr(center.getCenter().x(), (double) blockpos.getY() + 0.5, center.getCenter().z()) < (double) Mth.square(range)
                     && (blockState.isAir() || blockState.canBeReplaced())
-//                    && level.getBlockState(blockPos1).isSolid()
                     && SBBlocks.MYCELIUM_CARPET.get().defaultBlockState().canSurvive(level, blockpos)
                     && !blockState.is(SBBlocks.MYCELIUM_CARPET.get())
                     && level.setBlockAndUpdate(blockpos, SBBlocks.MYCELIUM_CARPET.get().defaultBlockState())) {
@@ -213,4 +225,22 @@ public class WildMushroomSpell extends AnimatedSpell {
         Entity entity = context.getLevel().getEntity(this.spellData.get(MUSHROOM));
         return entity instanceof WildMushroom mushroom ? mushroom : null;
     }
+
+    private void setMiniMushroom(int mushroom) {
+        this.spellData.set(MINI_MUSHROOM, mushroom);
+    }
+
+    private MiniMushroom getMiniMushroom(SpellContext context) {
+        Entity entity = context.getLevel().getEntity(this.spellData.get(MINI_MUSHROOM));
+        return entity instanceof MiniMushroom mushroom ? mushroom : null;
+    }
+
+/*    public void setGiantMushroom(int mushroom) {
+        this.spellData.set(GIANT_MUSHROOM, mushroom);
+    }
+
+    private GiantMushroom getGiantMushroom(SpellContext context) {
+        Entity entity = context.getLevel().getEntity(this.spellData.get(GIANT_MUSHROOM));
+        return entity instanceof GiantMushroom mushroom ? mushroom : null;
+    }*/
 }

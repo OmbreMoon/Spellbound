@@ -10,6 +10,7 @@ import com.ombremoon.spellbound.common.content.commands.SpellboundCommand;
 import com.ombremoon.spellbound.common.content.entity.spell.Hail;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
 import com.ombremoon.spellbound.common.content.world.dimension.DimensionCreator;
+import com.ombremoon.spellbound.common.content.world.effect.SBEffect;
 import com.ombremoon.spellbound.common.content.world.effect.SBEffectInstance;
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormData;
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
@@ -180,14 +181,8 @@ public class NeoForgeEvents {
     @SubscribeEvent
     public static void onEffectRemoved(MobEffectEvent.Remove event) {
         LivingEntity livingEntity = event.getEntity();
-        if (event.getEffect().is(SBEffects.FEAR)) {
-            var skills = SpellUtil.getSkills(livingEntity);
-            skills.removeModifier(SpellModifier.FEAR);
-            livingEntity.setData(SBData.FEAR_TICK, 0);
-            livingEntity.setData(SBData.FEAR_SOURCE, Vec3.ZERO);
-            if (livingEntity instanceof ServerPlayer player)
-                PayloadHandler.removeFearEffect(player);
-        }
+        if (event.getEffect().value() instanceof SBEffect effect && event.getEffectInstance() != null)
+            effect.onEffectRemoved(livingEntity, event.getEffectInstance().getAmplifier());
 
         if (event.getEffectInstance() instanceof SBEffectInstance effectInstance && effectInstance.willGlow()) {
             LivingEntity entity = effectInstance.getCauseEntity();
@@ -253,7 +248,7 @@ public class NeoForgeEvents {
         }*/
     }
 
-    @SubscribeEvent
+    /*@SubscribeEvent
     public static void onChunkTick(TickChunkEvent.Pre event) {
         LevelChunk chunk = event.getChunk();
         Level level = chunk.getLevel();
@@ -284,7 +279,7 @@ public class NeoForgeEvents {
                 }
             }
         }
-    }
+    }*/
 
     @SubscribeEvent
     public static void onDatapackSync(OnDatapackSyncEvent event) {
@@ -311,6 +306,13 @@ public class NeoForgeEvents {
     @SubscribeEvent
     public static void onPlayerLogOut(PlayerEvent.PlayerLoggedOutEvent event) {
         SpellUtil.getSpellCaster(event.getEntity()).endSpells();
+    }
+
+    @SubscribeEvent
+    public static void onLivingHeal(LivingHealEvent event) {
+        LivingEntity entity = event.getEntity();
+        if (entity.hasEffect(SBEffects.PERMAFROST))
+            event.setCanceled(true);
     }
 
     @SubscribeEvent
@@ -348,7 +350,8 @@ public class NeoForgeEvents {
     public static void onLivingDamage(LivingDamageEvent.Post event) {
         if (event.getEntity().level().isClientSide) return;
 
-        SpellUtil.getSpellCaster(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.POST_DAMAGE, new DamageEvent.Post(event.getEntity(), event));
+        LivingEntity entity = event.getEntity();
+        SpellUtil.getSpellCaster(entity).getListener().fireEvent(SpellEventListener.Events.POST_DAMAGE, new DamageEvent.Post(entity, event));
     }
 
     @SubscribeEvent
@@ -363,6 +366,9 @@ public class NeoForgeEvents {
 
         if (livingEntity.hasEffect(SBEffects.SLEEP))
             livingEntity.removeEffect(SBEffects.SLEEP);
+
+        if (livingEntity.hasEffect(SBEffects.PERMAFROST))
+            event.setNewDamage(event.getOriginalDamage() * 1.15F);
     }
 
     @SubscribeEvent

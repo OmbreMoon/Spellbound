@@ -25,7 +25,6 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerPlayer;
@@ -73,6 +72,9 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
 
     //TEMPORARY
     public Vec3 handPos;
+    public float forwardImpulse;
+    public float leftImpulse;
+    public boolean movementDirty;
 
     /**
      * Syncs spells handler data from the server to the client.
@@ -102,6 +104,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
         this.effectManager = SpellUtil.getSpellEffects(this.caster);
         this.effectManager.init(caster);
         this.upgradeTree = this.caster.getData(SBData.UPGRADE_TREE);
+        this.glowEntities.clear();
 
         if (!caster.level().isClientSide)
             this.getDivineActions();
@@ -138,16 +141,8 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
         if (this.stationaryTicks > 0)
             this.stationaryTicks--;
 
-
         this.tickSkillBuffs();
         this.skillHolder.getCooldowns().tick();
-
-//        if (handPos != null)
-//            this.caster.level().addParticle(ParticleTypes.SNOWFLAKE, handPos.x, handPos.y, handPos.z, 0, 0, 0);
-
-        if (!this.caster.level().isClientSide && this.caster.tickCount % 5 == 0) {
-
-        }
     }
 
     public double getMana() {
@@ -440,9 +435,6 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     }
 
     private void tickSkillBuffs() {
-//        if (this.caster instanceof Player player && player.getName().getString().equals("Dev1"))
-//            log(skillBuffs);
-
         this.skillBuffs.entrySet().removeIf(entry -> {
             if (entry.getValue() > 0 && entry.getValue() <= this.caster.tickCount) {
                 this.removeBuffEffect(entry.getKey());
@@ -463,14 +455,37 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
             PayloadHandler.updateFlag(spellType, flag);
     }
 
-    public void applyFear(LivingEntity target, int ticks) {
-        target.setData(SBData.FEAR_SOURCE, this.caster.position());
-        target.addEffect(new MobEffectInstance(SBEffects.FEAR, ticks, 0, false, false));
+    public void applyFearEffect(LivingEntity target, Vec3 source, int ticks) {
+        target.setData(SBData.MOVEMENT_SOURCE, source);
+        target.addEffect(new MobEffectInstance(SBEffects.FEAR, ticks, 0, true, true));
+    }
+
+    public void applyFearEffect(LivingEntity target, int ticks) {
+        this.applyFearEffect(target, this.caster.position(), ticks);
+    }
+
+    public void applyTauntEffect(LivingEntity target, Vec3 source, int ticks) {
+        target.setData(SBData.MOVEMENT_SOURCE, source);
+        target.addEffect(new MobEffectInstance(SBEffects.TAUNT, ticks, 0, true, true));
+    }
+
+    public void applyTauntEffect(LivingEntity target, int ticks) {
+        this.applyTauntEffect(target, this.caster.position(), ticks);
     }
 
     public void applyStormStrike(LivingEntity target, int ticks) {
         target.setData(SBData.STORMSTRIKE_OWNER.get(), this.caster.getId());
-        target.addEffect(new MobEffectInstance(SBEffects.STORMSTRIKE, ticks, 0, false, false));
+        target.addEffect(new MobEffectInstance(SBEffects.STORMSTRIKE, ticks, 0, true, true));
+    }
+
+    /**
+     * Plays an animation for the player. This is called server-side for all players to see the animation
+     * @param player The player performing the animation
+     * @param animationName The animation path location
+     */
+    public void playAnimation(Player player, String animationName, float animationSpeed) {
+        if (!player.level().isClientSide)
+            PayloadHandler.handleAnimation(player, animationName, animationSpeed, false);
     }
 
     /**
@@ -478,11 +493,17 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      * @return If the player is supposed to be stationary
      */
     public boolean isStationary() {
-        return this.stationaryTicks > 0 || this.caster.hasEffect(SBEffects.ROOTED) || this.caster.hasEffect(SBEffects.STUNNED) || this.caster.hasEffect(SBEffects.SLEEP) || this.isFeared();
+        return this.stationaryTicks > 0
+                || this.caster.hasEffect(SBEffects.ROOTED)
+                || this.caster.hasEffect(SBEffects.STUNNED)
+                || this.caster.hasEffect(SBEffects.FROZEN)
+                || this.caster.hasEffect(SBEffects.SLEEP)
+                || this.caster.hasEffect(SBEffects.FEAR)
+                || this.caster.hasEffect(SBEffects.TAUNT);
     }
 
     public boolean isFeared() {
-        return this.caster.hasEffect(SBEffects.FEAR) && this.caster.getData(SBData.FEAR_TICK) < 40;
+        return this.caster.hasEffect(SBEffects.FEAR);
     }
 
     /**
@@ -491,6 +512,10 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
      */
     public void setStationaryTicks(int ticks) {
         this.stationaryTicks = ticks + 1;
+    }
+
+    public boolean isMoving() {
+        return this.forwardImpulse != 0 || this.leftImpulse != 0;
     }
 
     /**

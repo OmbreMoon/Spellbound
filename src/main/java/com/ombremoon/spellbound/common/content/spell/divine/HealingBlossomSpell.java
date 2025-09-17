@@ -14,6 +14,7 @@ import com.ombremoon.spellbound.common.magic.api.buff.events.DamageEvent;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
+import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -69,7 +70,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
     protected void onSpellStart(SpellContext context) {
         if (context.getLevel().isClientSide) return;
         SkillHolder skills = context.getSkills();
-        this.summonEntity(context, SBEntities.HEALING_BLOSSOM.get(), 5, blossom -> {
+        this.summonEntity(context, SBEntities.HEALING_BLOSSOM.get(), SpellUtil.getCastRange(context.getCaster()), blossom -> {
             if (skills.hasSkill(SBSkills.BLOOM)) {
                 blossom.fastBloom();
                 this.fastBloomed = true;
@@ -181,9 +182,10 @@ public class HealingBlossomSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStop(SpellContext context) {
-        if (!context.getLevel().isClientSide) return;
-        HealingBlossom blossom = getBlossom(context);
-        if (blossom != null) blossom.setEndTick(20);
+        if (!context.getLevel().isClientSide) {
+            HealingBlossom blossom = getBlossom(context);
+            if (blossom != null) blossom.setEndTick(20);
+        }
     }
 
     private void onDamagePre(DamageEvent.Pre pre) {

@@ -11,6 +11,7 @@ import com.ombremoon.spellbound.common.magic.api.buff.events.DamageEvent;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -30,8 +31,7 @@ public class HealingTouchSpell extends AnimatedSpell {
         return createSimpleSpellBuilder(HealingTouchSpell.class)
                 .manaCost(15)
                 .duration(100)
-                .castTime(20)
-                .castAnimation(context -> "self_buff")
+                .selfBuffCast()
                 .fullRecast();
     }
 
@@ -57,34 +57,35 @@ public class HealingTouchSpell extends AnimatedSpell {
     @Override
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
-        if (context.getLevel().isClientSide) return;
         SkillHolder skills = context.getSkills();
         LivingEntity caster = context.getCaster();
-        double maxMana = caster.getAttribute(SBAttributes.MAX_MANA).getValue();
+        if (!context.getLevel().isClientSide) {
+            double maxMana = caster.getAttribute(SBAttributes.MAX_MANA).getValue();
 
-        float heal = 2;
-        if (skills.hasSkill(SBSkills.HEALING_STREAM.value()))
-            heal += (float) maxMana * 0.02f;
+            float heal = 2;
+            if (skills.hasSkill(SBSkills.HEALING_STREAM.value()))
+                heal += (float) maxMana * 0.02f;
 
-        this.heal(caster, heal);
+            this.heal(caster, heal);
 
-        if (skills.hasSkill(SBSkills.ACCELERATED_GROWTH.value()) && caster instanceof Player player) {
-            player.getFoodData().eat((int) (maxMana * 0.02d), 1f);
-        }
+            if (skills.hasSkill(SBSkills.ACCELERATED_GROWTH.value()) && caster instanceof Player player) {
+                player.getFoodData().eat((int) (maxMana * 0.02d), 1f);
+            }
 
-        if (skills.hasSkill(SBSkills.TRANQUILITY_OF_WATER.value()))
-            context.getSpellHandler().awardMana(2);
+            if (skills.hasSkill(SBSkills.TRANQUILITY_OF_WATER.value()))
+                context.getSpellHandler().awardMana(2);
 
-        if (skills.hasSkill(SBSkills.OVERGROWTH.value()) && overgrowthStacks < 5) overgrowthStacks++;
+            if (skills.hasSkill(SBSkills.OVERGROWTH.value()) && overgrowthStacks < 5) overgrowthStacks++;
 
-        AttributeInstance armor = caster.getAttribute(Attributes.ARMOR);
-        if (blessingDuration > 0) blessingDuration--;
-        if (blessingDuration <= 0 && armor.hasModifier(ARMOR_MOD)) {
-            armor.removeModifier(ARMOR_MOD);
+            AttributeInstance armor = caster.getAttribute(Attributes.ARMOR);
+            if (blessingDuration > 0) blessingDuration--;
+            if (blessingDuration <= 0 && armor.hasModifier(ARMOR_MOD)) {
+                armor.removeModifier(ARMOR_MOD);
+            }
         }
 
         for (int j = 0; j < 5; j++) {
-            this.createSurroundingServerParticles(caster, SBParticles.GOLD_HEART.get(), 1);
+            this.createSurroundingParticles(caster, SBParticles.GOLD_HEART.get(), 1);
         }
     }
 
@@ -100,7 +101,7 @@ public class HealingTouchSpell extends AnimatedSpell {
     private void onDamagePost(DamageEvent.Post event) {
         SkillHolder skills = SpellUtil.getSkills(caster);
 
-        if (event.getEntity().hasEffect(SBEffects.POISON) && skills.hasSkill(SBSkills.CONVALESCENCE.value()))
+        if (event.getEntity().hasEffect(MobEffects.POISON) && skills.hasSkill(SBSkills.CONVALESCENCE.value()))
             caster.heal(1);
 
         if (!event.getEntity().is(caster)) return;

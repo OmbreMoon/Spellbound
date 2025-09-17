@@ -29,7 +29,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
                 .duration(200)
                 .manaCost(5)
                 .baseDamage(6)
-                .castType(CastType.CHARGING)
+                .castType(CastType.INSTANT)
                 .castCondition((context, spell) -> {
                     Entity entity = context.getTarget();
                     if (spell.discharging) return false;
@@ -88,11 +88,6 @@ public class ElectricChargeSpell extends AnimatedSpell {
     }
 
     @Override
-    protected void onSpellStop(SpellContext context) {
-
-    }
-
-    @Override
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
         Level level = context.getLevel();
@@ -123,6 +118,17 @@ public class ElectricChargeSpell extends AnimatedSpell {
                 this.createSurroundingServerParticles(entity, SBParticles.SPARK.get(), 1);
             }
         }
+    }
+
+    @Override
+    protected void onSpellStop(SpellContext context) {
+
+    }
+
+    @Override
+    public CastType getCastType(SpellContext context) {
+        var skills = context.getSkills();
+        return skills.hasSkill(SBSkills.AMPLIFY) && context.isRecast() && (context.getTarget() == null || this.discharged) ? CastType.CHANNEL : super.getCastType(context);
     }
 
     private void discharge(SpellContext context, LivingEntity target, boolean hasShard) {

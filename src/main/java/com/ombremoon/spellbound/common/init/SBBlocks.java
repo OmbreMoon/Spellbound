@@ -75,7 +75,98 @@ public class SBBlocks {
                     CrystalBlock.CrystalType.FROZEN, 3.0F, 4.0F, BlockBehaviour.Properties.ofLegacyCopy(FROZEN_CRYSTAL_CLUSTER.get())
             )
     );
-//    public static final Supplier<Block> DIVINE_SHRINE = registerBlock("divine_shrine", () -> new DivineShrineBlock(blockProperties()));
+/*    public static final Supplier<Block> SMOLDERING_CRYSTAL_BLOCK = registerBlock(
+            "smoldering_crystal_block", () -> new CrystalBlock(
+                    CrystalBlock.CrystalType.SMOLDERING, blockProperties()
+                        .mapColor(MapColor.FIRE)
+                        .strength(1.5F)
+                        .sound(SoundType.AMETHYST)
+                        .requiresCorrectToolForDrops()
+            )
+    );
+    public static final Supplier<Block> BUDDING_SMOLDERING_CRYSTAL = registerBlock(
+            "budding_smoldering_crystal", () -> new BuddingCrystalBlock(
+                    CrystalBlock.CrystalType.SMOLDERING, blockProperties()
+                    .mapColor(MapColor.FIRE)
+                    .randomTicks()
+                    .strength(1.5F)
+                    .sound(SoundType.AMETHYST)
+                    .requiresCorrectToolForDrops()
+                    .pushReaction(PushReaction.DESTROY)
+            )
+    );
+    public static final Supplier<Block> SMOLDERING_CRYSTAL_CLUSTER = registerBlock(
+            "smoldering_crystal_cluster", () -> new CrystalClusterBlock(
+                    CrystalBlock.CrystalType.SMOLDERING, 7.0F, 3.0F, blockProperties()
+                    .mapColor(MapColor.FIRE)
+                    .randomTicks()
+                    .strength(1.5F)
+                    .sound(SoundType.AMETHYST)
+                    .requiresCorrectToolForDrops()
+                    .pushReaction(PushReaction.DESTROY)
+            )
+    );
+    public static final Supplier<Block> LARGE_SMOLDERING_CRYSTAL_BUD = registerBlock(
+            "large_smoldering_crystal_bud", () -> new CrystalClusterBlock(
+                    CrystalBlock.CrystalType.SMOLDERING, 5.0F, 4.0F, BlockBehaviour.Properties.ofLegacyCopy(SMOLDERING_CRYSTAL_CLUSTER.get())
+            )
+    );
+    public static final Supplier<Block> MEDIUM_SMOLDERING_CRYSTAL_BUD = registerBlock(
+            "medium_smoldering_crystal_bud", () -> new CrystalClusterBlock(
+                    CrystalBlock.CrystalType.SMOLDERING, 4.0F, 4.0F, BlockBehaviour.Properties.ofLegacyCopy(SMOLDERING_CRYSTAL_CLUSTER.get())
+            )
+    );
+    public static final Supplier<Block> SMALL_SMOLDERING_CRYSTAL_BUD = registerBlock(
+            "small_smoldering_crystal_bud", () -> new CrystalClusterBlock(
+                    CrystalBlock.CrystalType.SMOLDERING, 3.0F, 4.0F, BlockBehaviour.Properties.ofLegacyCopy(SMOLDERING_CRYSTAL_CLUSTER.get())
+            )
+    );
+    public static final Supplier<Block> STORM_CRYSTAL_BLOCK = registerBlock(
+            "storm_crystal_block", () -> new CrystalBlock(
+                    CrystalBlock.CrystalType.STORM, blockProperties()
+                        .mapColor(MapColor.COLOR_YELLOW)
+                        .strength(1.5F)
+                        .sound(SoundType.AMETHYST)
+                        .requiresCorrectToolForDrops()
+            )
+    );
+    public static final Supplier<Block> BUDDING_STORM_CRYSTAL = registerBlock(
+            "budding_frozen_crystal", () -> new BuddingCrystalBlock(
+                    CrystalBlock.CrystalType.STORM, blockProperties()
+                    .mapColor(MapColor.COLOR_YELLOW)
+                    .randomTicks()
+                    .strength(1.5F)
+                    .sound(SoundType.AMETHYST)
+                    .requiresCorrectToolForDrops()
+                    .pushReaction(PushReaction.DESTROY)
+            )
+    );
+    public static final Supplier<Block> STORM_CRYSTAL_CLUSTER = registerBlock(
+            "storm_crystal_cluster", () -> new CrystalClusterBlock(
+                    CrystalBlock.CrystalType.STORM, 7.0F, 3.0F, blockProperties()
+                    .mapColor(MapColor.COLOR_YELLOW)
+                    .randomTicks()
+                    .strength(1.5F)
+                    .sound(SoundType.AMETHYST)
+                    .requiresCorrectToolForDrops()
+                    .pushReaction(PushReaction.DESTROY)
+            )
+    );
+    public static final Supplier<Block> LARGE_STORM_CRYSTAL_BUD = registerBlock(
+            "large_storm_crystal_bud", () -> new CrystalClusterBlock(
+                    CrystalBlock.CrystalType.STORM, 5.0F, 4.0F, BlockBehaviour.Properties.ofLegacyCopy(STORM_CRYSTAL_CLUSTER.get())
+            )
+    );
+    public static final Supplier<Block> MEDIUM_STORM_CRYSTAL_BUD = registerBlock(
+            "medium_storm_crystal_bud", () -> new CrystalClusterBlock(
+                    CrystalBlock.CrystalType.STORM, 4.0F, 4.0F, BlockBehaviour.Properties.ofLegacyCopy(STORM_CRYSTAL_CLUSTER.get())
+            )
+    );
+    public static final Supplier<Block> SMALL_STORM_CRYSTAL_BUD = registerBlock(
+            "small_storm_crystal_bud", () -> new CrystalClusterBlock(
+                    CrystalBlock.CrystalType.STORM, 3.0F, 4.0F, BlockBehaviour.Properties.ofLegacyCopy(STORM_CRYSTAL_CLUSTER.get())
+            )
+    );*/
     public static final Supplier<Block> TRANSFIGURATION_PEDESTAL = registerBlock(
             "transfiguration_pedestal", () -> new TransfigurationPedestalBlock(
                     blockProperties()
