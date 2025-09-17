@@ -97,17 +97,6 @@ public abstract class SummonSpell extends AnimatedSpell {
         context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.CHANGE_TARGET, TARGETING_EVENT);
     }
 
-    @Override
-    protected void onShift(SpellContext context) {
-        /*Level level = context.getLevel();
-        for (int id : this.summons) {
-            Entity entity = level.getEntity(id);
-            if (entity != null) {
-                SpellUtil.setSpell(entity, this);
-            }
-        }*/
-    }
-
     /**
      * Returns the IDs of all summons created by this spells
      * @return Set of entity IDs

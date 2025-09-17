@@ -1,10 +1,12 @@
 package com.ombremoon.spellbound.common.content.entity.living;
 
 import com.mojang.datafixers.util.Pair;
+import com.ombremoon.sentinellib.api.BoxUtil;
 import com.ombremoon.spellbound.common.content.entity.SBLivingEntity;
 import com.ombremoon.spellbound.common.content.entity.SmartSpellEntity;
 import com.ombremoon.spellbound.common.content.entity.spell.IceMist;
 import com.ombremoon.spellbound.common.content.spell.summon.WildMushroomSpell;
+import com.ombremoon.spellbound.common.init.SBDamageTypes;
 import com.ombremoon.spellbound.common.init.SBEntities;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -15,6 +17,8 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -44,6 +48,7 @@ import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyHostileSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyPlayersSensor;
 import net.tslat.smartbrainlib.object.MemoryTest;
 import net.tslat.smartbrainlib.util.BrainUtils;
+import net.tslat.smartbrainlib.util.EntityRetrievalUtil;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animation.*;
@@ -148,8 +153,8 @@ public class MiniMushroom extends SmartSpellEntity<WildMushroomSpell> {
         return this.entityData.get(EXPLODING);
     }
 
-    public void explode() {
-        this.entityData.set(EXPLODING, true);
+    public void setExploding(boolean exploding) {
+        this.entityData.set(EXPLODING, exploding);
     }
 
     @Override
@@ -203,7 +208,12 @@ public class MiniMushroom extends SmartSpellEntity<WildMushroomSpell> {
                 return;
 
             entity.triggerAnim("explode", "explode");
-            entity.explode();
+            entity.setExploding(true);
+        }
+
+        @Override
+        protected void stop(MiniMushroom entity) {
+            entity.setExploding(false);
         }
 
         @Override
@@ -214,8 +224,21 @@ public class MiniMushroom extends SmartSpellEntity<WildMushroomSpell> {
             if (!BrainUtils.canSee(entity, this.target) || entity.distanceToSqr(this.target) > 9)
                 return;
 
-            entity.spell.endSpell();
+            boolean flag = entity.spell != null;
+            for (LivingEntity target : EntityRetrievalUtil.getEntities(entity, 3, 3, 3, LivingEntity.class, livingEntity -> !entity.isAlliedTo(livingEntity))) {
+                if (flag) {
+                    entity.spell.hurt(target, 4.0F);
+                } else {
+                    target.hurt(BoxUtil.damageSource(entity.level(), SBDamageTypes.SB_GENERIC, entity), 4.0F);
+                }
+
+                target.addEffect(new MobEffectInstance(MobEffects.POISON, 60));
+            }
+
             entity.discard();
+
+            if (entity.spell != null)
+                entity.spell.endSpell();
         }
     }
 }
