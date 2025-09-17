@@ -51,7 +51,7 @@ public class GuideBookScreen extends Screen {
         super.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.blit(this.bookTexture, this.leftPos, this.topPos, 0, 0, WIDTH, HEIGHT, WIDTH, HEIGHT);
 
-        pages.get(currentPage).render(guiGraphics, this.leftPos, this.topPos);
+        pages.get(currentPage).render(guiGraphics, this.leftPos, this.topPos, mouseX, mouseY, partialTick);
     }
 
 

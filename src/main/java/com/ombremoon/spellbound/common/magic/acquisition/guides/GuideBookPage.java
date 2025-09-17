@@ -25,9 +25,9 @@ public record GuideBookPage(ResourceLocation id, ResourceLocation insertAfter, L
             PageElement.CODEC.listOf().optionalFieldOf("elements", new ArrayList<>()).forGetter(GuideBookPage::elements)
     ).apply(inst, GuideBookPage::new));
 
-    public void render(GuiGraphics graphics, int leftPos, int topPos) {
+    public void render(GuiGraphics graphics, int leftPos, int topPos, int mouseX, int mouseY, float partialTick) {
         for (PageElement element : elements) {
-            element.render(graphics, leftPos + 42, topPos + 36);
+            element.render(graphics, leftPos + 42, topPos + 36, mouseX, mouseY, partialTick);
         }
     }
 }

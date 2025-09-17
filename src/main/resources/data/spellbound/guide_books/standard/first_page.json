@@ -21,13 +21,128 @@
     },
 
     {
-      "type": "spellbound:image",
-      "location": "spellbound:textures/gui/books/starter_book.png",
-      "width": 103,
-      "height": 91,
+      "type": "spellbound:item",
+      "item": "minecraft:glass",
       "position": {
-        "xOffset": -20,
-        "yOffset": 20
+        "xOffset": 0,
+        "yOffset": 50
+      }
+    },
+
+    {
+      "type": "spellbound:recipe",
+      "recipe": "minecraft:black_stained_glass",
+      "position": {
+        "xOffset": 0,
+        "yOffset": 100
+      }
+    },
+
+    {
+      "type": "spellbound:item_list",
+      "items": [
+        {
+          "item": "minecraft:diamond_pickaxe",
+          "count": 5
+        },
+        {
+          "item": "minecraft:glass"
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        },
+        {
+          "item": "minecraft:stick",
+          "count": 15
+        }
+      ],
+      "extras": {
+        "maxRows": 10
+      },
+      "position": {
+        "yOffset": 0,
+        "xOffset": 163
       }
     }
 
