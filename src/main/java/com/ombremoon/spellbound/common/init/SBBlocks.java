@@ -75,7 +75,7 @@ public class SBBlocks {
                     CrystalBlock.CrystalType.FROZEN, 3.0F, 4.0F, BlockBehaviour.Properties.ofLegacyCopy(FROZEN_CRYSTAL_CLUSTER.get())
             )
     );
-/*    public static final Supplier<Block> SMOLDERING_CRYSTAL_BLOCK = registerBlock(
+    public static final Supplier<Block> SMOLDERING_CRYSTAL_BLOCK = registerBlock(
             "smoldering_crystal_block", () -> new CrystalBlock(
                     CrystalBlock.CrystalType.SMOLDERING, blockProperties()
                         .mapColor(MapColor.FIRE)
@@ -131,7 +131,7 @@ public class SBBlocks {
             )
     );
     public static final Supplier<Block> BUDDING_STORM_CRYSTAL = registerBlock(
-            "budding_frozen_crystal", () -> new BuddingCrystalBlock(
+            "budding_storm_crystal", () -> new BuddingCrystalBlock(
                     CrystalBlock.CrystalType.STORM, blockProperties()
                     .mapColor(MapColor.COLOR_YELLOW)
                     .randomTicks()
@@ -148,6 +148,7 @@ public class SBBlocks {
                     .randomTicks()
                     .strength(1.5F)
                     .sound(SoundType.AMETHYST)
+                    .lightLevel(state -> 7)
                     .requiresCorrectToolForDrops()
                     .pushReaction(PushReaction.DESTROY)
             )
@@ -166,7 +167,7 @@ public class SBBlocks {
             "small_storm_crystal_bud", () -> new CrystalClusterBlock(
                     CrystalBlock.CrystalType.STORM, 3.0F, 4.0F, BlockBehaviour.Properties.ofLegacyCopy(STORM_CRYSTAL_CLUSTER.get())
             )
-    );*/
+    );
     public static final Supplier<Block> TRANSFIGURATION_PEDESTAL = registerBlock(
             "transfiguration_pedestal", () -> new TransfigurationPedestalBlock(
                     blockProperties()

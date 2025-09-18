@@ -19,7 +19,9 @@ import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvi
 import java.util.List;
 
 public interface SBConfiguredFeatures {
+    ResourceKey<ConfiguredFeature<?, ?>> FIRE_GEODE = register("fire_geode");
     ResourceKey<ConfiguredFeature<?, ?>> ICE_GEODE = register("ice_geode");
+    ResourceKey<ConfiguredFeature<?, ?>> SHOCK_GEODE = register("shock_geode");
 
     private static ResourceKey<ConfiguredFeature<?, ?>> register(String name) {
         return ResourceKey.create(Registries.CONFIGURED_FEATURE, CommonClass.customLocation(name));
@@ -30,6 +32,41 @@ public interface SBConfiguredFeatures {
     }
 
     static void bootstrap(BootstrapContext<ConfiguredFeature<?, ?>> context) {
+        register(
+                context,
+                FIRE_GEODE,
+                Feature.GEODE,
+                new GeodeConfiguration(
+                        new GeodeBlockSettings(
+                                BlockStateProvider.simple(Blocks.AIR),
+                                BlockStateProvider.simple(SBBlocks.SMOLDERING_CRYSTAL_BLOCK.get()),
+                                BlockStateProvider.simple(SBBlocks.BUDDING_SMOLDERING_CRYSTAL.get()),
+                                BlockStateProvider.simple(Blocks.CALCITE),
+                                BlockStateProvider.simple(Blocks.SMOOTH_BASALT),
+                                List.of(
+                                        SBBlocks.SMALL_SMOLDERING_CRYSTAL_BUD.get().defaultBlockState(),
+                                        SBBlocks.MEDIUM_SMOLDERING_CRYSTAL_BUD.get().defaultBlockState(),
+                                        SBBlocks.LARGE_SMOLDERING_CRYSTAL_BUD.get().defaultBlockState(),
+                                        SBBlocks.SMOLDERING_CRYSTAL_CLUSTER.get().defaultBlockState()
+                                ),
+                                BlockTags.FEATURES_CANNOT_REPLACE,
+                                BlockTags.GEODE_INVALID_BLOCKS
+                        ),
+                        new GeodeLayerSettings(1.7, 2.2, 3.2, 4.2),
+                        new GeodeCrackSettings(0.95, 2.0, 2),
+                        0.35,
+                        0.083,
+                        true,
+                        UniformInt.of(4, 6),
+                        UniformInt.of(3, 4),
+                        UniformInt.of(1, 2),
+                        -16,
+                        16,
+                        0.05,
+                        1
+
+                )
+        );
         register(
                 context,
                 ICE_GEODE,
@@ -46,6 +83,41 @@ public interface SBConfiguredFeatures {
                                         SBBlocks.MEDIUM_FROZEN_CRYSTAL_BUD.get().defaultBlockState(),
                                         SBBlocks.LARGE_FROZEN_CRYSTAL_BUD.get().defaultBlockState(),
                                         SBBlocks.FROZEN_CRYSTAL_CLUSTER.get().defaultBlockState()
+                                ),
+                                BlockTags.FEATURES_CANNOT_REPLACE,
+                                BlockTags.GEODE_INVALID_BLOCKS
+                        ),
+                        new GeodeLayerSettings(1.7, 2.2, 3.2, 4.2),
+                        new GeodeCrackSettings(0.95, 2.0, 2),
+                        0.35,
+                        0.083,
+                        true,
+                        UniformInt.of(4, 6),
+                        UniformInt.of(3, 4),
+                        UniformInt.of(1, 2),
+                        -16,
+                        16,
+                        0.05,
+                        1
+
+                )
+        );
+        register(
+                context,
+                SHOCK_GEODE,
+                Feature.GEODE,
+                new GeodeConfiguration(
+                        new GeodeBlockSettings(
+                                BlockStateProvider.simple(Blocks.AIR),
+                                BlockStateProvider.simple(SBBlocks.STORM_CRYSTAL_BLOCK.get()),
+                                BlockStateProvider.simple(SBBlocks.BUDDING_STORM_CRYSTAL.get()),
+                                BlockStateProvider.simple(Blocks.CALCITE),
+                                BlockStateProvider.simple(Blocks.SMOOTH_BASALT),
+                                List.of(
+                                        SBBlocks.SMALL_STORM_CRYSTAL_BUD.get().defaultBlockState(),
+                                        SBBlocks.MEDIUM_STORM_CRYSTAL_BUD.get().defaultBlockState(),
+                                        SBBlocks.LARGE_STORM_CRYSTAL_BUD.get().defaultBlockState(),
+                                        SBBlocks.STORM_CRYSTAL_CLUSTER.get().defaultBlockState()
                                 ),
                                 BlockTags.FEATURES_CANNOT_REPLACE,
                                 BlockTags.GEODE_INVALID_BLOCKS

@@ -131,7 +131,7 @@ public class SpellUtil {
      */
     @Nullable
     public static Entity getOwner(@NotNull Entity entity) {
-        if (entity instanceof SpellEntity<?> spellEntity) {
+        if (entity instanceof ISpellEntity<?> spellEntity) {
             return spellEntity.getOwner();
         }
 

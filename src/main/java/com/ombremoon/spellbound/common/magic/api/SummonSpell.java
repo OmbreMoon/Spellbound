@@ -28,8 +28,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public abstract class SummonSpell extends AnimatedSpell {
-    private static final ResourceLocation ATTACK_EVENT = CommonClass.customLocation("summon_attack_event");
-    private static final ResourceLocation DAMAGE_EVENT = CommonClass.customLocation("summon_damage_event");
     private static final ResourceLocation TARGETING_EVENT = CommonClass.customLocation("summon_targeting_event");
     private final Set<Integer> summons = new IntOpenHashSet();
     private boolean summonedEntity;
@@ -50,8 +48,6 @@ public abstract class SummonSpell extends AnimatedSpell {
      */
     @Override
     protected void onSpellStart(SpellContext context) {
-        context.getSpellHandler().getListener().addListener(SpellEventListener.Events.ATTACK, ATTACK_EVENT, this::attackEvent);
-        context.getSpellHandler().getListener().addListener(SpellEventListener.Events.POST_DAMAGE, DAMAGE_EVENT, this::damageEvent);
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.CHANGE_TARGET, TARGETING_EVENT, this::changeTargetEvent);
     }
 
@@ -92,8 +88,6 @@ public abstract class SummonSpell extends AnimatedSpell {
             }
         }
 
-        context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.ATTACK, ATTACK_EVENT);
-        context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.POST_DAMAGE, DAMAGE_EVENT);
         context.getSpellHandler().getListener().removeListener(SpellEventListener.Events.CHANGE_TARGET, TARGETING_EVENT);
     }
 
@@ -114,41 +108,6 @@ public abstract class SummonSpell extends AnimatedSpell {
         }
 
         return entity;
-    }
-
-    protected final void setSummonsTarget(Level level, LivingEntity target) {
-        for (int mobId : this.summons) {
-            if (level.getEntity(mobId) instanceof LivingEntity livingEntity)
-                SpellUtil.setTarget(livingEntity, target);
-        }
-    }
-
-    protected final void attackEvent(PlayerAttackEvent attackEvent) {
-        LivingEntity entity = attackEvent.getCaster();
-
-        if (!(entity instanceof Player)) return;
-
-        Entity damageEntity = attackEvent.getTarget();
-        Level level = damageEntity.level();
-
-        if (!(damageEntity instanceof LivingEntity livingEntity)) return;
-
-        if (!damageEntity.is(entity) && !SpellUtil.isSummonOf(livingEntity, entity)) {
-            setSummonsTarget(level, livingEntity);
-        }
-    }
-
-    protected final void damageEvent(DamageEvent.Post damageEvent) {
-        Entity sourceEntity = damageEvent.getSource().getEntity();
-        LivingEntity damageEntity = damageEvent.getEntity();
-        Level level = damageEntity.level();
-
-        if (sourceEntity == null) return;
-        LivingEntity caster = damageEvent.getCaster();
-
-        if (damageEntity.is(caster) && sourceEntity instanceof LivingEntity livingEntity && !SpellUtil.isSummonOf(livingEntity, caster)) {
-            setSummonsTarget(level, livingEntity);
-        }
     }
 
     private void changeTargetEvent(ChangeTargetEvent targetEvent) {

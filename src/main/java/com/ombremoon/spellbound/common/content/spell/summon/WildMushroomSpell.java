@@ -52,7 +52,7 @@ public class WildMushroomSpell extends SummonSpell {
                         WildMushroomSpell mushroomSpell = mushroom.getSpell();
                         MiniMushroom miniMushroom = mushroomSpell.summonEntity(context, SBEntities.MINI_MUSHROOM.get(), mushroom.position());
                         mushroomSpell.setMiniMushroom(miniMushroom.getId());
-                        mushroomSpell.setRemainingTicks(600);
+                        mushroomSpell.setRemainingTicks(24000);
                         mushroom.discard();
                         return false;
                     }
@@ -106,12 +106,11 @@ public class WildMushroomSpell extends SummonSpell {
                 int interval = skills.hasSkill(SBSkills.HASTENED_GROWTH) ? 40 : 60;
                 if (this.tickCount % interval == 0) {
                     float damage = this.getBaseDamage();
-                    damage *= (float) (1.0 + 0.1F * context.getActiveSpells());
+                    if (skills.hasSkill(SBSkills.NATURES_DOMINANCE))
+                        damage *= (float) (1.0 + 0.1F * context.getActiveSpells());
+
                     List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, mushroom.getBoundingBox().inflate(skills.hasSkill(SBSkills.VILE_INFLUENCE) ? 5 : 3));
                     for (LivingEntity entity : entities) {
-                        if (entity.hasEffect(MobEffects.POISON))
-                            damage += Mth.floor(5.0 * (handler.getMana() / handler.getMaxMana()));
-
                         if (!this.isCaster(entity) && this.hurt(entity, damage)) {
                             if (skills.hasSkill(SBSkills.ENVENOM))
                                 this.addSkillBuff(
@@ -178,7 +177,7 @@ public class WildMushroomSpell extends SummonSpell {
 
     @Override
     protected int getDuration(SpellContext context) {
-        return this.hasEvolvedMushroom(context) ? 600 : super.getDuration(context);
+        return this.hasEvolvedMushroom(context) ? 24000 : super.getDuration(context);
     }
 
     private boolean hasEvolvedMushroom(SpellContext context) {

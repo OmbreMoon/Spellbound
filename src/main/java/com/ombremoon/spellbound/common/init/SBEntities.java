@@ -25,7 +25,7 @@ public class SBEntities {
 
     public static final Supplier<EntityType<WildMushroom>> MUSHROOM = ENTITIES.register("wild_mushroom",
             () -> EntityType.Builder.of(WildMushroom::new, MobCategory.MISC).sized(0.9f, 0.9f).build("wild_mushroom"));
-    public static final Supplier<EntityType<HealingBlossom>> HEALING_BLOSSOM = registerEntity("healing_blossom", HealingBlossom::new, 1f, 1f);
+    public static final Supplier<EntityType<HealingBlossom>> HEALING_BLOSSOM = registerEntity("healing_blossom", HealingBlossom::new, 0.9f, 0.9f);
     public static final Supplier<EntityType<ShadowGate>> SHADOW_GATE = registerEntity("shadow_gate", ShadowGate::new, 1.2F, 2.5F);
     public static final Supplier<EntityType<SolarRay>> SOLAR_RAY = registerEntity("solar_ray", SolarRay::new, 0.5F, 1.7F);
     public static final Supplier<EntityType<ShatteringCrystal>> SHATTERING_CRYSTAL = registerEntity("shattering_crystal", ShatteringCrystal::new, 1.2F, 2.5F);

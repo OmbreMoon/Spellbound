@@ -4,10 +4,11 @@ import com.mojang.datafixers.util.Pair;
 import com.ombremoon.sentinellib.api.BoxUtil;
 import com.ombremoon.spellbound.common.content.entity.SBLivingEntity;
 import com.ombremoon.spellbound.common.content.entity.SmartSpellEntity;
-import com.ombremoon.spellbound.common.content.entity.spell.IceMist;
+import com.ombremoon.spellbound.common.content.entity.behavior.sensor.HurtOwnerSensor;
+import com.ombremoon.spellbound.common.content.entity.behavior.sensor.OwnerAttackSenor;
+import com.ombremoon.spellbound.common.content.entity.behavior.target.ExtendedTargetOrRetaliate;
 import com.ombremoon.spellbound.common.content.spell.summon.WildMushroomSpell;
 import com.ombremoon.spellbound.common.init.SBDamageTypes;
-import com.ombremoon.spellbound.common.init.SBEntities;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -41,18 +42,17 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAtt
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.InvalidateAttackTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetPlayerLookTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetRandomLookTarget;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.target.TargetOrRetaliate;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.HurtBySensor;
-import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyHostileSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyPlayersSensor;
 import net.tslat.smartbrainlib.object.MemoryTest;
 import net.tslat.smartbrainlib.util.BrainUtils;
 import net.tslat.smartbrainlib.util.EntityRetrievalUtil;
+import net.tslat.smartbrainlib.util.RandomUtil;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.animation.*;
 
 import java.util.List;
 
@@ -86,15 +86,19 @@ public class MiniMushroom extends SmartSpellEntity<WildMushroomSpell> {
                 return InteractionResult.PASS;
             }
 
+            log(this.isExploding());
             var skills = SpellUtil.getSkills(player);
             if (!skills.hasSkill(SBSkills.PROLIFERATION)) {
                 return InteractionResult.PASS;
             } else {
-                /*WildMushroomSpell spell = this.getSpell();
-                GiantMushroom giantMushroom = spell.summonEntity(spell.getContext(), SBEntities.GIANT_MUSHROOM.get(), this.position());
-                spell.setGiantMushroom(giantMushroom.getId());
-                spell.setRemainingTicks(600);
-                this.discard();*/
+                if (RandomUtil.percentChance(0.15F)) {
+                    /*WildMushroomSpell spell = this.getSpell();
+                    GiantMushroom giantMushroom = spell.summonEntity(spell.getContext(), SBEntities.GIANT_MUSHROOM.get(), this.position());
+                    spell.setGiantMushroom(giantMushroom.getId());
+                    spell.setRemainingTicks(600);
+                    this.discard();*/
+                }
+
                 itemStack.consume(1, player);
                 return InteractionResult.sidedSuccess(this.level().isClientSide);
             }
@@ -107,6 +111,9 @@ public class MiniMushroom extends SmartSpellEntity<WildMushroomSpell> {
                 new NearbyPlayersSensor<MiniMushroom>()
                         .setRadius(10)
                         .setPredicate((player, mushroom) -> !mushroom.isAlliedTo(player)),
+                new HurtOwnerSensor<MiniMushroom>()
+                        .setPredicate((source, miniMushroom) -> !miniMushroom.isAlliedTo(source.getDirectEntity())),
+                new OwnerAttackSenor<MiniMushroom>(),
                 new HurtBySensor<MiniMushroom>()
                         .setPredicate((source, miniMushroom) -> !miniMushroom.isAlliedTo(source.getDirectEntity()))
         );
@@ -127,7 +134,8 @@ public class MiniMushroom extends SmartSpellEntity<WildMushroomSpell> {
     public BrainActivityGroup<? extends SBLivingEntity> getIdleTasks() {
         return BrainActivityGroup.idleTasks(
                 new FirstApplicableBehaviour<>(
-                        new TargetOrRetaliate<>()
+                        new ExtendedTargetOrRetaliate<>()
+                                .noTargetSwapping()
                                 .useMemory(MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER),
                         new SetPlayerLookTarget<>(),
                         new SetRandomLookTarget<>()),
@@ -201,12 +209,6 @@ public class MiniMushroom extends SmartSpellEntity<WildMushroomSpell> {
 
         @Override
         protected void start(MiniMushroom entity) {
-            if (this.target == null)
-                return;
-
-            if (!BrainUtils.canSee(entity, this.target) || entity.distanceToSqr(this.target) > 4)
-                return;
-
             entity.triggerAnim("explode", "explode");
             entity.setExploding(true);
         }
@@ -218,16 +220,16 @@ public class MiniMushroom extends SmartSpellEntity<WildMushroomSpell> {
 
         @Override
         protected void doDelayedAction(MiniMushroom entity) {
-            if (this.target == null)
-                return;
-
-            if (!BrainUtils.canSee(entity, this.target) || entity.distanceToSqr(this.target) > 9)
-                return;
-
             boolean flag = entity.spell != null;
-            for (LivingEntity target : EntityRetrievalUtil.getEntities(entity, 3, 3, 3, LivingEntity.class, livingEntity -> !entity.isAlliedTo(livingEntity))) {
+            int radius = 3;
+            if (entity.getOwner() instanceof LivingEntity livingEntity) {
+                var skills = SpellUtil.getSkills(livingEntity);
+                radius = skills.hasSkill(SBSkills.VILE_INFLUENCE) ? 5 : 3;
+            }
+
+            for (LivingEntity target : EntityRetrievalUtil.getEntities(entity, radius, radius, radius, LivingEntity.class, livingEntity -> !entity.isAlliedTo(livingEntity))) {
                 if (flag) {
-                    entity.spell.hurt(target, 4.0F);
+                    entity.spell.hurt(target);
                 } else {
                     target.hurt(BoxUtil.damageSource(entity.level(), SBDamageTypes.SB_GENERIC, entity), 4.0F);
                 }

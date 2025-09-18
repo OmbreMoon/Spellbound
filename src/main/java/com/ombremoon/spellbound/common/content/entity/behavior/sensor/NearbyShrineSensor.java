@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.content.entity.behavior.sensor;
 
 import com.mojang.datafixers.util.Pair;
 import com.ombremoon.spellbound.common.init.SBMemoryTypes;
+import com.ombremoon.spellbound.common.init.SBSensors;
 import com.ombremoon.spellbound.common.init.SBTags;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.BlockPos;
@@ -25,7 +26,7 @@ public class NearbyShrineSensor<E extends LivingEntity> extends PredicateSensor<
     protected SquareRadius radius = new SquareRadius(1, 1);
 
     public NearbyShrineSensor() {
-        setPredicate((state, entity) -> !state.isAir());
+        super((state, entity) -> !state.isAir());
     }
 
     @Override
@@ -35,7 +36,7 @@ public class NearbyShrineSensor<E extends LivingEntity> extends PredicateSensor<
 
     @Override
     public SensorType<? extends ExtendedSensor<?>> type() {
-        return SBLSensors.NEARBY_BLOCKS.get();
+        return SBSensors.NEARBY_SHRINE.get();
     }
 
     /**
