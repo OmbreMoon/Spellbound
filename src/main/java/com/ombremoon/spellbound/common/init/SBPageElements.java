@@ -25,6 +25,7 @@ public class SBPageElements {
     public static final Supplier<MapCodec<? extends PageElement>> ITEM_LIST = PAGE_ELEMENTS.register("item_list", () -> GuideItemList.CODEC);
     public static final Supplier<MapCodec<? extends PageElement>> ITEM_RENDERER = PAGE_ELEMENTS.register("item_renderer", () -> GuideItemRenderer.CODEC);
     public static final Supplier<MapCodec<? extends PageElement>> SPELL_INFO = PAGE_ELEMENTS.register("spell_info", () -> GuideSpellInfo.CODEC);
+    public static final Supplier<MapCodec<? extends PageElement>> TEXT_LIST = PAGE_ELEMENTS.register("text_list", () -> GuideTextList.CODEC);
 
     public static void register(IEventBus eventBus) {
         PAGE_ELEMENTS.register(eventBus);

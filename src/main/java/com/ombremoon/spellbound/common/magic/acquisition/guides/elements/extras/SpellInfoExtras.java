@@ -3,7 +3,7 @@ package com.ombremoon.spellbound.common.magic.acquisition.guides.elements.extras
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-public record SpellInfoExtras(int colour, int lineGap, boolean dropShadow, boolean mastery, int baseDamage, int castTime, int duration, int manaCost, int manaPerTick) {
+public record SpellInfoExtras(int colour, int lineGap, boolean dropShadow, boolean mastery, int baseDamage, int castTime, int duration, int manaCost, int manaPerTick) implements IElementExtra {
     /**
      * For baseDamage down to manaPerTick the integer value indicates how it should be displayed
      * 0 Never display

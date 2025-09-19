@@ -6,7 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.resources.ResourceLocation;
 
-public record TextExtras(int colour, int maxLineLength, int lineGap, boolean dropShadow, boolean textWrapping) {
+public record TextExtras(int colour, int maxLineLength, int lineGap, boolean dropShadow, boolean textWrapping) implements IElementExtra {
     public static final Codec<TextExtras> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.INT.optionalFieldOf("colour", 0).forGetter(TextExtras::colour),
             Codec.INT.optionalFieldOf("maxLineLength", 150).forGetter(TextExtras::maxLineLength),

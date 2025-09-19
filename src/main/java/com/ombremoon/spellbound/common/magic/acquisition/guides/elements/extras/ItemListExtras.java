@@ -3,10 +3,9 @@ package com.ombremoon.spellbound.common.magic.acquisition.guides.elements.extras
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.ombremoon.spellbound.common.magic.acquisition.guides.elements.GuideItemList;
 
-public record ItemListExtras(int maxRows, int rowGap, int columnGap, int countGap, boolean dropShadow, int textColour) {
-    public static final MapCodec<ItemListExtras> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+public record ItemListExtras(int maxRows, int rowGap, int columnGap, int countGap, boolean dropShadow, int textColour) implements IElementExtra {
+    public static final Codec<ItemListExtras> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.INT.optionalFieldOf("maxRows", 0).forGetter(ItemListExtras::maxRows),
             Codec.INT.optionalFieldOf("rowGap", 20).forGetter(ItemListExtras::rowGap),
             Codec.INT.optionalFieldOf("columnGap", 45).forGetter(ItemListExtras::columnGap),

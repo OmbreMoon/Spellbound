@@ -101,7 +101,7 @@ public record GuideSpellInfo(ResourceLocation spellLoc, SpellInfoExtras extras, 
 
     @Override
     public @NotNull MapCodec<? extends PageElement> codec() {
-        return null;
+        return CODEC;
     }
 
 }
