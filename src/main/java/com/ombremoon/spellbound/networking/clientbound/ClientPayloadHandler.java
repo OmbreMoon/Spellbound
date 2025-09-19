@@ -1,10 +1,9 @@
 package com.ombremoon.spellbound.networking.clientbound;
 
 import com.ombremoon.spellbound.client.AnimationHelper;
-import com.ombremoon.spellbound.client.event.SpellCastEvents;
+import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormData;
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
-import com.ombremoon.spellbound.common.content.world.multiblock.Multiblock;
 import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockManager;
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
@@ -12,6 +11,7 @@ import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.serverbound.ChargeOrChannelPayload;
+import com.ombremoon.spellbound.util.RenderUtil;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
@@ -28,11 +28,16 @@ import java.util.function.Consumer;
 
 public class ClientPayloadHandler {
 
-    public static void handlePlayAnimation(PlayAnimationPayload payload, IPayloadContext context) {
+    public static void handleAnimation(HandleAnimationPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             Player player = context.player().level().getPlayerByUUID(UUID.fromString(payload.playerId()));
-            if (player != null)
-                AnimationHelper.playAnimation(player, payload.animation());
+            if (player != null) {
+                if (payload.stopAnimation()) {
+                    AnimationHelper.stopAnimation(player, payload.animation());
+                } else {
+                    AnimationHelper.playAnimation(player, payload.animation(), payload.castSpeed());
+                }
+            }
         });
     }
 
@@ -47,7 +52,10 @@ public class ClientPayloadHandler {
 
     public static void handleClientChargeOrChannel(final ChargeOrChannelPayload payload, final IPayloadContext context) {
         var handler = SpellUtil.getSpellCaster(context.player());
-        handler.setChargingOrChannelling(payload.isChargingOrChannelling());
+        boolean charging = payload.isChargingOrChannelling();
+        handler.setChargingOrChannelling(charging);
+        if (charging)
+            KeyBinds.getSpellCastMapping().setDown(true);
     }
 
     public static void handleClientUpdateSpells(UpdateSpellsPayload payload, IPayloadContext context) {
@@ -56,12 +64,25 @@ public class ClientPayloadHandler {
 
             Player player = level.getPlayerByUUID(UUID.fromString(payload.playerId()));
             if (player != null) {
-                var caster = SpellUtil.getSpellCaster(player);
-                AbstractSpell spell = caster.getCurrentlyCastSpell();
-                if (spell != null)
-                    spell.clientInitSpell(player, level,player.getOnPos(), payload.spellData(), payload.isRecast(), payload.castId(), payload.forceReset());
+                AbstractSpell spell = payload.spellType().createSpell();
+                if (spell != null) {
+                    CompoundTag nbt = payload.initTag();
+                    spell.clientInitSpell(player, level, player.getOnPos(), payload.castId(), payload.spellData(), nbt.getBoolean("isRecast"), nbt.getBoolean("forceReset"), nbt.getBoolean("shiftSpells"));
+                }
+            }
+        });
+    }
 
-                caster.setCurrentlyCastingSpell(null);
+    public static void handleClientUpdateSpellTicks(UpdateSpellTicksPayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            var level = context.player().level();
+
+            Entity entity = level.getEntity(payload.entityId());
+            if (entity instanceof LivingEntity livingEntity) {
+                var caster = SpellUtil.getSpellCaster(livingEntity);
+                AbstractSpell spell = caster.getSpell(payload.spellType(), payload.castId());
+                if (spell != null)
+                    spell.tickCount = payload.ticks();
             }
         });
     }
@@ -133,7 +154,7 @@ public class ClientPayloadHandler {
     }
 
     public static void handleClientOpenWorkbenchScreen(OpenWorkbenchPayload payload, IPayloadContext context) {
-        context.enqueueWork(SpellCastEvents::openWorkbench);
+        context.enqueueWork(RenderUtil::openWorkbench);
     }
 
     public static void handleClientUpdateTree(UpdateTreePayload payload, IPayloadContext context) {
@@ -181,15 +202,6 @@ public class ClientPayloadHandler {
         });
     }
 
-    public static void handleRemoveFearEffect(RemoveFearEffectPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            var player = context.player();
-            var skills = SpellUtil.getSkills(player);
-            player.setData(SBData.FEAR_TICK, 0);
-            skills.removeModifier(SpellModifier.FEAR);
-        });
-    }
-
     public static void handleChangeHailLevel(ChangeHailLevelPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             var level = context.player().level();
@@ -203,15 +215,6 @@ public class ClientPayloadHandler {
             MultiblockManager multiblockManager = MultiblockManager.getInstance(context.player().level());
             multiblockManager.updateMultiblocks(payload.multiblocks());
             Constants.LOG.info("Loaded {} multiblocks on the client", payload.multiblocks().size());
-        });
-    }
-
-    public static void handleClearMultiblock(ClearMultiblockPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            CompoundTag tag = payload.tag();
-            Multiblock.MultiblockPattern pattern = Multiblock.MultiblockPattern.load(tag);
-            Multiblock multiblock = pattern.multiblock();
-            multiblock.clearMultiblock(context.player(), context.player().level(), pattern);
         });
     }
 

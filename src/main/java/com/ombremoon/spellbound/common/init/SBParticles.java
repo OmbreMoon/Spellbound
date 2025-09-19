@@ -16,6 +16,7 @@ public class SBParticles {
     public static final Supplier<SimpleParticleType> MUSHROOM_SPORE = PARTICLES.register("mushroom_spore", () -> new SimpleParticleType(true));
     public static final Supplier<SimpleParticleType> SPARK = PARTICLES.register("spark", () -> new SimpleParticleType(true));
     public static final Supplier<SimpleParticleType> GOLD_HEART = PARTICLES.register("gold_heart", () -> new SimpleParticleType(true));
+    public static final Supplier<SimpleParticleType> TEST = PARTICLES.register("test", () -> new SimpleParticleType(true));
 
     public static void register(IEventBus modEventBus) {
         PARTICLES.register(modEventBus);

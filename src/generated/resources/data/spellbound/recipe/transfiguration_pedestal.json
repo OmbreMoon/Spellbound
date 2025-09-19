@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "L": {
+      "tag": "minecraft:logs"
+    },
+    "M": {
+      "item": "spellbound:magic_essence"
+    },
+    "S": {
+      "tag": "minecraft:wooden_slabs"
+    },
+    "W": {
+      "item": "minecraft:green_wool"
+    }
+  },
+  "pattern": [
+    "SWS",
+    " M ",
+    "SLS"
+  ],
+  "result": {
+    "count": 1,
+    "id": "spellbound:transfiguration_pedestal"
+  }
+}

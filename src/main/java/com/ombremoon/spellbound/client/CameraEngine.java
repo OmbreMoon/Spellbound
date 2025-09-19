@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.client;
 
+import com.ombremoon.spellbound.common.init.SBEffects;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.util.SpellUtil;
 import com.ombremoon.spellbound.util.math.NoiseGenerator;
@@ -36,7 +37,11 @@ public class CameraEngine {
         this.player = player;
     }
 
-    public static CameraEngine getOrAssignEngine(Player player) {
+    public static CameraEngine getEngine(Player player) {
+        return getOrAssignEngine(player);
+    }
+
+    private static CameraEngine getOrAssignEngine(Player player) {
         if (!ENGINE.containsKey(player.getUUID())) {
             ENGINE.put(player.getUUID(), new CameraEngine(player));
         }
@@ -135,8 +140,7 @@ public class CameraEngine {
         }
 
         if (camera.getEntity() instanceof LivingEntity living) {
-            var handler = SpellUtil.getSpellCaster(living);
-            if (handler.isFeared()) {
+            if (living.hasEffect(SBEffects.FEAR) || living.hasEffect(SBEffects.TAUNT)) {
                 Vec3 vec3 = living.getDeltaMovement();
                 float yaw = Mth.wrapDegrees((float) (Mth.atan2(vec3.z, vec3.x) * 180.0F / (float) Math.PI) - 90.0F);
                 event.setYaw(yaw);

@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "spellbound:block/small_frozen_crystal_bud",
+      "x": 180
+    },
+    "facing=east": {
+      "model": "spellbound:block/small_frozen_crystal_bud",
+      "x": 90,
+      "y": 90
+    },
+    "facing=north": {
+      "model": "spellbound:block/small_frozen_crystal_bud",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "spellbound:block/small_frozen_crystal_bud",
+      "x": 90,
+      "y": 180
+    },
+    "facing=up": {
+      "model": "spellbound:block/small_frozen_crystal_bud"
+    },
+    "facing=west": {
+      "model": "spellbound:block/small_frozen_crystal_bud",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

@@ -34,7 +34,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         simpleGeneratedModel(SBItems.STORM_SHARD.get());
         simpleGeneratedModel(SBItems.HOLY_SHARD.get());
 
-        simpleGeneratedModel(SBBlocks.UNNAMED.get().asItem());
+        simpleGeneratedModel(SBBlocks.ARCANE_WORKBENCH.get().asItem());
         simpleGeneratedModel(SBItems.TRANSFIGURER_BOOTS.get());
         simpleGeneratedModel(SBItems.TRANSFIGURER_CHESTPLATE.get());
         simpleGeneratedModel(SBItems.TRANSFIGURER_LEGGINGS.get());

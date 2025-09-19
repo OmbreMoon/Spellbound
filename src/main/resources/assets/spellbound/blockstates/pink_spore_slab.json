@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "spellbound:block/pink_spore_slab"
+    },
+    "type=double": {
+      "model": "spellbound:block/pink_spore_block"
+    },
+    "type=top": {
+      "model": "spellbound:block/pink_spore_slab_top"
+    }
+  }
+}

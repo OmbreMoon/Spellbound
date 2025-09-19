@@ -55,17 +55,14 @@ public class StormstrikeSpell extends AnimatedSpell {
     @Override
     public void onProjectileHitEntity(ISpellEntity<?> spellEntity, SpellContext context, EntityHitResult result) {
         if (spellEntity instanceof StormstrikeBolt bolt) {
-            Level level = context.getLevel();
             LivingEntity caster = context.getCaster();
-            if (!level.isClientSide) {
-                Entity entity = result.getEntity();
+            Entity entity = result.getEntity();
 
-                if (entity.is(caster)) return;
+            if (entity.is(caster)) return;
 
-                if (entity instanceof LivingEntity livingEntity) {
-                    context.getSpellHandler().applyStormStrike(livingEntity, 60);
-                    bolt.discard();
-                }
+            if (entity instanceof LivingEntity livingEntity) {
+                context.getSpellHandler().applyStormStrike(livingEntity, 60);
+                bolt.discard();
             }
         }
     }
@@ -77,30 +74,24 @@ public class StormstrikeSpell extends AnimatedSpell {
             LivingEntity caster = context.getCaster();
             var handler = context.getSpellHandler();
             var skills = context.getSkills();
-            if (!level.isClientSide) {
-                if (skills.hasSkill(SBSkills.STATIC_SHOCK.value()))
-                    hurtSurroundingEnemies(level, caster, handler, bolt, 3, false);
-            }
+            if (skills.hasSkill(SBSkills.STATIC_SHOCK.value()))
+                hurtSurroundingEnemies(level, caster, handler, bolt, 3, false);
 
-            if (!level.isClientSide) {
-                bolt.discard();
-            }
+            bolt.discard();
         }
     }
 
     private void hurtSurroundingEnemies(Level level, LivingEntity caster, SpellHandler handler, StormstrikeBolt bolt, int range, boolean inWater) {
-        if (!level.isClientSide) {
-            var entities = level.getEntitiesOfClass(LivingEntity.class, bolt.getBoundingBox().inflate(range), EntitySelector.NO_CREATIVE_OR_SPECTATOR);
-            for (Entity entity : entities) {
-                if (entity instanceof LivingEntity target && !target.is(caster) && !target.isAlliedTo(caster) && !checkForCounterMagic(target)) {
-                    if (inWater && target.isInWaterOrBubble()) {
-                        handler.applyStormStrike(target, 60);
-                    }
-
-                    if (inWater && !target.isInWaterOrBubble()) return;
-
-                    this.hurt(target, SBDamageTypes.RUIN_SHOCK, 5.0F);
+        var entities = level.getEntitiesOfClass(LivingEntity.class, bolt.getBoundingBox().inflate(range), EntitySelector.NO_CREATIVE_OR_SPECTATOR);
+        for (Entity entity : entities) {
+            if (entity instanceof LivingEntity target && !target.is(caster) && !target.isAlliedTo(caster) && !checkForCounterMagic(target)) {
+                if (inWater && target.isInWaterOrBubble()) {
+                    handler.applyStormStrike(target, 60);
                 }
+
+                if (inWater && !target.isInWaterOrBubble()) return;
+
+                this.hurt(target, SBDamageTypes.RUIN_SHOCK, 5.0F);
             }
         }
     }

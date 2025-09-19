@@ -19,6 +19,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 public class RuneBlock extends BaseEntityBlock {
     public static final MapCodec<RuneBlock> CODEC = simpleCodec(RuneBlock::new);
     public static final IntegerProperty RUNE_TYPE = IntegerProperty.create("rune_type", 1, 26);
@@ -41,7 +43,7 @@ public class RuneBlock extends BaseEntityBlock {
 
     @Override
     protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
+        return RenderShape.ENTITYBLOCK_ANIMATED;
     }
 
     @Override

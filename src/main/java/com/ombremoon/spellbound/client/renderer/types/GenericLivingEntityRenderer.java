@@ -19,7 +19,6 @@ public class GenericLivingEntityRenderer<T extends SBLivingEntity> extends GeoEn
 
     @Override
     public int getPackedOverlay(T animatable, float u, float partialTick) {
-        return OverlayTexture.pack(OverlayTexture.u(u),
-                OverlayTexture.v(false));
+        return animatable.isDeadOrDying() ? OverlayTexture.pack(OverlayTexture.u(u), OverlayTexture.v(false)) : super.getPackedOverlay(animatable, u, partialTick);
     }
 }

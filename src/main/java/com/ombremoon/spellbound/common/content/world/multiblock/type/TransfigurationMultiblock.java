@@ -73,16 +73,25 @@ public class TransfigurationMultiblock extends StandardMultiblock {
     public void onActivate(Player player, Level level, MultiblockPattern pattern) {
         BlockPos origin = pattern.frontBottomLeft();
         BlockPos pedestal = this.getPedestalPosition(pattern);
-        List<TransfigurationDisplayBlockEntity> displays = this.displayPositions.stream().map(index -> index.toPos(pattern.facing(), origin)).map(level::getBlockEntity).filter(Objects::nonNull).map(blockEntity -> (TransfigurationDisplayBlockEntity) blockEntity).toList();
-        List<ItemStack> items = displays.stream().map(display -> display.currentItem).toList();
+        List<TransfigurationDisplayBlockEntity> displays = this.displayPositions
+                .stream()
+                .map(index -> index.toPos(pattern.facing(), origin))
+                .map(level::getBlockEntity).filter(Objects::nonNull)
+                .map(blockEntity -> (TransfigurationDisplayBlockEntity) blockEntity)
+                .toList();
+        List<ItemStack> items = displays
+                .stream()
+                .map(display -> display.currentItem)
+                .toList();
         Optional<TransfigurationRitual> optional = RitualHelper.getRitualFor(level, this, items);
         if (optional.isPresent()) {
             TransfigurationRitual ritual = optional.get();
             displays.forEach(display -> {
                 if (!display.active) {
                     display.setRitual(ritual);
+                    display.setCenter(pedestal);
                     display.active = true;
-                    display.initSpiral(pedestal);
+                    level.sendBlockUpdated(display.getBlockPos(), display.getBlockState(), display.getBlockState(), 3);
                 }
             });
 

@@ -1,3 +1,4 @@
+/*
 package com.ombremoon.spellbound.common.content.spell.ruin.fire;
 
 import com.ombremoon.spellbound.common.init.SBSpells;
@@ -26,3 +27,4 @@ public class VolcanoSpell extends AnimatedSpell {
 
     }
 }
+*/

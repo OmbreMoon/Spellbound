@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "spellbound:block/smoldering_crystal_block"
+  }
+}

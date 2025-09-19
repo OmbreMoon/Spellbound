@@ -24,15 +24,15 @@ public class SpellContext {
     private final boolean isRecast;
 
     public SpellContext(SpellType<?> spellType, LivingEntity caster, boolean isRecast) {
-        this(spellType, caster, caster.level(), caster.getOnPos(), caster.getOffhandItem(), null, isRecast);
+        this(spellType, caster, null, isRecast);
     }
 
     public SpellContext(SpellType<?> spellType, LivingEntity caster, Entity target, boolean isRecast) {
-        this(spellType, caster, caster.level(), caster.getOnPos(), caster.getOffhandItem(), target, isRecast);
+        this(spellType, caster, caster.level(), caster.getOnPos(), target, isRecast);
     }
 
     public SpellContext(SpellType<?> spellType, LivingEntity caster, Level level, BlockPos blockPos, Entity target, boolean isRecast) {
-        this(spellType, caster, level, blockPos, caster.getOffhandItem(), target, isRecast);
+        this(spellType, caster, level, blockPos, caster.getMainHandItem(), target, isRecast);
     }
 
     protected SpellContext(SpellType<?> spellType, LivingEntity caster, Level level, BlockPos blockPos, ItemStack itemStack, Entity target, boolean isRecast) {
@@ -75,7 +75,7 @@ public class SpellContext {
         return this.blockPos;
     }
 
-    public ItemStack getItemInOffhand() {
+    public ItemStack getItemInHand() {
         return this.itemStack;
     }
 
@@ -92,7 +92,7 @@ public class SpellContext {
     }
 
     public ItemStack getCatalyst(Item catalyst) {
-        return this.caster.getMainHandItem().is(catalyst) ? this.caster.getMainHandItem() : this.caster.getOffhandItem();
+        return this.getItemInHand().is(catalyst) ? this.getItemInHand() : this.caster.getOffhandItem();
     }
 
     public void useCatalyst(Item catalyst) {
@@ -117,5 +117,9 @@ public class SpellContext {
 
     public int getFlag() {
         return this.spellHandler.getFlag(this.spellType);
+    }
+
+    public String quickOrSimpleCast(boolean isInstant) {
+        return isInstant ? "instant_cast" : "simple_cast";
     }
 }

@@ -24,12 +24,12 @@ import java.util.Optional;
 public class SBTrades {
     public static final Map<SBMerchantType, Int2ObjectMap<MerchantOffer[]>> TRADES = Util.make(Maps.newHashMap(), map -> {
         map.put(SBMerchantType.SPELL_BROKER, toIntMap(ImmutableMap.of(1, new MerchantOffer[]{
-                spellTrade(20, Items.GOLDEN_APPLE, 10, SBSpells.HEALING_TOUCH.get()),
-                spellTrade(20, Items.ECHO_SHARD, 5, SBSpells.SHADOW_GATE.get()),
+                spellTrade(20, Items.GOLDEN_APPLE, 10, SBSpells.ELECTRIC_CHARGE.get()),
+                spellTrade(20, Items.ECHO_SHARD, 5, SBSpells.SHATTERING_CRYSTAL.get()),
                 spellTrade(20, Items.BOOK, 20, SBSpells.PURGE_MAGIC.get()),
                 spellTrade(20, Items.LAVA_BUCKET, 1, SBSpells.SOLAR_RAY.get()),
-                spellTrade(20, Items.SADDLE, 1, SBSpells.STRIDE.get()),
-                spellTrade(15, Items.GOLD_BLOCK, 32, SBSpells.SPIRIT_TOTEM.get())
+                spellTrade(20, Items.SADDLE, 1, SBSpells.SHADOWBOND.get()),
+                spellTrade(15, Items.GOLD_BLOCK, 32, SBSpells.STORM_RIFT.get())
         }, 2, new MerchantOffer[]{
                 spellTrade(20, Items.GOLDEN_APPLE, 10, SBSpells.HEALING_TOUCH.get()),
                 spellTrade(20, Items.GOLDEN_APPLE, 10, SBSpells.HEALING_TOUCH.get()),

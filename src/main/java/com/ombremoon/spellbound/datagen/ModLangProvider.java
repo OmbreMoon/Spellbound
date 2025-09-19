@@ -173,17 +173,17 @@ public class ModLangProvider extends LanguageProvider {
         addSkillTooltip(SBSkills.IMPLOSION, "Recast while targeting a portal with a storm shard to detonate the portal, applying Stormstrike to anyone in the area.");
         addSkillTooltip(SBSkills.ORBITAL_SHELL, "Recast while targeting a portal with a shard to mark a portal. Marked portals will move in a 3-block radius circle centered around the origin.");
 
-        addSkillTooltip(SBSkills.CYCLONE, "Fire a tornado that blows away enemies with a 5-block radius for 10 seconds.");
-        addSkillTooltip(SBSkills.WHIRLING_TEMPEST, "The tornado now pulls enemies towards the center before launching them.");
-        addSkillTooltip(SBSkills.FALLING_DEBRIS, "Cyclone occasionally picks up blocks, dealing damage on impact.");
-        addSkillTooltip(SBSkills.VORTEX, "Cyclones can combine to increase the size and push/pull range. Can stack up to 3 times.");
-        addSkillTooltip(SBSkills.MAELSTROM, "Increases the max stack size of Cyclone from 3 to 6.");
-        addSkillTooltip(SBSkills.HURRICANE, "Increases the push/pull force.");
-        addSkillTooltip(SBSkills.EYE_OF_THE_STORM, "Caster can ride the Cyclone. Grants Slow Falling on dismount.");
-        addSkillTooltip(SBSkills.GALE_FORCE, "The cyclones moves faster and last 5 seconds longer.");
-        addSkillTooltip(SBSkills.FROSTFRONT, "Enemies caught take 4 frost damage per second and are have their movement speed slowed by 50%.");
-        addSkillTooltip(SBSkills.STATIC_CHARGE, "Enemies caught take 4 shock damage per second");
-        addSkillTooltip(SBSkills.HAILSTORM, "Casting Cyclone triggers a hailstorm (requires both Static Charge and Frostfront).");
+//        addSkillTooltip(SBSkills.CYCLONE, "Fire a tornado that blows away enemies with a 5-block radius for 10 seconds.");
+//        addSkillTooltip(SBSkills.WHIRLING_TEMPEST, "The tornado now pulls enemies towards the center before launching them.");
+//        addSkillTooltip(SBSkills.FALLING_DEBRIS, "Cyclone occasionally picks up blocks, dealing damage on impact.");
+//        addSkillTooltip(SBSkills.VORTEX, "Cyclones can combine to increase the size and push/pull range. Can stack up to 3 times.");
+//        addSkillTooltip(SBSkills.MAELSTROM, "Increases the max stack size of Cyclone from 3 to 6.");
+//        addSkillTooltip(SBSkills.HURRICANE, "Increases the push/pull force.");
+//        addSkillTooltip(SBSkills.EYE_OF_THE_STORM, "Caster can ride the Cyclone. Grants Slow Falling on dismount.");
+//        addSkillTooltip(SBSkills.GALE_FORCE, "The cyclones moves faster and last 5 seconds longer.");
+//        addSkillTooltip(SBSkills.FROSTFRONT, "Enemies caught take 4 frost damage per second and are have their movement speed slowed by 50%.");
+//        addSkillTooltip(SBSkills.STATIC_CHARGE, "Enemies caught take 4 shock damage per second");
+//        addSkillTooltip(SBSkills.HAILSTORM, "Casting Cyclone triggers a hailstorm (requires both Static Charge and Frostfront).");
 
         addSkillTooltip(SBSkills.STRIDE, "Movement speed is increased by 25% for 30 seconds.");
         addSkillTooltip(SBSkills.QUICK_SPRINT, "For the first 10 seconds, movement speed is increased by an additional 15%.");
@@ -221,17 +221,17 @@ public class ModLangProvider extends LanguageProvider {
         addSkillTooltip(SBSkills.SUBLIME_BEACON, "Restores health equal to 25% of your armor points every 3 seconds.");
         addSkillTooltip(SBSkills.SOUL_RECHARGE, "Restores you to full health if your health drops below 10%, consuming a filled soul shard in the caster's inventory. 3 min. cooldown.");
 
-        addSkillTooltip(SBSkills.WILD_MUSHROOM, "Plants a wild mushroom at the target location, expelling poisonous spores every 3 seconds, dealing 2 damage to all nearby enemies.");
+        addSkillTooltip(SBSkills.WILD_MUSHROOM, "Plants a wild mushroom at the target location, expelling poisonous spores every 3 seconds, dealing 4 damage to all nearby enemies.");
         addSkillTooltip(SBSkills.VILE_INFLUENCE, "Increases the spore radius.");
         addSkillTooltip(SBSkills.HASTENED_GROWTH, "Decreases the explosion interval by 1 second.");
         addSkillTooltip(SBSkills.ENVENOM, "Spores now poison targets for 4 seconds.");
-        addSkillTooltip(SBSkills.DECOMPOSE, "Spores deal extra damage, scaling with the caster's current mana, to poisoned or diseased enemies.");
+        addSkillTooltip(SBSkills.PARASITIC_FUNGUS, "Spores deal extra damage, scaling with the caster's current mana, to poisoned or diseased enemies.");
         addSkillTooltip(SBSkills.NATURES_DOMINANCE, "Each active mushroom increases the spell's damage by 10%.");
         addSkillTooltip(SBSkills.FUNGAL_HARVEST, "When 3 mushrooms are active, gain increased mana regeneration.");
         addSkillTooltip(SBSkills.POISON_ESSENCE, "If a target dies to a mushroom, the spell deals 25% more damage for 10 seconds.");
         addSkillTooltip(SBSkills.SYNTHESIS, "If a target dies to a mushroom, the casting cost of the spell is decreased by 100% for 5 seconds.");
-        addSkillTooltip(SBSkills.CIRCLE_OF_LIFE, "When the spell ends, restores 7 - 15 mana back to the caster.");
-        addSkillTooltip(SBSkills.CATALEPSY, "Getting hit by the same mushroom twice petrifies the target for 4 seconds.");
+        addSkillTooltip(SBSkills.LIVING_FUNGUS, "When the spell ends, restores 7 - 15 mana back to the caster.");
+        addSkillTooltip(SBSkills.PROLIFERATION, "Getting hit by the same mushroom twice petrifies the target for 4 seconds.");
 
         addSkillTooltip(SBSkills.SUMMON_CAT_SPIRIT, "Summons a totem spirit for 60 seconds. It changes between warrior form (fighting stance) and cat form (healing stance).");
         addSkillTooltip(SBSkills.CATS_AGILITY, "In cat form, the spirit gains increased movement speed.");

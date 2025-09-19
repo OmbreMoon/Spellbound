@@ -2,7 +2,7 @@
   "definition": {
     "duration": 5,
     "startupTime": 100,
-    "tier": 1
+    "tier": 2
   },
   "description": {
     "translate": "ritual.spellbound.create_shadow_gate"
@@ -11,21 +11,45 @@
     {
       "type": "spellbound:create_spell_tome",
       "spell": "spellbound:shadow_gate",
-      "tier": 1
+      "tier": 2
     }
   ],
   "materials": [
     {
-      "item": "minecraft:water_bucket"
+      "item": "minecraft:iron_door"
     },
     {
-      "item": "minecraft:diamond_sword"
+      "item": "minecraft:iron_door"
     },
     {
-      "item": "minecraft:iron_ingot"
+      "item": "minecraft:ender_pearl"
     },
     {
-      "item": "spellbound:arcanthus"
+      "item": "minecraft:ender_pearl"
+    },
+    {
+      "item": "minecraft:feather"
+    },
+    {
+      "item": "minecraft:feather"
+    },
+    {
+      "item": "minecraft:ink_sac"
+    },
+    {
+      "item": "minecraft:ink_sac"
+    },
+    {
+      "item": "minecraft:blackstone"
+    },
+    {
+      "item": "minecraft:blackstone"
+    },
+    {
+      "item": "spellbound:magic_essence"
+    },
+    {
+      "item": "spellbound:magic_essence"
     }
   ]
 }

@@ -10,15 +10,14 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
@@ -50,10 +49,11 @@ public class ModTagProvider {
 
         @Override
         protected void addTags(HolderLookup.Provider pProvider) {
-            for (Block block : BuiltInRegistries.BLOCK) {
-                if (!TransfigurationMultiblock.EXCLUDED_BLOCKS.contains(block))
-                    this.tag(SBTags.Blocks.RITUAL_COMPATIBLE).add(BuiltInRegistries.BLOCK.getResourceKey(block).get());
+            for (Block block : TransfigurationMultiblock.EXCLUDED_BLOCKS) {
+                this.populateTag(SBTags.Blocks.RITUAL_COMPATIBLE, block);
             }
+            this.populateTag(BlockTags.FLOWERS, SBBlocks.ARCANTHUS.get());
+            this.populateTag(SBTags.Blocks.DIVINE_SHRINE, SBBlocks.JUNGLE_DIVINE_SHRINE.get(), SBBlocks.PLAINS_DIVINE_SHRINE.get(), SBBlocks.SANDSTONE_DIVINE_SHRINE.get());
         }
 
         public void populateTag(TagKey<Block> tag, Block... blocks){

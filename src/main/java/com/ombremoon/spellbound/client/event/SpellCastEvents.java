@@ -1,7 +1,9 @@
 package com.ombremoon.spellbound.client.event;
 
+import com.ombremoon.spellbound.client.AnimationHelper;
 import com.ombremoon.spellbound.client.gui.WorkbenchScreen;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.client.KeyBinds;
 import com.ombremoon.spellbound.common.magic.EffectManager;
@@ -51,124 +53,65 @@ public class SpellCastEvents {
     }
 
     public static void chargeOrChannelSpell(EntityTickEvent.Post event) {
-        if (!isAbleToSpellCast()) return;
-
         Entity entity = event.getEntity();
         if (!(entity instanceof Player player)) return;
 
+        AnimationHelper.tick();
         var handler = SpellUtil.getSpellCaster(player);
+
+        if (!isAbleToSpellCast()) return;
         if (!handler.inCastMode()) return;
 
         var spellType = handler.getSelectedSpell();
         if (spellType == null) return;
 
         AbstractSpell spell = handler.getCurrentlyCastSpell();
-        boolean isRecast = handler.getActiveSpells(spellType).size() > 1;
-        SpellContext spellContext;
         if (spell != null) {
-            spellContext = spell.getCastContext();
-        } else {
-            spellContext = new SpellContext(spellType, player, isRecast);
-            spell = spellType.createSpell();
-            spell.setCastContext(spellContext);
-            handler.setCurrentlyCastingSpell(spell);
-            PayloadHandler.setCastingSpell(spellType, isRecast);
-        }
-
-        if (handler.castTick < 0 && !SpellUtil.canCastSpell(player, spell)) {
-            spell.resetCast(handler);
-        }
-
-        boolean flag = KeyBinds.getSpellCastMapping().isDown();
-        if (flag) {
-            int castTime = spell.getCastTime();
-            if (handler.castTick >= castTime && !handler.isChargingOrChannelling()) {
-                if (spell.getCastType() == AbstractSpell.CastType.INSTANT)
-                    KeyBinds.getSpellCastMapping().setDown(false);
-
-                castSpell(player);
-                handler.castTick = 0;
-                handler.dirty = false;
-            } else if (!handler.isChargingOrChannelling()) {
-                handler.castTick++;
-                if (handler.castTick == 1) {
-                    spell.onCastStart(spellContext);
-                    PayloadHandler.castStart(spellType, isRecast);
-                }
+            if (handler.castTick > 0 && !SpellUtil.canCastSpell(player, spell)) {
+                SpellContext spellContext = createContext(player, handler, spell);
+                spell.resetCast(handler, spellContext);
             }
-        } else if (!KeyBinds.getSpellCastMapping().isDown() && handler.castTick > 0) {
-            spell.resetCast(handler);
-        } else if (handler.isChargingOrChannelling()) {
-            handler.setChargingOrChannelling(false);
-            PayloadHandler.setChargeOrChannel(false);
+
+            boolean flag = KeyBinds.getSpellCastMapping().isDown();
+            if (flag) {
+                int castTime = spell.getCastTime();
+                if (handler.castTick >= castTime && !handler.isChargingOrChannelling()) {
+                    if (spell.getCastType() == AbstractSpell.CastType.INSTANT)
+                        KeyBinds.getSpellCastMapping().setDown(false);
+
+                    castSpell(player);
+                    handler.castTick = 0;
+                } else if (!handler.isChargingOrChannelling()) {
+                    handler.castTick++;
+                    if (handler.castTick == 1) {
+                        SpellContext spellContext = createContext(player, handler, spell);
+                        spell.onCastStart(spellContext);
+                        PayloadHandler.castStart();
+                    }
+                }
+            } else if (!KeyBinds.getSpellCastMapping().isDown() && handler.castTick > 0) {
+                spell.resetCast(handler);
+            } else if (handler.isChargingOrChannelling()) {
+                handler.setChargingOrChannelling(false);
+                PayloadHandler.setChargeOrChannel(false);
+            }
+        } else {
+            spell = spellType.createSpell();
+            handler.setCurrentlyCastingSpell(spell);
+            createContext(player, handler, spell);
         }
     }
 
-    @SubscribeEvent
-    public static void onChargeOrChannelSpell(ClientTickEvent.Post event) {
-        /*if (!isAbleToSpellCast()) return;
-
-        Player player = Minecraft.getInstance().player;
-        if (player == null) return;
-
-        var handler = SpellUtil.getSpellCaster(player);
-        if (!handler.inCastMode()) return;
-
-        var spellType = handler.getSelectedSpell();
-        if (spellType == null) return;
-
-        AbstractSpell spell = handler.getCurrentlyCastSpell();
+    public static SpellContext createContext(Player player, SpellHandler handler, AbstractSpell spell) {
+        SpellType<?> spellType = spell.spellType();
         boolean isRecast = handler.getActiveSpells(spellType).size() > 1;
-        SpellContext spellContext;
-        if (spell != null) {
-            spellContext = spell.getCastContext();
-        } else {
-            spellContext = new SpellContext(spellType, player, isRecast);
-            spell = spellType.createSpell();
-            spell.setCastContext(spellContext);
-            handler.setCurrentlyCastingSpell(spell);
-            PayloadHandler.setCastingSpell(spellType, isRecast);
-        }
-
-        if (handler.castTick < 0 && !SpellUtil.canCastSpell(player, spell)) {
-            resetCast(handler, spell, spellContext, isRecast);
-        }
-
-        boolean flag = KeyBinds.getSpellCastMapping().isDown();
-        if (flag) {
-            int castTime = spell.getCastTime();
-            if (handler.castTick >= castTime && !handler.isChargingOrChannelling()) {
-                if (spell.getCastType() == AbstractSpell.CastType.INSTANT)
-                    KeyBinds.getSpellCastMapping().setDown(false);
-
-                castSpell(player);
-                handler.castTick = 0;
-                handler.dirty = false;
-            } else if (!handler.isChargingOrChannelling()) {
-                handler.castTick++;
-                if (handler.castTick == 1) {
-                    spell.onCastStart(spellContext);
-                    PayloadHandler.castStart(spellType, isRecast);
-                }
-
-                if (handler.castTick == 0)
-                    resetCast(handler, spell, spellContext, isRecast);
-
-            }
-        } else if (!KeyBinds.getSpellCastMapping().isDown() && handler.castTick > 0) {
-            resetCast(handler, spell, spellContext, isRecast);
-        } else if (handler.isChargingOrChannelling()) {
-            handler.setChargingOrChannelling(false);
-            PayloadHandler.setChargeOrChannel(false);
-        }*/
+        Entity target = spell.getTargetEntity(player, SpellUtil.getCastRange(player));
+        target = target == null || target.isRemoved() ? null : target;
+        SpellContext context = new SpellContext(spellType, player, target, isRecast);
+        spell.setCastContext(context);
+        PayloadHandler.setCastingSpell(spellType, context);
+        return context;
     }
-
-/*    public void resetCast(SpellHandler handler) {
-        handler.castTick = 0;
-        spell.onCastReset(spellContext);
-        PayloadHandler.castReset(spell.getSpellType(), isRecast);
-        handler.dirty = false;
-    }*/
 
     private static boolean isAbleToSpellCast() {
         Minecraft minecraft = Minecraft.getInstance();
@@ -181,9 +124,5 @@ public class SpellCastEvents {
     public static void castSpell(Player player) {
         if (player.isSpectator()) return;
         PayloadHandler.castSpell();
-    }
-
-    public static void openWorkbench() {
-        Minecraft.getInstance().setScreen(new WorkbenchScreen(Component.translatable("screen.spellbound.workbench")));
     }
 }

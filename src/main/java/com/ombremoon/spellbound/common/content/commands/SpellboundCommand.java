@@ -28,7 +28,10 @@ public class SpellboundCommand {
                         .then(Commands.argument("spell", ResourceArgument.resource(context, SBSpells.SPELL_TYPE_REGISTRY_KEY))
                                 .executes(cmdContext -> grantSkillPoint(cmdContext.getSource(),
                                         ResourceArgument.getResource(cmdContext, "spell", SBSpells.SPELL_TYPE_REGISTRY_KEY),
-                                        1)))));
+                                        1))))
+                .then(Commands.literal("mana")
+                        .then(Commands.argument("add", IntegerArgumentType.integer())
+                                .executes(cmdContext -> addMana(cmdContext.getSource(), IntegerArgumentType.getInteger(cmdContext, "add"))))));
     }
 
     private int grantSkillPoint(CommandSourceStack context, Holder.Reference<SpellType<?>> spell, int points) {
@@ -49,5 +52,19 @@ public class SpellboundCommand {
                 spell.value().createSpell().getName()));
 
         return 1;
+    }
+
+    private int addMana(CommandSourceStack context, int mana) {
+        if (!context.isPlayer()) return 0;
+        SpellHandler handler = SpellUtil.getSpellCaster(context.getPlayer());
+        handler.awardMana(mana);
+        return 1;
+    }
+
+    private int setMaxMana(CommandSourceStack context, int mana) {
+        if (!context.isPlayer()) return 0;
+        SpellHandler handler = SpellUtil.getSpellCaster(context.getPlayer());
+        handler.awardMana(mana);
+        return 0;
     }
 }

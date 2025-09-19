@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.content.block;
 
 import com.google.common.base.Predicates;
 import com.mojang.serialization.MapCodec;
+import com.ombremoon.spellbound.common.init.SBItems;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.block.entity.SummonBlockEntity;
 import com.ombremoon.spellbound.common.init.SBBlocks;
@@ -83,7 +84,7 @@ public class SummonStoneBlock extends Block {
 
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (stack.is(Items.REDSTONE)) {
+        if (stack.is(SBItems.MAGIC_ESSENCE.get())) {
             if (level.isClientSide) {
                 return ItemInteractionResult.SUCCESS;
             } else if (!ArenaSavedData.isArena(level)) {
@@ -96,7 +97,8 @@ public class SummonStoneBlock extends Block {
 
     public void activateStone(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand) {
         if (!state.getValue(POWERED)) {
-            if (this.hasSpell()) {
+            boolean canTeleportInDimension = level.dimension() == Level.NETHER || level.dimension() == Level.OVERWORLD;
+            if (this.hasSpell() && canTeleportInDimension) {
                 BlockPattern.BlockPatternMatch blockPatternMatch = getOrCreatePortalShape().find(level, pos);
                 if (blockPatternMatch != null) {
                     var handler = SpellUtil.getSpellCaster(player);
@@ -130,7 +132,6 @@ public class SummonStoneBlock extends Block {
             } else {
                 BlockState blockState = state.setValue(POWERED, Boolean.TRUE);
                 level.setBlock(pos, blockState, 3);
-                level.updateNeighbourForOutputSignal(pos, SBBlocks.SUMMON_STONE.get());
             }
 
             level.levelEvent(1503, pos, 0);
@@ -153,7 +154,7 @@ public class SummonStoneBlock extends Block {
                     )
                     .where('*',
                             BlockInWorld.hasState(
-                                    state -> state.getBlock() instanceof SummonStoneBlock block && block.spell != null/* && state.getValue(POWERED)*/
+                                    state -> state.getBlock() instanceof SummonStoneBlock block && block.spell != null
                             )
                     )
                     .build();

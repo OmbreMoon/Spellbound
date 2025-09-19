@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.common.content.spell.transfiguration;
 
 import com.ombremoon.spellbound.common.init.SBDamageTypes;
+import com.ombremoon.spellbound.common.init.SBParticles;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.init.SBSpells;
@@ -11,6 +12,7 @@ import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;
 import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
@@ -22,6 +24,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+import net.tslat.smartbrainlib.util.RandomUtil;
 
 public class StrideSpell extends AnimatedSpell {
     protected static final ResourceLocation THUNDEROUS_HOOVES = CommonClass.customLocation("thunderous_hooves");
@@ -34,15 +37,17 @@ public class StrideSpell extends AnimatedSpell {
         return createSimpleSpellBuilder(StrideSpell.class)
                 .duration(600)
                 .manaCost(12)
+                .selfBuffCast()
                 .hasLayer()
-                .fullRecast()
-                .skipEndOnRecast();
+                .fullRecast();
     }
 
     private int initialFoodLevel;
     private BlockPos currentPos;
     private int movementTicks;
     private Entity mount;
+    private float moveDist;
+    private boolean movementDirty;
 
     public StrideSpell() {
         super(SBSpells.STRIDE.get(), createStrideBuilder());
@@ -71,6 +76,7 @@ public class StrideSpell extends AnimatedSpell {
         super.onSpellTick(context);
         LivingEntity caster = context.getCaster();
         Level level = context.getLevel();
+        var handler = context.getSpellHandler();
         var skills = context.getSkills();
 
         if (skills.hasSkill(SBSkills.AQUA_TREAD)) {
@@ -88,7 +94,18 @@ public class StrideSpell extends AnimatedSpell {
         }
 
         if (!level.isClientSide) {
-            if (skills.hasSkill(SBSkills.QUICK_SPRINT) && this.ticks >= 200) {
+            /*if (caster instanceof Player player) {
+                boolean isMoving = this.isMoving(player);
+                if (this.tickCount > 5 && handler.forwardImpulse != 0 && !this.movementDirty) {
+                    this.movementDirty = true;
+                    playAnimation(player, "base");
+                } else if (handler.forwardImpulse == 0) {
+                    this.movementDirty = false;
+                    stopAnimation(player, "base");
+                }
+            }*/
+
+            if (skills.hasSkill(SBSkills.QUICK_SPRINT) && this.tickCount >= 200) {
                 if (hasAttributeModifier(caster, Attributes.MOVEMENT_SPEED, QUICK_SPRINT)) {
                     removeSkillBuff(caster, SBSkills.QUICK_SPRINT);
                 } else if (caster.getVehicle() instanceof LivingEntity vehicle && hasAttributeModifier(vehicle, Attributes.MOVEMENT_SPEED, QUICK_SPRINT)) {
@@ -133,7 +150,7 @@ public class StrideSpell extends AnimatedSpell {
             }
 
             if (skills.hasSkill(SBSkills.MOMENTUM)) {
-                if (this.ticks % 4 == 0) {
+                if (this.tickCount % 4 == 0) {
                     if (!this.currentPos.equals(caster.getOnPos())) {
                         this.movementTicks += 4;
                         this.currentPos = caster.getOnPos();
@@ -161,8 +178,20 @@ public class StrideSpell extends AnimatedSpell {
         LivingEntity caster = context.getCaster();
         removeMovementBenefits(caster);
         removeSkillBuff(caster, SBSkills.MOMENTUM);
+        if (caster instanceof Player player)
+            stopAnimation(player, "base");
+
         if (this.mount != null)
             removeMovementBenefits(this.mount);
+    }
+
+    private boolean isMoving(LivingEntity caster) {
+        if (caster.moveDist != this.moveDist) {
+            this.moveDist = caster.moveDist;
+            return true;
+        }
+
+        return false;
     }
 
     private void applyMovementBenefits(Entity entity, SkillHolder skills) {

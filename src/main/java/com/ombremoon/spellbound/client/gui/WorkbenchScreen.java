@@ -235,7 +235,7 @@ public class WorkbenchScreen extends Screen {
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        RenderUtil.setupScreen(TEXTURE);
+//        RenderUtil.setupScreen(TEXTURE);
         this.renderWindow(guiGraphics, this.leftPos, this.topPos, mouseX, mouseY);
         this.renderBackground(guiGraphics, this.player, this.leftPos, this.topPos, mouseX, mouseY, partialTick);
         this.renderTooltips(guiGraphics, this.leftPos, this.topPos, mouseX, mouseY);

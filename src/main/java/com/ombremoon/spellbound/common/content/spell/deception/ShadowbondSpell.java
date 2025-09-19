@@ -51,9 +51,9 @@ public class ShadowbondSpell extends AnimatedSpell {
                     }
                     return !context.isRecast() && context.getTarget() instanceof LivingEntity target && !spell.checkForCounterMagic(target);
                 })
+                .instantCast()
                 .fullRecast()
-                .skipEndOnRecast()
-                .castAnimation(context -> "final01");
+                .skipEndOnRecast();
     }
 
     private int firstTarget;
@@ -167,11 +167,13 @@ public class ShadowbondSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStop(SpellContext context) {
+        LivingEntity caster = context.getCaster();
         if (!this.canReverse && !this.isEarlyEnd()) {
-            LivingEntity caster = context.getCaster();
             var skills = context.getSkills();
             this.swapTargets(context, caster, caster.level(), skills);
         }
+
+        this.removeSkillBuff(caster, SBSkills.SHADOWBOND);
     }
 
     @Override
@@ -309,7 +311,7 @@ public class ShadowbondSpell extends AnimatedSpell {
         }
     }
 
-    private void spawnTeleportParticles(Entity entity ,int amount) {
+    private void spawnTeleportParticles(Entity entity, int amount) {
         for (int j = 0; j < amount; j++) {
             this.createSurroundingServerParticles(entity, ParticleTypes.PORTAL, 0.5);
         }

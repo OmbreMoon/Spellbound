@@ -46,7 +46,7 @@ public class EffectRenderingInventoryScreenMixin<T extends AbstractContainerMenu
         Player player = this.minecraft.player;
         var handler = SpellUtil.getSpellCaster(player);
         int i = this.leftPos;
-        Collection<AbstractSpell> spells = handler.getActiveSpells();
+        Collection<AbstractSpell> spells = handler.getActiveSpells().stream().filter(spell -> spell.shouldRender(spell.getContext())).toList();
         if (!spells.isEmpty() && i >= 32) {
             boolean flag = i >= 120;
             int j = 33;
@@ -120,7 +120,7 @@ public class EffectRenderingInventoryScreenMixin<T extends AbstractContainerMenu
         if (spell.getCastType() == AbstractSpell.CastType.CHANNEL) {
             return Component.translatable("effect.duration.infinite");
         } else {
-            int i = Mth.floor((float)(spell.getDuration() - spell.ticks) * durationFactor);
+            int i = Mth.floor((float)(spell.getDuration() - spell.tickCount) * durationFactor);
             return Component.literal(StringUtil.formatTickDuration(i, ticksPerSecond));
         }
     }

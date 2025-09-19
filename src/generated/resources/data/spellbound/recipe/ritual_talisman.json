@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "M": {
+      "item": "spellbound:magic_essence"
+    }
+  },
+  "pattern": [
+    "GGG",
+    " M ",
+    " G "
+  ],
+  "result": {
+    "count": 1,
+    "id": "spellbound:ritual_talisman"
+  }
+}

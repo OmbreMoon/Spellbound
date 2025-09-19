@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab_top",
+  "textures": {
+    "bottom": "spellbound:block/purple_spore_block",
+    "side": "spellbound:block/purple_spore_block",
+    "top": "spellbound:block/purple_spore_block"
+  }
+}

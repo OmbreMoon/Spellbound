@@ -1,3 +1,4 @@
+/*
 package com.ombremoon.spellbound.common.content.spell.summon;
 
 import com.ombremoon.spellbound.common.content.entity.living.TotemSpiritEntity;
@@ -67,3 +68,4 @@ public class SpiritTotemSpell extends SummonSpell {
         return null;
     }
 }
+*/

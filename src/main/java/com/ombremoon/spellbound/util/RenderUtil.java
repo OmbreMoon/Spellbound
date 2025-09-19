@@ -1,7 +1,10 @@
 package com.ombremoon.spellbound.util;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.ombremoon.spellbound.client.gui.GuideBookScreen;
+import com.ombremoon.spellbound.client.gui.WorkbenchScreen;
 import com.ombremoon.spellbound.client.renderer.SBRenderTypes;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
@@ -39,6 +42,14 @@ public class RenderUtil {
 
     public static void drawCenteredString(GuiGraphics guiGraphics, Font font, FormattedCharSequence text, int x, int y, int color) {
         guiGraphics.drawString(font, text, x - font.width(text) / 2, y - font.lineHeight / 2, color);
+    }
+
+    public static void openWorkbench() {
+        Minecraft.getInstance().setScreen(new WorkbenchScreen(Component.translatable("screen.spellbound.workbench")));
+    }
+
+    public static void openBook(ResourceLocation id) {
+        Minecraft.getInstance().setScreen(new GuideBookScreen(Component.translatable("screen.spellbound.guide_book"), id));
     }
 
 /*    public static Optional<RenderType> getExampleRenderType(RenderType renderType) {

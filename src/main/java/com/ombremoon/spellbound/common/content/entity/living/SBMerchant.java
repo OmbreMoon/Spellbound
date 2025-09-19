@@ -109,6 +109,11 @@ public abstract class SBMerchant extends PathfinderMob implements Merchant, Smar
     }
 
     @Override
+    public boolean removeWhenFarAway(double distanceToClosestPlayer) {
+        return false;
+    }
+
+    @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         postTradesEvent();

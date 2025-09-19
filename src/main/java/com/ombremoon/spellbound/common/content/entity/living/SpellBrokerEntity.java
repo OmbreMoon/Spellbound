@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class SpellBrokerEntity extends SBMerchant{
+public class SpellBrokerEntity extends SBMerchant {
     private int merchantLevel;
 
     public SpellBrokerEntity(EntityType<? extends PathfinderMob> entityType, Level level) {

@@ -87,14 +87,14 @@ public class StormRift extends PortalEntity<StormRiftSpell> {
                     (this.random.nextDouble() - 0.5) * 0.02);
         }
 
-        if (this.entityData.get(IMPLODE)) {
+        if (this.entityData.get(IMPLODE) && !this.level().isClientSide) {
             if (this.level().getEntity(this.getCloudId()) instanceof StormCloud cloud)
                 cloud.discard();
 
             if (this.explosionTimer > 0) {
                 this.explosionTimer--;
-                if (this.explosionTimer == 1)
-                    this.level().explode(
+            } else {
+                this.level().explode(
                         this,
                         Explosion.getDefaultDamageSource(this.level(), this),
                         null,
@@ -114,7 +114,6 @@ public class StormRift extends PortalEntity<StormRiftSpell> {
                         this.handler.applyStormStrike(livingEntity, 100);
                     }
                 }
-            } else {
                 this.discard();
             }
         }
@@ -172,9 +171,9 @@ public class StormRift extends PortalEntity<StormRiftSpell> {
 
     protected <T extends GeoAnimatable> PlayState stormRiftController(AnimationState<T> data) {
         if (isStarting()) {
-//            data.setAnimation(RawAnimation.begin().thenPlay("spawn"));
+            data.setAnimation(RawAnimation.begin().thenPlay("spawn"));
         } else if (isEnding()) {
-            data.setAnimation(RawAnimation.begin().thenPlay("explosion"));
+            data.setAnimation(RawAnimation.begin().thenPlay("death"));
         } else {
             data.setAnimation(RawAnimation.begin().thenLoop("idle"));
         }
