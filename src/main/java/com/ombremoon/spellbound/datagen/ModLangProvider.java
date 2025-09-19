@@ -102,6 +102,7 @@ public class ModLangProvider extends LanguageProvider {
     }
 
     protected void guideContents() {
+        add("guide.element.spell_info", "Spell Info");
         add("guide.element.spell_info.spell_mastery", "Spell Mastery: %1$s");
         add("guide.element.spell_info.damage", "Damage: %1$s");
         add("guide.element.spell_info.mana_cost", "Mana Cost: %1$s");
@@ -114,6 +115,8 @@ public class ModLangProvider extends LanguageProvider {
         add("guide.ruin.v1_p2.keystone", "HAHA! Success! These portals are more than I first thought.\n\nIt seems they lead to unknown pocket dimensions. From my research I have deduced the destination depends on these keystones,\n\nI have jotted down a recipe but they seem to need a catalyst to be powered.");
         add("guide.ruin.v1_p3.keystones", "Dammit, I just cant figure out how to empower these keystones. Maybe given more time I'll be able to figure it out...\n\nFor now im shifting my focus to looking for other spell casters that can hopefully shine a light on how to manipulate the arcane in these lands.\n\nI will begin my search within the forests and perhaps if I'm feeling adventurous I might try the End...");
         add("guide.ruin.v1_p3.spell_broker", "Well, I found a reclusive fellow hold up in this tower. As strange as he was he seemed knowledgeable in destructive magic and I purchased a few books from him.\n\nI'll document what I can of my findings from these books until I can crack keystones.");
+        add("guide.ruin.solar_ray.title", "Solar Ray");
+        add("guide.ruin.solar_ray.spell_lore", "This spell hsa taken a while to understand but it allows me to channel the energy of the sun itself into a powerful beam of fire!");
     }
 
     protected void skillDescriptions() {

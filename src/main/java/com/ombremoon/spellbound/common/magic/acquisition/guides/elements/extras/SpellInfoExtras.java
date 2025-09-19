@@ -11,8 +11,8 @@ public record SpellInfoExtras(int colour, int lineGap, boolean dropShadow, boole
      * 2 Always display
      */
     public static final Codec<SpellInfoExtras> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            Codec.INT.optionalFieldOf("colour", 0).forGetter(SpellInfoExtras::colour),
-            Codec.INT.optionalFieldOf("lineGap", 9).forGetter(SpellInfoExtras::lineGap),
+            Codec.INT.optionalFieldOf("colour", 0xFFFFFF).forGetter(SpellInfoExtras::colour),
+            Codec.INT.optionalFieldOf("lineGap", 10).forGetter(SpellInfoExtras::lineGap),
             Codec.BOOL.optionalFieldOf("dropShadow", false).forGetter(SpellInfoExtras::dropShadow),
             Codec.BOOL.optionalFieldOf("mastery", true).forGetter(SpellInfoExtras::mastery),
             Codec.INT.optionalFieldOf("baseDamage", 1).forGetter(SpellInfoExtras::baseDamage),
@@ -23,6 +23,6 @@ public record SpellInfoExtras(int colour, int lineGap, boolean dropShadow, boole
     ).apply(inst, SpellInfoExtras::new));
 
     public static SpellInfoExtras getDefault() {
-        return new SpellInfoExtras(0, 9, false, true, 1, 1, 1, 1, 1);
+        return new SpellInfoExtras(0xFFFFFF, 10, false, true, 1, 1, 1, 1, 1);
     }
 }
