@@ -61,6 +61,7 @@ public class SBItems {
 
     //Guide Books
     public static final Supplier<Item> STARTER_BOOK = registerItem("studies_in_the_arcane", () -> new GuideBookItem(CommonClass.customLocation("starter_book")));
+    public static final Supplier<Item> RUIN_BOOK = registerItem("grimoire_of_annihilation", () -> new GuideBookItem(CommonClass.customLocation("grimoire_of_annihilation")));
 
     public static final Supplier<CreativeModeTab> SPELL_TAB = CREATIVE_MODE_TABS.register("spell_tab", () -> CreativeModeTab.builder(CreativeModeTab.Row.TOP,0)
             .icon(() -> new ItemStack(SBBlocks.ARCANTHUS.get()))

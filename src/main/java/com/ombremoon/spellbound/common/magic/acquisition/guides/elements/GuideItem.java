@@ -29,7 +29,7 @@ public record GuideItem(ResourceLocation itemLoc, float scale, ElementPosition p
     public static final MapCodec<GuideItem> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             ResourceLocation.CODEC.fieldOf("item").forGetter(GuideItem::itemLoc),
             Codec.FLOAT.optionalFieldOf("scale", 1f).forGetter(GuideItem::scale),
-            ElementPosition.CODEC.fieldOf("position").forGetter(GuideItem::position)
+            ElementPosition.CODEC.optionalFieldOf("position", ElementPosition.getDefault()).forGetter(GuideItem::position)
     ).apply(inst, GuideItem::new));
 
     @Override

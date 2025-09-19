@@ -37,7 +37,7 @@ public record GuideRecipe(ResourceLocation recipeLoc, float scale, ElementPositi
     public static final MapCodec<GuideRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             ResourceLocation.CODEC.fieldOf("recipe").forGetter(GuideRecipe::recipeLoc),
             Codec.FLOAT.optionalFieldOf("scale", 1f).forGetter(GuideRecipe::scale),
-            ElementPosition.CODEC.fieldOf("position").forGetter(GuideRecipe::position)
+            ElementPosition.CODEC.optionalFieldOf("position", ElementPosition.getDefault()).forGetter(GuideRecipe::position)
     ).apply(inst, GuideRecipe::new));
 
     @Override

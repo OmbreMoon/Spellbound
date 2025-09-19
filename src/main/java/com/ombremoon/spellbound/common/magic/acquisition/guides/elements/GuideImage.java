@@ -13,7 +13,7 @@ public record GuideImage(ResourceLocation loc, int width, int height, ElementPos
             ResourceLocation.CODEC.fieldOf("image").forGetter(GuideImage::loc),
             Codec.INT.fieldOf("width").forGetter(GuideImage::width),
             Codec.INT.fieldOf("height").forGetter(GuideImage::height),
-            ElementPosition.CODEC.fieldOf("position").forGetter(GuideImage::position)
+            ElementPosition.CODEC.optionalFieldOf("position", ElementPosition.getDefault()).forGetter(GuideImage::position)
     ).apply(inst, GuideImage::new));
 
     @Override

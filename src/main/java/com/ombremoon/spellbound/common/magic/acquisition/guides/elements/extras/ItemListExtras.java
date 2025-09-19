@@ -5,15 +5,17 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.ombremoon.spellbound.common.magic.acquisition.guides.elements.GuideItemList;
 
-public record ItemListExtras(int maxRows, int rowGap, int columnGap, int countGap) {
+public record ItemListExtras(int maxRows, int rowGap, int columnGap, int countGap, boolean dropShadow, int textColour) {
     public static final MapCodec<ItemListExtras> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             Codec.INT.optionalFieldOf("maxRows", 0).forGetter(ItemListExtras::maxRows),
             Codec.INT.optionalFieldOf("rowGap", 20).forGetter(ItemListExtras::rowGap),
             Codec.INT.optionalFieldOf("columnGap", 45).forGetter(ItemListExtras::columnGap),
-            Codec.INT.optionalFieldOf("countGap", 33).forGetter(ItemListExtras::countGap)
+            Codec.INT.optionalFieldOf("countGap", 33).forGetter(ItemListExtras::countGap),
+            Codec.BOOL.optionalFieldOf("dropShadow", false).forGetter(ItemListExtras::dropShadow),
+            Codec.INT.optionalFieldOf("textColour", 0).forGetter(ItemListExtras::textColour)
     ).apply(inst, ItemListExtras::new));
 
     public static ItemListExtras getDefault() {
-        return new ItemListExtras(0, 20, 45, 33);
+        return new ItemListExtras(0, 20, 45, 33, true, 0);
     }
 }

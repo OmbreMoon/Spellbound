@@ -27,7 +27,7 @@ public record GuideBookPage(ResourceLocation id, ResourceLocation insertAfter, L
 
     public void render(GuiGraphics graphics, int leftPos, int topPos, int mouseX, int mouseY, float partialTick) {
         for (PageElement element : elements) {
-            element.render(graphics, leftPos + 42, topPos + 36, mouseX, mouseY, partialTick);
+            element.render(graphics, leftPos + 47, topPos + 36, mouseX, mouseY, partialTick);
         }
     }
 }

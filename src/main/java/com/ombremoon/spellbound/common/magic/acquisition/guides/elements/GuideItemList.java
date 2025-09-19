@@ -20,7 +20,7 @@ public record GuideItemList(List<ItemListEntry> items, ItemListExtras extras, El
     public static final MapCodec<GuideItemList> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             ItemListEntry.CODEC.codec().listOf().fieldOf("items").forGetter(GuideItemList::items),
             ItemListExtras.CODEC.codec().optionalFieldOf("extras", ItemListExtras.getDefault()).forGetter(GuideItemList::extras),
-            ElementPosition.CODEC.fieldOf("position").forGetter(GuideItemList::position)
+            ElementPosition.CODEC.optionalFieldOf("position", ElementPosition.getDefault()).forGetter(GuideItemList::position)
     ).apply(inst, GuideItemList::new));
 
     @Override
@@ -41,7 +41,7 @@ public record GuideItemList(List<ItemListEntry> items, ItemListExtras extras, El
             }
 
             GuideItem.renderItem(graphics, itemRegistry.get(entry.itemLoc()).getDefaultInstance(), leftPos - 10 + position.xOffset() + xOffset, topPos + position.yOffset() - 8 + yOffset, 1f);
-            graphics.drawString(Minecraft.getInstance().font, String.valueOf(entry.count()), leftPos - 10 + position.xOffset() + xOffset + extras.countGap(), topPos + position.yOffset() + 6 + yOffset, 16777215);
+            graphics.drawString(Minecraft.getInstance().font, String.valueOf(entry.count()), leftPos - 10 + position.xOffset() + xOffset + extras.countGap(), topPos + position.yOffset() + 6 + yOffset, extras.textColour(), extras.dropShadow());
         }
     }
 

@@ -20,7 +20,7 @@ public record GuideEntityRenderer(ResourceLocation entityLoc, int scale, Element
     public static final MapCodec<GuideEntityRenderer> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             ResourceLocation.CODEC.fieldOf("entity").forGetter(GuideEntityRenderer::entityLoc),
             Codec.INT.optionalFieldOf("scale", 25).forGetter(GuideEntityRenderer::scale),
-            ElementPosition.CODEC.fieldOf("position").forGetter(GuideEntityRenderer::position)
+            ElementPosition.CODEC.optionalFieldOf("position", ElementPosition.getDefault()).forGetter(GuideEntityRenderer::position)
     ).apply(inst, GuideEntityRenderer::new));
 
     @Override
