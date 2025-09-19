@@ -7,6 +7,7 @@ import com.ombremoon.spellbound.common.init.SBItems;
 import com.ombremoon.spellbound.common.magic.SpellPath;
 import com.ombremoon.spellbound.common.magic.acquisition.guides.GuideBookManager;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
@@ -21,10 +22,16 @@ import java.util.List;
 
 public class GuideBookItem extends Item {
     private final ResourceLocation bookId;
+    private final ResourceLocation bookTexture;
 
     public GuideBookItem(ResourceLocation bookId) {
+        this(bookId, ResourceLocation.fromNamespaceAndPath(bookId.getNamespace(), "textures/gui/books/" + bookId.getPath() + ".png"));
+    }
+
+    public GuideBookItem(ResourceLocation bookId, ResourceLocation bookTexture) {
         super(new Properties().stacksTo(1));
         this.bookId = bookId;
+        this.bookTexture = bookTexture;
     }
 
     @Override
@@ -33,7 +40,7 @@ public class GuideBookItem extends Item {
         if (GuideBookManager.getBook(this.bookId) == null) return InteractionResultHolder.fail(player.getItemInHand(usedHand));
 
         if (level.isClientSide) {
-            Minecraft.getInstance().setScreen(new GuideBookScreen(Component.translatable("screen.spellbound.guide_book"), this.bookId));
+            Minecraft.getInstance().setScreen(new GuideBookScreen(Component.translatable("screen.spellbound.guide_book"), this.bookId, bookTexture));
         }
 
         return InteractionResultHolder.success(player.getItemInHand(usedHand));

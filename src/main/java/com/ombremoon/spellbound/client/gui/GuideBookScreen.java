@@ -17,7 +17,6 @@ public class GuideBookScreen extends Screen {
     private static final int WIDTH = 415;
     private static final int HEIGHT = 287;
 
-    private Player player;
     private ResourceLocation bookId;
     private ResourceLocation bookTexture;
     private int leftPos;
@@ -26,15 +25,14 @@ public class GuideBookScreen extends Screen {
     private int lastPage;
     private List<GuideBookPage> pages;
 
-    public GuideBookScreen(Component title, ResourceLocation bookId) {
+    public GuideBookScreen(Component title, ResourceLocation bookId, ResourceLocation bookTexture) {
         super(title);
         this.bookId = bookId;
+        this.bookTexture = bookTexture;
     }
 
     @Override
     protected void init() {
-        this.player = this.minecraft.player;
-        this.bookTexture = ResourceLocation.fromNamespaceAndPath(bookId.getNamespace(), "textures/gui/books/" + this.bookId.getPath() + ".png");
         this.leftPos = (this.width - WIDTH) / 2;
         this.topPos = (this.height - HEIGHT) / 2;
         this.pages = GuideBookManager.getBook(bookId);
