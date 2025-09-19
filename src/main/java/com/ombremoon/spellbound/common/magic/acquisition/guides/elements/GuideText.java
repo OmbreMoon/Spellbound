@@ -1,29 +1,42 @@
 package com.ombremoon.spellbound.common.magic.acquisition.guides.elements;
 
-import com.jcraft.jogg.Page;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.ombremoon.spellbound.common.magic.acquisition.guides.elements.extras.ElementPosition;
+import com.ombremoon.spellbound.common.magic.acquisition.guides.elements.extras.TextExtras;
+import com.ombremoon.spellbound.main.Constants;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.util.FormattedCharSequence;
+import org.jetbrains.annotations.NotNull;
 
-public record GuideText(String translationKey, int colour, ElementPosition position) implements PageElement {
+import java.util.ArrayList;
+import java.util.List;
+
+public record GuideText(String translationKey, TextExtras extras, ElementPosition position) implements PageElement {
     public static final MapCodec<GuideText> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             Codec.STRING.fieldOf("translation").forGetter(GuideText::translationKey),
-            Codec.INT.optionalFieldOf("colour", 16777215).forGetter(GuideText::colour),
-            ElementPosition.CODEC.fieldOf("position").forGetter(GuideText::position)
+            TextExtras.CODEC.optionalFieldOf("extras", TextExtras.getDefault()).forGetter(GuideText::extras),
+            ElementPosition.CODEC.optionalFieldOf("position", ElementPosition.getDefault()).forGetter(GuideText::position)
     ).apply(inst, GuideText::new));
 
     @Override
-    public void render(GuiGraphics graphics, int leftPos, int topPos) {
-        graphics.drawString(Minecraft.getInstance().font, Component.translatable(translationKey), leftPos + position.xOffset(), topPos + position.yOffset(), colour);
+    public void render(GuiGraphics graphics, int leftPos, int topPos, int mouseX, int mouseY, float partialTick) {
+        Font font = Minecraft.getInstance().font;
+
+        List<FormattedCharSequence> lines = font.split(Component.translatable(translationKey), extras.maxLineLength());
+        for (int i = 0; i < lines.size(); i++) {
+            graphics.drawString(font, lines.get(i), leftPos + position.xOffset(), topPos + position.yOffset() + (i * 9), extras.colour(), extras.dropShadow());
+        }
     }
 
     @Override
-    public MapCodec<? extends PageElement> codec() {
+    public @NotNull MapCodec<? extends PageElement> codec() {
         return CODEC;
     }
 }

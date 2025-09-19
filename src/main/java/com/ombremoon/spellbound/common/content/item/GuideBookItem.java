@@ -12,10 +12,16 @@ import net.minecraft.world.level.Level;
 
 public class GuideBookItem extends Item {
     private final ResourceLocation bookId;
+    private final ResourceLocation bookTexture;
 
     public GuideBookItem(ResourceLocation bookId) {
+        this(bookId, ResourceLocation.fromNamespaceAndPath(bookId.getNamespace(), "textures/gui/books/" + bookId.getPath() + ".png"));
+    }
+
+    public GuideBookItem(ResourceLocation bookId, ResourceLocation bookTexture) {
         super(new Properties().stacksTo(1));
         this.bookId = bookId;
+        this.bookTexture = bookTexture;
     }
 
     @Override
