@@ -3,7 +3,7 @@ package com.ombremoon.spellbound.common.magic.acquisition.guides.elements.extras
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-public record SpellInfoExtras(int colour, int lineGap, boolean dropShadow, boolean mastery, int baseDamage, int castTime, int duration, int manaCost, int manaPerTick) implements IElementExtra {
+public record SpellInfoExtras(int colour, int lineGap, boolean dropShadow, boolean mastery, int baseDamage, int castTime, int duration, int manaCost, int manaPerTick, boolean alwaysShow) implements IElementExtra {
     /**
      * For baseDamage down to manaPerTick the integer value indicates how it should be displayed
      * 0 Never display
@@ -19,10 +19,11 @@ public record SpellInfoExtras(int colour, int lineGap, boolean dropShadow, boole
             Codec.INT.optionalFieldOf("castTime", 1).forGetter(SpellInfoExtras::castTime),
             Codec.INT.optionalFieldOf("duration", 1).forGetter(SpellInfoExtras::duration),
             Codec.INT.optionalFieldOf("manaCost", 1).forGetter(SpellInfoExtras::manaCost),
-            Codec.INT.optionalFieldOf("manaPerTick", 1).forGetter(SpellInfoExtras::manaPerTick)
+            Codec.INT.optionalFieldOf("manaPerTick", 1).forGetter(SpellInfoExtras::manaPerTick),
+            Codec.BOOL.optionalFieldOf("alwaysShow", true).forGetter(SpellInfoExtras::alwaysShow)
     ).apply(inst, SpellInfoExtras::new));
 
     public static SpellInfoExtras getDefault() {
-        return new SpellInfoExtras(0xFFFFFF, 10, false, true, 1, 1, 1, 1, 1);
+        return new SpellInfoExtras(0xFFFFFF, 10, false, true, 1, 1, 1, 1, 1, true);
     }
 }
