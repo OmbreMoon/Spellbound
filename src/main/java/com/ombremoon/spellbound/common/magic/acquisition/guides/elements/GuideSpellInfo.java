@@ -51,6 +51,7 @@ public record GuideSpellInfo(ResourceLocation spellLoc, SpellInfoExtras extras, 
         float manaPerTick = 0;
         if (spell instanceof ChanneledSpell channeledSpell) {
             manaPerTick = channeledSpell.getManaTickCost();
+            duration = 0;
         }
 
         List<Pair<String, Object>> data = new ArrayList<>();

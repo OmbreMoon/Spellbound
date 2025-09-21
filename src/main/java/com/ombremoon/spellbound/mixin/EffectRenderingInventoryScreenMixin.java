@@ -44,7 +44,7 @@ public class EffectRenderingInventoryScreenMixin<T extends AbstractContainerMenu
     @Unique
     private void spellbound$renderSpells(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         Player player = this.minecraft.player;
-        var handler = SpellUtil.getSpellCaster(player);
+        var handler = SpellUtil.getSpellHandler(player);
         int i = this.leftPos;
         Collection<AbstractSpell> spells = handler.getActiveSpells().stream().filter(spell -> spell.shouldRender(spell.getContext())).toList();
         if (!spells.isEmpty() && i >= 32) {

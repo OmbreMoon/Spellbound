@@ -5,7 +5,6 @@ import com.google.common.collect.Multimap;
 import com.ombremoon.spellbound.common.content.block.DivineShrineBlock;
 import com.ombremoon.spellbound.common.events.custom.MobEffectEvent;
 import com.ombremoon.spellbound.common.events.custom.MobInteractEvent;
-import com.ombremoon.spellbound.common.init.SBBlocks;
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.init.SBTags;
 import com.ombremoon.spellbound.main.Constants;
@@ -20,10 +19,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.HealOrHarmMobEffect;
-import net.minecraft.world.effect.InstantenousMobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -163,7 +159,7 @@ public class PlayerDivineActions implements Loggable {
     @SubscribeEvent
     public static void onDataReload(OnDatapackSyncEvent event) {
         for (Player player : event.getRelevantPlayers().toList()) {
-            var handler = SpellUtil.getSpellCaster(player);
+            var handler = SpellUtil.getSpellHandler(player);
             var actions = handler.getDivineActions();
             actions.reload();
         }
@@ -176,7 +172,7 @@ public class PlayerDivineActions implements Loggable {
         BlockState state = event.getPlacedBlock();
         BlockPos blockPos = event.getPos();
         if (accessor instanceof Level level && !level.isClientSide && entity instanceof ServerPlayer player && state.is(BlockTags.FLOWERS)) {
-            var actions = SpellUtil.getSpellCaster(player).getDivineActions();
+            var actions = SpellUtil.getSpellHandler(player).getDivineActions();
             var shrine = DivineShrineBlock.getNearestShrine(level, blockPos);
             if (shrine != null) {
                 BlockPos shrinePos = shrine.getFirst();
@@ -201,7 +197,7 @@ public class PlayerDivineActions implements Loggable {
         BlockState state = event.getState();
         BlockPos blockPos = event.getPos();
         if (accessor instanceof Level level && !level.isClientSide) {
-            var actions = SpellUtil.getSpellCaster(player).getDivineActions();
+            var actions = SpellUtil.getSpellHandler(player).getDivineActions();
             if (state.is(BlockTags.FLOWERS)) {
                 var shrine = DivineShrineBlock.getNearestShrine(level, blockPos);
                 if (shrine != null) {
@@ -224,7 +220,7 @@ public class PlayerDivineActions implements Loggable {
             return;
 
         if (event.getSource().getEntity() instanceof ServerPlayer player) {
-            PlayerDivineActions actions = SpellUtil.getSpellCaster(player).getDivineActions();
+            PlayerDivineActions actions = SpellUtil.getSpellHandler(player).getDivineActions();
             SBTriggers.PLAYER_KILL.get().trigger(player, livingEntity, source, 0);
 
             if (livingEntity.getType().is(EntityTypeTags.UNDEAD)) {

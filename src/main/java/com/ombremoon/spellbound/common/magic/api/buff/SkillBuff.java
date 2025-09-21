@@ -3,7 +3,6 @@ package com.ombremoon.spellbound.common.magic.api.buff;
 import com.google.common.collect.Maps;
 import com.ombremoon.spellbound.common.init.SBSkills;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
-import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.util.SpellUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -53,7 +52,7 @@ public record SkillBuff<T>(Skill skill, BuffCategory category, BuffObject<T> buf
             "spell_modifier",
             (source, livingEntity, spellModifier) -> {
                 var skills = SpellUtil.getSkills(livingEntity);
-                skills.addModifierWithExpiry(spellModifier);
+                skills.addModifier(spellModifier);
             },
             (livingEntity, spellModifier) -> {
                 var skills = SpellUtil.getSkills(livingEntity);
@@ -67,7 +66,7 @@ public record SkillBuff<T>(Skill skill, BuffCategory category, BuffObject<T> buf
             (source, livingEntity, resourceLocation) -> {
             },
             (livingEntity, resourceLocation) -> {
-                var handler = SpellUtil.getSpellCaster(livingEntity);
+                var handler = SpellUtil.getSpellHandler(livingEntity);
                 handler.getListener().removeListener(resourceLocation);
             },
             ResourceLocation::equals,

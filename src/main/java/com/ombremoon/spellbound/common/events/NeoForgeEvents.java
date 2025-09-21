@@ -3,11 +3,10 @@ package com.ombremoon.spellbound.common.events;
 import com.mojang.brigadier.CommandDispatcher;
 import com.ombremoon.sentinellib.common.event.RegisterPlayerSentinelBoxEvent;
 import com.ombremoon.spellbound.client.event.SpellCastEvents;
-import com.ombremoon.spellbound.common.content.block.DivineShrineBlock;
 import com.ombremoon.spellbound.common.content.commands.LearnSkillsCommand;
 import com.ombremoon.spellbound.common.content.commands.LearnSpellCommand;
 import com.ombremoon.spellbound.common.content.commands.SpellboundCommand;
-import com.ombremoon.spellbound.common.content.entity.spell.Hail;
+import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
 import com.ombremoon.spellbound.common.content.world.dimension.DimensionCreator;
 import com.ombremoon.spellbound.common.content.world.effect.SBEffect;
@@ -16,15 +15,15 @@ import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormData;
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
 import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockManager;
 import com.ombremoon.spellbound.common.events.custom.MobEffectEvent;
-import com.ombremoon.spellbound.common.events.custom.TickChunkEvent;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.EffectManager;
 import com.ombremoon.spellbound.common.magic.acquisition.ArenaCache;
 import com.ombremoon.spellbound.common.magic.acquisition.ArenaSavedData;
-import com.ombremoon.spellbound.common.magic.acquisition.divine.PlayerDivineActions;
 import com.ombremoon.spellbound.common.magic.acquisition.transfiguration.RitualSavedData;
+import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
+import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
-import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
 import com.ombremoon.spellbound.common.magic.api.buff.events.*;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.PayloadHandler;
@@ -34,19 +33,11 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.EntityTypeTags;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
@@ -56,12 +47,10 @@ import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.living.*;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.village.VillageSiegeEvent;
 import net.neoforged.neoforge.server.command.ConfigCommand;
 
 import java.util.List;
@@ -94,7 +83,7 @@ public class NeoForgeEvents {
     @SubscribeEvent
     public static void onEntityJoinWorld(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof LivingEntity livingEntity) {
-            var handler = SpellUtil.getSpellCaster(livingEntity);
+            var handler = SpellUtil.getSpellHandler(livingEntity);
             handler.initData(livingEntity);
 
             if (livingEntity instanceof Player player) {
@@ -138,7 +127,7 @@ public class NeoForgeEvents {
     public static void onPlayerLeaveWorld(EntityLeaveLevelEvent event) {
         Level level = event.getLevel();
         if (event.getEntity() instanceof Player player && !level.isClientSide) {
-            var caster = SpellUtil.getSpellCaster(player);
+            var caster = SpellUtil.getSpellHandler(player);
             caster.endSpells();
 
             var cache = caster.getLastArena();
@@ -152,7 +141,7 @@ public class NeoForgeEvents {
     @SubscribeEvent
     public static void onPostEntityTick(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof LivingEntity entity) {
-            var caster = SpellUtil.getSpellCaster(entity);
+            var caster = SpellUtil.getSpellHandler(entity);
             caster.tick();
 
             EffectManager status = entity.getData(SBData.STATUS_EFFECTS);
@@ -187,7 +176,7 @@ public class NeoForgeEvents {
         if (event.getEffectInstance() instanceof SBEffectInstance effectInstance && effectInstance.willGlow()) {
             LivingEntity entity = effectInstance.getCauseEntity();
             if (entity instanceof ServerPlayer player)
-                PayloadHandler.removeGlowEffect(player, livingEntity.getId());
+                PayloadHandler.updateGlowEffect(player, livingEntity.getId(), true);
         }
     }
 
@@ -299,13 +288,13 @@ public class NeoForgeEvents {
     public static void onWorldEnd(ServerStoppingEvent event) {
         List<ServerPlayer> players = event.getServer().getPlayerList().getPlayers();
         for (ServerPlayer player : players) {
-            SpellUtil.getSpellCaster(player).endSpells();
+            SpellUtil.getSpellHandler(player).endSpells();
         }
     }
 
     @SubscribeEvent
     public static void onPlayerLogOut(PlayerEvent.PlayerLoggedOutEvent event) {
-        SpellUtil.getSpellCaster(event.getEntity()).endSpells();
+        SpellUtil.getSpellHandler(event.getEntity()).endSpells();
     }
 
     @SubscribeEvent
@@ -321,29 +310,48 @@ public class NeoForgeEvents {
         if (livingEntity.level().isClientSide)
             return;
 
+        if (SpellUtil.isSummon(livingEntity)) {
+            Entity entity = SpellUtil.getOwner(livingEntity);
+            if (!(entity instanceof LivingEntity owner))
+                return;
+
+            var handler = SpellUtil.getSpellHandler(owner);
+            AbstractSpell spell;
+            if (livingEntity instanceof ISpellEntity<?> spellEntity) {
+                spell = spellEntity.getSpell();
+            } else {
+                SpellType<?> spellType = SBSpells.REGISTRY.get(livingEntity.getData(SBData.SPELL_TYPE));
+                int id = livingEntity.getData(SBData.SPELL_ID);
+                spell = handler.getSpell(spellType, id);
+            }
+
+            if (spell instanceof SummonSpell summonSpell)
+                summonSpell.removeSummon(livingEntity);
+        }
+
         if (event.getSource().getEntity() instanceof LivingEntity sourceEntity)
-            SpellUtil.getSpellCaster(sourceEntity).getListener().fireEvent(SpellEventListener.Events.ENTITY_KILL, new DeathEvent(sourceEntity, event));
+            SpellUtil.getSpellHandler(sourceEntity).getListener().fireEvent(SpellEventListener.Events.ENTITY_KILL, new DeathEvent(sourceEntity, event));
     }
 
     @SubscribeEvent
     public static void onChangeTarget(LivingChangeTargetEvent event) {
         if (event.getEntity().level().isClientSide) return;
 
-        SpellUtil.getSpellCaster(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.CHANGE_TARGET, new ChangeTargetEvent(event.getEntity(), event));
+        SpellUtil.getSpellHandler(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.CHANGE_TARGET, new ChangeTargetEvent(event.getEntity(), event));
     }
 
     @SubscribeEvent
     public static void onLivingAttack(AttackEntityEvent event) {
         if (event.getEntity().level().isClientSide) return;
 
-        SpellUtil.getSpellCaster(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.ATTACK, new PlayerAttackEvent(event.getEntity(), event));
+        SpellUtil.getSpellHandler(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.ATTACK, new PlayerAttackEvent(event.getEntity(), event));
     }
 
     @SubscribeEvent
     public static void onLivingBlock(LivingShieldBlockEvent event) {
         if (event.getEntity().level().isClientSide) return;
 
-        SpellUtil.getSpellCaster(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.BLOCK, new LivingBlockEvent(event.getEntity(), event));
+        SpellUtil.getSpellHandler(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.BLOCK, new LivingBlockEvent(event.getEntity(), event));
     }
 
     @SubscribeEvent
@@ -351,7 +359,7 @@ public class NeoForgeEvents {
         if (event.getEntity().level().isClientSide) return;
 
         LivingEntity entity = event.getEntity();
-        SpellUtil.getSpellCaster(entity).getListener().fireEvent(SpellEventListener.Events.POST_DAMAGE, new DamageEvent.Post(entity, event));
+        SpellUtil.getSpellHandler(entity).getListener().fireEvent(SpellEventListener.Events.POST_DAMAGE, new DamageEvent.Post(entity, event));
     }
 
     @SubscribeEvent
@@ -359,7 +367,7 @@ public class NeoForgeEvents {
         LivingEntity livingEntity = event.getEntity();
         if (livingEntity.level().isClientSide) return;
 
-        SpellUtil.getSpellCaster(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.PRE_DAMAGE, new DamageEvent.Pre(livingEntity, event));
+        SpellUtil.getSpellHandler(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.PRE_DAMAGE, new DamageEvent.Pre(livingEntity, event));
 
         if (event.getSource().is(SBDamageTypes.RUIN_FIRE))
             livingEntity.igniteForSeconds(3.0F);
@@ -375,7 +383,7 @@ public class NeoForgeEvents {
     public static void onLivingJump(LivingEvent.LivingJumpEvent event) {
         if (event.getEntity().level().isClientSide) return;
 
-        SpellUtil.getSpellCaster(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.JUMP, new JumpEvent(event.getEntity(), event));
+        SpellUtil.getSpellHandler(event.getEntity()).getListener().fireEvent(SpellEventListener.Events.JUMP, new JumpEvent(event.getEntity(), event));
 
     }
 }

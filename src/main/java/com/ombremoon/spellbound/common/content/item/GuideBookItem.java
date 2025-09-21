@@ -30,7 +30,7 @@ public class GuideBookItem extends Item {
         if (GuideBookManager.getBook(this.bookId) == null) return InteractionResultHolder.fail(player.getItemInHand(usedHand));
 
         if (level.isClientSide) {
-            RenderUtil.openBook(this.bookId);
+            RenderUtil.openBook(this.bookId, this.bookTexture);
         }
 
         return InteractionResultHolder.success(player.getItemInHand(usedHand));

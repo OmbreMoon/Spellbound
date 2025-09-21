@@ -173,7 +173,7 @@ public class SkillHolder implements INBTSerializable<CompoundTag> {
         return hasSkillReady(skill.value());
     }
 
-    public void addModifierWithExpiry(SpellModifier spellModifier) {
+    public void addModifier(SpellModifier spellModifier) {
         this.timedModifiers.add(spellModifier);
     }
 

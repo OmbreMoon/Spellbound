@@ -8,10 +8,8 @@ import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockManage
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
-import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.serverbound.ChargeOrChannelPayload;
-import com.ombremoon.spellbound.util.RenderUtil;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
@@ -43,7 +41,7 @@ public class ClientPayloadHandler {
 
     public static void handleEndSpell(EndSpellPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
-            var handler = SpellUtil.getSpellCaster(context.player());
+            var handler = SpellUtil.getSpellHandler(context.player());
             AbstractSpell spell = handler.getSpell(payload.spellType(), payload.castId());
             if (spell != null)
                 spell.endSpell();
@@ -51,7 +49,7 @@ public class ClientPayloadHandler {
     }
 
     public static void handleClientChargeOrChannel(final ChargeOrChannelPayload payload, final IPayloadContext context) {
-        var handler = SpellUtil.getSpellCaster(context.player());
+        var handler = SpellUtil.getSpellHandler(context.player());
         boolean charging = payload.isChargingOrChannelling();
         handler.setChargingOrChannelling(charging);
         if (charging)
@@ -79,7 +77,7 @@ public class ClientPayloadHandler {
 
             Entity entity = level.getEntity(payload.entityId());
             if (entity instanceof LivingEntity livingEntity) {
-                var caster = SpellUtil.getSpellCaster(livingEntity);
+                var caster = SpellUtil.getSpellHandler(livingEntity);
                 AbstractSpell spell = caster.getSpell(payload.spellType(), payload.castId());
                 if (spell != null)
                     spell.tickCount = payload.ticks();
@@ -93,7 +91,7 @@ public class ClientPayloadHandler {
 
             Entity entity = level.getEntity(payload.entityId());
             if (entity instanceof LivingEntity livingEntity) {
-                var caster = SpellUtil.getSpellCaster(livingEntity);
+                var caster = SpellUtil.getSpellHandler(livingEntity);
                 if (!payload.removeBuff()) {
                     caster.forceAddBuff(payload.skillBuff(), payload.duration());
                 } else {
@@ -119,7 +117,7 @@ public class ClientPayloadHandler {
         context.enqueueWork(() -> {
             var level = context.player().level();
 
-            SpellHandler handler = SpellUtil.getSpellCaster(context.player());
+            SpellHandler handler = SpellUtil.getSpellHandler(context.player());
             handler.deserializeNBT(level.registryAccess(), payload.tag());
             if (handler.caster == null) handler.caster = context.player();
         });
@@ -145,16 +143,12 @@ public class ClientPayloadHandler {
             Level level = context.player().level();
             Entity entity = level.getEntity(payload.entityId());
             if (entity instanceof LivingEntity livingEntity) {
-                var handler = SpellUtil.getSpellCaster(livingEntity);
+                var handler = SpellUtil.getSpellHandler(livingEntity);
                 AbstractSpell spell = handler.castTick > 0 ? handler.getCurrentlyCastSpell() : handler.getSpell(payload.spellType(), payload.id());
                 if (spell != null)
                     spell.getSpellData().assignValues(payload.packedItems());
             }
         });
-    }
-
-    public static void handleClientOpenWorkbenchScreen(OpenWorkbenchPayload payload, IPayloadContext context) {
-        context.enqueueWork(RenderUtil::openWorkbench);
     }
 
     public static void handleClientUpdateTree(UpdateTreePayload payload, IPayloadContext context) {
@@ -182,23 +176,18 @@ public class ClientPayloadHandler {
         });
     }
 
-    public static void handleAddGlowEffect(AddGlowEffectPayload payload, IPayloadContext context) {
+    public static void handleUpdateGlowEffect(UpdateGlowEffectPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             var level = context.player().level();
-            var handler = SpellUtil.getSpellCaster(context.player());
+            var handler = SpellUtil.getSpellHandler(context.player());
             Entity entity = level.getEntity(payload.entityId());
-            if (entity instanceof LivingEntity livingEntity)
-                handler.addGlowEffect(livingEntity);
-        });
-    }
-
-    public static void handleRemoveGlowEffect(RemoveGlowEffectPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            var level = context.player().level();
-            var handler = SpellUtil.getSpellCaster(context.player());
-            Entity entity = level.getEntity(payload.entityId());
-            if (entity instanceof LivingEntity livingEntity)
-                handler.removeGlowEffect(livingEntity);
+            if (entity instanceof LivingEntity livingEntity) {
+                if (payload.remove()) {
+                    handler.addGlowEffect(livingEntity);
+                } else {
+                    handler.removeGlowEffect(livingEntity);
+                }
+            }
         });
     }
 

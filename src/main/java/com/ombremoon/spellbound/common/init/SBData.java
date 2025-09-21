@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.common.init;
 
 import com.mojang.serialization.Codec;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
@@ -9,6 +10,7 @@ import com.ombremoon.spellbound.common.magic.tree.UpgradeTree;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -50,8 +52,10 @@ public class SBData {
             "target_id", () -> AttachmentType.builder(() -> 0).build());
 
     //Spell Data
+    public static final Supplier<AttachmentType<ResourceLocation>> SPELL_TYPE = ATTACHMENT_TYPES.register(
+            "spell_type", () -> AttachmentType.builder(() -> CommonClass.customLocation("")).serialize(ResourceLocation.CODEC).build());
     public static final Supplier<AttachmentType<Integer>> SPELL_ID = ATTACHMENT_TYPES.register(
-            "spell_id", () -> AttachmentType.builder(() -> 0).build());
+            "spell_id", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
     public static final Supplier<AttachmentType<Integer>> MOVEMENT_TICK = ATTACHMENT_TYPES.register(
             "movement_tick", () -> AttachmentType.builder(() -> 0).build());
     public static final Supplier<AttachmentType<Vec3>> MOVEMENT_SOURCE = ATTACHMENT_TYPES.register(
@@ -60,14 +64,8 @@ public class SBData {
             "heat_tick", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
     public static final Supplier<AttachmentType<Boolean>> FORCE_WARP = ATTACHMENT_TYPES.register(
             "force_warp", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).build());
-    public static final Supplier<AttachmentType<Integer>> CATCH_TICK = ATTACHMENT_TYPES.register(
-            "catch_tick", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
-    public static final Supplier<AttachmentType<Integer>> THROWN_TICK = ATTACHMENT_TYPES.register(
-            "thrown_tick", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
     public static final Supplier<AttachmentType<Integer>> STORMSTRIKE_OWNER = ATTACHMENT_TYPES.register(
             "stormstrike_owner", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).build());
-    public static final Supplier<AttachmentType<Boolean>> STORMSTRIKE_FLAG = ATTACHMENT_TYPES.register(
-            "stormstrike_flag", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).build());
 
     //Misc
     public static final Supplier<AttachmentType<Integer>> RUNE_COLOR = ATTACHMENT_TYPES.register(

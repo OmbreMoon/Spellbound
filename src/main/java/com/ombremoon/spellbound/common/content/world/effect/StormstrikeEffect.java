@@ -48,7 +48,7 @@ public class StormstrikeEffect extends SBEffect {
         Entity entity = livingEntity.level().getEntity(ownerId);
         float damage = 2F;
         if (entity instanceof LivingEntity owner) {
-            var caster = SpellUtil.getSpellCaster(owner);
+            var caster = SpellUtil.getSpellHandler(owner);
             var skills = SpellUtil.getSkills(owner);
             StormstrikeSpell spell = SBSpells.STORMSTRIKE.get().createSpellWithData(owner);
 
@@ -101,7 +101,7 @@ public class StormstrikeEffect extends SBEffect {
         int ownerId = livingEntity.getData(SBData.STORMSTRIKE_OWNER);
         Entity entity = livingEntity.level().getEntity(ownerId);
         if (entity instanceof LivingEntity owner) {
-            var handler = SpellUtil.getSpellCaster(owner);
+            var handler = SpellUtil.getSpellHandler(owner);
             var skills = SpellUtil.getSkills(owner);
             StormstrikeSpell spell = SBSpells.STORMSTRIKE.get().createSpell();
 

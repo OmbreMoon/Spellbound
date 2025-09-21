@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.ombremoon.spellbound.common.content.block.entity.SimpleExtendedBlockEntity;
 import com.ombremoon.spellbound.common.init.SBStats;
 import com.ombremoon.spellbound.networking.PayloadHandler;
+import com.ombremoon.spellbound.util.RenderUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
@@ -87,9 +88,9 @@ public class UnnamedWorkbenchBlock extends AbstractExtendedBlock implements Prev
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (level.isClientSide) {
+            RenderUtil.openWorkbench();
             return InteractionResult.SUCCESS;
         } else {
-            PayloadHandler.openWorkbenchScreen(player);
             player.awardStat(SBStats.INTERACT_WITH_BENCH.get());
             return InteractionResult.CONSUME;
         }

@@ -43,7 +43,7 @@ public abstract class SimpleTrigger<T extends SimpleTrigger.Instance> implements
     }
 
     protected void trigger(ServerPlayer player, Predicate<T> testTrigger) {
-        var handler = SpellUtil.getSpellCaster(player);
+        var handler = SpellUtil.getSpellHandler(player);
         PlayerDivineActions divineActions = handler.getDivineActions();
         var set = this.players.get(divineActions);
         if (set != null && !set.isEmpty()) {

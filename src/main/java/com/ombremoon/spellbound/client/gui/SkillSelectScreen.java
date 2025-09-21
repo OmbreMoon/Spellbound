@@ -7,7 +7,6 @@ import com.ombremoon.spellbound.client.gui.radial.RadialMenuItem;
 import com.ombremoon.spellbound.client.gui.radial.SkillRadialMenuItem;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.api.SpellType;
-import com.ombremoon.spellbound.common.magic.skills.RadialSkill;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -46,7 +45,7 @@ public class SkillSelectScreen extends Screen {
         this.player = Minecraft.getInstance().player;
         this.spellType = spellType;
         this.radialSkills = radialSkills;
-        this.handler = SpellUtil.getSpellCaster(this.player);
+        this.handler = SpellUtil.getSpellHandler(this.player);
         this.items = new ObjectArrayList<>();
         this.radialMenu = new RadialMenu(this, this.items, RADIAL_WIDTH - RADIAL_ITEM_WIDTH, RADIAL_WIDTH, BACKGROUND_COLOR, BACKGROUND_HOVER_COLOR) {
             @Override
@@ -56,15 +55,15 @@ public class SkillSelectScreen extends Screen {
         };
 
         for (int i = 0; i < radialSkills.size(); i++) {
-            skillItems[i] = new SkillRadialMenuItem(radialMenu, this.spellType, (RadialSkill) radialSkills.get(i)) {
+            skillItems[i] = new SkillRadialMenuItem(radialMenu, this.spellType, radialSkills.get(i)) {
                 @Override
                 public boolean onClick() {
-                    int flag = this.getSkill().getSkillFlag();
-                    if (handler.getFlag(spellType) == flag)
+                    Skill choice = this.getSkill();
+                    if (handler.getChoice(spellType) == choice)
                         return false;
 
-                    handler.setFlag(spellType, flag);
-                    PayloadHandler.updateFlag(spellType, flag);
+                    handler.setChoice(spellType, choice);
+                    PayloadHandler.updateChoice(spellType, choice);
                     radialMenu.close();
 
                     return true;

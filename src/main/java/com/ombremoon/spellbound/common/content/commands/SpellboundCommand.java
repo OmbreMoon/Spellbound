@@ -36,7 +36,7 @@ public class SpellboundCommand {
 
     private int grantSkillPoint(CommandSourceStack context, Holder.Reference<SpellType<?>> spell, int points) {
         if (!context.isPlayer()) return 0;
-        SpellHandler handler = SpellUtil.getSpellCaster(context.getPlayer());
+        SpellHandler handler = SpellUtil.getSpellHandler(context.getPlayer());
         SkillHolder skillHolder = SpellUtil.getSkills(context.getPlayer());
 
         SpellType<?> spellType = SBSpells.REGISTRY.get(spell.key());
@@ -56,14 +56,14 @@ public class SpellboundCommand {
 
     private int addMana(CommandSourceStack context, int mana) {
         if (!context.isPlayer()) return 0;
-        SpellHandler handler = SpellUtil.getSpellCaster(context.getPlayer());
+        SpellHandler handler = SpellUtil.getSpellHandler(context.getPlayer());
         handler.awardMana(mana);
         return 1;
     }
 
     private int setMaxMana(CommandSourceStack context, int mana) {
         if (!context.isPlayer()) return 0;
-        SpellHandler handler = SpellUtil.getSpellCaster(context.getPlayer());
+        SpellHandler handler = SpellUtil.getSpellHandler(context.getPlayer());
         handler.awardMana(mana);
         return 0;
     }

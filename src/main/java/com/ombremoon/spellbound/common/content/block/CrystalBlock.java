@@ -45,9 +45,9 @@ public class CrystalBlock extends Block {
     }
 
     public enum CrystalType implements StringRepresentable {
-        SMOLDERING("smoldering", SBBlocks.GREEN_SPORE_BLOCK, SBBlocks.GREEN_SPORE_BLOCK, SBBlocks.GREEN_SPORE_BLOCK, SBBlocks.GREEN_SPORE_BLOCK, SoundEvents.AMETHYST_BLOCK_HIT, SoundEvents.AMETHYST_BLOCK_CHIME),
+        SMOLDERING("smoldering", SBBlocks.SMALL_SMOLDERING_CRYSTAL_BUD, SBBlocks.MEDIUM_SMOLDERING_CRYSTAL_BUD, SBBlocks.LARGE_SMOLDERING_CRYSTAL_BUD, SBBlocks.SMOLDERING_CRYSTAL_CLUSTER, SoundEvents.AMETHYST_BLOCK_HIT, SoundEvents.AMETHYST_BLOCK_CHIME),
         FROZEN("frozen", SBBlocks.SMALL_FROZEN_CRYSTAL_BUD, SBBlocks.MEDIUM_FROZEN_CRYSTAL_BUD, SBBlocks.LARGE_FROZEN_CRYSTAL_BUD, SBBlocks.FROZEN_CRYSTAL_CLUSTER, SoundEvents.AMETHYST_BLOCK_HIT, SoundEvents.AMETHYST_BLOCK_CHIME),
-        STORM("storm", SBBlocks.GREEN_SPORE_BLOCK, SBBlocks.GREEN_SPORE_BLOCK, SBBlocks.GREEN_SPORE_BLOCK, SBBlocks.GREEN_SPORE_BLOCK, SoundEvents.AMETHYST_BLOCK_HIT, SoundEvents.AMETHYST_BLOCK_CHIME);
+        STORM("storm", SBBlocks.SMALL_STORM_CRYSTAL_BUD, SBBlocks.MEDIUM_STORM_CRYSTAL_BUD, SBBlocks.LARGE_STORM_CRYSTAL_BUD, SBBlocks.STORM_CRYSTAL_CLUSTER, SoundEvents.AMETHYST_BLOCK_HIT, SoundEvents.AMETHYST_BLOCK_CHIME);
 
         public static final StringRepresentable.EnumCodec<CrystalType> CODEC = StringRepresentable.fromEnum(CrystalType::values);
         private final String name;

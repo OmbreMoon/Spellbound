@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.init;
 
+import com.ombremoon.spellbound.common.content.world.worldgen.WildMushroomFeatureConfiguration;
 import com.ombremoon.spellbound.main.CommonClass;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -7,6 +8,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.HugeMushroomBlock;
 import net.minecraft.world.level.levelgen.GeodeBlockSettings;
 import net.minecraft.world.level.levelgen.GeodeCrackSettings;
 import net.minecraft.world.level.levelgen.GeodeLayerSettings;
@@ -22,6 +24,7 @@ public interface SBConfiguredFeatures {
     ResourceKey<ConfiguredFeature<?, ?>> FIRE_GEODE = register("fire_geode");
     ResourceKey<ConfiguredFeature<?, ?>> ICE_GEODE = register("ice_geode");
     ResourceKey<ConfiguredFeature<?, ?>> SHOCK_GEODE = register("shock_geode");
+    ResourceKey<ConfiguredFeature<?, ?>> HUGE_WILD_MUSHROOM = register("huge_wild_mushroom");
 
     private static ResourceKey<ConfiguredFeature<?, ?>> register(String name) {
         return ResourceKey.create(Registries.CONFIGURED_FEATURE, CommonClass.customLocation(name));
@@ -135,6 +138,22 @@ public interface SBConfiguredFeatures {
                         0.05,
                         1
 
+                )
+        );
+        register(
+                context,
+                HUGE_WILD_MUSHROOM,
+                SBFeatures.HUGE_WILD_MUSHROOM.get(),
+                new WildMushroomFeatureConfiguration(
+                        BlockStateProvider.simple(SBBlocks.PURPLE_SPORE_BLOCK.get().defaultBlockState().setValue(HugeMushroomBlock.DOWN, false)),
+                        BlockStateProvider.simple(SBBlocks.GREEN_SPORE_BLOCK.get().defaultBlockState().setValue(HugeMushroomBlock.DOWN, false)),
+                        BlockStateProvider.simple(
+                                Blocks.MUSHROOM_STEM
+                                        .defaultBlockState()
+                                        .setValue(HugeMushroomBlock.UP, false)
+                                        .setValue(HugeMushroomBlock.DOWN, false)
+                        ),
+                        2
                 )
         );
     }

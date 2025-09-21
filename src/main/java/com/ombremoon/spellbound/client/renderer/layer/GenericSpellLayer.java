@@ -21,7 +21,7 @@ public class GenericSpellLayer<T extends LivingEntity, M extends HumanoidModel<T
 
     @Override
     public void render(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, T livingEntity, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
-        var handler = SpellUtil.getSpellCaster(livingEntity);
+        var handler = SpellUtil.getSpellHandler(livingEntity);
         for (AbstractSpell spell : handler.getActiveSpells()) {
             if (spell.hasLayer())
                 renderSpellLayer(poseStack, bufferSource, livingEntity, spell, packedLight, limbSwing, limbSwingAmount, partialTick, ageInTicks, netHeadYaw, headPitch);

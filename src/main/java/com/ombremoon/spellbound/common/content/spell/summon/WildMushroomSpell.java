@@ -1,5 +1,7 @@
 package com.ombremoon.spellbound.common.content.spell.summon;
 
+import com.lowdragmc.photon.client.fx.BlockEffectExecutor;
+import com.ombremoon.spellbound.client.particle.EffectBuilder;
 import com.ombremoon.spellbound.common.content.entity.living.MiniMushroom;
 import com.ombremoon.spellbound.common.content.entity.spell.WildMushroom;
 import com.ombremoon.spellbound.common.init.*;
@@ -97,22 +99,21 @@ public class WildMushroomSpell extends SummonSpell {
     protected void onSpellTick(SpellContext context) {
         super.onSpellTick(context);
         Level level = context.getLevel();
-        if (!level.isClientSide) {
-            LivingEntity caster = context.getCaster();
-            var handler = context.getSpellHandler();
-            var skills = context.getSkills();
-            WildMushroom mushroom = this.getMushroom(context);
-            if (mushroom != null) {
-                int interval = skills.hasSkill(SBSkills.HASTENED_GROWTH) ? 40 : 60;
+        LivingEntity caster = context.getCaster();
+        var handler = context.getSpellHandler();
+        WildMushroom mushroom = this.getMushroom(context);
+        if (mushroom != null) {
+            int interval = context.hasSkill(SBSkills.HASTENED_GROWTH) ? 40 : 60;
+            if (!level.isClientSide) {
                 if (this.tickCount % interval == 0) {
                     float damage = this.getBaseDamage();
-                    if (skills.hasSkill(SBSkills.NATURES_DOMINANCE))
+                    if (context.hasSkill(SBSkills.NATURES_DOMINANCE))
                         damage *= (float) (1.0 + 0.1F * context.getActiveSpells());
 
-                    List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, mushroom.getBoundingBox().inflate(skills.hasSkill(SBSkills.VILE_INFLUENCE) ? 5 : 3));
+                    List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, mushroom.getBoundingBox().inflate(context.hasSkill(SBSkills.VILE_INFLUENCE) ? 5 : 3));
                     for (LivingEntity entity : entities) {
                         if (!this.isCaster(entity) && this.hurt(entity, damage)) {
-                            if (skills.hasSkill(SBSkills.ENVENOM))
+                            if (context.hasSkill(SBSkills.ENVENOM))
                                 this.addSkillBuff(
                                         entity,
                                         SBSkills.ENVENOM,
@@ -122,12 +123,12 @@ public class WildMushroomSpell extends SummonSpell {
                                         80
                                 );
 
-                            if (skills.hasSkill(SBSkills.PARASITIC_FUNGUS) && !entity.hasEffect(SBEffects.TAUNT)) {
+                            if (context.hasSkill(SBSkills.PARASITIC_FUNGUS) && !entity.hasEffect(SBEffects.TAUNT)) {
                                 handler.applyTauntEffect(entity, mushroom.position(), 60);
                             }
 
                             if (entity.isDeadOrDying()) {
-                                if (skills.hasSkill(SBSkills.POISON_ESSENCE))
+                                if (context.hasSkill(SBSkills.POISON_ESSENCE))
                                     this.addSkillBuff(
                                             caster,
                                             SBSkills.POISON_ESSENCE,
@@ -137,7 +138,7 @@ public class WildMushroomSpell extends SummonSpell {
                                             200
                                     );
 
-                                if (skills.hasSkill(SBSkills.SYNTHESIS))
+                                if (context.hasSkill(SBSkills.SYNTHESIS))
                                     this.addSkillBuff(
                                             caster,
                                             SBSkills.POISON_ESSENCE,
@@ -152,7 +153,14 @@ public class WildMushroomSpell extends SummonSpell {
                 }
 
                 if (level.random.nextFloat() < 0.15F && EventHooks.canEntityGrief(level, mushroom))
-                    this.spreadSpores(level, caster, mushroom.blockPosition(), skills.hasSkill(SBSkills.VILE_INFLUENCE) ? 6 : 4);
+                    this.spreadSpores(level, caster, mushroom.blockPosition(), context.hasSkill(SBSkills.VILE_INFLUENCE) ? 6 : 4);
+            } else {
+                if (this.tickCount % (interval - 2) == 0) {
+                    this.addFX(
+                            EffectBuilder.Block.of(CommonClass.customLocation("mushroom_explosion"), BlockPos.containing(mushroom.getX(), mushroom.getY(), mushroom.getZ()))
+                                    .setOffset(0, 0.08, 0)
+                    );
+                }
             }
         }
     }

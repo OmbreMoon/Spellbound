@@ -1,7 +1,6 @@
 package com.ombremoon.spellbound.client.event;
 
 import com.ombremoon.spellbound.client.AnimationHelper;
-import com.ombremoon.spellbound.client.gui.WorkbenchScreen;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.main.Constants;
@@ -12,14 +11,11 @@ import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
@@ -38,7 +34,7 @@ public class SpellCastEvents {
                 return;
             }
 
-            var handler = SpellUtil.getSpellCaster(player);
+            var handler = SpellUtil.getSpellHandler(player);
             var spellType = handler.getSelectedSpell();
 
             if (spellType == null) return;
@@ -57,7 +53,7 @@ public class SpellCastEvents {
         if (!(entity instanceof Player player)) return;
 
         AnimationHelper.tick();
-        var handler = SpellUtil.getSpellCaster(player);
+        var handler = SpellUtil.getSpellHandler(player);
 
         if (!isAbleToSpellCast()) return;
         if (!handler.inCastMode()) return;

@@ -7,7 +7,6 @@ import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
-import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -73,7 +72,7 @@ public abstract class SmartSpellEntity<T extends AbstractSpell> extends SBLiving
     public void tick() {
         super.tick();
         if (this.getOwner() instanceof LivingEntity livingEntity && this.tickCount < 5 && (this.handler == null || this.skills == null)) {
-            this.handler = SpellUtil.getSpellCaster(livingEntity);
+            this.handler = SpellUtil.getSpellHandler(livingEntity);
             this.skills = SpellUtil.getSkills(livingEntity);
         }
 

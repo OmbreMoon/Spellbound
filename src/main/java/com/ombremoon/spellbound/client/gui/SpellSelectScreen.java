@@ -6,10 +6,9 @@ import com.ombremoon.spellbound.client.gui.radial.RadialMenu;
 import com.ombremoon.spellbound.client.gui.radial.RadialMenuItem;
 import com.ombremoon.spellbound.client.gui.radial.SpellRadialMenuItem;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
-import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.RadialSpell;
-import com.ombremoon.spellbound.common.magic.skills.RadialSkill;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -43,7 +42,7 @@ public class SpellSelectScreen extends Screen {
     public SpellSelectScreen() {
         super(Component.literal("TEMP RADIAL SELECTION"));
         this.player = Minecraft.getInstance().player;
-        this.handler = SpellUtil.getSpellCaster(this.player);
+        this.handler = SpellUtil.getSpellHandler(this.player);
         this.items = new ObjectArrayList<>();
         this.radialMenu = new RadialMenu(this, this.items, RADIAL_WIDTH - RADIAL_ITEM_WIDTH, RADIAL_WIDTH, BACKGROUND_COLOR, BACKGROUND_HOVER_COLOR) {
             @Override
@@ -56,7 +55,7 @@ public class SpellSelectScreen extends Screen {
             spellItems[i] = new SpellRadialMenuItem(radialMenu, handler.getEquippedSpells().stream().toList().get(i)) {
                 @Override
                 public boolean onClick() {
-                    if (handler.getSelectedSpell() == this.getSpellType() && !(this.getSpellType().getRootSkill() instanceof RadialSkill))
+                    if (handler.getSelectedSpell() == this.getSpellType() && !(this.getSpellType().getRootSkill().isRadial()))
                         return false;
 
                     SpellType<?> spellType = this.getSpellType();
@@ -64,7 +63,7 @@ public class SpellSelectScreen extends Screen {
                     handler.setSelectedSpell(spellType);
                     PayloadHandler.setSpell(spellType);
                     radialMenu.close();
-                    var radialSkills = spellType.getSkills().stream().filter(skill -> skill instanceof RadialSkill && handler.getSkillHolder().hasSkill(skill)).toList();
+                    var radialSkills = spellType.getSkills().stream().filter(skill -> skill.isRadial() && handler.getSkillHolder().hasSkill(skill)).toList();
                     if (spell instanceof RadialSpell && radialSkills.size() > 1)
                         Minecraft.getInstance().setScreen(new SkillSelectScreen(spellType, radialSkills));
 

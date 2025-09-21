@@ -4,7 +4,6 @@ import com.ombremoon.sentinellib.api.box.AABBSentinelBox;
 import com.ombremoon.sentinellib.api.box.OBBSentinelBox;
 import com.ombremoon.sentinellib.api.box.SentinelBox;
 import com.ombremoon.sentinellib.common.ISentinel;
-import com.ombremoon.spellbound.client.AnimationHelper;
 import com.ombremoon.spellbound.common.content.entity.spell.SolarRay;
 import com.ombremoon.spellbound.common.content.world.effect.SBEffectInstance;
 import com.ombremoon.spellbound.common.init.*;
@@ -24,7 +23,6 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -57,7 +55,7 @@ public class SolarRaySpell extends ChanneledSpell {
     private static final List<SentinelBox> BOXES = new ObjectArrayList<>();
     protected static final BiConsumer<Entity, LivingEntity> SOLAR_RAY_HURT = (entity, livingEntity) -> {
         if (entity instanceof LivingEntity caster) {
-            var handler = SpellUtil.getSpellCaster(caster);
+            var handler = SpellUtil.getSpellHandler(caster);
             SolarRaySpell spell = handler.getSpell(SBSpells.SOLAR_RAY.get());
             if (spell != null)
                 spell.hurt(livingEntity, spell.getBaseDamage());
@@ -154,20 +152,19 @@ public class SolarRaySpell extends ChanneledSpell {
     protected void onSpellStart(SpellContext context) {
         super.onSpellStart(context);
         LivingEntity caster = context.getCaster();
-        var skills = context.getSkills();
         if (!context.getLevel().isClientSide) {
             var boxOwner = (ISentinel) caster;
-            boolean hasSunshine = skills.hasSkill(SBSkills.SUNSHINE);
+            boolean hasSunshine = context.hasSkill(SBSkills.SUNSHINE);
             SentinelBox rayBox = hasSunshine ? SOLAR_RAY_EXTENDED : SOLAR_RAY;
             SentinelBox burstBox = hasSunshine ? SOLAR_BURST_END_EXTENDED : SOLAR_BURST_END;
             boxOwner.triggerSentinelBox(rayBox);
 
-            if (skills.hasSkill(SBSkills.SOLAR_BURST)) {
+            if (context.hasSkill(SBSkills.SOLAR_BURST)) {
                 boxOwner.triggerSentinelBox(SOLAR_BURST_FRONT);
                 boxOwner.triggerSentinelBox(burstBox);
             }
             
-            if (skills.hasSkill(SBSkills.OVERPOWER)) {
+            if (context.hasSkill(SBSkills.OVERPOWER)) {
                 this.addSkillBuff(
                         caster,
                         SBSkills.OVERPOWER,
@@ -191,11 +188,10 @@ public class SolarRaySpell extends ChanneledSpell {
         super.onSpellTick(context);
         LivingEntity caster = context.getCaster();
         var handler = context.getSpellHandler();
-        var skills = context.getSkills();
-        if (skills.hasSkill(SBSkills.OVERHEAT) && this.tickCount == 100)
+        if (context.hasSkill(SBSkills.OVERHEAT) && this.tickCount == 100)
             ((ISentinel)caster).triggerSentinelBox(OVERHEAT);
 
-        boolean overPower = skills.hasSkill(SBSkills.OVERPOWER);
+        boolean overPower = context.hasSkill(SBSkills.OVERPOWER);
         if (!overPower)
             handler.setStationaryTicks(1);
 
@@ -245,7 +241,7 @@ public class SolarRaySpell extends ChanneledSpell {
                 .onCollisionTick((entity, livingEntity) -> {
                     if (entity instanceof LivingEntity caster) {
                         var skills = SpellUtil.getSkills(caster);
-                        var handler = SpellUtil.getSpellCaster(caster);
+                        var handler = SpellUtil.getSpellHandler(caster);
                         SolarRaySpell spell = handler.getSpell(SBSpells.SOLAR_RAY.get());
                         if (spell != null) {
                             boolean isAllied = SpellUtil.IS_ALLIED.test(caster, livingEntity);
@@ -332,7 +328,7 @@ public class SolarRaySpell extends ChanneledSpell {
                     Level level = entity.level();
                     if (!(entity instanceof LivingEntity livingEntity)) return;
 
-                    var handler = SpellUtil.getSpellCaster(livingEntity);
+                    var handler = SpellUtil.getSpellHandler(livingEntity);
                     var skills = SpellUtil.getSkills(livingEntity);
                     if (!level.isClientSide) {
                         if (skills.hasSkill(SBSkills.SOLAR_BORE)) {
@@ -342,7 +338,7 @@ public class SolarRaySpell extends ChanneledSpell {
                         }
 
                         SolarRaySpell spell = handler.getSpell(SBSpells.SOLAR_RAY.get());
-                        if (spell != null) {
+                        if (spell != null && spell.getContext() != null) {
                             SolarRay solarRay = spell.getSolarRay(spell.getContext());
                             String extended = skills.hasSkill(SBSkills.SUNSHINE) ? "_extended" : "";
                             if (solarRay != null && instance.tickCount % 60 == 0)

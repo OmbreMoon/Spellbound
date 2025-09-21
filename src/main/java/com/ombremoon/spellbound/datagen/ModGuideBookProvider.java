@@ -1,14 +1,10 @@
 package com.ombremoon.spellbound.datagen;
 
 import com.ombremoon.spellbound.common.magic.acquisition.guides.GuideBookPage;
-import com.ombremoon.spellbound.common.magic.acquisition.guides.elements.ElementPosition;
-import com.ombremoon.spellbound.common.magic.acquisition.guides.elements.GuideText;
 import com.ombremoon.spellbound.datagen.provider.GuideBookProvider;
-import com.ombremoon.spellbound.main.CommonClass;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 

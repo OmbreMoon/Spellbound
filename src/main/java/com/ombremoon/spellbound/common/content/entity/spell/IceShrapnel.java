@@ -1,6 +1,5 @@
 package com.ombremoon.spellbound.common.content.entity.spell;
 
-import com.ombremoon.spellbound.common.content.entity.SpellEntity;
 import com.ombremoon.spellbound.common.content.entity.SpellProjectile;
 import com.ombremoon.spellbound.common.content.spell.ruin.ice.ShatteringCrystalSpell;
 import net.minecraft.network.syncher.EntityDataAccessor;

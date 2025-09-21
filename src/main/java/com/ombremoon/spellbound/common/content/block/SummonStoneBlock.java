@@ -7,18 +7,15 @@ import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.block.entity.SummonBlockEntity;
 import com.ombremoon.spellbound.common.init.SBBlocks;
 import com.ombremoon.spellbound.common.magic.acquisition.ArenaSavedData;
-import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -101,7 +98,7 @@ public class SummonStoneBlock extends Block {
             if (this.hasSpell() && canTeleportInDimension) {
                 BlockPattern.BlockPatternMatch blockPatternMatch = getOrCreatePortalShape().find(level, pos);
                 if (blockPatternMatch != null) {
-                    var handler = SpellUtil.getSpellCaster(player);
+                    var handler = SpellUtil.getSpellHandler(player);
                     int arenaId = 0;
                     if (!level.isClientSide) {
                         ArenaSavedData data = ArenaSavedData.get((ServerLevel) level);

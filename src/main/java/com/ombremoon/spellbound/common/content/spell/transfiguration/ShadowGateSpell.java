@@ -38,9 +38,8 @@ public class ShadowGateSpell extends AnimatedSpell implements RadialSpell {
                 .manaCost(25)
                 .duration(1200)
                 .castCondition((context, spell) -> {
-                    var skills = context.getSkills();
                     int activePortals = spell.portalMap.size();
-                    boolean hasReach = skills.hasSkill(SBSkills.REACH);
+                    boolean hasReach = context.hasSkill(SBSkills.REACH);
                     BlockPos blockPos = spell.getSpawnPos(hasReach ? 100 : 50);
                     if (blockPos == null) return false;
 
@@ -52,7 +51,7 @@ public class ShadowGateSpell extends AnimatedSpell implements RadialSpell {
                         if (distance > portalRange) return false;
                     }
 
-                    if (skills.hasSkill(SBSkills.DARKNESS_PREVAILS)) return true;
+                    if (context.hasSkill(SBSkills.DARKNESS_PREVAILS)) return true;
                     int i = context.getLevel().getRawBrightness(blockPos, 0) + context.getLevel().getBrightness(LightLayer.BLOCK, blockPos) - context.getLevel().getSkyDarken();
                     return i <= 4;
                 })
@@ -71,12 +70,11 @@ public class ShadowGateSpell extends AnimatedSpell implements RadialSpell {
     @Override
     protected void onSpellStart(SpellContext context) {
         Level level = context.getLevel();
-        var skills = context.getSkills();
         if (!level.isClientSide) {
             boolean hasReach = context.getSkills().hasSkill(SBSkills.REACH);
             this.summonEntity(context, SBEntities.SHADOW_GATE.get(), hasReach ? 100 : 50, shadowGate -> {
-                int maxPortals = skills.hasSkill(SBSkills.DUAL_DESTINATION) ? 3 : 2;
-                if (context.getFlag() == 1)
+                int maxPortals = context.hasSkill(SBSkills.DUAL_DESTINATION) ? 3 : 2;
+                if (context.isChoice(SBSkills.GRAVITY_SHIFT))
                     shadowGate.shift();
 
                 this.portalMap.createOrShiftPortal(shadowGate, maxPortals, 20);
@@ -90,7 +88,6 @@ public class ShadowGateSpell extends AnimatedSpell implements RadialSpell {
         LivingEntity caster = context.getCaster();
         Level level = context.getLevel();
         if (!level.isClientSide()) {
-            var skills = context.getSkills();
             if (!this.portalMap.isEmpty()) {
                 for (var entry : this.portalMap.entrySet()) {
                     ShadowGate shadowGate = (ShadowGate) level.getEntity(entry.getKey());
@@ -98,7 +95,7 @@ public class ShadowGateSpell extends AnimatedSpell implements RadialSpell {
                         List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, shadowGate.getBoundingBox());
                         List<LivingEntity> teleportList = new ObjectArrayList<>();
                         for (LivingEntity entity : entities) {
-                            if (skills.hasSkill(SBSkills.OPEN_INVITATION)) {
+                            if (context.hasSkill(SBSkills.OPEN_INVITATION)) {
                                 teleportList.add(entity);
                             } else if (isCaster(entity)) {
                                 teleportList.add(entity);
@@ -107,7 +104,7 @@ public class ShadowGateSpell extends AnimatedSpell implements RadialSpell {
 
                         for (LivingEntity entity : teleportList) {
                             if (this.portalMap.attemptTeleport(entity, shadowGate)) {
-                                if (skills.hasSkill(SBSkills.BLINK) && isCaster(entity))
+                                if (context.hasSkill(SBSkills.BLINK) && isCaster(entity))
                                     addSkillBuff(
                                             caster,
                                             SBSkills.BLINK,
@@ -116,15 +113,15 @@ public class ShadowGateSpell extends AnimatedSpell implements RadialSpell {
                                             new ModifierData(Attributes.MOVEMENT_SPEED, new AttributeModifier(CommonClass.customLocation("blink"), 0.25F, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
                                             100);
 
-                                if (skills.hasSkillReady(SBSkills.QUICK_RECHARGE)) {
+                                if (context.hasSkillReady(SBSkills.QUICK_RECHARGE)) {
                                     context.getSpellHandler().awardMana(10);
                                     addCooldown(SBSkills.QUICK_RECHARGE, 200);
                                 }
 
-                                if (skills.hasSkill(SBSkills.SHADOW_ESCAPE) && isCaster(entity) && caster.getHealth() < caster.getMaxHealth() * 0.5F && !caster.hasEffect(MobEffects.INVISIBILITY))
+                                if (context.hasSkill(SBSkills.SHADOW_ESCAPE) && isCaster(entity) && caster.getHealth() < caster.getMaxHealth() * 0.5F && !caster.hasEffect(MobEffects.INVISIBILITY))
                                     caster.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 100, 0, false, false, true));
 
-                                if (!isCaster(entity) && skills.hasSkill(SBSkills.UNWANTED_GUESTS) && !entity.isAlliedTo(context.getCaster())) {
+                                if (!isCaster(entity) && context.hasSkill(SBSkills.UNWANTED_GUESTS) && !entity.isAlliedTo(context.getCaster())) {
                                     addEventBuff(
                                             entity,
                                             SBSkills.UNWANTED_GUESTS,
@@ -142,9 +139,9 @@ public class ShadowGateSpell extends AnimatedSpell implements RadialSpell {
                                             200);
                                 }
 
-                                if (skills.hasSkill(SBSkills.BAIT_AND_SWITCH) && !entity.isAlliedTo(caster)) {
+                                if (context.hasSkill(SBSkills.BAIT_AND_SWITCH) && !entity.isAlliedTo(caster)) {
                                     this.hurt(entity, 5);
-                                    SpellUtil.getSpellCaster(entity).consumeMana(5);
+                                    SpellUtil.getSpellHandler(entity).consumeMana(5);
                                 }
 
                                 ShadowGate adjacentGate = this.portalMap.getAdjacentPortal(shadowGate, level);

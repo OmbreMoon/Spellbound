@@ -35,7 +35,7 @@ public class LearnSkillsCommand {
     private int learnSingleSkill(CommandSourceStack context, Holder.Reference<Skill> skill) {
         if (!context.isPlayer()) return 0;
 
-        if (!SpellUtil.getSpellCaster(context.getPlayer()).getSpellList().contains(skill.value().getSpell())) {
+        if (!SpellUtil.getSpellHandler(context.getPlayer()).getSpellList().contains(skill.value().getSpell())) {
             context.getPlayer().sendSystemMessage(Component.translatable("command.spellbound.spellunknown",
                     skill.value().getSpell().createSpell().getName()));
             return 0;
@@ -52,7 +52,7 @@ public class LearnSkillsCommand {
 
     private int learnSpells(CommandSourceStack context, Holder.Reference<SpellType<?>> spell) {
         if (!context.isPlayer()) return 0;
-        SpellHandler handler = SpellUtil.getSpellCaster(context.getPlayer());
+        SpellHandler handler = SpellUtil.getSpellHandler(context.getPlayer());
         SkillHolder skillHolder = SpellUtil.getSkills(context.getPlayer());
 
         SpellType<?> spellType = SBSpells.REGISTRY.get(spell.key());
@@ -75,7 +75,7 @@ public class LearnSkillsCommand {
 
     private int resetSpells(CommandSourceStack context, Holder.Reference<SpellType<?>> spell) {
         if (!context.isPlayer()) return 0;
-        SpellHandler handler = SpellUtil.getSpellCaster(context.getPlayer());
+        SpellHandler handler = SpellUtil.getSpellHandler(context.getPlayer());
         SkillHolder skillHolder = SpellUtil.getSkills(context.getPlayer());
 
         SpellType<?> spellType = SBSpells.REGISTRY.get(spell.key());

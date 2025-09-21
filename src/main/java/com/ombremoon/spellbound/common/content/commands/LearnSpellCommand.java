@@ -27,7 +27,7 @@ public class LearnSpellCommand {
 
     private int learnSpell(CommandSourceStack context, Holder.Reference<SpellType<?>> spellType) {
         if (!context.isPlayer()) return 0;
-        SpellHandler handler = SpellUtil.getSpellCaster(context.getPlayer());
+        SpellHandler handler = SpellUtil.getSpellHandler(context.getPlayer());
 
         if (handler.getSpellList().contains(spellType.value())) {
             context.getPlayer().sendSystemMessage(Component.translatable("command.spellbound.alreadyknown",
@@ -45,7 +45,7 @@ public class LearnSpellCommand {
 
     private int forgetSpell(CommandSourceStack context, Holder.Reference<SpellType<?>> spellType) {
         if (!context.isPlayer()) return 0;
-        SpellHandler handler = SpellUtil.getSpellCaster(context.getPlayer());
+        SpellHandler handler = SpellUtil.getSpellHandler(context.getPlayer());
 
         if (!handler.getSpellList().contains(spellType.value())) {
             context.getPlayer().sendSystemMessage(Component.translatable("command.spellbound.spellunknown",

@@ -236,9 +236,17 @@ public class ShatteringCrystalSpell extends AnimatedSpell {
                             (float) Math.toDegrees(RandomUtil.randomValueUpTo(Mth.TWO_PI)),
                             1.25F,
                             1.0F,
-                            iceShrapnel -> {
-                                iceShrapnel.setSize(RandomUtil.randomNumberBetween(0, 2));
-                            }
+                            iceShrapnel -> iceShrapnel.setSize(RandomUtil.randomNumberBetween(0, 2))
+                    );
+                    this.shootProjectile(
+                            context,
+                            SBEntities.ICE_SHRAPNEL.get(),
+                            crystal.position().add(0, 1.5F, 0),
+                            0.0F,
+                            (float) Math.toDegrees(i * Mth.TWO_PI / shards),
+                            1.25F,
+                            1.0F,
+                            iceShrapnel -> iceShrapnel.setSize(RandomUtil.randomNumberBetween(0, 2))
                     );
                 }
             }

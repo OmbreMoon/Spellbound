@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.content.entity;
 
+import com.ombremoon.spellbound.client.particle.EffectCache;
 import com.ombremoon.spellbound.util.Loggable;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -16,18 +17,17 @@ import net.minecraft.world.level.Level;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
 import net.tslat.smartbrainlib.api.core.navigation.SmoothGroundNavigation;
-import net.tslat.smartbrainlib.util.BrainUtils;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public abstract class SBLivingEntity extends PathfinderMob implements SmartBrainOwner<SBLivingEntity>, GeoEntity, Loggable {
+public abstract class SBLivingEntity extends PathfinderMob implements SmartBrainOwner<SBLivingEntity>, GeoEntity, FXEmitter, Loggable {
     protected static final String CONTROLLER = "controller";
     private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(SBLivingEntity.class, EntityDataSerializers.INT);
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private final EffectCache effectCache = new EffectCache();
 
     protected SBLivingEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
@@ -36,6 +36,13 @@ public abstract class SBLivingEntity extends PathfinderMob implements SmartBrain
     @Override
     protected Brain.Provider<?> brainProvider() {
         return new SmartBrainProvider<>(this);
+    }
+
+    @Override
+    public void aiStep() {
+        super.aiStep();
+        if (this.level().isClientSide)
+            this.handleFXRemoval();
     }
 
     @Override
@@ -96,6 +103,11 @@ public abstract class SBLivingEntity extends PathfinderMob implements SmartBrain
 
     }
 
+    @Override
+    public void onClientRemoval() {
+        this.handleFXRemoval();
+    }
+
     public EntityType<?> entityType() {
         return this.getType();
     }
@@ -103,5 +115,10 @@ public abstract class SBLivingEntity extends PathfinderMob implements SmartBrain
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return this.cache;
+    }
+
+    @Override
+    public EffectCache getFXCache() {
+        return this.effectCache;
     }
 }

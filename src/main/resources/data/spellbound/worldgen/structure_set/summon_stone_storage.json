@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "spellbound:summon_stone_storage",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 30,
+    "separation": 2,
+    "salt": 620675829
+  }
+}

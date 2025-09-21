@@ -54,7 +54,7 @@ public abstract class PlayerModelMixin<T extends LivingEntity> extends HumanoidM
             Vec3 playerPos = new Vec3(xPos, yPos, zPos);
             float yaw = player.yBodyRot;
             Vec3 rotatedOffset = new Vec3(localOffset.x, -localOffset.y, localOffset.z).yRot((float) -Math.toRadians(yaw));
-            SpellUtil.getSpellCaster(player).handPos = playerPos.add(0, player.getEyeHeight(), 0).add(rotatedOffset);
+            SpellUtil.getSpellHandler(player).handPos = playerPos.add(0, player.getEyeHeight(), 0).add(rotatedOffset);
         }
     }
 

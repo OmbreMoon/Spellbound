@@ -71,7 +71,7 @@ public class WorkbenchScreen extends Screen {
         this.topPos = (this.height - HEIGHT) / 2;
         this.player = this.minecraft.player;
         this.upgradeTree = this.player.getData(SBData.UPGRADE_TREE);
-        this.spellHandler = SpellUtil.getSpellCaster(this.player);
+        this.spellHandler = SpellUtil.getSpellHandler(this.player);
         this.skillHolder = SpellUtil.getSkills(this.player);
         this.spellList = this.spellHandler.getSpellList().stream().filter(spellType -> spellType.getPath().ordinal() == pageIndex).toList();
         this.equippedSpellList = this.spellHandler.getEquippedSpells().stream().toList();

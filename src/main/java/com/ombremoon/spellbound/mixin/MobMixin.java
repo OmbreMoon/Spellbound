@@ -5,11 +5,13 @@ import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.main.Constants;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Mob.class)
@@ -25,6 +27,11 @@ public class MobMixin {
     private void mobInteract(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
         var result = EventFactory.onMobInteractPost(player, self(), hand);
         if (result != null) cir.setReturnValue(result);
+    }
+
+    @Inject(method = "doHurtTarget", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Mob;playAttackSound()V"))
+    private void doHurtTarget(Entity entity, CallbackInfoReturnable<Boolean> cir) {
+
     }
 
     private Mob self() {

@@ -11,7 +11,6 @@ import com.ombremoon.spellbound.client.renderer.blockentity.*;
 import com.ombremoon.spellbound.client.renderer.entity.*;
 import com.ombremoon.spellbound.client.renderer.layer.FrozenLayer;
 import com.ombremoon.spellbound.client.renderer.layer.GenericSpellLayer;
-import com.ombremoon.spellbound.client.renderer.layer.SpellCastLayer;
 import com.ombremoon.spellbound.client.renderer.layer.SpellCastRenderLayer;
 import com.ombremoon.spellbound.client.renderer.types.EmissiveOutlineSpellRenderer;
 import com.ombremoon.spellbound.client.renderer.types.EmissiveSpellProjectileRenderer;
@@ -22,7 +21,6 @@ import com.ombremoon.spellbound.common.content.block.entity.RuneBlockEntity;
 import com.ombremoon.spellbound.common.content.world.hailstorm.ClientHailstormData;
 import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
 import com.ombremoon.spellbound.common.init.*;
-import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.buff.SpellEventListener;
@@ -37,15 +35,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.particle.DustParticle;
 import net.minecraft.client.particle.HeartParticle;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.Level;
@@ -53,7 +48,6 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
-import net.neoforged.neoforge.common.Tags;
 import org.joml.Matrix4f;
 import software.bernie.geckolib.util.Color;
 
@@ -157,7 +151,7 @@ public class ClientEvents {
             Minecraft minecraft = Minecraft.getInstance();
             Player player = minecraft.player;
             if (player != null) {
-                SpellHandler handler = SpellUtil.getSpellCaster(player);
+                SpellHandler handler = SpellUtil.getSpellHandler(player);
                 if (KeyBinds.SWITCH_MODE_BINDING.consumeClick()) {
                     handler.switchMode();
                     player.displayClientMessage(Component.literal("Switched to " + (handler.inCastMode() ? "Cast mode" : "Normal mode")), true);
@@ -190,19 +184,19 @@ public class ClientEvents {
         public static void onMouseInputPre(InputEvent.MouseButton.Pre event) {
             Player player = Minecraft.getInstance().player;
             if (player != null)
-                SpellUtil.getSpellCaster(player).getListener().fireEvent(SpellEventListener.Events.PRE_MOUSE_INPUT, new MouseInputEvent.Pre(player, event));
+                SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.PRE_MOUSE_INPUT, new MouseInputEvent.Pre(player, event));
         }
 
         @SubscribeEvent
         public static void onMouseInputPost(InputEvent.MouseButton.Post event) {
             Player player = Minecraft.getInstance().player;
             if (player != null)
-                SpellUtil.getSpellCaster(player).getListener().fireEvent(SpellEventListener.Events.POST_MOUSE_INPUT, new MouseInputEvent.Post(player, event));
+                SpellUtil.getSpellHandler(player).getListener().fireEvent(SpellEventListener.Events.POST_MOUSE_INPUT, new MouseInputEvent.Post(player, event));
         }
 
         @SubscribeEvent
         public static void onMovementInput(MovementInputUpdateEvent event) {
-            var handler = SpellUtil.getSpellCaster(event.getEntity());
+            var handler = SpellUtil.getSpellHandler(event.getEntity());
             if (handler.isStationary()) {
                 event.getInput().leftImpulse = 0;
                 event.getInput().forwardImpulse = 0;
@@ -254,7 +248,7 @@ public class ClientEvents {
         @SubscribeEvent
         public static void onSpellZoom(ComputeFovModifierEvent event) {
             Player player = event.getPlayer();
-            var handler = SpellUtil.getSpellCaster(player);
+            var handler = SpellUtil.getSpellHandler(player);
             event.setNewFovModifier(handler.getZoom());
         }
     }

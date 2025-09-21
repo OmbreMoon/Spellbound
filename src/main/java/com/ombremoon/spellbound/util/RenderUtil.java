@@ -48,8 +48,8 @@ public class RenderUtil {
         Minecraft.getInstance().setScreen(new WorkbenchScreen(Component.translatable("screen.spellbound.workbench")));
     }
 
-    public static void openBook(ResourceLocation id) {
-        Minecraft.getInstance().setScreen(new GuideBookScreen(Component.translatable("screen.spellbound.guide_book"), id));
+    public static void openBook(ResourceLocation id, ResourceLocation bookTexture) {
+        Minecraft.getInstance().setScreen(new GuideBookScreen(Component.translatable("screen.spellbound.guide_book"), id, bookTexture));
     }
 
 /*    public static Optional<RenderType> getExampleRenderType(RenderType renderType) {

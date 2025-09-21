@@ -2,6 +2,7 @@ package com.ombremoon.spellbound.common.content.entity.living;
 
 import com.mojang.datafixers.util.Pair;
 import com.ombremoon.sentinellib.api.BoxUtil;
+import com.ombremoon.spellbound.client.particle.EffectBuilder;
 import com.ombremoon.spellbound.common.content.entity.SBLivingEntity;
 import com.ombremoon.spellbound.common.content.entity.SmartSpellEntity;
 import com.ombremoon.spellbound.common.content.entity.behavior.sensor.HurtOwnerSensor;
@@ -10,14 +11,17 @@ import com.ombremoon.spellbound.common.content.entity.behavior.target.ExtendedTa
 import com.ombremoon.spellbound.common.content.spell.summon.WildMushroomSpell;
 import com.ombremoon.spellbound.common.init.SBDamageTypes;
 import com.ombremoon.spellbound.common.init.SBSkills;
+import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
@@ -29,6 +33,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
 import net.tslat.smartbrainlib.api.core.behaviour.DelayedBehaviour;
 import net.tslat.smartbrainlib.api.core.behaviour.FirstApplicableBehaviour;
@@ -58,6 +63,9 @@ import java.util.List;
 
 public class MiniMushroom extends SmartSpellEntity<WildMushroomSpell> {
     private static final EntityDataAccessor<Boolean> EXPLODING = SynchedEntityData.defineId(MiniMushroom.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> ENLARGED = SynchedEntityData.defineId(MiniMushroom.class, EntityDataSerializers.BOOLEAN);
+    private int explosionTimer = 24;
+    private boolean isDazed;
 
     public MiniMushroom(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
@@ -74,6 +82,7 @@ public class MiniMushroom extends SmartSpellEntity<WildMushroomSpell> {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(EXPLODING, false);
+        builder.define(ENLARGED, false);
     }
 
     @Override
@@ -83,24 +92,55 @@ public class MiniMushroom extends SmartSpellEntity<WildMushroomSpell> {
             return InteractionResult.PASS;
         } else {
             if (player != this.getOwner()) {
-                return InteractionResult.PASS;
-            }
+                if (!this.isDazed) {
+                    return InteractionResult.PASS;
+                }
 
-            log(this.isExploding());
-            var skills = SpellUtil.getSkills(player);
-            if (!skills.hasSkill(SBSkills.PROLIFERATION)) {
-                return InteractionResult.PASS;
+                this.enlarge();
+                this.setOwner(player);
+                return InteractionResult.SUCCESS;
             } else {
-                if (RandomUtil.percentChance(0.15F)) {
+                var skills = SpellUtil.getSkills(player);
+                if (!skills.hasSkill(SBSkills.PROLIFERATION)) {
+                    return InteractionResult.PASS;
+                } else {
+                    if (RandomUtil.percentChance(0.15F)) {
                     /*WildMushroomSpell spell = this.getSpell();
                     GiantMushroom giantMushroom = spell.summonEntity(spell.getContext(), SBEntities.GIANT_MUSHROOM.get(), this.position());
                     spell.setGiantMushroom(giantMushroom.getId());
                     spell.setRemainingTicks(600);
                     this.discard();*/
-                }
+                    }
 
-                itemStack.consume(1, player);
-                return InteractionResult.sidedSuccess(this.level().isClientSide);
+                    itemStack.consume(1, player);
+                    return InteractionResult.sidedSuccess(this.level().isClientSide);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void die(DamageSource damageSource) {
+        super.die(damageSource);
+        if (this.level().isClientSide) {
+            Vec3 position = this.position();
+            this.addFX(
+                    EffectBuilder.Block.of(CommonClass.customLocation("mushroom_explosion"), BlockPos.containing(position.x, position.y, position.z))
+                            .setOffset(0, 0.08, 0)
+            );
+        }
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (this.level().isClientSide && this.isExploding()) {
+            if (this.explosionTimer-- == 1) {
+                Vec3 position = this.position();
+                this.addFX(
+                    EffectBuilder.Block.of(CommonClass.customLocation("mushroom_explosion"), BlockPos.containing(position.x, position.y, position.z))
+                        .setOffset(0, 0.08, 0)
+                );
             }
         }
     }
@@ -112,10 +152,10 @@ public class MiniMushroom extends SmartSpellEntity<WildMushroomSpell> {
                         .setRadius(10)
                         .setPredicate((player, mushroom) -> !mushroom.isAlliedTo(player)),
                 new HurtOwnerSensor<MiniMushroom>()
-                        .setPredicate((source, miniMushroom) -> !miniMushroom.isAlliedTo(source.getDirectEntity())),
+                        .setPredicate((source, miniMushroom) -> !(source.getDirectEntity() != null && miniMushroom.isAlliedTo(source.getDirectEntity()))),
                 new OwnerAttackSenor<MiniMushroom>(),
                 new HurtBySensor<MiniMushroom>()
-                        .setPredicate((source, miniMushroom) -> !miniMushroom.isAlliedTo(source.getDirectEntity()))
+                        .setPredicate((source, miniMushroom) -> !(source.getDirectEntity() != null && miniMushroom.isAlliedTo(source.getDirectEntity())))
         );
     }
 
@@ -163,6 +203,14 @@ public class MiniMushroom extends SmartSpellEntity<WildMushroomSpell> {
 
     public void setExploding(boolean exploding) {
         this.entityData.set(EXPLODING, exploding);
+    }
+
+    public boolean isEnlarged() {
+        return this.entityData.get(ENLARGED);
+    }
+
+    public void enlarge() {
+        this.entityData.set(EXPLODING, true);
     }
 
     @Override
@@ -237,8 +285,7 @@ public class MiniMushroom extends SmartSpellEntity<WildMushroomSpell> {
                 target.addEffect(new MobEffectInstance(MobEffects.POISON, 60));
             }
 
-            entity.discard();
-
+            entity.die(entity.damageSources().generic());
             if (entity.spell != null)
                 entity.spell.endSpell();
         }

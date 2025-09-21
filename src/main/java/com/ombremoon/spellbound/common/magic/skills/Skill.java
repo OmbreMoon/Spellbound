@@ -95,6 +95,10 @@ public class Skill {
         return true;
     }
 
+    public boolean isRadial() {
+        return false;
+    }
+
     public boolean isRoot() {
         return this.prerequisites == null;
     }

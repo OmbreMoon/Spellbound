@@ -32,7 +32,7 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
                 .duration(10)
                 .manaCost(27)
                 .castCondition((context, purgeMagicSpell) -> {
-                    if (context.getFlag() == 0)
+                    if (context.isChoice(SBSkills.PURGE_MAGIC))
                         return context.getSkills().hasSkill(SBSkills.RADIO_WAVES) || context.getTarget() instanceof LivingEntity;
                     return true;
                 })
@@ -48,9 +48,8 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
         LivingEntity caster = context.getCaster();
         Level level = context.getLevel();
         var skills = context.getSkills();
-        int flag = context.getFlag();
         if (!level.isClientSide) {
-            if (flag == 1) {
+            if (context.isChoice(SBSkills.COUNTER_MAGIC)) {
                 caster.addEffect(new MobEffectInstance(SBEffects.COUNTER_MAGIC, 200, 0, false, false));
                 if (skills.hasSkill(SBSkills.CLEANSE.value()))
                     this.cleanseCaster();
@@ -63,7 +62,7 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
                 }
 
                 for (LivingEntity target : targets) {
-                    var targetHandler = SpellUtil.getSpellCaster(target);
+                    var targetHandler = SpellUtil.getSpellHandler(target);
                     var activeSpells = targetHandler.getActiveSpells();
                     this.cleanse(target, 0, MobEffectCategory.HARMFUL);
                     targetHandler.getBuffs().stream().filter(SkillBuff::isBeneficial).forEach(skillBuff -> removeSkillBuff(target, skillBuff.skill()));
@@ -138,7 +137,6 @@ public class PurgeMagicSpell extends AnimatedSpell implements RadialSpell {
 
     @Override
     protected int getDuration(SpellContext context) {
-        int flag = context.getFlag();
-        return flag == 1 ? 200 : super.getDuration(context);
+        return context.isChoice(SBSkills.COUNTER_MAGIC) ? 200 : super.getDuration(context);
     }
 }

@@ -1,13 +1,13 @@
 package com.ombremoon.spellbound.networking;
 
 import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockHolder;
-import com.ombremoon.spellbound.common.magic.SpellContext;
-import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
-import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.init.SBData;
+import com.ombremoon.spellbound.common.magic.SpellContext;
 import com.ombremoon.spellbound.common.magic.api.SpellType;
+import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.networking.clientbound.*;
 import com.ombremoon.spellbound.networking.serverbound.*;
 import com.ombremoon.spellbound.util.SpellUtil;
@@ -65,8 +65,8 @@ public class PayloadHandler {
         PacketDistributor.sendToServer(new CastResetPayload(spellType, recast));
     }
 
-    public static void updateFlag(SpellType<?> spellType, int flag) {
-        PacketDistributor.sendToServer(new UpdateFlagPayload(spellType, flag));
+    public static void updateChoice(SpellType<?> spellType, Skill skill) {
+        PacketDistributor.sendToServer(new UpdateChoicePayload(spellType, skill));
     }
 
     public static void setChargeOrChannel(boolean isChargingOrChanneling) {
@@ -114,7 +114,7 @@ public class PayloadHandler {
     }
 
     public static void syncSpellsToClient(Player player) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncSpellPayload(SpellUtil.getSpellCaster(player).serializeNBT(player.level().registryAccess())));
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncSpellPayload(SpellUtil.getSpellHandler(player).serializeNBT(player.level().registryAccess())));
     }
 
     public static void syncSkillsToClient(Player player) {
@@ -129,10 +129,6 @@ public class PayloadHandler {
         PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncManaPayload(player.getData(SBData.MANA)));
     }
 
-    public static void openWorkbenchScreen(Player player) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player, new OpenWorkbenchPayload());
-    }
-
     public static void updateTree(Player player, boolean reset, List<Skill> added, Set<ResourceLocation> removed) {
         PacketDistributor.sendToPlayer((ServerPlayer) player, new UpdateTreePayload(reset, added, removed));
     }
@@ -145,12 +141,8 @@ public class PayloadHandler {
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new CreateParticlesPayload(particle, x, y, z, xSpeed, ySpeed, zSpeed));
     }
 
-    public static void addGlowEffect(Player player, int entityId) {
-        PacketDistributor.sendToPlayer((ServerPlayer) player, new AddGlowEffectPayload(entityId));
-    }
-
-    public static void removeGlowEffect(ServerPlayer player, int entityId) {
-        PacketDistributor.sendToPlayer(player, new RemoveGlowEffectPayload(entityId));
+    public static void updateGlowEffect(Player player, int entityId, boolean remove) {
+        PacketDistributor.sendToPlayer((ServerPlayer) player, new UpdateGlowEffectPayload(entityId, remove));
     }
 
     public static void updateDimensions(MinecraftServer server, Set<ResourceKey<Level>> keys, boolean add) {
@@ -227,11 +219,6 @@ public class PayloadHandler {
                 ClientPayloadHandler::handleClientManaSync
         );
         registrar.playToClient(
-                OpenWorkbenchPayload.TYPE,
-                OpenWorkbenchPayload.STREAM_CODEC,
-                ClientPayloadHandler::handleClientOpenWorkbenchScreen
-        );
-        registrar.playToClient(
                 UpdateTreePayload.TYPE,
                 UpdateTreePayload.STREAM_CODEC,
                 ClientPayloadHandler::handleClientUpdateTree
@@ -247,14 +234,9 @@ public class PayloadHandler {
                 ClientPayloadHandler::handleCreateParticles
         );
         registrar.playToClient(
-                RemoveGlowEffectPayload.TYPE,
-                RemoveGlowEffectPayload.STREAM_CODEC,
-                ClientPayloadHandler::handleRemoveGlowEffect
-        );
-        registrar.playToClient(
-                AddGlowEffectPayload.TYPE,
-                AddGlowEffectPayload.STREAM_CODEC,
-                ClientPayloadHandler::handleAddGlowEffect
+                UpdateGlowEffectPayload.TYPE,
+                UpdateGlowEffectPayload.STREAM_CODEC,
+                ClientPayloadHandler::handleUpdateGlowEffect
         );
         registrar.playToClient(
                 ChangeHailLevelPayload.TYPE,
@@ -308,9 +290,9 @@ public class PayloadHandler {
                 ServerPayloadHandler::handleNetworkCastReset
         );
         registrar.playToServer(
-                UpdateFlagPayload.TYPE,
-                UpdateFlagPayload.STREAM_CODEC,
-                ServerPayloadHandler::handleNetworkUpdateFlag
+                UpdateChoicePayload.TYPE,
+                UpdateChoicePayload.STREAM_CODEC,
+                ServerPayloadHandler::handleNetworkUpdateChoice
         );
         registrar.playToServer(
                 UnlockSkillPayload.TYPE,

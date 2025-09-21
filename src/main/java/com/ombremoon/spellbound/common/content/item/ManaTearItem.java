@@ -22,7 +22,7 @@ public class ManaTearItem extends Item {
         ItemStack itemStack = player.getItemInHand(usedHand);
         AttributeInstance attributeInstance = player.getAttribute(SBAttributes.MAX_MANA);
         attributeInstance.setBaseValue(attributeInstance.getBaseValue() + 100);
-        var caster = SpellUtil.getSpellCaster(player);
+        var caster = SpellUtil.getSpellHandler(player);
         caster.awardMana((float) caster.getMaxMana());
         player.awardStat(Stats.ITEM_USED.get(this));
         itemStack.consume(1, player);

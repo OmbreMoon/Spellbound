@@ -11,6 +11,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CarpetBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.tslat.smartbrainlib.util.RandomUtil;
 
 public class MyceliumCarpetBlock extends CarpetBlock {
     public static final MapCodec<MyceliumCarpetBlock> CODEC = simpleCodec(MyceliumCarpetBlock::new);

@@ -1,5 +1,8 @@
 package com.ombremoon.spellbound.common.content.spell.divine;
 
+import com.ombremoon.spellbound.common.magic.api.buff.BuffCategory;
+import com.ombremoon.spellbound.common.magic.api.buff.ModifierData;
+import com.ombremoon.spellbound.common.magic.api.buff.SkillBuff;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.magic.EffectManager;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
@@ -21,9 +24,10 @@ import org.jetbrains.annotations.UnknownNullability;
 
 public class HealingTouchSpell extends AnimatedSpell {
     private static final ResourceLocation ARMOR_MOD = CommonClass.customLocation("oak_blessing_mod");
+    private static final ResourceLocation TRANQUILITY = CommonClass.customLocation("tranquility");
+    private static final ResourceLocation OVERGROWTH = CommonClass.customLocation("overgrowth");
     private static final ResourceLocation PLAYER_DAMAGE = CommonClass.customLocation("healing_touch_player_damage");
 
-    private LivingEntity caster;
     private int overgrowthStacks = 0;
     private int blessingDuration = 0;
 
@@ -43,15 +47,25 @@ public class HealingTouchSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStart(SpellContext context) {
-        if (context.isRecast() || context.getLevel().isClientSide) return;
         context.getSpellHandler().getListener().addListener(SpellEventListener.Events.POST_DAMAGE, PLAYER_DAMAGE, this::onDamagePost);
+        if (!context.getLevel().isClientSide) {
+            SkillHolder skills = context.getSkills();
+            LivingEntity caster = context.getCaster();
+            if (skills.hasSkill(SBSkills.NATURES_TOUCH))
+                this.heal(caster, 4f);
 
-        SkillHolder skills = context.getSkills();
-        this.caster = context.getCaster();
-        if (skills.hasSkill(SBSkills.NATURES_TOUCH.value())) context.getCaster().heal(4f);
+            if (skills.hasSkill(SBSkills.CLEANSING_TOUCH))
+                this.cleanseCaster(1);
 
-        if (skills.hasSkill(SBSkills.CLEANSING_TOUCH.value())) this.cleanseCaster(1);
-
+            if (skills.hasSkill(SBSkills.TRANQUILITY_OF_WATER.value()))
+                this.addSkillBuff(
+                        caster,
+                        SBSkills.TRANQUILITY_OF_WATER,
+                        BuffCategory.BENEFICIAL,
+                        SkillBuff.ATTRIBUTE_MODIFIER,
+                        new ModifierData(SBAttributes.MANA_REGEN, new AttributeModifier(TRANQUILITY, 0.25, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL))
+                );
+        }
     }
 
     @Override
@@ -59,28 +73,42 @@ public class HealingTouchSpell extends AnimatedSpell {
         super.onSpellTick(context);
         SkillHolder skills = context.getSkills();
         LivingEntity caster = context.getCaster();
+        var handler = context.getSpellHandler();
         if (!context.getLevel().isClientSide) {
             double maxMana = caster.getAttribute(SBAttributes.MAX_MANA).getValue();
 
             float heal = 2;
             if (skills.hasSkill(SBSkills.HEALING_STREAM.value()))
-                heal += (float) maxMana * 0.02f;
+                heal += (float) (maxMana - handler.getMana()) * 0.02f;
 
             this.heal(caster, heal);
 
             if (skills.hasSkill(SBSkills.ACCELERATED_GROWTH.value()) && caster instanceof Player player) {
-                player.getFoodData().eat((int) (maxMana * 0.02d), 1f);
+                player.getFoodData().eat(2, 1.0F);
             }
 
-            if (skills.hasSkill(SBSkills.TRANQUILITY_OF_WATER.value()))
-                context.getSpellHandler().awardMana(2);
+            if (skills.hasSkill(SBSkills.OVERGROWTH.value()) && this.overgrowthStacks <= 5 && caster.getHealth() >= caster.getMaxHealth()) {
+                this.removeSkillBuff(caster, SBSkills.OVERGROWTH);
+                this.addSkillBuff(
+                        caster,
+                        SBSkills.OVERGROWTH,
+                        BuffCategory.BENEFICIAL,
+                        SkillBuff.ATTRIBUTE_MODIFIER,
+                        new ModifierData(Attributes.MAX_HEALTH, new AttributeModifier(OVERGROWTH, 0.1 * this.overgrowthStacks, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                        200
+                );
+                this.overgrowthStacks++;
+            }
 
-            if (skills.hasSkill(SBSkills.OVERGROWTH.value()) && overgrowthStacks < 5) overgrowthStacks++;
-
-            AttributeInstance armor = caster.getAttribute(Attributes.ARMOR);
-            if (blessingDuration > 0) blessingDuration--;
-            if (blessingDuration <= 0 && armor.hasModifier(ARMOR_MOD)) {
-                armor.removeModifier(ARMOR_MOD);
+            if (caster.getHealth() < caster.getMaxHealth() * 0.3) {
+                this.addSkillBuff(
+                        caster,
+                        SBSkills.OAK_BLESSING,
+                        BuffCategory.BENEFICIAL,
+                        SkillBuff.ATTRIBUTE_MODIFIER,
+                        new ModifierData(Attributes.ARMOR, new AttributeModifier(ARMOR_MOD, 0.15, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)),
+                        200
+                );
             }
         }
 
@@ -91,6 +119,8 @@ public class HealingTouchSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellStop(SpellContext context) {
+        LivingEntity caster = context.getCaster();
+        this.removeSkillBuff(caster, SBSkills.TRANQUILITY_OF_WATER);
     }
 
     @Override
@@ -99,30 +129,16 @@ public class HealingTouchSpell extends AnimatedSpell {
     }
 
     private void onDamagePost(DamageEvent.Post event) {
-        SkillHolder skills = SpellUtil.getSkills(caster);
+   /*     SkillHolder skills = SpellUtil.getSkills(caster);
 
         if (event.getEntity().hasEffect(MobEffects.POISON) && skills.hasSkill(SBSkills.CONVALESCENCE.value()))
             caster.heal(1);
 
-        if (!event.getEntity().is(caster)) return;
-        if (overgrowthStacks > 0) {
-            caster.heal(4f);
-            overgrowthStacks--;
-        }
         if (skills.hasSkillReady(SBSkills.BLASPHEMY.value())) {
             EffectManager status = event.getEntity().getData(SBData.STATUS_EFFECTS);
 //            status.increment(EffectManager.Effect.DISEASE, 100);
             addCooldown(SBSkills.BLASPHEMY, 100);
-        }
-        if (skills.hasSkillReady(SBSkills.OAK_BLESSING.value())) {
-            blessingDuration = 200;
-            caster.getAttribute(Attributes.ARMOR).addTransientModifier(new AttributeModifier(
-                    ARMOR_MOD,
-                    1.15d,
-                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
-            ));
-            addCooldown(SBSkills.OAK_BLESSING, 600);
-        }
+        }*/
     }
 
     @Override

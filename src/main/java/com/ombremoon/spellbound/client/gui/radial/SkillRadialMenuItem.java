@@ -1,7 +1,7 @@
 package com.ombremoon.spellbound.client.gui.radial;
 
 import com.ombremoon.spellbound.common.magic.api.SpellType;
-import com.ombremoon.spellbound.common.magic.skills.RadialSkill;
+import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -40,9 +40,9 @@ import java.util.Optional;
 
 public class SkillRadialMenuItem extends RadialMenuItem {
     private final SpellType<?> spellType;
-    private final RadialSkill skill;
+    private final Skill skill;
 
-    public SkillRadialMenuItem(RadialMenu owner, SpellType<?> spellType, RadialSkill skill) {
+    public SkillRadialMenuItem(RadialMenu owner, SpellType<?> spellType, Skill skill) {
         super(owner);
         this.spellType = spellType;
         this.skill = skill;
@@ -52,14 +52,14 @@ public class SkillRadialMenuItem extends RadialMenuItem {
         return this.spellType;
     }
 
-    public RadialSkill getSkill() {
+    public Skill getSkill() {
         return this.skill;
     }
 
     @Override
     public boolean isSelected() {
-        var handler = SpellUtil.getSpellCaster(this.owner.getScreen().getMinecraft().player);
-        return handler.getFlag(this.spellType) == this.skill.getSkillFlag();
+        var handler = SpellUtil.getSpellHandler(this.owner.getScreen().getMinecraft().player);
+        return handler.getChoice(this.spellType).equals(this.skill);
     }
 
     @Override

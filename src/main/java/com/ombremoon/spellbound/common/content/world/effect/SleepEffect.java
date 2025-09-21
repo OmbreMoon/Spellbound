@@ -11,7 +11,7 @@ public class SleepEffect extends SBEffect {
 
     @Override
     public void onEffectStarted(LivingEntity livingEntity, int amplifier) {
-        var handler = SpellUtil.getSpellCaster(livingEntity);
+        var handler = SpellUtil.getSpellHandler(livingEntity);
         handler.consumeMana((float) (handler.getMaxMana() * 0.1F + 30.0F), true);
     }
 }

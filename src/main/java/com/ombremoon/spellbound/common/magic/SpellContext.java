@@ -1,9 +1,11 @@
 package com.ombremoon.spellbound.common.magic;
 
 import com.ombremoon.spellbound.common.magic.api.SpellType;
+import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -42,7 +44,7 @@ public class SpellContext {
         this.blockPos = blockPos;
         this.itemStack = itemStack;
         this.target = target;
-        this.spellHandler = SpellUtil.getSpellCaster(caster);
+        this.spellHandler = SpellUtil.getSpellHandler(caster);
         this.skillHolder = SpellUtil.getSkills(caster);
         this.isRecast = isRecast;
     }
@@ -87,6 +89,14 @@ public class SpellContext {
         return this.caster.getYRot();
     }
 
+    public boolean hasSkill(Holder<Skill> skill) {
+        return this.skillHolder.hasSkill(skill);
+    }
+
+    public boolean hasSkillReady(Holder<Skill> skill) {
+        return this.skillHolder.hasSkillReady(skill);
+    }
+
     public boolean hasCatalyst(Item catalyst) {
         return this.caster.isHolding(catalyst);
     }
@@ -115,8 +125,8 @@ public class SpellContext {
         return this.getActiveSpells() <= this.getSpellLevel();
     }
 
-    public int getFlag() {
-        return this.spellHandler.getFlag(this.spellType);
+    public boolean isChoice(Holder<Skill> skill) {
+        return this.spellHandler.getChoice(this.spellType).equals(skill.value());
     }
 
     public String quickOrSimpleCast(boolean isInstant) {

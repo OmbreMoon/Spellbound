@@ -54,16 +54,8 @@ public abstract class SummonSpell extends AnimatedSpell {
     @Override
     protected void onSpellTick(SpellContext context) {
         Level level = context.getLevel();
-        if (!level.isClientSide) {
-            for (int id : this.summons) {
-                Entity entity = level.getEntity(id);
-                if (entity == null)
-                    this.summons.remove(id);
-            }
-
-            if (this.summonedEntity && this.summons.isEmpty())
-                endSpell();
-        }
+        if (!level.isClientSide && this.summonedEntity && this.summons.isEmpty())
+            endSpell();
     }
 
     /**
@@ -76,7 +68,7 @@ public abstract class SummonSpell extends AnimatedSpell {
         if (!level.isClientSide) {
             for (int summonId : summons) {
                 Entity entity = level.getEntity(summonId);
-                if (entity != null) {
+                if (entity instanceof LivingEntity livingEntity && livingEntity.isAlive()) {
                     if (entity instanceof SmartSpellEntity) {
                         //SET DESPAWN ANIMATIONS
                         log("Smart Entity");
@@ -99,8 +91,12 @@ public abstract class SummonSpell extends AnimatedSpell {
         return this.summons;
     }
 
+    public void removeSummon(LivingEntity livingEntity) {
+        this.summons.remove(livingEntity.getId());
+    }
+
     @Override
-    public <T extends Entity & ISpellEntity<?>> T summonEntity(SpellContext context, EntityType<T> entityType, Vec3 spawnPos, Consumer<T> extraData) {
+    public <T extends Entity> T summonEntity(SpellContext context, EntityType<T> entityType, Vec3 spawnPos, Consumer<T> extraData) {
         T entity = super.summonEntity(context, entityType, spawnPos, extraData);
         if (entity instanceof LivingEntity) {
             this.summons.add(entity.getId());

@@ -70,9 +70,8 @@ public class ElectricChargeSpell extends AnimatedSpell {
     protected void onSpellRecast(SpellContext context) {
         super.onSpellRecast(context);
         Level level = context.getLevel();
-        var skills = context.getSkills();
         boolean hasShard = context.hasCatalyst(SBItems.STORM_SHARD.get());
-        if (skills.hasSkill(SBSkills.AMPLIFY)) {
+        if (context.hasSkill(SBSkills.AMPLIFY)) {
             context.getSpellHandler().setChargingOrChannelling(true);
             return;
         }
@@ -92,9 +91,8 @@ public class ElectricChargeSpell extends AnimatedSpell {
         super.onSpellTick(context);
         Level level = context.getLevel();
         var handler = context.getSpellHandler();
-        var skills = context.getSkills();
         boolean hasShard = context.hasCatalyst(SBItems.STORM_SHARD.get());
-        if (skills.hasSkill(SBSkills.AMPLIFY)) {
+        if (context.hasSkill(SBSkills.AMPLIFY)) {
             if ((context.isRecast() && context.getTarget() == null) || this.discharged) {
                 this.discharging = true;
                 if (handler.isChargingOrChannelling()) {
@@ -127,22 +125,20 @@ public class ElectricChargeSpell extends AnimatedSpell {
 
     @Override
     public CastType getCastType(SpellContext context) {
-        var skills = context.getSkills();
-        return skills.hasSkill(SBSkills.AMPLIFY) && context.isRecast() && (context.getTarget() == null || this.discharged) ? CastType.CHANNEL : super.getCastType(context);
+        return context.hasSkill(SBSkills.AMPLIFY) && context.isRecast() && (context.getTarget() == null || this.discharged) ? CastType.CHANNEL : super.getCastType(context);
     }
 
     private void discharge(SpellContext context, LivingEntity target, boolean hasShard) {
         Level level = context.getLevel();
         LivingEntity caster = context.getCaster();
         var handler = context.getSpellHandler();
-        var skills = context.getSkills();
         float damage = this.getBaseDamage();
-        if (skills.hasSkill(SBSkills.ELECTRIFICATION))
+        if (context.hasSkill(SBSkills.ELECTRIFICATION))
             handler.applyStormStrike(target, 60);
 
         var entities = level.getEntities(target, target.getBoundingBox().inflate(4), EntitySelector.NO_CREATIVE_OR_SPECTATOR);
         if (!level.isClientSide) {
-            if (skills.hasSkillReady(SBSkills.OSCILLATION)) {
+            if (context.hasSkillReady(SBSkills.OSCILLATION)) {
                 if (caster instanceof Player player) {
                     for (ItemStack itemStack : player.getInventory().items) {
                         if (itemStack.is(SBItems.STORM_SHARD.get())) {
@@ -158,17 +154,17 @@ public class ElectricChargeSpell extends AnimatedSpell {
 
             if (hurt(target, damage)) {
                 if (target.isDeadOrDying()) {
-                    if (skills.hasSkill(SBSkills.STORM_SURGE))
+                    if (context.hasSkill(SBSkills.STORM_SURGE))
                         handler.awardMana(10 + (context.getSpellLevel() * 2));
 
-                    if (skills.hasSkill(SBSkills.UNLEASHED_STORM)) {
+                    if (context.hasSkill(SBSkills.UNLEASHED_STORM)) {
                         this.spawnDischargeParticles(target);
                         for (Entity entity : entities) {
                             if (entity instanceof LivingEntity targetEntity) {
                                 if (!isCaster(targetEntity)
                                         && hurt(targetEntity, damage / 2)
                                         && targetEntity.isDeadOrDying()
-                                        && skills.hasSkillReady(SBSkills.PIEZOELECTRIC)
+                                        && context.hasSkillReady(SBSkills.PIEZOELECTRIC)
                                         && caster instanceof Player) {
                                     RitualHelper.createItem(level, targetEntity.position(), new ItemStack(SBItems.STORM_SHARD.get()));
                                     this.addCooldown(SBSkills.PIEZOELECTRIC, 600);
@@ -177,7 +173,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
                         }
                     }
 
-                    if (skills.hasSkill(SBSkills.PIEZOELECTRIC) && caster instanceof Player) {
+                    if (context.hasSkill(SBSkills.PIEZOELECTRIC) && caster instanceof Player) {
                         RitualHelper.createItem(level, target.position(), new ItemStack(SBItems.STORM_SHARD.get()));
                         this.addCooldown(SBSkills.PIEZOELECTRIC, 600);
                     }
@@ -185,19 +181,19 @@ public class ElectricChargeSpell extends AnimatedSpell {
             }
 
             if (!checkForCounterMagic(target)) {
-                if (skills.hasSkill(SBSkills.ELECTRIFICATION))
+                if (context.hasSkill(SBSkills.ELECTRIFICATION))
                     handler.applyStormStrike(target, 60);
 
                 for (Entity entity : entities) {
                     if (entity instanceof LivingEntity livingEntity) {
-                        if (skills.hasSkill(SBSkills.CHAIN_REACTION)) {
+                        if (context.hasSkill(SBSkills.CHAIN_REACTION)) {
                             if (!this.entityIds.contains(livingEntity.getId())) {
                                 this.entityIds.add(livingEntity.getId());
                                 discharge(context, livingEntity, hasShard);
                             }
                         }
 
-                        if (skills.hasSkill(SBSkills.HIGH_VOLTAGE) && hasShard) {
+                        if (context.hasSkill(SBSkills.HIGH_VOLTAGE) && hasShard) {
                             if (!isCaster(livingEntity))
                                 addSkillBuff(
                                         livingEntity,
@@ -211,7 +207,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
                     }
                 }
 
-                if (skills.hasSkill(SBSkills.HIGH_VOLTAGE) && hasShard) {
+                if (context.hasSkill(SBSkills.HIGH_VOLTAGE) && hasShard) {
                     addSkillBuff(
                             target,
                             SBSkills.HIGH_VOLTAGE,
@@ -225,10 +221,10 @@ public class ElectricChargeSpell extends AnimatedSpell {
                     addCooldown(SBSkills.HIGH_VOLTAGE, 600);
                 }
 
-                if (skills.hasSkill(SBSkills.ALTERNATING_CURRENT)) {
+                if (context.hasSkill(SBSkills.ALTERNATING_CURRENT)) {
                     if (RandomUtil.percentChance(potency(0.03F)) && target.getHealth() < caster.getHealth() * 2) {
                         target.kill();
-                        if (skills.hasSkill(SBSkills.PIEZOELECTRIC) && caster instanceof Player) {
+                        if (context.hasSkill(SBSkills.PIEZOELECTRIC) && caster instanceof Player) {
                             RitualHelper.createItem(level, target.position(), new ItemStack(SBItems.STORM_SHARD.get()));
                             this.addCooldown(SBSkills.PIEZOELECTRIC, 600);
                         }

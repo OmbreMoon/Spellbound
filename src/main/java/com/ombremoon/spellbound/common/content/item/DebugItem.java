@@ -1,8 +1,6 @@
 package com.ombremoon.spellbound.common.content.item;
 
-import com.ombremoon.spellbound.common.content.block.entity.TransfigurationDisplayBlockEntity;
 import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockManager;
-import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockPart;
 import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.main.CommonClass;
@@ -17,7 +15,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class DebugItem extends Item implements Loggable {
     public DebugItem(Properties properties) {
@@ -26,7 +23,7 @@ public class DebugItem extends Item implements Loggable {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
-        var handler = SpellUtil.getSpellCaster(player);
+        var handler = SpellUtil.getSpellHandler(player);
         var skillHandler = SpellUtil.getSkills(player);
         ombreDebug(level, player, usedHand, handler, skillHandler);
         return super.use(level, player, usedHand);

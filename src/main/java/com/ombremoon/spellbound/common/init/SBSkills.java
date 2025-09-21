@@ -2,7 +2,6 @@ package com.ombremoon.spellbound.common.init;
 
 import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
 import com.ombremoon.spellbound.common.magic.skills.ModifierSkill;
-import com.ombremoon.spellbound.common.magic.skills.RadialSkill;
 import com.ombremoon.spellbound.common.magic.skills.Skill;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
 import com.ombremoon.spellbound.main.CommonClass;
@@ -125,7 +124,7 @@ public class SBSkills {
     public static final Holder<Skill> UNWANTED_GUESTS = registerSkill("unwanted_guests", 100, 100, preReqs(OPEN_INVITATION));
     public static final Holder<Skill> BAIT_AND_SWITCH = registerSkill("bait_and_switch", 100, 150, preReqs(UNWANTED_GUESTS));
     public static final Holder<Skill> DARKNESS_PREVAILS = registerSkill("darkness_prevails", 0, 100, preReqs(SHADOW_GATE));
-    public static final Holder<Skill> GRAVITY_SHIFT = registerRadialSkill("gravity_shift", -25, 150, preReqs(DARKNESS_PREVAILS), 1);
+    public static final Holder<Skill> GRAVITY_SHIFT = registerRadialSkill("gravity_shift", -25, 150, preReqs(DARKNESS_PREVAILS));
     public static final Holder<Skill> DUAL_DESTINATION = registerSkill("dual_destination", 25, 150, preReqs(DARKNESS_PREVAILS));
 
     //Stride
@@ -190,9 +189,9 @@ public class SBSkills {
     public static final Holder<Skill> DIVINE_BALANCE = registerModifierSkill("divine_balance", 0, 50, preReqs(HEALING_TOUCH), SpellModifier.DIVINE_BALANCE_DURATION, SpellModifier.DIVINE_BALANCE_MANA);
     public static final Holder<Skill> NATURES_TOUCH = registerSkill("natures_touch", 0, 100, preReqs(DIVINE_BALANCE));
     public static final Holder<Skill> CLEANSING_TOUCH = registerSkill("cleansing_touch", 0, 150, preReqs(NATURES_TOUCH));
-    public static final Holder<Skill> ACCELERATED_GROWTH = registerSkill("accelerated_growth", 50, 50, preReqs(HEALING_TOUCH));
-    public static final Holder<Skill> HEALING_STREAM = registerSkill("healing_stream", 50, 100, preReqs(ACCELERATED_GROWTH));
-    public static final Holder<Skill> TRANQUILITY_OF_WATER = registerSkill("tranquility_of_water", 50, 150, preReqs(HEALING_STREAM));
+    public static final Holder<Skill> HEALING_STREAM = registerSkill("healing_stream", 50, 50, preReqs(HEALING_TOUCH));
+    public static final Holder<Skill> TRANQUILITY_OF_WATER = registerSkill("tranquility_of_water", 50, 100, preReqs(HEALING_STREAM));
+    public static final Holder<Skill> ACCELERATED_GROWTH = registerSkill("accelerated_growth", 50, 150, preReqs(TRANQUILITY_OF_WATER));
     public static final Holder<Skill> OVERGROWTH = registerSkill("overgrowth", 0, 200, preReqs(TRANQUILITY_OF_WATER, CLEANSING_TOUCH));
     public static final Holder<Skill> OAK_BLESSING = registerSkill("oak_blessing", 50, 200, preReqs(TRANQUILITY_OF_WATER, CLEANSING_TOUCH));
 
@@ -224,7 +223,7 @@ public class SBSkills {
 
     //Purge Magic
     public static Holder<Skill> PURGE_MAGIC = registerRadialSkill("purge_magic");
-    public static Holder<Skill> COUNTER_MAGIC = registerRadialSkill("counter_magic", -50, 50, preReqs(PURGE_MAGIC), 1);
+    public static Holder<Skill> COUNTER_MAGIC = registerRadialSkill("counter_magic", -50, 50, preReqs(PURGE_MAGIC));
     public static Holder<Skill> CLEANSE = registerSkill("cleanse", -50, 100, preReqs(COUNTER_MAGIC));
     public static Holder<Skill> AVERSION = registerSkill("aversion", -50, 150, preReqs(CLEANSE));
     public static Holder<Skill> RADIO_WAVES = registerSkill("radio_waves", 0, 50, preReqs(PURGE_MAGIC));
@@ -260,11 +259,21 @@ public class SBSkills {
     }
 
     private static Holder<Skill> registerRadialSkill(String name) {
-        return SKILLS.register(name, () -> new RadialSkill(CommonClass.customLocation(name), 0));
+        return SKILLS.register(name, () -> new Skill(CommonClass.customLocation(name)) {
+            @Override
+            public boolean isRadial() {
+                return true;
+            }
+        });
     }
 
-    private static Holder<Skill> registerRadialSkill(String name, int xPos, int yPos, HolderSet<Skill> prereqs, int skillFlag) {
-        return SKILLS.register(name, () -> new RadialSkill(CommonClass.customLocation(name), xPos, yPos, prereqs, skillFlag));
+    private static Holder<Skill> registerRadialSkill(String name, int xPos, int yPos, HolderSet<Skill> prereqs) {
+        return SKILLS.register(name, () -> new Skill(CommonClass.customLocation(name), xPos, yPos, prereqs) {
+            @Override
+            public boolean isRadial() {
+                return true;
+            }
+        });
     }
 
     private static Holder<Skill> registerConditionalSkill(String name, int xPos, int yPos, HolderSet<Skill> prereqs, BiPredicate<Player, SkillHolder> skillCondition) {

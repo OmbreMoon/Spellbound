@@ -3,9 +3,16 @@ package com.ombremoon.spellbound.common.init;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.content.block.*;
+import net.minecraft.core.BlockPos;
+import net.minecraft.data.worldgen.features.TreeFeatures;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.MushroomBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.bus.api.IEventBus;
@@ -225,13 +232,32 @@ public class SBBlocks {
     public static final Supplier<Block> PINK_SPORE_SLAB = registerBlock("pink_spore_slab", () -> new SporeSlabBlock(blockProperties()));
     public static final Supplier<Block> RED_SPORE_BLOCK = registerBlock("red_spore_block", () -> new SporeBlock(blockProperties()));
     public static final Supplier<Block> RED_SPORE_SLAB = registerBlock("red_spore_slab", () -> new SporeSlabBlock(blockProperties()));
+    public static final Supplier<Block> WILD_MUSHROOM = registerBlock(
+            "wild_mushroom", () -> new MushroomBlock(
+                    SBConfiguredFeatures.HUGE_WILD_MUSHROOM,
+                    blockProperties()
+                            .mapColor(MapColor.COLOR_PURPLE)
+                            .noCollission()
+                            .randomTicks()
+                            .instabreak()
+                            .sound(SoundType.GRASS)
+                            .lightLevel(state -> 1)
+                            .hasPostProcess(SBBlocks::always)
+                            .pushReaction(PushReaction.DESTROY)
+            )
+    );
     public static final Supplier<Block> MYCELIUM_CARPET = registerBlock(
-            "mycelium_carpet", () -> new MyceliumCarpetBlock(blockProperties()
+            "mycelium_carpet", () -> new MyceliumCarpetBlock(
+                    blockProperties()
                         .mapColor(MapColor.COLOR_PURPLE)
                         .strength(0.1F)
                         .sound(SoundType.MOSS_CARPET)
                         .pushReaction(PushReaction.DESTROY)
                         .randomTicks()));
+
+    private static Boolean always(BlockState state, BlockGetter blockGetter, BlockPos pos) {
+        return true;
+    }
 
     public static void registerSummonStone(String name, String spell) {
         registerBlock(name, () -> new SummonStoneBlock(CommonClass.customLocation(spell), blockProperties()));

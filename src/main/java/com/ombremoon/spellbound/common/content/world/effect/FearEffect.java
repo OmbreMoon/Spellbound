@@ -2,7 +2,6 @@ package com.ombremoon.spellbound.common.content.world.effect;
 
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.init.SBEffects;
-import com.ombremoon.spellbound.common.magic.api.buff.SpellModifier;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -17,7 +16,7 @@ public class FearEffect extends SBEffect {
 
     @Override
     public void onEffectStarted(LivingEntity livingEntity, int amplifier) {
-        var handler = SpellUtil.getSpellCaster(livingEntity);
+        var handler = SpellUtil.getSpellHandler(livingEntity);
         var skills = SpellUtil.getSkills(livingEntity);
 //        skills.addModifierWithExpiry(SpellModifier.FEAR);
         handler.consumeMana((float) (handler.getMaxMana() * 0.07F + 15.0F), true);
