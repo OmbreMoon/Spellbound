@@ -1,6 +1,9 @@
 package com.ombremoon.spellbound.util;
 
 import com.ombremoon.spellbound.common.content.entity.ISpellEntity;
+import com.ombremoon.spellbound.common.content.entity.SBLivingEntity;
+import com.ombremoon.spellbound.common.content.entity.SpellEntity;
+import com.ombremoon.spellbound.common.content.entity.spell.IceMist;
 import com.ombremoon.spellbound.common.init.SBAttributes;
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.init.SBEffects;
@@ -9,13 +12,12 @@ import com.ombremoon.spellbound.common.magic.SpellHandler;
 import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.skills.SkillHolder;
+import com.ombremoon.spellbound.main.Constants;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.OwnableEntity;
-import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
+import net.tslat.smartbrainlib.util.BrainUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +28,7 @@ import java.util.function.BiPredicate;
 
 public class SpellUtil {
     public static final BiPredicate<Entity, LivingEntity> CAN_ATTACK_ENTITY = (entity, livingEntity) -> (!livingEntity.isAlliedTo(entity) || livingEntity.is(entity)) && !livingEntity.hasEffect(SBEffects.COUNTER_MAGIC) && !(livingEntity instanceof OwnableEntity ownable && ownable.getOwner() == (entity));
-    public static final BiPredicate<Entity, LivingEntity> IS_ALLIED = (entity, livingEntity) -> livingEntity.isAlliedTo(entity) || (livingEntity instanceof OwnableEntity ownable && ownable.getOwner() == (entity));
+    public static final BiPredicate<Entity, LivingEntity> IS_ALLIED = (entity, livingEntity) -> entity != null && livingEntity.isAlliedTo(entity) || (livingEntity instanceof OwnableEntity ownable && ownable.getOwner() == (entity));
 
     public static SpellHandler getSpellCaster(LivingEntity livingEntity) {
         var handler = livingEntity.getData(SBData.SPELL_HANDLER);
@@ -70,7 +72,6 @@ public class SpellUtil {
         var spellType = findNextSpellInList(handler.getEquippedSpells(), activeSpell);
         if (spellType != activeSpell) {
             handler.setSelectedSpell(spellType);
-            handler.dirty = true;
         }
     }
 
@@ -95,9 +96,11 @@ public class SpellUtil {
      * @param spell The spells
      */
     public static void setSpell(@NotNull Entity entity, @NotNull AbstractSpell spell) {
-        entity.setData(SBData.SPELL_ID, spell.getId());
-        if (entity instanceof ISpellEntity<?> spellEntity)
-            spellEntity.setSpell(spell.spellType(), spell.getId());
+        if (entity instanceof ISpellEntity<?> spellEntity) {
+            spellEntity.setSpell(spell);
+        } else {
+            entity.setData(SBData.SPELL_ID, spell.getId());
+        }
     }
 
     public static float getCastRange(LivingEntity caster) {
@@ -114,9 +117,11 @@ public class SpellUtil {
      * @param owner The owner of the summon
      */
     public static void setOwner(@NotNull Entity entity, @NotNull LivingEntity owner) {
-        entity.setData(SBData.OWNER_ID, owner.getId());
-        if (entity instanceof ISpellEntity spellEntity)
+        if (entity instanceof ISpellEntity<?> spellEntity) {
             spellEntity.setOwner(owner);
+        } else {
+            entity.setData(SBData.OWNER_ID, owner.getId());
+        }
     }
 
     /**
@@ -126,7 +131,10 @@ public class SpellUtil {
      */
     @Nullable
     public static Entity getOwner(@NotNull Entity entity) {
-        if (!entity.hasData(SBData.OWNER_ID)) return null;
+        if (entity instanceof ISpellEntity<?> spellEntity) {
+            return spellEntity.getOwner();
+        }
+
         return entity.level().getEntity(entity.getData(SBData.OWNER_ID));
     }
 
@@ -137,9 +145,15 @@ public class SpellUtil {
      * @apiNote Should only be used for summons
      */
     @Nullable
-    public static LivingEntity getTarget(@NotNull Entity entity) {
-        if (!entity.hasData(SBData.TARGET_ID)) return null;
-        return (LivingEntity) entity.level().getEntity(entity.getData(SBData.TARGET_ID));
+    public static LivingEntity getTarget(@NotNull LivingEntity entity) {
+        if (entity instanceof SBLivingEntity) {
+            return BrainUtils.getTargetOfEntity(entity);
+        } else if (entity instanceof Mob mob) {
+            return mob.getTarget();
+        } else {
+            Entity target = entity.level().getEntity(entity.getData(SBData.TARGET_ID));
+            return target instanceof LivingEntity livingEntity ? livingEntity : null;
+        }
     }
 
     /**
@@ -147,9 +161,14 @@ public class SpellUtil {
      * @param summon The summon to set the target of
      * @param target The new target for the summon
      */
-    public static void setTarget(@NotNull PathfinderMob summon, @NotNull LivingEntity target) {
-        summon.setData(SBData.TARGET_ID, target.getId());
-        summon.setTarget(target);
+    public static void setTarget(@NotNull LivingEntity summon, @NotNull LivingEntity target) {
+        if (summon instanceof SBLivingEntity livingEntity) {
+            BrainUtils.setTargetOfEntity(livingEntity, target);
+        } else if (summon instanceof Mob mob) {
+            mob.setTarget(target);
+        } else {
+            summon.setData(SBData.TARGET_ID, target.getId());
+        }
     }
 
     /**

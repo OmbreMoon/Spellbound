@@ -24,12 +24,7 @@ public class SBAttributes {
     public static Holder<Attribute> MAGIC_RESIST = registerResistance("magic_resistance");
     public static Holder<Attribute> FIRE_SPELL_RESIST = registerResistance("fire_spell_resistance");
     public static Holder<Attribute> FROST_SPELL_RESIST = registerResistance("frost_spell_resistance");
-    public static Holder<Attribute> WATER_SPELL_RESIST = registerResistance("water_spell_resistance");
     public static Holder<Attribute> SHOCK_SPELL_RESIST = registerResistance("shock_spell_resistance");
-    public static Holder<Attribute> WIND_SPELL_RESIST = registerResistance("wind_spell_resistance");
-    public static Holder<Attribute> EARTH_SPELL_RESIST = registerResistance("earth_spell_resistance");
-    public static Holder<Attribute> POISON_SPELL_RESIST = registerResistance("poison_spell_resistance");
-    public static Holder<Attribute> DISEASE_SPELL_RESIST = registerResistance("disease_spell_resistance");
 
     public static Holder<Attribute> registerResistance(String name) {
         return register(name, 0.0, -1.0, 1.0);

@@ -1,3 +1,4 @@
+/*
 package com.ombremoon.spellbound.common.content.entity.spell;
 
 import com.ombremoon.spellbound.main.CommonClass;
@@ -469,3 +470,4 @@ public class Cyclone extends SpellEntity<CycloneSpell> {
         controllers.add(new AnimationController<>(this, CONTROLLER, 0, this::genericController));
     }
 }
+*/

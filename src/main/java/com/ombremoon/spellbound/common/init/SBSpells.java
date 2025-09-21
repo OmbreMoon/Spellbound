@@ -4,20 +4,18 @@ import com.ombremoon.spellbound.common.content.spell.deception.PurgeMagicSpell;
 import com.ombremoon.spellbound.common.content.spell.deception.ShadowbondSpell;
 import com.ombremoon.spellbound.common.content.spell.divine.HealingBlossomSpell;
 import com.ombremoon.spellbound.common.content.spell.divine.HealingTouchSpell;
-import com.ombremoon.spellbound.common.content.spell.ruin.air.CycloneSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.fire.SolarRaySpell;
-import com.ombremoon.spellbound.common.content.spell.ruin.fire.VolcanoSpell;
+import com.ombremoon.spellbound.common.content.spell.ruin.ice.ShatteringCrystalSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.ElectricChargeSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.StormRiftSpell;
 import com.ombremoon.spellbound.common.content.spell.ruin.shock.StormstrikeSpell;
-import com.ombremoon.spellbound.common.content.spell.summon.SpiritTotemSpell;
 import com.ombremoon.spellbound.common.content.spell.summon.WildMushroomSpell;
 import com.ombremoon.spellbound.common.content.spell.transfiguration.MysticArmorSpell;
 import com.ombremoon.spellbound.common.content.spell.transfiguration.ShadowGateSpell;
 import com.ombremoon.spellbound.common.content.spell.transfiguration.StrideSpell;
 import com.ombremoon.spellbound.common.magic.SpellPath;
-import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;
 import net.minecraft.core.Registry;
@@ -38,10 +36,14 @@ public class SBSpells {
             .skills(SBSkills.SOLAR_RAY, SBSkills.SUNSHINE, SBSkills.OVERPOWER, SBSkills.HEALING_LIGHT,
                     SBSkills.CONCENTRATED_HEAT, SBSkills.OVERHEAT, SBSkills.SOLAR_BURST,
                     SBSkills.SOLAR_BORE, SBSkills.BLINDING_LIGHT, SBSkills.AFTERGLOW, SBSkills.POWER_OF_THE_SUN));
-    public static final Supplier<SpellType<VolcanoSpell>> VOLCANO = registerSpell("volcano", fireRuinBuilder("volcano", VolcanoSpell::new)
-            .skills(SBSkills.VOLCANO, SBSkills.INFERNO_CORE, SBSkills.LAVA_FLOW, SBSkills.EXPLOSIVE_BARRAGE,
-                    SBSkills.SHRAPNEL, SBSkills.HEATWAVE, SBSkills.SCORCHED_EARTH, SBSkills.SEISMIC_SHOCK,
-                    SBSkills.MOLTEN_SHIELD, SBSkills.PYROCLASTIC_CLOUD, SBSkills.APOCALYPSE));
+//    public static final Supplier<SpellType<VolcanoSpell>> VOLCANO = registerSpell("volcano", fireRuinBuilder("volcano", VolcanoSpell::new)
+//            .skills(SBSkills.VOLCANO, SBSkills.INFERNO_CORE, SBSkills.LAVA_FLOW, SBSkills.EXPLOSIVE_BARRAGE,
+//                    SBSkills.SHRAPNEL, SBSkills.HEATWAVE, SBSkills.SCORCHED_EARTH, SBSkills.SEISMIC_SHOCK,
+//                    SBSkills.MOLTEN_SHIELD, SBSkills.PYROCLASTIC_CLOUD, SBSkills.APOCALYPSE));
+    public static final Supplier<SpellType<ShatteringCrystalSpell>> SHATTERING_CRYSTAL = registerSpell("shattering_crystal", iceRuinBuilder("shattering_crystal", ShatteringCrystalSpell::new)
+            .skills(SBSkills.SHATTERING_CRYSTAL, SBSkills.ICE_SHARD, SBSkills.FRIGID_BLAST, SBSkills.CHILL,
+                    SBSkills.FROZEN_SHRAPNEL, SBSkills.HYPOTHERMIA, SBSkills.THIN_ICE, SBSkills.CHAOTIC_SHATTER,
+                    SBSkills.CRYSTAL_ECHO, SBSkills.LINGERING_FROST, SBSkills.GLACIAL_IMPACT));
     public static final Supplier<SpellType<StormstrikeSpell>> STORMSTRIKE = registerSpell("stormstrike", shockRuinBuilder("stormstrike", StormstrikeSpell::new)
             .skills(SBSkills.STORMSTRIKE, SBSkills.STATIC_SHOCK, SBSkills.ELECTRIFY,
                     SBSkills.SHOCK_FACTOR, SBSkills.PURGE, SBSkills.REFRACTION, SBSkills.CHARGED_ATMOSPHERE,
@@ -54,10 +56,10 @@ public class SBSpells {
             .skills(SBSkills.STORM_RIFT, SBSkills.STORM_FURY, SBSkills.DISPLACEMENT_FIELD, SBSkills.MAGNETIC_FIELD,
                     SBSkills.EVENT_HORIZON, SBSkills.CHARGED_RIFT, SBSkills.MOTION_SICKNESS, SBSkills.FORCED_WARP,
                     SBSkills.STORM_CALLER, SBSkills.IMPLOSION, SBSkills.ORBITAL_SHELL));
-    public static final Supplier<SpellType<CycloneSpell>> CYCLONE = registerSpell("cyclone", ruinBuilder("cyclone", CycloneSpell::new)
-            .skills(SBSkills.CYCLONE, SBSkills.WHIRLING_TEMPEST, SBSkills.VORTEX,
-                    SBSkills.FALLING_DEBRIS, SBSkills.MAELSTROM, SBSkills.HURRICANE, SBSkills.EYE_OF_THE_STORM,
-                    SBSkills.GALE_FORCE, SBSkills.FROSTFRONT, SBSkills.STATIC_CHARGE, SBSkills.HAILSTORM));
+//    public static final Supplier<SpellType<CycloneSpell>> CYCLONE = registerSpell("cyclone", ruinBuilder("cyclone", CycloneSpell::new)
+//            .skills(SBSkills.CYCLONE, SBSkills.WHIRLING_TEMPEST, SBSkills.VORTEX,
+//                    SBSkills.FALLING_DEBRIS, SBSkills.MAELSTROM, SBSkills.HURRICANE, SBSkills.EYE_OF_THE_STORM,
+//                    SBSkills.GALE_FORCE, SBSkills.FROSTFRONT, SBSkills.STATIC_CHARGE, SBSkills.HAILSTORM));
 
     //Transfiguration
     public static final Supplier<SpellType<ShadowGateSpell>> SHADOW_GATE = registerSpell("shadow_gate", trasnfigurationBuilder("shadow_gate", ShadowGateSpell::new)
@@ -78,12 +80,12 @@ public class SBSpells {
 //            .skills(SBSkills.SUMMON_UNDEAD));
     public static final Supplier<SpellType<WildMushroomSpell>> WILD_MUSHROOM = registerSpell("wild_mushroom", summonBuilder("wild_mushroom", WildMushroomSpell::new)
             .skills(SBSkills.WILD_MUSHROOM, SBSkills.VILE_INFLUENCE, SBSkills.HASTENED_GROWTH, SBSkills.ENVENOM,
-                    SBSkills.DECOMPOSE, SBSkills.NATURES_DOMINANCE, SBSkills.POISON_ESSENCE,
-                    SBSkills.CIRCLE_OF_LIFE, SBSkills.CATALEPSY, SBSkills.FUNGAL_HARVEST, SBSkills.SYNTHESIS));
-    public static final Supplier<SpellType<SpiritTotemSpell>> SPIRIT_TOTEM = registerSpell("conjure_spirit_totem", summonBuilder("conjure_spirit_totem", SpiritTotemSpell::new)
-            .skills(SBSkills.SUMMON_CAT_SPIRIT, SBSkills.CATS_AGILITY, SBSkills.FERAL_FURY,
-                    SBSkills.PRIMAL_RESILIENCE, SBSkills.TOTEMIC_BOND, SBSkills.STEALTH_TACTICS, SBSkills.SAVAGE_LEAP,
-                    SBSkills.TOTEMIC_ARMOR, SBSkills.WARRIORS_ROAR, SBSkills.TWIN_SPIRITS, SBSkills.NINE_LIVES));
+                    SBSkills.PARASITIC_FUNGUS, SBSkills.NATURES_DOMINANCE, SBSkills.POISON_ESSENCE,
+                    SBSkills.LIVING_FUNGUS, SBSkills.PROLIFERATION, SBSkills.FUNGAL_HARVEST, SBSkills.SYNTHESIS));
+//    public static final Supplier<SpellType<SpiritTotemSpell>> SPIRIT_TOTEM = registerSpell("conjure_spirit_totem", summonBuilder("conjure_spirit_totem", SpiritTotemSpell::new)
+//            .skills(SBSkills.SUMMON_CAT_SPIRIT, SBSkills.CATS_AGILITY, SBSkills.FERAL_FURY,
+//                    SBSkills.PRIMAL_RESILIENCE, SBSkills.TOTEMIC_BOND, SBSkills.STEALTH_TACTICS, SBSkills.SAVAGE_LEAP,
+//                    SBSkills.TOTEMIC_ARMOR, SBSkills.WARRIORS_ROAR, SBSkills.TWIN_SPIRITS, SBSkills.NINE_LIVES));
 
     //Divine
     public static final Supplier<SpellType<HealingTouchSpell>> HEALING_TOUCH = registerSpell("healing_touch", divineBuilder("healing_touch", HealingTouchSpell::new)
@@ -115,6 +117,10 @@ public class SBSpells {
 
     private static <T extends AbstractSpell> SpellType.Builder<T> fireRuinBuilder(String name, SpellType.SpellFactory<T> factory) {
         return new SpellType.Builder<>(name, factory).setPath(SpellPath.RUIN, SpellPath.FIRE);
+    }
+
+    private static <T extends AbstractSpell> SpellType.Builder<T> iceRuinBuilder(String name, SpellType.SpellFactory<T> factory) {
+        return new SpellType.Builder<>(name, factory).setPath(SpellPath.RUIN, SpellPath.FROST);
     }
 
     private static <T extends AbstractSpell> SpellType.Builder<T> shockRuinBuilder(String name, SpellType.SpellFactory<T> factory) {

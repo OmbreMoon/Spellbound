@@ -1,6 +1,121 @@
 {
 	"format_version": "1.8.0",
 	"animations": {
+		"spawn": {
+			"animation_length": 0.75,
+			"bones": {
+				"rift": {
+					"scale": {
+						"0.0": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						},
+						"0.25": {
+							"vector": [1, 1, 1],
+							"easing": "linear"
+						}
+					}
+				},
+				"cyclonic_details": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						},
+						"0.75": {
+							"vector": [0, 0, 360],
+							"easing": "linear"
+						}
+					}
+				},
+				"cyclinic_root": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						},
+						"0.75": {
+							"vector": [0, 0, 360],
+							"easing": "linear"
+						}
+					}
+				},
+				"implosion_cube": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						},
+						"0.75": {
+							"vector": [360, 360, 0],
+							"easing": "linear"
+						}
+					},
+					"scale": {
+						"0.0": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						},
+						"0.25": {
+							"vector": [2, 2, 2],
+							"easing": "easeInSine"
+						},
+						"0.6": {
+							"vector": [1, 1, 1],
+							"easing": "easeInSine"
+						}
+					}
+				},
+				"explosion_projectile": {
+					"scale": {
+						"vector": [0, 0, 0],
+						"easing": "linear"
+					}
+				},
+				"explosion_projectile2": {
+					"scale": {
+						"vector": [0, 0, 0],
+						"easing": "linear"
+					}
+				},
+				"explosion_projectile3": {
+					"scale": {
+						"vector": [0, 0, 0],
+						"easing": "linear"
+					}
+				},
+				"explosion_projectile4": {
+					"scale": {
+						"vector": [0, 0, 0],
+						"easing": "linear"
+					}
+				},
+				"explosion_projectile5": {
+					"scale": {
+						"vector": [0, 0, 0],
+						"easing": "linear"
+					}
+				},
+				"explosion_projectile6": {
+					"scale": {
+						"vector": [0, 0, 0],
+						"easing": "linear"
+					}
+				},
+				"explosion_projectile7": {
+					"scale": {
+						"vector": [0, 0, 0],
+						"easing": "linear"
+					}
+				},
+				"explosion_projectile8": {
+					"scale": {
+						"vector": [0, 0, 0],
+						"easing": "linear"
+					}
+				}
+			}
+		},
 		"idle": {
 			"loop": true,
 			"animation_length": 0.75,
@@ -458,6 +573,121 @@
 							"vector": [0, 0, 0],
 							"easing": "linear"
 						}
+					}
+				}
+			}
+		},
+		"death": {
+			"animation_length": 1,
+			"bones": {
+				"rift": {
+					"scale": {
+						"0.5": {
+							"vector": [1, 1, 1],
+							"easing": "linear"
+						},
+						"0.75": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						}
+					}
+				},
+				"cyclonic_details": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 360],
+							"easing": "linear"
+						},
+						"0.75": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						}
+					}
+				},
+				"cyclinic_root": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 360],
+							"easing": "linear"
+						},
+						"0.75": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						}
+					}
+				},
+				"implosion_cube": {
+					"rotation": {
+						"0.0": {
+							"vector": [360, 360, 0],
+							"easing": "linear"
+						},
+						"0.75": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						}
+					},
+					"scale": {
+						"0.15": {
+							"vector": [1, 1, 1],
+							"easing": "linear"
+						},
+						"0.5": {
+							"vector": [2, 2, 2],
+							"easing": "easeOutSine"
+						},
+						"0.75": {
+							"vector": [0, 0, 0],
+							"easing": "easeOutSine"
+						}
+					}
+				},
+				"explosion_projectile": {
+					"scale": {
+						"vector": [0, 0, 0],
+						"easing": "linear"
+					}
+				},
+				"explosion_projectile2": {
+					"scale": {
+						"vector": [0, 0, 0],
+						"easing": "linear"
+					}
+				},
+				"explosion_projectile3": {
+					"scale": {
+						"vector": [0, 0, 0],
+						"easing": "linear"
+					}
+				},
+				"explosion_projectile4": {
+					"scale": {
+						"vector": [0, 0, 0],
+						"easing": "linear"
+					}
+				},
+				"explosion_projectile5": {
+					"scale": {
+						"vector": [0, 0, 0],
+						"easing": "linear"
+					}
+				},
+				"explosion_projectile6": {
+					"scale": {
+						"vector": [0, 0, 0],
+						"easing": "linear"
+					}
+				},
+				"explosion_projectile7": {
+					"scale": {
+						"vector": [0, 0, 0],
+						"easing": "linear"
+					}
+				},
+				"explosion_projectile8": {
+					"scale": {
+						"vector": [0, 0, 0],
+						"easing": "linear"
 					}
 				}
 			}

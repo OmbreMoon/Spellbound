@@ -1,6 +1,7 @@
 package com.ombremoon.spellbound.main;
 
 import com.ombremoon.spellbound.client.shader.SBShaders;
+import com.ombremoon.spellbound.common.content.item.RitualTalismanItem;
 import com.ombremoon.spellbound.common.content.world.multiblock.Multiblock;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellPath;
@@ -72,6 +73,17 @@ public class Spellbound {
                 });
             }
         }
+
+        ItemProperties.register(SBItems.RITUAL_TALISMAN.get(), CommonClass.customLocation("rings"), (stack, level, entity, seed) -> {
+            if (stack.is(SBItems.RITUAL_TALISMAN.get())) {
+                Integer rings = stack.get(SBData.TALISMAN_RINGS.get());
+                if (rings != null) {
+                    return rings == 3 ? 1.0F : rings == 2 ? 0.5F : 0.0F;
+                }
+            }
+
+            return 0.0F;
+        });
     }
 
     private static IAnimation registerPlayerAnimation(AbstractClientPlayer player) {

@@ -70,8 +70,7 @@ public class EffectManager implements INBTSerializable<CompoundTag>, Loggable {
      * @return true if stunned, false otherwise
      */
     public static boolean isStunned(LivingEntity entity) {
-        return entity.hasEffect(SBEffects.STUNNED)
-                || entity.hasEffect(SBEffects.CATALEPSY);
+        return entity.hasEffect(SBEffects.STUNNED);
     }
 
     public double getMagicResistance() {
@@ -187,12 +186,6 @@ public class EffectManager implements INBTSerializable<CompoundTag>, Loggable {
             return Effect.SHOCK;
         } else if (damageType == SBDamageTypes.RUIN_FROST) {
             return Effect.FROST;
-        } else if (damageType == SBDamageTypes.RUIN_WATER) {
-            return Effect.WATER;
-        } else if (damageType == SBDamageTypes.RUIN_EARTH) {
-            return Effect.EARTH;
-        } else if (damageType == SBDamageTypes.RUIN_AIR) {
-            return Effect.AIR;
         } else {
             //ADD DAMAGE BUILD UP EVENT
             return null;
@@ -225,10 +218,7 @@ public class EffectManager implements INBTSerializable<CompoundTag>, Loggable {
     public enum Effect {
         FIRE(SpellPath.FIRE, SBEffects.COMBUST, SBAttributes.FIRE_SPELL_RESIST, SBDamageTypes.RUIN_FIRE),
         FROST(SpellPath.FROST, SBEffects.FROZEN, SBAttributes.FROST_SPELL_RESIST, SBDamageTypes.RUIN_FROST),
-        WATER(SpellPath.WATER, SBEffects.WET, SBAttributes.WATER_SPELL_RESIST, SBDamageTypes.RUIN_WATER),
-        SHOCK(SpellPath.SHOCK, SBEffects.DISCHARGE, SBAttributes.SHOCK_SPELL_RESIST, SBDamageTypes.RUIN_SHOCK),
-        AIR(SpellPath.AIR, SBEffects.WIND, SBAttributes.WIND_SPELL_RESIST, SBDamageTypes.RUIN_FIRE),
-        EARTH(SpellPath.EARTH, SBEffects.EARTH, SBAttributes.EARTH_SPELL_RESIST, SBDamageTypes.RUIN_FIRE);
+        SHOCK(SpellPath.SHOCK, SBEffects.DISCHARGE, SBAttributes.SHOCK_SPELL_RESIST, SBDamageTypes.RUIN_SHOCK);
 
         private final SpellPath path;
         private final Holder<MobEffect> mobEffect;

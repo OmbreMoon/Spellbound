@@ -23,6 +23,7 @@ public class SBItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Constants.MOD_ID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Constants.MOD_ID);
     public static final List<Supplier<? extends Item>> SIMPLE_ITEM_LIST = new ArrayList<>();
+    public static final List<Supplier<? extends Item>> EXCLUDED_ITEMS = new ArrayList<>();
     public static final List<Supplier<? extends Item>> BLOCK_ITEM_LIST = new ArrayList<>();
 
     public static final Supplier<Item> DEBUG = ITEMS.register("debug", () -> new DebugItem(getItemProperties()));
@@ -55,7 +56,9 @@ public class SBItems {
     public static final Supplier<Item> STORMWEAVER_LEGGINGS = registerArmorItem("stormweaver_leggings", SBArmorMaterials.STORMWEAVER, ArmorItem.Type.LEGGINGS);
     public static final Supplier<Item> STORMWEAVER_BOOTS = registerArmorItem("stormweaver_boots", SBArmorMaterials.STORMWEAVER, ArmorItem.Type.BOOTS);
 
-    public static final Supplier<Item> SPELL_TOME = ITEMS.register("spell_tome", () -> new SpellTomeItem(getItemProperties()));
+    public static final Supplier<Item> SPELL_TOME = registerItem("spell_tome", () -> new SpellTomeItem(getItemProperties()), true, true);
+    public static final Supplier<Item> MAGIC_ESSENCE = registerSimpleItem("magic_essence");
+    public static final Supplier<Item> RITUAL_TALISMAN = registerItem("ritual_talisman", () -> new RitualTalismanItem(getItemProperties().durability(25)), true, true);
     public static final Supplier<Item> MANA_TEAR = registerItem("mana_tear", () -> new ManaTearItem(getItemProperties()));
     public static final Supplier<Item> CHALK = registerItem("chalk", () -> new ChalkItem(getItemProperties().stacksTo(16)));
 
@@ -68,40 +71,49 @@ public class SBItems {
             .displayItems(
                     (itemDisplayParameters,output)-> {
                         ITEMS.getEntries().forEach((registryObject)-> {
-                            if (registryObject != SPELL_TOME) output.accept(new ItemStack(registryObject.get()));
+                            if (!EXCLUDED_ITEMS.contains(registryObject))
+                                output.accept(new ItemStack(registryObject.get()));
                         });
+                        for (int i = 0; i < 3; i++) {
+                            ItemStack stack = new ItemStack(RITUAL_TALISMAN.get());
+                            stack.set(SBData.TALISMAN_RINGS, i + 1);
+                            output.accept(stack);
+                        }
                         SBSpells.SPELL_TYPES.getEntries().forEach((registryObject) -> {
                             output.accept(SpellTomeItem.createWithSpell(registryObject.get()));
                         });
                     }).title(Component.translatable("itemGroup.spellbound"))
             .build());
 
-    public static Supplier<Item> registerSpellTome(String name, Supplier<? extends SpellType<?>> spellType) {
-        Supplier<Item> item = ITEMS.register(name, () -> new SpellTomeItem(getItemProperties()));
-        SIMPLE_ITEM_LIST.add(item);
-        return item;
-    }
-
-    public static Supplier<Item> registerSimpleItem(String name) {
-        Supplier<Item> item = ITEMS.register(name, () -> new Item(getItemProperties()));
-        SIMPLE_ITEM_LIST.add(item);
-        return item;
-    }
-
     public static Supplier<Item> registerArmorItem(String name, Holder<ArmorMaterial> material, ArmorItem.Type type) {
-        Supplier<Item> item = ITEMS.register(name, () -> new MageArmorItem(material, type, getItemProperties().stacksTo(1)));
-        SIMPLE_ITEM_LIST.add(item);
-        return item;
+        return registerItem(name, () -> new MageArmorItem(material, type, getItemProperties().stacksTo(1)));
     }
 
     public static Supplier<Item> registerCatalystItem(String name, SpellPath path) {
-        Supplier<Item> item = ITEMS.register(name, () -> new CatalystItem(path, getItemProperties().stacksTo(1)));
-        return item;
+        return registerItem(name, () -> new CatalystItem(path, getItemProperties().stacksTo(1)), true);
+    }
+
+    public static Supplier<Item> registerSimpleItem(String name) {
+        return registerItem(name, () -> new Item(getItemProperties()));
     }
 
     public static Supplier<Item> registerItem(String name, Supplier<Item> itemSupplier) {
+        return registerItem(name, itemSupplier, false);
+    }
+
+    public static Supplier<Item> registerItem(String name, Supplier<Item> itemSupplier, boolean excludeModel) {
+        return registerItem(name, itemSupplier, excludeModel, false);
+    }
+
+    public static Supplier<Item> registerItem(String name, Supplier<Item> itemSupplier, boolean excludeModel, boolean excludeTab) {
         Supplier<Item> item = ITEMS.register(name, itemSupplier);
-        SIMPLE_ITEM_LIST.add(item);
+
+        if (!excludeModel)
+            SIMPLE_ITEM_LIST.add(item);
+
+        if (excludeTab)
+            EXCLUDED_ITEMS.add(item);
+
         return item;
     }
 

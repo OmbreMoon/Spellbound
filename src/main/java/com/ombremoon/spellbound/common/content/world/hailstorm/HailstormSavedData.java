@@ -1,8 +1,6 @@
 package com.ombremoon.spellbound.common.content.world.hailstorm;
 
 import com.ombremoon.spellbound.main.Constants;
-import com.ombremoon.spellbound.common.content.entity.spell.Cyclone;
-import com.ombremoon.spellbound.networking.PayloadHandler;
 import com.ombremoon.spellbound.util.Loggable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -101,10 +99,10 @@ public class HailstormSavedData extends SavedData implements HailstormData, Logg
         data.setThundering(false);
     }
 
-    public boolean chunkHasCyclone(ServerLevel level, BlockPos pos) {
+    /*public boolean chunkHasCyclone(ServerLevel level, BlockPos pos) {
         List<Cyclone> cycloneList = this.getCyclonesInChunk(level, pos);
         return !cycloneList.isEmpty();
-    }
+    }*/
 
     public BlockPos findLightningTargetAround(ServerLevel level, BlockPos pos) {
         BlockPos blockpos = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, pos);
@@ -121,11 +119,11 @@ public class HailstormSavedData extends SavedData implements HailstormData, Logg
         }
     }
 
-    private List<Cyclone> getCyclonesInChunk(ServerLevel level, BlockPos pos) {
+    /*private List<Cyclone> getCyclonesInChunk(ServerLevel level, BlockPos pos) {
         BlockPos blockpos = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, pos);
         AABB aabb = AABB.encapsulatingFullBlocks(blockpos, new BlockPos(blockpos.atY(level.getMaxBuildHeight()))).inflate(10.0);
         return level.getEntitiesOfClass(Cyclone.class, aabb, cyclone -> cyclone != null && level.canSeeSky(cyclone.blockPosition()));
-    }
+    }*/
 
 /*    public void tickHailLevel(ServerLevel level) {
         this.oHailLevel = this.hailLevel;

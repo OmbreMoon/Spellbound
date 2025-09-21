@@ -1,0 +1,20 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "spellbound:item/ritual_talisman"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "spellbound:rings": 0.5
+      },
+      "model": "spellbound:item/ritual_talisman_two"
+    },
+    {
+      "predicate": {
+        "spellbound:rings": 1.0
+      },
+      "model": "spellbound:item/ritual_talisman_three"
+    }
+  ]
+}

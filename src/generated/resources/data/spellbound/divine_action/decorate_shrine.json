@@ -1,0 +1,18 @@
+{
+  "criteria": {
+    "decorate_shrine": {
+      "trigger": "spellbound:decorated_shrine"
+    }
+  },
+  "requirements": [
+    [
+      "decorate_shrine"
+    ]
+  ],
+  "rewards": {
+    "experience": 20,
+    "spells": [
+      "spellbound:healing_blossom"
+    ]
+  }
+}

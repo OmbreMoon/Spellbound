@@ -1,9 +1,13 @@
 package com.ombremoon.spellbound.common.content.entity.living;
 
 import com.mojang.datafixers.util.Pair;
+import com.ombremoon.spellbound.common.content.entity.behavior.sensor.NearbyShrineSensor;
 import com.ombremoon.spellbound.common.content.entity.behavior.target.ExtendedInvalidateAttackTarget;
 import com.ombremoon.spellbound.common.content.entity.SBLivingEntity;
 import com.ombremoon.spellbound.common.init.SBBlocks;
+import com.ombremoon.spellbound.common.init.SBMemoryTypes;
+import com.ombremoon.spellbound.common.init.SBTags;
+import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.util.SpellUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.BlockPos;
@@ -21,12 +25,15 @@ import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.behavior.SetWalkTargetFromBlockMemory;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
+import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -41,6 +48,7 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.move.WalkOrRunToWalkTar
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomFlyingTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToBlock;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetPlayerLookTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetRandomLookTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.TargetOrRetaliate;
@@ -61,12 +69,12 @@ import java.util.List;
 import java.util.UUID;
 
 public class Valkyr extends SBLivingEntity implements NeutralMob {
-    protected static final String CONTROLLER = "controller";
     private static final EntityDataAccessor<Boolean> IN_FLIGHT = SynchedEntityData.defineId(Valkyr.class, EntityDataSerializers.BOOLEAN);
     private final PathNavigation groundNav;
     private final PathNavigation flightNav;
     private final MoveControl groundControl;
     private final MoveControl flightControl;
+    private Vec3 moveTarget = Vec3.ZERO;
 
     public Valkyr(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
@@ -133,13 +141,13 @@ public class Valkyr extends SBLivingEntity implements NeutralMob {
     }
 
     public boolean isNearShrine() {
-        var memory = SBLMemoryTypes.NEARBY_BLOCKS.get();
+        var memory = SBMemoryTypes.NEARBY_SHRINES.get();
         return BrainUtils.hasMemory(this, memory) && !BrainUtils.getMemory(this, memory).isEmpty();
     }
 
     @Nullable
     public BlockPos getNearestShrine() {
-        var blockList = BrainUtils.getMemory(this, SBLMemoryTypes.NEARBY_BLOCKS.get());
+        var blockList = BrainUtils.getMemory(this, SBMemoryTypes.NEARBY_SHRINES.get());
         if (blockList != null) {
             var blocks = blockList.getFirst();
             return blocks.getFirst();
@@ -154,6 +162,11 @@ public class Valkyr extends SBLivingEntity implements NeutralMob {
 //            log("Flying: " + isInFlight());
         }
         return super.mobInteract(player, hand);
+    }
+
+    @Override
+    public boolean removeWhenFarAway(double distanceToClosestPlayer) {
+        return false;
     }
 
     @Override
@@ -179,7 +192,7 @@ public class Valkyr extends SBLivingEntity implements NeutralMob {
     public static AttributeSupplier.Builder createValkyrAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 400.0D)
-                .add(Attributes.MOVEMENT_SPEED, 0.25)
+                .add(Attributes.MOVEMENT_SPEED, 0.2)
                 .add(Attributes.FLYING_SPEED, 0.45)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0);
     }
@@ -194,7 +207,8 @@ public class Valkyr extends SBLivingEntity implements NeutralMob {
                             return !player.getAbilities().invulnerable && effects.getJudgement() < 100;
                         }),
                 new HurtBySensor<>(),
-                new NearbyBlocksSensor<SBLivingEntity>().setRadius(15).setPredicate((blockState, spellEntity) -> blockState.is(SBBlocks.DIVINE_SHRINE.get()))
+                new NearbyShrineSensor<SBLivingEntity>().setRadius(15),
+                new NearbyBlocksSensor<SBLivingEntity>().setRadius(15)
         );
     }
 
@@ -215,15 +229,17 @@ public class Valkyr extends SBLivingEntity implements NeutralMob {
                                 .useMemory(MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER)
                                 .attackablePredicate(target -> target.isAlive() && !(target instanceof Valkyr) && (!(target instanceof Player player) || !player.getAbilities().invulnerable) && !isAlliedTo(target)),
                         new SetPlayerLookTarget<>(),
-                        new SetRandomLookTarget<>()),
+                        new SetRandomLookTarget<>())/*,
                 new OneRandomBehaviour<>(
+                        new SetWalkTargetToBlock<>()
+                                .predicate((pathfinderMob, blockPosBlockStatePair) -> !blockPosBlockStatePair.getSecond().is(SBTags.Blocks.DIVINE_SHRINE)),
                         new SetRandomWalkTarget<Valkyr>()
                                 .avoidWaterWhen(valkyr -> true)
                                 .startCondition(valkyr -> !isNearShrine() && !isInFlight()),
                         new Idle<Valkyr>()
                                 .runFor(valkyr -> valkyr.getRandom().nextInt(30, 60))
 
-                )
+                )*/
         );
     }
 
@@ -290,11 +306,15 @@ public class Valkyr extends SBLivingEntity implements NeutralMob {
     public class CircleAroundShrine extends ExtendedBehaviour<Valkyr> {
         public static final MemoryTest MEMORY_REQUIREMENTS = MemoryTest.builder(2)
                 .hasMemory(SBLMemoryTypes.NEARBY_BLOCKS.get())
+                .hasMemory(SBMemoryTypes.NEARBY_SHRINES.get())
                 .noMemory(MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER)
                 .noMemory(MemoryModuleType.ATTACK_TARGET);
 
-        private Vec3 moveTarget = Vec3.ZERO;
         private float angle;
+
+        public CircleAroundShrine() {
+            this.noTimeout();
+        }
 
         @Override
         protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
@@ -307,35 +327,32 @@ public class Valkyr extends SBLivingEntity implements NeutralMob {
         }
 
         @Override
-        protected void start(Valkyr valkyr) {
-            if (!isNearShrine()) {
-                return;
-            }
+        protected boolean checkExtraStartConditions(ServerLevel level, Valkyr valkyr) {
+            return isNearShrine() && BrainUtils.getTargetOfEntity(valkyr) == null;
+        }
 
-            BlockPos target = getNearestShrine();
-            this.circleShrine(valkyr, target);
+        @Override
+        protected void start(Valkyr valkyr) {
+            this.selectNext();
         }
 
         @Override
         protected void tick(Valkyr valkyr) {
-            if (!isNearShrine())
-                return;
-
-            BlockPos target = getNearestShrine();
-            if (this.hasReachedTarget())
-                this.circleShrine(valkyr, target);
-
+            if (this.touchingTarget()) {
+                this.selectNext();
+            }
+        }
+        protected boolean touchingTarget() {
+            WalkTarget target = BrainUtils.getMemory(Valkyr.this, MemoryModuleType.WALK_TARGET);
+            return target == null || target.getTarget().currentPosition().distanceToSqr(Valkyr.this.getX(), Valkyr.this.getY(), Valkyr.this.getZ()) < 4.0;
         }
 
-        private boolean hasReachedTarget() {
-            return this.moveTarget.distanceToSqr(Valkyr.this.position()) < 4;
-        }
-
-        private void circleShrine(Valkyr valkyr, BlockPos shrinePos) {
-            this.angle = this.angle + 15 * Mth.DEG_TO_RAD;
-            this.moveTarget = Vec3.atBottomCenterOf(shrinePos)
-                    .add(10 * Mth.cos(this.angle), 0, 10 * Mth.sin(this.angle));
-            valkyr.getNavigation().moveTo(this.moveTarget.x, this.moveTarget.y, this.moveTarget.z, 1);
+        private void selectNext() {
+            BlockPos shrine = Valkyr.this.getNearestShrine();
+            this.angle = this.angle + 15.0F * (float) (Math.PI / 180.0);
+            Vec3 vec3 = Vec3.atLowerCornerOf(shrine)
+                    .add((9 * Mth.cos(this.angle)), 0, (9 * Mth.sin(this.angle)));
+            BrainUtils.setMemory(Valkyr.this, MemoryModuleType.WALK_TARGET, new WalkTarget(vec3, 1.0F, 4));
         }
     }
 }

@@ -1,10 +1,7 @@
 package com.ombremoon.spellbound.common.content.spell.divine;
 
 import com.ombremoon.spellbound.common.magic.SpellMastery;
-import com.ombremoon.spellbound.datagen.ModTagProvider;
 import com.ombremoon.spellbound.main.CommonClass;
-import com.ombremoon.spellbound.client.CameraEngine;
-import com.ombremoon.spellbound.client.renderer.entity.PlaceholderRenderer;
 import com.ombremoon.spellbound.common.content.entity.spell.HealingBlossom;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.SpellContext;
@@ -23,7 +20,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -74,7 +70,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
     protected void onSpellStart(SpellContext context) {
         if (context.getLevel().isClientSide) return;
         SkillHolder skills = context.getSkills();
-        this.summonEntity(context, SBEntities.HEALING_BLOSSOM.get(), 5, blossom -> {
+        this.summonEntity(context, SBEntities.HEALING_BLOSSOM.get(), SpellUtil.getCastRange(context.getCaster()), blossom -> {
             if (skills.hasSkill(SBSkills.BLOOM)) {
                 blossom.fastBloom();
                 this.fastBloomed = true;
@@ -108,7 +104,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
 
     @Override
     protected void onSpellTick(SpellContext context) {
-        if ((ticks-8) % 31 != 0 && ticks % 31 != 0 && ticks % 20 != 0) return;
+        if ((tickCount -8) % 31 != 0 && tickCount % 31 != 0 && tickCount % 20 != 0) return;
         HealingBlossom blossom = getBlossom(context);
         if (blossom == null) return;
         LivingEntity caster = context.getCaster();
@@ -138,12 +134,12 @@ public class HealingBlossomSpell extends AnimatedSpell {
 
         //Damage is done separately to healing to sync with animation better
         List<LivingEntity> effectedEntities = level.getEntitiesOfClass(LivingEntity.class, blossom.getBoundingBox().inflate(5));
-        if (skills.hasSkill(SBSkills.THORNY_VINES) && (ticks-8) % 31 == 0) {
+        if (skills.hasSkill(SBSkills.THORNY_VINES) && (tickCount -8) % 31 == 0) {
             for (LivingEntity entity : effectedEntities) {
                 if (canAttack(entity))
                     this.hurt(entity, SBDamageTypes.SB_GENERIC, 4f);
             }
-        } else if (skills.hasSkill(SBSkills.THORNY_VINES) && ticks % 31 == 0) {
+        } else if (skills.hasSkill(SBSkills.THORNY_VINES) && tickCount % 31 == 0) {
             for (LivingEntity entity : effectedEntities) {
                 if (canAttack(entity)) {
                     blossom.triggerAnim("actionController", "attack");
@@ -176,23 +172,24 @@ public class HealingBlossomSpell extends AnimatedSpell {
 
     private boolean canAttack(LivingEntity entity) {
         return entity instanceof Mob mob
-                && !mob.isAlliedTo(getCastContext().getCaster());
+                /*&& !mob.isAlliedTo(getCastContext().getCaster())*/;
     }
 
     @Override
     protected boolean shouldTickSpellEffect(SpellContext context) {
-        return ((fastBloomed && ticks >= 20) || ticks >= 200);
+        return ((fastBloomed && tickCount >= 20) || tickCount >= 200);
     }
 
     @Override
     protected void onSpellStop(SpellContext context) {
-        if (!context.getLevel().isClientSide) return;
-        HealingBlossom blossom = getBlossom(context);
-        if (blossom != null) blossom.setEndTick(20);
+        if (!context.getLevel().isClientSide) {
+            HealingBlossom blossom = getBlossom(context);
+            if (blossom != null) blossom.setEndTick(20);
+        }
     }
 
     private void onDamagePre(DamageEvent.Pre pre) {
-        HealingBlossom blossom = getBlossom(getCastContext());
+        /*HealingBlossom blossom = getBlossom(getCastContext());
         if (blossom == null) return;
         if (!blossom.isEmpowered()) return;
 
@@ -203,7 +200,7 @@ public class HealingBlossomSpell extends AnimatedSpell {
             blossom.setEmpowered(false);
             if (pre.getCaster() instanceof Player player)
                 shakeScreen(player); //TODO: Sort intensity and add revive anim
-        }
+        }*/
     }
 
     @Override

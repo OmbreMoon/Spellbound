@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "S": {
+      "tag": "minecraft:stone_bricks"
+    }
+  },
+  "pattern": [
+    " S ",
+    "CSC",
+    "SSS"
+  ],
+  "result": {
+    "count": 1,
+    "id": "spellbound:transfiguration_display"
+  }
+}

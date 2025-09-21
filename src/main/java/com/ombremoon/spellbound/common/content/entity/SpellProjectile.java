@@ -21,12 +21,14 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+@SuppressWarnings("unchecked")
 public abstract class SpellProjectile<T extends AbstractSpell> extends Projectile implements ISpellEntity<T> {
     private static final EntityDataAccessor<String> SPELL_TYPE = SynchedEntityData.defineId(SpellProjectile.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Integer> SPELL_ID = SynchedEntityData.defineId(SpellProjectile.class, EntityDataSerializers.INT);
@@ -54,6 +56,14 @@ public abstract class SpellProjectile<T extends AbstractSpell> extends Projectil
             this.skills = SpellUtil.getSkills(livingEntity);
         }
 
+        if (!this.level().isClientSide) {
+            if (this.isInitialized() && this.spell != null && this.spell.isInactive)
+                discard();
+
+            if (this.spell != null)
+                this.spell.onEntityTick(this, this.spell.getContext());
+        }
+
         Vec3 vec3 = this.getDeltaMovement();
         HitResult hitresult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
         if (hitresult.getType() != HitResult.Type.MISS && !net.neoforged.neoforge.event.EventHooks.onProjectileImpact(this, hitresult))
@@ -76,17 +86,19 @@ public abstract class SpellProjectile<T extends AbstractSpell> extends Projectil
     @Override
     protected void onHitEntity(EntityHitResult result) {
         super.onHitEntity(result);
-        T spell = this.getSpell();
-        if (spell != null)
-            spell.onProjectileHitEntity(this, spell.getContext(), result);
+        if (!this.level().isClientSide) {
+            if (this.spell != null)
+                this.spell.onProjectileHitEntity(this, spell.getContext(), result);
+        }
     }
 
     @Override
     protected void onHitBlock(BlockHitResult result) {
         super.onHitBlock(result);
-        T spell = this.getSpell();
-        if (spell != null)
-            spell.onProjectileHitBlock(this, spell.getContext(), result);
+        if (!this.level().isClientSide) {
+            if (this.spell != null)
+                this.spell.onProjectileHitBlock(this, spell.getContext(), result);
+        }
     }
 
     @Override
@@ -94,6 +106,11 @@ public abstract class SpellProjectile<T extends AbstractSpell> extends Projectil
         builder.define(SPELL_TYPE, "");
         builder.define(SPELL_ID, -1);
         builder.define(OWNER_ID, 0);
+    }
+
+    @Override
+    public boolean isInitialized() {
+        return this.handler != null;
     }
 
     public T getSpell() {
@@ -106,12 +123,12 @@ public abstract class SpellProjectile<T extends AbstractSpell> extends Projectil
         return this.spell;
     }
 
-    public void setSpell(SpellType<?> spellType, int spellId) {
-        this.setSpellType(spellType);
-        this.setSpellId(spellId);
+    public void setSpell(@NotNull AbstractSpell spell) {
+        this.spell = (T) spell;
+        this.setSpellType(spell.spellType());
+        this.setSpellId(spell.getId());
     }
 
-    @SuppressWarnings("unchecked")
     public SpellType<T> getSpellType(){
         return (SpellType<T>) SBSpells.REGISTRY.get(ResourceLocation.tryParse(this.entityData.get(SPELL_TYPE)));
     }

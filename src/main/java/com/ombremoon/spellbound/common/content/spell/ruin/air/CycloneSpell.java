@@ -1,6 +1,6 @@
+/*
 package com.ombremoon.spellbound.common.content.spell.ruin.air;
 
-import com.ombremoon.spellbound.common.content.world.hailstorm.HailstormSavedData;
 import com.ombremoon.spellbound.common.content.entity.spell.Cyclone;
 import com.ombremoon.spellbound.common.init.SBDataTypes;
 import com.ombremoon.spellbound.common.init.SBEntities;
@@ -11,7 +11,6 @@ import com.ombremoon.spellbound.common.magic.SpellMastery;
 import com.ombremoon.spellbound.common.magic.api.AnimatedSpell;
 import com.ombremoon.spellbound.common.magic.sync.SpellDataKey;
 import com.ombremoon.spellbound.common.magic.sync.SyncedSpellData;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -26,7 +25,7 @@ public class CycloneSpell extends AnimatedSpell {
                 .mastery(SpellMastery.MASTER)
                 .duration(600)
                 .manaCost(95)
-                .castCondition((context, cycloneSpell) -> cycloneSpell.hasValidSpawnPos(100) && context.canCastWithLevel());
+                .castCondition((context, cycloneSpell) -> cycloneSpell.hasValidSpawnPos(100));
     }
 
     public CycloneSpell() {
@@ -42,7 +41,7 @@ public class CycloneSpell extends AnimatedSpell {
     protected void onSpellStart(SpellContext context) {
         Level level = context.getLevel();
         if (!level.isClientSide) {
-            this.setCyclone(summonEntity(context, SBEntities.CYCLONE.get(), 100).getId());
+            this.setCyclone(summonEntity(context, SBEntities.CYCLONE.get()).getId());
 
             if (context.getSkills().hasSkill(SBSkills.HAILSTORM.value())) {
 //                HailstormSavedData data = ((HailstormSavedData) HailstormSavedData.get(level));
@@ -84,3 +83,4 @@ public class CycloneSpell extends AnimatedSpell {
         return entity instanceof Cyclone cyclone ? cyclone : null;
     }
 }
+*/

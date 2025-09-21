@@ -1,5 +1,7 @@
 package com.ombremoon.spellbound.networking.clientbound;
 
+import com.ombremoon.spellbound.common.init.SBSpells;
+import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.main.CommonClass;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -7,15 +9,15 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-public record UpdateSpellsPayload(String playerId, CompoundTag spellData, boolean isRecast, int castId, boolean forceReset) implements CustomPacketPayload {
+public record UpdateSpellsPayload(String playerId, SpellType<?> spellType, int castId, CompoundTag initTag, CompoundTag spellData) implements CustomPacketPayload {
     public static final Type<UpdateSpellsPayload> TYPE = new Type<>(CommonClass.customLocation("update_spells"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, UpdateSpellsPayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8, UpdateSpellsPayload::playerId,
-            ByteBufCodecs.COMPOUND_TAG, UpdateSpellsPayload::spellData,
-            ByteBufCodecs.BOOL, UpdateSpellsPayload::isRecast,
+            ByteBufCodecs.registry(SBSpells.SPELL_TYPE_REGISTRY_KEY), UpdateSpellsPayload::spellType,
             ByteBufCodecs.INT, UpdateSpellsPayload::castId,
-            ByteBufCodecs.BOOL, UpdateSpellsPayload::forceReset,
+            ByteBufCodecs.COMPOUND_TAG, UpdateSpellsPayload::initTag,
+            ByteBufCodecs.COMPOUND_TAG, UpdateSpellsPayload::spellData,
             UpdateSpellsPayload::new
     );
 

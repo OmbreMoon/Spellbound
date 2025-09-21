@@ -2,13 +2,14 @@ package com.ombremoon.spellbound.common.content.block.entity;
 
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
-import com.ombremoon.sentinellib.api.Easing;
 import com.ombremoon.spellbound.common.content.world.multiblock.TransfigurationMultiblockPart;
 import com.ombremoon.spellbound.common.init.SBBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -21,11 +22,16 @@ public class TransfigurationDisplayBlockEntity extends TransfigurationMultiblock
     public float rot;
     public float oRot;
     public float tRot;
-    public int time;
+    public int itemTick;
+    public long spiralStartTick;
     public boolean active;
-    public int spiralTime;
-    public double dx, dy, dz, r0, theta0;
-    public long t0;
+    public int spiralTick;
+    public BlockPos pedestalPos;
+    public double centerDistX;
+    public double centerDistY;
+    public double centerDistZ;
+    public double distToCenter;
+    public double spiralRot;
 
     public TransfigurationDisplayBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -63,7 +69,9 @@ public class TransfigurationDisplayBlockEntity extends TransfigurationMultiblock
             }
 
             display.rot += f2 * 0.4F;
-            display.time++;
+            display.itemTick++;
+        } else if (display.pedestalPos != null) {
+            initSpiral(display, display.pedestalPos);
         } else {
             tickItems(display);
         }
@@ -75,47 +83,48 @@ public class TransfigurationDisplayBlockEntity extends TransfigurationMultiblock
     }
 
     private static void tickItems(TransfigurationDisplayBlockEntity display) {
-        display.spiralTime++;
-        if (display.spiralTime >= display.getRitual().definition().startupTime()) {
+        display.spiralTick++;
+        if (display.spiralTick >= display.getRitual().definition().startupTime()) {
             resetDisplay(display);
         }
     }
 
     private static void resetDisplay(TransfigurationDisplayBlockEntity display) {
         display.setItem(null);
-        display.dx = 0;
-        display.dy = 0;
-        display.dz = 0;
-        display.r0 = 0;
-        display.theta0 = 0;
-        display.t0 = 0;
-        display.spiralTime = 0;
+        display.centerDistX = 0;
+        display.centerDistY = 0;
+        display.centerDistZ = 0;
+        display.distToCenter = 0;
+        display.spiralRot = 0;
+        display.spiralStartTick = 0;
+        display.spiralTick = 0;
         display.active = false;
         display.setRitual(null);
         display.setChanged();
     }
 
-    public void initSpiral(BlockPos center) {
-        this.dx = worldPosition.getX() - center.getX();
-        this.dy = worldPosition.getY() - center.getY();
-        this.dz = worldPosition.getZ() - center.getZ();
-        this.r0 = Math.hypot(dx, dz);
-        this.theta0 = Math.atan2(dz, dx);
-        if (theta0 < 0) theta0 += Math.PI * 2;
-        this.t0 = level.getGameTime();
+    public static void initSpiral(TransfigurationDisplayBlockEntity display, BlockPos center) {
+        display.centerDistX = display.worldPosition.getX() - center.getX();
+        display.centerDistY = display.worldPosition.getY() - center.getY();
+        display.centerDistZ = display.worldPosition.getZ() - center.getZ();
+        display.distToCenter = Mth.length(display.centerDistX, display.centerDistZ);
+        display.spiralRot = Mth.atan2(display.centerDistZ, display.centerDistX);
+        if (display.spiralRot < 0) display.spiralRot += Mth.TWO_PI;
+        display.spiralStartTick = display.level.getGameTime();
+        display.pedestalPos = null;
     }
 
     public Vec3 spiralOffset(float partialTicks, double turns) {
-        double raw = ((level.getGameTime() - t0) + partialTicks) / this.getRitual().definition().startupTime();
+        double raw = ((level.getGameTime() - spiralStartTick) + partialTicks) / this.getRitual().definition().startupTime();
         double p = Mth.clamp(raw, 0.0, 1.0);
         double ease = 1.0 - Math.pow(1.0 - p, 3.0);
 
-        double radius = r0 * (1.0 - ease);
-        double theta = theta0 + turns * Math.PI * 2 * ease;
+        float radius = (float) (distToCenter * (1.0 - ease));
+        float theta = (float) (spiralRot + turns * Math.PI * 2 * ease);
 
-        double x = radius * Math.cos(theta);
-        double z = radius * Math.sin(theta);
-        return new Vec3(x - dx, -dy, z - dz);
+        double x = radius * Mth.cos(theta);
+        double z = radius * Mth.sin(theta);
+        return new Vec3(x - centerDistX, -centerDistY, z - centerDistZ);
     }
 
     public void setItem(ItemStack stack) {
@@ -123,27 +132,34 @@ public class TransfigurationDisplayBlockEntity extends TransfigurationMultiblock
         setChanged();
     }
 
+    public void setCenter(BlockPos center) {
+        this.pedestalPos = center;
+        setChanged();
+    }
+
     @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag compoundTag = new CompoundTag();
-        if (this.currentItem != null) {
-            ItemStack.CODEC
-                    .encodeStart(NbtOps.INSTANCE, this.currentItem)
-                    .resultOrPartial(LOGGER::error)
-                    .ifPresent(nbt -> compoundTag.put("CurrentItem", nbt));
-        }
-        return compoundTag;
+    public void onCleared(Level level, BlockPos blockPos) {
+        this.pedestalPos = null;
+        setChanged();
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        if (this.currentItem != null) {
+        if (this.currentItem != null && !this.currentItem.isEmpty()) {
             ItemStack.CODEC
                     .encodeStart(NbtOps.INSTANCE, this.currentItem)
                     .resultOrPartial(LOGGER::error)
                     .ifPresent(nbt -> tag.put("CurrentItem", nbt));
         }
+
+        if (this.pedestalPos != null) {
+            tag.putInt("CenterX", this.pedestalPos.getX());
+            tag.putInt("CenterY", this.pedestalPos.getY());
+            tag.putInt("CenterZ", this.pedestalPos.getZ());
+        }
+
+        tag.putBoolean("Active", this.active);
     }
 
     @Override
@@ -153,5 +169,8 @@ public class TransfigurationDisplayBlockEntity extends TransfigurationMultiblock
             DataResult<ItemStack> dataResult = ItemStack.CODEC.parse(new Dynamic<>(NbtOps.INSTANCE, tag.get("CurrentItem")));
             dataResult.resultOrPartial(LOGGER::error).ifPresent(this::setItem);
         }
+
+        this.pedestalPos = BlockPos.containing(tag.getInt("CenterX"), tag.getInt("CenterY"), tag.getInt("CenterZ"));
+        this.active = tag.getBoolean("Active");
     }
 }

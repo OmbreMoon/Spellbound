@@ -1,0 +1,31 @@
+{
+  "definition": {
+    "duration": 5,
+    "startupTime": 100,
+    "tier": 1
+  },
+  "description": {
+    "translate": "ritual.spellbound.create_stride"
+  },
+  "effects": [
+    {
+      "type": "spellbound:create_spell_tome",
+      "spell": "spellbound:stride",
+      "tier": 1
+    }
+  ],
+  "materials": [
+    {
+      "item": "minecraft:leather_boots"
+    },
+    {
+      "item": "minecraft:sugar"
+    },
+    {
+      "item": "minecraft:feather"
+    },
+    {
+      "item": "minecraft:lapis_lazuli"
+    }
+  ]
+}

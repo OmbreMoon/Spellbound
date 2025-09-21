@@ -8,25 +8,27 @@ import net.neoforged.fml.loading.FMLLoader;
 public class CommonClass {
 
     public static void init(IEventBus modEventBus) {
-        SBItems.register(modEventBus);
-        SBBlocks.register(modEventBus);
-        SBEntities.register(modEventBus);
-        SBSpells.register(modEventBus);
-        SBEffects.register(modEventBus);
-        SBBlockEntities.register(modEventBus);
         SBArmorMaterials.register(modEventBus);
-        SBParticles.register(modEventBus);
-        SBData.register(modEventBus);
-        SBStats.register(modEventBus);
-        SBSkills.register(modEventBus);
         SBAttributes.register(modEventBus);
-        SBDataTypes.register(modEventBus);
-        SBTriggers.register(modEventBus);
+        SBBlockEntities.register(modEventBus);
+        SBBlocks.register(modEventBus);
         SBChunkGenerators.register(modEventBus);
+        SBData.register(modEventBus);
+        SBDataTypes.register(modEventBus);
+        SBEffects.register(modEventBus);
+        SBEntities.register(modEventBus);
         SBFeatures.register(modEventBus);
+        SBItems.register(modEventBus);
+        SBMemoryTypes.register(modEventBus);
         SBMultiblockSerializers.register(modEventBus);
-        SBRitualEffects.register(modEventBus);
         SBPageElements.register(modEventBus);
+        SBParticles.register(modEventBus);
+        SBRitualEffects.register(modEventBus);
+        SBSensors.register(modEventBus);
+        SBSkills.register(modEventBus);
+        SBSpells.register(modEventBus);
+        SBStats.register(modEventBus);
+        SBTriggers.register(modEventBus);
 //        fixAttributes();
     }
 
