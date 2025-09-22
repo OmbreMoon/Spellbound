@@ -26,6 +26,9 @@
     {
       "type": "spellbound:spell_info",
       "spell": "spellbound:solar_ray",
+      "extras": {
+        "alwaysShow": false
+      },
       "position": {
         "xOffset": 165,
         "yOffset": 65

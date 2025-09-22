@@ -13,7 +13,9 @@ import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;
 import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.common.magic.api.SummonSpell;
 import com.ombremoon.spellbound.main.Constants;
+import com.ombremoon.spellbound.util.SpellUtil;
 import com.sun.jna.WString;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Registry;
@@ -28,6 +30,7 @@ import java.util.List;
 public record GuideSpellInfo(ResourceLocation spellLoc, SpellInfoExtras extras, ElementPosition position) implements PageElement {
     private static final ResourceLocation DATA_SPRITE = ResourceLocation.withDefaultNamespace("advancements/title_box");
     private static final ResourceLocation TITLE_BOX_SPRITE = ResourceLocation.withDefaultNamespace("advancements/box_unobtained");
+    private static final Component HIDDEN = Component.literal("???").withStyle(ChatFormatting.OBFUSCATED);
 
     public static final MapCodec<GuideSpellInfo> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             ResourceLocation.CODEC.fieldOf("spell").forGetter(GuideSpellInfo::spellLoc),
@@ -43,6 +46,9 @@ public record GuideSpellInfo(ResourceLocation spellLoc, SpellInfoExtras extras, 
             Constants.LOG.warn("Error parsing spell info. Spell {} not found in registry.", spellLoc);
             return;
         }
+
+        boolean shouldShow = extras.alwaysShow() || SpellUtil.getSpellCaster(Minecraft.getInstance().player).getSpellList().contains(spellType);
+
         AbstractSpell spell = spellType.createSpellWithData(Minecraft.getInstance().player);
         float baseDamage = spell.getBaseDamage();
         int castTime = spell.getCastTime();
@@ -60,19 +66,19 @@ public record GuideSpellInfo(ResourceLocation spellLoc, SpellInfoExtras extras, 
             data.add(Pair.of("spell_mastery", Component.translatable(spell.getSpellMastery().toString())));
         }
         if (extras.baseDamage() == 2 || (extras.baseDamage() == 1 && baseDamage > 0)) {
-            data.add(Pair.of("damage", baseDamage));
+            data.add(Pair.of("damage", shouldShow ? baseDamage : HIDDEN));
         }
         if (extras.manaCost() == 2 || (extras.manaCost() == 1 && manaCost > 0)) {
-            data.add(Pair.of("mana_cost", manaCost));
+            data.add(Pair.of("mana_cost", shouldShow ? manaCost : HIDDEN));
         }
         if (extras.castTime() == 2 || (extras.castTime() == 1 && castTime > 0)) {
-            data.add(Pair.of("cast_time", castTime));
+            data.add(Pair.of("cast_time", shouldShow ? castTime : HIDDEN));
         }
         if (extras.duration() == 2 || (extras.duration() == 1 && duration > 0)) {
-            data.add(Pair.of("duration", duration));
+            data.add(Pair.of("duration", shouldShow ? duration : HIDDEN));
         }
         if (extras.manaPerTick() == 2 || (extras.manaPerTick() == 1 && manaPerTick > 0)) {
-            data.add(Pair.of("mana_per_tick", manaPerTick));
+            data.add(Pair.of("mana_per_tick", shouldShow ? manaPerTick : HIDDEN));
         }
 
         graphics.blitSprite(DATA_SPRITE, leftPos + position.xOffset(), topPos + position.yOffset(), 150, data.size() * (extras.lineGap() + 4));
