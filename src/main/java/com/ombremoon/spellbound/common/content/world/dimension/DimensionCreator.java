@@ -9,6 +9,10 @@ import net.minecraft.world.level.dimension.LevelStem;
 import java.util.Set;
 import java.util.function.Supplier;
 
+/**
+ * @author Commoble, used with permission.
+ * https://gist.github.com/Commoble/7db2ef25f94952a4d2e2b7e3d4be53e0
+ */
 public interface DimensionCreator {
 
     static DimensionCreator get() {

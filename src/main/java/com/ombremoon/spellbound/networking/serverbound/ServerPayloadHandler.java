@@ -79,10 +79,10 @@ public class ServerPayloadHandler {
 
     public static void handleNetworkPlayerMovement(final PlayerMovementPayload payload, final IPayloadContext context) {
         Player player = context.player();
-        var caster = SpellUtil.getSpellHandler(player);
+        var handler = SpellUtil.getSpellHandler(player);
         if (payload.movement() == PlayerMovementPayload.Movement.MOVE) {
-            caster.forwardImpulse = payload.forwardImpulse();
-            caster.leftImpulse = payload.leftImpulse();
+            handler.forwardImpulse = payload.forwardImpulse();
+            handler.leftImpulse = payload.leftImpulse();
         } else if (payload.movement() == PlayerMovementPayload.Movement.ROTATE) {
             player.setYBodyRot(payload.yRot());
         }

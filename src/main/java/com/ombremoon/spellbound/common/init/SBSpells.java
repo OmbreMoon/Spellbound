@@ -14,6 +14,8 @@ import com.ombremoon.spellbound.common.content.spell.transfiguration.MysticArmor
 import com.ombremoon.spellbound.common.content.spell.transfiguration.ShadowGateSpell;
 import com.ombremoon.spellbound.common.content.spell.transfiguration.StrideSpell;
 import com.ombremoon.spellbound.common.magic.SpellPath;
+import com.ombremoon.spellbound.common.magic.acquisition.bosses.BossFight;
+import com.ombremoon.spellbound.common.magic.acquisition.bosses.BossFights;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.SpellType;
 import com.ombremoon.spellbound.main.CommonClass;
@@ -23,6 +25,7 @@ import net.minecraft.resources.ResourceKey;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.RegistryBuilder;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
@@ -78,7 +81,7 @@ public class SBSpells {
     //Summons
 //    public static final Supplier<SpellType<SummonUndeadSpell>> SUMMON_UNDEAD = registerSpell("summon_undead", summonBuilder("summon_undead", SummonUndeadSpell::new)
 //            .skills(SBSkills.SUMMON_UNDEAD));
-    public static final Supplier<SpellType<WildMushroomSpell>> WILD_MUSHROOM = registerSpell("wild_mushroom", summonBuilder("wild_mushroom", WildMushroomSpell::new)
+    public static final Supplier<SpellType<WildMushroomSpell>> WILD_MUSHROOM = registerSpell("wild_mushroom", summonBuilder("wild_mushroom", WildMushroomSpell::new, BossFights.WILD_MUSHROOM)
             .skills(SBSkills.WILD_MUSHROOM, SBSkills.VILE_INFLUENCE, SBSkills.HASTENED_GROWTH, SBSkills.ENVENOM,
                     SBSkills.PARASITIC_FUNGUS, SBSkills.NATURES_DOMINANCE, SBSkills.POISON_ESSENCE,
                     SBSkills.LIVING_FUNGUS, SBSkills.PROLIFERATION, SBSkills.FUNGAL_HARVEST, SBSkills.SYNTHESIS));
@@ -111,10 +114,6 @@ public class SBSpells {
         return SPELL_TYPES.register(name, builder::build);
     }
 
-    private static <T extends AbstractSpell> SpellType.Builder<T> ruinBuilder(String name, SpellType.SpellFactory<T> factory) {
-        return new SpellType.Builder<>(name, factory).setPath(SpellPath.RUIN);
-    }
-
     private static <T extends AbstractSpell> SpellType.Builder<T> fireRuinBuilder(String name, SpellType.SpellFactory<T> factory) {
         return new SpellType.Builder<>(name, factory).setPath(SpellPath.RUIN, SpellPath.FIRE);
     }
@@ -131,8 +130,8 @@ public class SBSpells {
         return new SpellType.Builder<>(name, factory).setPath(SpellPath.TRANSFIGURATION);
     }
 
-    private static <T extends AbstractSpell> SpellType.Builder<T> summonBuilder(String name, SpellType.SpellFactory<T> factory) {
-        SBBlocks.registerSummonStone(name + "_stone", name);
+    private static <T extends AbstractSpell> SpellType.Builder<T> summonBuilder(String name, SpellType.SpellFactory<T> factory, BossFight.BossFightBuilder<?> bossFight) {
+        SBBlocks.registerSummonStone(name + "_stone", name, bossFight);
         return new SpellType.Builder<>(name, factory).setPath(SpellPath.SUMMONS);
     }
 

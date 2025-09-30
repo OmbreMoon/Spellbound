@@ -5,7 +5,7 @@ import com.google.common.collect.Multimap;
 import com.ombremoon.spellbound.common.init.SBAttributes;
 import com.ombremoon.spellbound.common.init.SBData;
 import com.ombremoon.spellbound.common.init.SBEffects;
-import com.ombremoon.spellbound.common.magic.acquisition.ArenaCache;
+import com.ombremoon.spellbound.common.magic.acquisition.bosses.ArenaCache;
 import com.ombremoon.spellbound.common.magic.acquisition.divine.PlayerDivineActions;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.ChanneledSpell;

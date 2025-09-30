@@ -2,15 +2,19 @@ package com.ombremoon.spellbound.common.content.block;
 
 import com.google.common.base.Predicates;
 import com.mojang.serialization.MapCodec;
+import com.ombremoon.spellbound.common.content.world.dimension.DynamicDimensionFactory;
 import com.ombremoon.spellbound.common.init.SBItems;
+import com.ombremoon.spellbound.common.magic.acquisition.bosses.BossFight;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.content.block.entity.SummonBlockEntity;
 import com.ombremoon.spellbound.common.init.SBBlocks;
-import com.ombremoon.spellbound.common.magic.acquisition.ArenaSavedData;
+import com.ombremoon.spellbound.common.magic.acquisition.bosses.ArenaSavedData;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
@@ -40,6 +44,7 @@ public class SummonStoneBlock extends Block {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     private static BlockPattern portalShape;
     private final ResourceLocation spell;
+    private final BossFight.BossFightBuilder<?> bossFight;
 
     @Override
     protected MapCodec<? extends Block> codec() {
@@ -47,12 +52,13 @@ public class SummonStoneBlock extends Block {
     }
 
     public SummonStoneBlock(Properties properties) {
-        this(CommonClass.customLocation(""), properties);
+        this(CommonClass.customLocation(""), null, properties);
     }
 
-    public SummonStoneBlock(ResourceLocation spell, Properties properties) {
+    public SummonStoneBlock(ResourceLocation spell, BossFight.BossFightBuilder<?> bossFight, Properties properties) {
         super(properties);
         this.spell = spell;
+        this.bossFight = bossFight;
         this.registerDefaultState(this.getStateDefinition().any().setValue(POWERED, Boolean.FALSE).setValue(FACING, Direction.NORTH));
     }
 
@@ -62,6 +68,10 @@ public class SummonStoneBlock extends Block {
 
     public boolean hasSpell() {
         return !this.defaultBlockState().is(SBBlocks.SUMMON_STONE.get());
+    }
+
+    public BossFight getBossFight() {
+        return this.bossFight.build();
     }
 
     @Override
@@ -99,28 +109,33 @@ public class SummonStoneBlock extends Block {
                 BlockPattern.BlockPatternMatch blockPatternMatch = getOrCreatePortalShape().find(level, pos);
                 if (blockPatternMatch != null) {
                     var handler = SpellUtil.getSpellHandler(player);
-                    int arenaId = 0;
                     if (!level.isClientSide) {
                         ArenaSavedData data = ArenaSavedData.get((ServerLevel) level);
-                        arenaId = data.incrementId();
-                    }
+                        int arenaId = data.incrementId();
 
-                    handler.openArena(arenaId);
-                    BlockPos blockPos = blockPatternMatch.getFrontTopLeft().offset(-3, 0, -3);
+                        handler.openArena(arenaId);
+                        BlockPos blockPos = blockPatternMatch.getFrontTopLeft().offset(-3, 0, -3);
 
-                    for (int i = 0; i < 3; i++) {
-                        for (int j = 0; j < 3; j++) {
-                            BlockPos blockPos1 = blockPos.offset(i, 0, j);
-                            level.setBlock(blockPos1, SBBlocks.SUMMON_PORTAL.get().defaultBlockState(), 2);
-                            BlockEntity blockEntity = level.getBlockEntity(blockPos1);
-                            if (blockEntity instanceof SummonBlockEntity summonBlockEntity) {
-                                if (!level.isClientSide) {
+                        for (int i = 0; i < 3; i++) {
+                            for (int j = 0; j < 3; j++) {
+                                BlockPos blockPos1 = blockPos.offset(i, 0, j);
+                                level.setBlock(blockPos1, SBBlocks.SUMMON_PORTAL.get().defaultBlockState(), 2);
+                                BlockEntity blockEntity = level.getBlockEntity(blockPos1);
+                                if (blockEntity instanceof SummonBlockEntity summonBlockEntity) {
                                     summonBlockEntity.setOwner(player.getUUID());
                                     summonBlockEntity.setArenaID(arenaId);
                                     summonBlockEntity.setFrontTopLeft(blockPatternMatch.getFrontTopLeft());
                                     summonBlockEntity.setSpell(this.spell);
                                 }
                             }
+                        }
+
+                        MinecraftServer server = level.getServer();
+                        ResourceKey<Level> levelKey = data.getOrCreateKey(server, arenaId);
+                        ServerLevel arena = DynamicDimensionFactory.getOrCreateDimension(server, levelKey);
+                        if (arena != null && this.spell != null) {
+                            ArenaSavedData arenaData = ArenaSavedData.get(arena);
+                            arenaData.initializeArena(arena, this.spell, this.getBossFight());
                         }
                     }
                 } else {

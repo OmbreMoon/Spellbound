@@ -1,7 +1,6 @@
 package com.ombremoon.spellbound.common.content.block;
 
 import com.mojang.serialization.MapCodec;
-import com.ombremoon.sentinellib.Constants;
 import com.ombremoon.spellbound.common.content.block.entity.PedestalBlockEntity;
 import com.ombremoon.spellbound.common.content.item.RitualTalismanItem;
 import com.ombremoon.spellbound.common.content.world.multiblock.Multiblock;
@@ -18,21 +17,16 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;

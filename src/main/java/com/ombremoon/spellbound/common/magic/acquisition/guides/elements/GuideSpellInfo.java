@@ -47,7 +47,7 @@ public record GuideSpellInfo(ResourceLocation spellLoc, SpellInfoExtras extras, 
             return;
         }
 
-        boolean shouldShow = extras.alwaysShow() || SpellUtil.getSpellCaster(Minecraft.getInstance().player).getSpellList().contains(spellType);
+        boolean shouldShow = extras.alwaysShow() || SpellUtil.getSpellHandler(Minecraft.getInstance().player).getSpellList().contains(spellType);
 
         AbstractSpell spell = spellType.createSpellWithData(Minecraft.getInstance().player);
         float baseDamage = spell.getBaseDamage();

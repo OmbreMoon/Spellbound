@@ -1,4 +1,4 @@
-package com.ombremoon.spellbound.common.magic.acquisition;
+package com.ombremoon.spellbound.common.magic.acquisition.bosses;
 
 import com.ombremoon.spellbound.main.Constants;
 import net.minecraft.core.BlockPos;

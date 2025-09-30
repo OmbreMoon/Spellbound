@@ -15,6 +15,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Block;
@@ -31,7 +32,7 @@ import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
 public final class BuildingBlock implements Predicate<BlockState> {
-    public static final BuildingBlock EMPTY = of(Blocks.AIR);
+    public static final BuildingBlock EMPTY = of(BlockTags.AIR);
     public static final BuildingBlock ANY = of(SBTags.Blocks.RITUAL_COMPATIBLE);
     private final Value[] values;
     @Nullable

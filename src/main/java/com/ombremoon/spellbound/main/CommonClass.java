@@ -12,6 +12,7 @@ public class CommonClass {
         SBAttributes.register(modEventBus);
         SBBlockEntities.register(modEventBus);
         SBBlocks.register(modEventBus);
+        SBBossFights.register(modEventBus);
         SBChunkGenerators.register(modEventBus);
         SBData.register(modEventBus);
         SBDataTypes.register(modEventBus);

@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.init;
 
+import com.ombremoon.spellbound.common.magic.acquisition.bosses.BossFight;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.content.block.*;
@@ -18,6 +19,7 @@ import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
@@ -259,8 +261,8 @@ public class SBBlocks {
         return true;
     }
 
-    public static void registerSummonStone(String name, String spell) {
-        registerBlock(name, () -> new SummonStoneBlock(CommonClass.customLocation(spell), blockProperties()));
+    public static void registerSummonStone(String name, String spell, @Nullable BossFight.BossFightBuilder<?> bossFight) {
+        registerBlock(name, () -> new SummonStoneBlock(CommonClass.customLocation(spell), bossFight, blockProperties()));
     }
 
     public static DeferredBlock<Block> registerSludge(String name, boolean causeHarm) {

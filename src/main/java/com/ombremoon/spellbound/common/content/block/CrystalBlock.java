@@ -49,7 +49,7 @@ public class CrystalBlock extends Block {
         FROZEN("frozen", SBBlocks.SMALL_FROZEN_CRYSTAL_BUD, SBBlocks.MEDIUM_FROZEN_CRYSTAL_BUD, SBBlocks.LARGE_FROZEN_CRYSTAL_BUD, SBBlocks.FROZEN_CRYSTAL_CLUSTER, SoundEvents.AMETHYST_BLOCK_HIT, SoundEvents.AMETHYST_BLOCK_CHIME),
         STORM("storm", SBBlocks.SMALL_STORM_CRYSTAL_BUD, SBBlocks.MEDIUM_STORM_CRYSTAL_BUD, SBBlocks.LARGE_STORM_CRYSTAL_BUD, SBBlocks.STORM_CRYSTAL_CLUSTER, SoundEvents.AMETHYST_BLOCK_HIT, SoundEvents.AMETHYST_BLOCK_CHIME);
 
-        public static final StringRepresentable.EnumCodec<CrystalType> CODEC = StringRepresentable.fromEnum(CrystalType::values);
+        public static final StringRepresentableCodec<CrystalType> CODEC = StringRepresentable.fromEnum(CrystalType::values);
         private final String name;
         private final Supplier<Block> smallBud;
         private final Supplier<Block> mediumBud;

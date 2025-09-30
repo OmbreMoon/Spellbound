@@ -3,7 +3,7 @@ package com.ombremoon.spellbound.common.content.block.entity;
 import com.ombremoon.spellbound.main.Constants;
 import com.ombremoon.spellbound.common.content.world.dimension.DynamicDimensionFactory;
 import com.ombremoon.spellbound.common.init.SBBlockEntities;
-import com.ombremoon.spellbound.common.magic.acquisition.ArenaSavedData;
+import com.ombremoon.spellbound.common.magic.acquisition.bosses.ArenaSavedData;
 import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -61,26 +61,13 @@ public class SummonBlockEntity extends BlockEntity {
             if (blockEntity instanceof SummonBlockEntity) {
                 ArenaSavedData data = ArenaSavedData.get((ServerLevel) level);
                 ResourceKey<Level> levelKey = data.getOrCreateKey(server, this.arenaId);
-                ServerLevel arena = DynamicDimensionFactory.createDimension(server, levelKey);
+                ServerLevel arena = DynamicDimensionFactory.getOrCreateDimension(server, levelKey);
                 if (arena != null && this.spell != null) {
+                    ArenaSavedData arenaData = ArenaSavedData.get(arena);
                     var handler = SpellUtil.getSpellHandler(livingEntity);
-                    DynamicDimensionFactory.spawnInArena(entity, arena, this.spell, !this.hasEnteredPortal);
+                    arenaData.spawnInArena(arena, entity);
                     if (handler.isArenaOwner(this.arenaId))
                         handler.getLastArena().loadCache(this.arenaId, this.frontTopLeft, level.dimension());
-
-                    if (!this.hasEnteredPortal) {
-                        if (this.frontTopLeft != null) {
-                            BlockPos blockPos = this.frontTopLeft.offset(-3, 0, -3);
-                            for (int i = 0; i < 3; i++) {
-                                for (int j = 0; j < 3; j++) {
-                                    BlockPos blockPos1 = blockPos.offset(i, 0, j);
-                                    BlockEntity blockEntity1 = level.getBlockEntity(blockPos1);
-                                    if (blockEntity1 instanceof SummonBlockEntity summonBlockEntity)
-                                        summonBlockEntity.hasEnteredPortal = true;
-                                }
-                            }
-                        }
-                    }
                 }
             }
         }

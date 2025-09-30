@@ -1,8 +1,7 @@
 package com.ombremoon.spellbound.common.content.world.dimension;
 
-import com.ombremoon.spellbound.common.init.SBSpells;
+import com.ombremoon.spellbound.common.magic.acquisition.bosses.BossFight;
 import com.ombremoon.spellbound.main.CommonClass;
-import com.ombremoon.spellbound.main.Constants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -13,49 +12,52 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
-import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
+/**
+ * @author Commoble, used with permission.
+ * https://gist.github.com/Commoble/7db2ef25f94952a4d2e2b7e3d4be53e0
+ */
 public class DynamicDimensionFactory {
 
-    public static ServerLevel createDimension(MinecraftServer server, ResourceKey<Level> levelKey) {
+    public static ServerLevel getOrCreateDimension(MinecraftServer server, ResourceKey<Level> levelKey) {
         return DimensionCreator.get().getOrCreateLevel(server, levelKey, () -> createLevel(server));
     }
 
     private static LevelStem createLevel(MinecraftServer server) {
-        ChunkGenerator oldChunkGenerator = new EmptyChunkGenerator(server);
+        ChunkGenerator newChunkGenerator = new EmptyChunkGenerator(server);
         Holder<DimensionType> typeHolder = server.overworld().dimensionTypeRegistration();
-        return new LevelStem(typeHolder, oldChunkGenerator);
+        return new LevelStem(typeHolder, newChunkGenerator);
     }
 
-    public static void spawnInArena(Entity entity, ServerLevel level, ResourceLocation spell, boolean spawnArena) {
+    public static void spawnInArena(ServerLevel level, Entity entity, BossFight bossFight) {
         BlockPos blockPos = new BlockPos(0, 64, 0);
         level.getChunkAt(blockPos);
-        spawnArena(level, blockPos, spell, spawnArena);
 
-        Vec3 targetVec = Vec3.atBottomCenterOf(blockPos.offset(-13, 16, -5));
+        Vec3 spawnOffset = bossFight.getPlayerSpawnOffset();
+        int randomOffsetX = level.random.nextInt(3);
+        int randomOffsetZ = level.random.nextInt(3);
+        Vec3 targetVec = Vec3.atBottomCenterOf(blockPos.offset((int) spawnOffset.x + randomOffsetX, (int) spawnOffset.y, (int) spawnOffset.z + randomOffsetZ));
         sendToDimension(entity, level, targetVec);
     }
 
-    private static void spawnArena(ServerLevel level, BlockPos origin, ResourceLocation spell, boolean spawnArena) {
+    public static void spawnArena(ServerLevel level, ResourceLocation spell) {
+        BlockPos origin = new BlockPos(0, 64, 0);
+        level.getChunkAt(origin);
+        spawnArena(level, origin, spell);
+    }
+
+    private static void spawnArena(ServerLevel level, BlockPos origin, ResourceLocation spell) {
         Structure structure = getArena(level, spell).value();
         ChunkGenerator generator = level.getChunkSource().getGenerator();
         StructureStart start = structure.generate(
@@ -70,7 +72,7 @@ public class DynamicDimensionFactory {
                 level,
                 holder -> true
         );
-        if (start.isValid() && spawnArena) {
+        if (start.isValid()) {
             BoundingBox boundingBox = start.getBoundingBox();
             ChunkPos chunkPos = new ChunkPos(SectionPos.blockToSectionCoord(boundingBox.minX()), SectionPos.blockToSectionCoord(boundingBox.minZ()));
             ChunkPos chunkPos1 = new ChunkPos(SectionPos.blockToSectionCoord(boundingBox.maxX()), SectionPos.blockToSectionCoord(boundingBox.maxZ()));

@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.ombremoon.spellbound.main.CommonClass;
 import com.ombremoon.spellbound.common.init.SBChunkGenerators;
+import com.ombremoon.spellbound.main.Keys;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -25,7 +26,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class EmptyChunkGenerator extends ChunkGenerator {
-    public static ResourceKey<Biome> TEST_BIOME = ResourceKey.create(Registries.BIOME, CommonClass.customLocation("test"));
 
     public static final MapCodec<EmptyChunkGenerator> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             BiomeSource.CODEC.fieldOf("biome_source").forGetter(EmptyChunkGenerator::getBiomeRegistry)
@@ -38,7 +38,11 @@ public class EmptyChunkGenerator extends ChunkGenerator {
     }
 
     public EmptyChunkGenerator(MinecraftServer server) {
-        this(new FixedBiomeSource(server.registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(TEST_BIOME)));
+        this(server, Keys.EMPTY_BIOME);
+    }
+
+    public EmptyChunkGenerator(MinecraftServer server, ResourceKey<Biome> biome) {
+        this(new FixedBiomeSource(server.registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(biome)));
     }
 
     public EmptyChunkGenerator(BiomeSource biomes) {

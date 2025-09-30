@@ -17,8 +17,8 @@ import com.ombremoon.spellbound.common.content.world.multiblock.MultiblockManage
 import com.ombremoon.spellbound.common.events.custom.MobEffectEvent;
 import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.EffectManager;
-import com.ombremoon.spellbound.common.magic.acquisition.ArenaCache;
-import com.ombremoon.spellbound.common.magic.acquisition.ArenaSavedData;
+import com.ombremoon.spellbound.common.magic.acquisition.bosses.ArenaCache;
+import com.ombremoon.spellbound.common.magic.acquisition.bosses.ArenaSavedData;
 import com.ombremoon.spellbound.common.magic.acquisition.transfiguration.RitualSavedData;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.SpellType;
@@ -31,6 +31,7 @@ import com.ombremoon.spellbound.util.SpellUtil;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.PlayerRespawnLogic;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.*;
@@ -38,6 +39,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.portal.DimensionTransition;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
@@ -139,6 +142,22 @@ public class NeoForgeEvents {
     }
 
     @SubscribeEvent
+    public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        Level level = event.getEntity().level();
+        Player player = event.getEntity();
+        if (!level.isClientSide) {
+            var caster = SpellUtil.getSpellHandler(player);
+            caster.endSpells();
+
+            var cache = caster.getLastArena();
+            if (caster.isArenaOwner(cache.getArenaID()) && ArenaSavedData.isArena(level)) {
+                DimensionCreator.get().markDimensionForUnregistration(level.getServer(), level.dimension());
+                cache.leaveArena();
+            }
+        }
+    }
+
+    @SubscribeEvent
     public static void onPostEntityTick(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof LivingEntity entity) {
             var caster = SpellUtil.getSpellHandler(entity);
@@ -189,12 +208,22 @@ public class NeoForgeEvents {
     @SubscribeEvent
     public static void onLevelTick(LevelTickEvent.Pre event) {
         Level level = event.getLevel();
-        if (!level.isClientSide && level.dimension() == Level.OVERWORLD) {
-            RitualSavedData data = RitualSavedData.get(level);
-            data.ACTIVE_RITUALS.removeIf(ritualInstance -> !ritualInstance.isActive());
-            data.ACTIVE_RITUALS.forEach(instance -> instance.tick((ServerLevel) level));
-            data.setDirty();
+        if (!level.isClientSide) {
+            ServerLevel serverLevel = (ServerLevel) level;
+            RitualSavedData ritualData = RitualSavedData.get(serverLevel);
+            ritualData.ACTIVE_RITUALS.removeIf(ritualInstance -> !ritualInstance.isActive());
+            ritualData.ACTIVE_RITUALS.forEach(instance -> instance.tick(serverLevel));
+            ritualData.setDirty();
+
+            if (ArenaSavedData.isArena(serverLevel)) {
+                ArenaSavedData arenaData = ArenaSavedData.get(serverLevel);
+                if (!arenaData.spawnedArena) {
+                    arenaData.spawnArena(serverLevel);
+                    arenaData.spawnedArena = true;
+                }
+            }
         }
+
         /*
         HailstormData data = HailstormSavedData.get(level);
         if (level.dimension() == Level.OVERWORLD) {

@@ -17,7 +17,9 @@ public class MiniMushroomRenderer extends GenericLivingEntityRenderer<MiniMushro
 
     @Override
     public void actuallyRender(PoseStack poseStack, MiniMushroom animatable, BakedGeoModel model, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
-//        poseStack.scale(0.6F, 0.6F, 0.6F);
+        if (!animatable.isEnlarged())
+            poseStack.scale(0.6F, 0.6F, 0.6F);
+
         super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
     }
 }

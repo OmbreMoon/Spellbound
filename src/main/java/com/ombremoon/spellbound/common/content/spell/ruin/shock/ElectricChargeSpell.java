@@ -32,11 +32,15 @@ public class ElectricChargeSpell extends AnimatedSpell {
                 .castType(CastType.INSTANT)
                 .castCondition((context, spell) -> {
                     Entity entity = context.getTarget();
-                    if (spell.discharging) return false;
-                    if (entity != null) {
+                    if (spell.discharging)
+                        return false;
+
+                    if (spell.entityIds.size() >= context.getSpellLevel() + 1) {
+                        spell.discharged = true;
+                        return context.isRecast();
+                    } else if (entity != null) {
                         return !spell.entityIds.contains(entity.getId());
                     } else {
-                        if (spell.entityIds.size() >= 3) spell.discharged = true;
                         return context.isRecast();
                     }
                 })
@@ -62,7 +66,7 @@ public class ElectricChargeSpell extends AnimatedSpell {
     @Override
     protected void onSpellStart(SpellContext context) {
         Entity target = context.getTarget();
-        if (target != null && this.entityIds.size() < 3)
+        if (target != null && this.entityIds.size() < context.getSpellLevel() + 1)
             this.entityIds.add(target.getId());
     }
 

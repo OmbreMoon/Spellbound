@@ -91,30 +91,30 @@ public class MiniMushroom extends SmartSpellEntity<WildMushroomSpell> {
         if (!itemStack.is(Items.BONE_MEAL)) {
             return InteractionResult.PASS;
         } else {
-            if (player != this.getOwner()) {
-                if (!this.isDazed) {
+            if (/*player != this.getOwner()*/true) {
+                /*if (!this.isDazed) {
                     return InteractionResult.PASS;
-                }
+                }*/
 
                 this.enlarge();
                 this.setOwner(player);
-                return InteractionResult.SUCCESS;
+                return InteractionResult.sidedSuccess(this.level().isClientSide);
             } else {
-                var skills = SpellUtil.getSkills(player);
-                if (!skills.hasSkill(SBSkills.PROLIFERATION)) {
-                    return InteractionResult.PASS;
-                } else {
-                    if (RandomUtil.percentChance(0.15F)) {
-                    /*WildMushroomSpell spell = this.getSpell();
-                    GiantMushroom giantMushroom = spell.summonEntity(spell.getContext(), SBEntities.GIANT_MUSHROOM.get(), this.position());
-                    spell.setGiantMushroom(giantMushroom.getId());
-                    spell.setRemainingTicks(600);
-                    this.discard();*/
-                    }
+//                var skills = SpellUtil.getSkills(player);
+//                if (!skills.hasSkill(SBSkills.PROLIFERATION)) {
+//                    return InteractionResult.PASS;
+//                } else {
+//                    if (RandomUtil.percentChance(0.15F)) {
+//                    /*WildMushroomSpell spell = this.getSpell();
+//                    GiantMushroom giantMushroom = spell.summonEntity(spell.getContext(), SBEntities.GIANT_MUSHROOM.get(), this.position());
+//                    spell.setGiantMushroom(giantMushroom.getId());
+//                    spell.setRemainingTicks(600);
+//                    this.discard();*/
+//                    }
 
                     itemStack.consume(1, player);
                     return InteractionResult.sidedSuccess(this.level().isClientSide);
-                }
+//                }
             }
         }
     }
@@ -210,7 +210,7 @@ public class MiniMushroom extends SmartSpellEntity<WildMushroomSpell> {
     }
 
     public void enlarge() {
-        this.entityData.set(EXPLODING, true);
+        this.entityData.set(ENLARGED, true);
     }
 
     @Override

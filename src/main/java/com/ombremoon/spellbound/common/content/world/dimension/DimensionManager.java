@@ -36,6 +36,10 @@ import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
+/**
+ * @author Commoble, used with permission.
+ * https://gist.github.com/Commoble/7db2ef25f94952a4d2e2b7e3d4be53e0
+ */
 public final class DimensionManager implements DimensionCreator {
     private static final RegistrationInfo DIMENSION_REGISTRATION_INFO = new RegistrationInfo(Optional.empty(), Lifecycle.stable());
 

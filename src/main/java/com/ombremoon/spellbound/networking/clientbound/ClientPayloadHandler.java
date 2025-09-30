@@ -77,8 +77,8 @@ public class ClientPayloadHandler {
 
             Entity entity = level.getEntity(payload.entityId());
             if (entity instanceof LivingEntity livingEntity) {
-                var caster = SpellUtil.getSpellHandler(livingEntity);
-                AbstractSpell spell = caster.getSpell(payload.spellType(), payload.castId());
+                var handler = SpellUtil.getSpellHandler(livingEntity);
+                AbstractSpell spell = handler.getSpell(payload.spellType(), payload.castId());
                 if (spell != null)
                     spell.tickCount = payload.ticks();
             }
@@ -91,11 +91,11 @@ public class ClientPayloadHandler {
 
             Entity entity = level.getEntity(payload.entityId());
             if (entity instanceof LivingEntity livingEntity) {
-                var caster = SpellUtil.getSpellHandler(livingEntity);
+                var handler = SpellUtil.getSpellHandler(livingEntity);
                 if (!payload.removeBuff()) {
-                    caster.forceAddBuff(payload.skillBuff(), payload.duration());
+                    handler.forceAddBuff(payload.skillBuff(), payload.duration());
                 } else {
-                    caster.removeSkillBuff(payload.skillBuff());
+                    handler.removeSkillBuff(payload.skillBuff());
                 }
             }
         });
