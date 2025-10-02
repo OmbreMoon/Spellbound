@@ -84,13 +84,20 @@ public class ArenaSavedData extends SavedData {
 
     public void spawnArena(ServerLevel level) {
         DynamicDimensionFactory.spawnArena(level, this.spellLocation);
-        if (this.currentBossFight != null)
-            this.currentBossFight.start(level);
     }
 
     public void spawnInArena(ServerLevel level, Entity entity) {
         if (this.currentBossFight != null)
             DynamicDimensionFactory.spawnInArena(level, entity, this.currentBossFight.getBossFight());
+    }
+
+    public void handleBossFightLogic(ServerLevel level) {
+        if (this.currentBossFight != null)
+            this.currentBossFight.handleBossFightLogic(level);
+    }
+
+    public void endFight() {
+        this.currentBossFight = null;
     }
 
     public void initializeArena(ServerLevel level, ResourceLocation spellLocation, BossFight bossFight) {

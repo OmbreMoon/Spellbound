@@ -1,5 +1,6 @@
 package com.ombremoon.spellbound.common.content.world.dimension;
 
+import com.ombremoon.spellbound.common.magic.acquisition.bosses.ArenaSavedData;
 import com.ombremoon.spellbound.common.magic.acquisition.bosses.BossFight;
 import com.ombremoon.spellbound.main.CommonClass;
 import net.minecraft.core.BlockPos;
@@ -41,7 +42,7 @@ public class DynamicDimensionFactory {
     }
 
     public static void spawnInArena(ServerLevel level, Entity entity, BossFight bossFight) {
-        BlockPos blockPos = new BlockPos(0, 64, 0);
+        BlockPos blockPos = BossFight.ORIGIN;
         level.getChunkAt(blockPos);
 
         Vec3 spawnOffset = bossFight.getPlayerSpawnOffset();
@@ -52,7 +53,7 @@ public class DynamicDimensionFactory {
     }
 
     public static void spawnArena(ServerLevel level, ResourceLocation spell) {
-        BlockPos origin = new BlockPos(0, 64, 0);
+        BlockPos origin = BossFight.ORIGIN;
         level.getChunkAt(origin);
         spawnArena(level, origin, spell);
     }
@@ -92,6 +93,9 @@ public class DynamicDimensionFactory {
                             ),
                             pos
                     ));
+
+            ArenaSavedData data = ArenaSavedData.get(level);
+            data.spawnedArena = true;
         }
     }
 

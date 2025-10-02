@@ -19,6 +19,7 @@ import com.ombremoon.spellbound.common.init.*;
 import com.ombremoon.spellbound.common.magic.EffectManager;
 import com.ombremoon.spellbound.common.magic.acquisition.bosses.ArenaCache;
 import com.ombremoon.spellbound.common.magic.acquisition.bosses.ArenaSavedData;
+import com.ombremoon.spellbound.common.magic.acquisition.bosses.BossFightInstance;
 import com.ombremoon.spellbound.common.magic.acquisition.transfiguration.RitualSavedData;
 import com.ombremoon.spellbound.common.magic.api.AbstractSpell;
 import com.ombremoon.spellbound.common.magic.api.SpellType;
@@ -35,7 +36,9 @@ import net.minecraft.server.level.PlayerRespawnLogic;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -49,6 +52,7 @@ import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.living.*;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
@@ -105,21 +109,8 @@ public class NeoForgeEvents {
                     if (arenaLevel == null)
                         return;
 
-                    BlockPos arenaPos = cache.getArenaPos();
-
-                    if (handler.isArenaOwner(cache.getArenaID()) && arenaPos != null && !ArenaSavedData.isArena(event.getLevel()) && cache.leftArena()) {
-                        arenaPos = arenaPos.offset(-4, 0, -4);
-
-                        for (int i = 0; i < 5; i++) {
-                            for (int j = 0; j < 5; j++) {
-                                BlockPos blockPos1 = arenaPos.offset(i, 0, j);
-                                BlockState blockState = arenaLevel.getBlockState(blockPos1);
-                                if (blockState.is(SBBlocks.SUMMON_STONE.get()) || blockState.is(SBBlocks.SUMMON_PORTAL.get()))
-                                    arenaLevel.setBlock(blockPos1, Blocks.AIR.defaultBlockState(), 3);
-                            }
-                        }
-                        handler.closeArena();
-                        handler.getLastArena().clearCache();
+                    if (handler.isArenaOwner(cache.getArenaID()) && !ArenaSavedData.isArena(event.getLevel()) && cache.leftArena()) {
+                        cache.destroyPortal(arenaLevel);
                     }
                 }
             }
@@ -217,87 +208,33 @@ public class NeoForgeEvents {
 
             if (ArenaSavedData.isArena(serverLevel)) {
                 ArenaSavedData arenaData = ArenaSavedData.get(serverLevel);
+                var bossFight = arenaData.getCurrentBossFight();
                 if (!arenaData.spawnedArena) {
                     arenaData.spawnArena(serverLevel);
-                    arenaData.spawnedArena = true;
+                } else if (bossFight != null && !bossFight.isInitialized()) {
+                    bossFight.start(serverLevel);
+                } else {
+                    arenaData.handleBossFightLogic(serverLevel);
                 }
             }
         }
-
-        /*
-        HailstormData data = HailstormSavedData.get(level);
-        if (level.dimension() == Level.OVERWORLD) {
-            if (!level.isClientSide) {
-                ServerLevel serverLevel = (ServerLevel) level;
-                HailstormSavedData savedData = (HailstormSavedData) data;
-                if (level.getGameRules().getBoolean(GameRules.RULE_WEATHER_CYCLE)) {
-                    int i = ((ServerLevelData) level.getLevelData()).getClearWeatherTime();
-                    int j = ((ServerLevelData) level.getLevelData()).getRainTime();
-                    int k = savedData.getHailTime();
-                    boolean flag = savedData.isHailing();
-                    if (i > 0) {
-                        k = flag ? 0 : 1;
-                        flag = false;
-                    } else {
-                        if (k > 0) {
-                            if (--k == 0)
-                                flag = !flag;
-                        } else if (flag) {
-                            k = 0;
-                        } else {
-                            k = 0;
-                        }
-                    }
-
-                    savedData.setHailTime(k);
-                    savedData.setHailing(flag);
-
-                }
-
-                savedData.tickHailLevel(serverLevel);
-                int sleepTime = level.getGameRules().getInt(GameRules.RULE_PLAYERS_SLEEPING_PERCENTAGE);
-                if (serverLevel.sleepStatus.areEnoughSleeping(sleepTime) && serverLevel.sleepStatus.areEnoughDeepSleeping(sleepTime, serverLevel.players())) {
-                    if (serverLevel.getGameRules().getBoolean(GameRules.RULE_WEATHER_CYCLE) && savedData.isHailing()) {
-                        savedData.setHailTime(0);
-                        savedData.setHailing(false);
-                    }
-                }
-            }
-        }*/
     }
 
-    /*@SubscribeEvent
-    public static void onChunkTick(TickChunkEvent.Pre event) {
-        LevelChunk chunk = event.getChunk();
-        Level level = chunk.getLevel();
-        if (level instanceof ServerLevel serverLevel) {
-            ChunkPos chunkpos = chunk.getPos();
-            HailstormSavedData data = (HailstormSavedData) HailstormSavedData.get(serverLevel);
-            boolean flag = data.isHailing();
-            int i = chunkpos.getMinBlockX();
-            int j = chunkpos.getMinBlockZ();
-            BlockPos blockpos = data.findLightningTargetAround(serverLevel, serverLevel.getBlockRandomPos(i, 0, j, 15));
-            if (flag) {
-                if (data.isHailingAt(serverLevel, blockpos) && data.chunkHasCyclone(serverLevel, blockpos)) {
-                    if (serverLevel.random.nextInt(100) == 0) {
-                        LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(serverLevel);
-                        if (lightningbolt != null) {
-                            lightningbolt.moveTo(Vec3.atBottomCenterOf(blockpos));
-                            serverLevel.addFreshEntity(lightningbolt);
-                        }
-                    }
+    @SubscribeEvent
+    public static void onSpellPickUp(ItemEntityPickupEvent.Post event) {
+        Player player = event.getPlayer();
+        Level level = player.level();
+        ItemStack itemStack = event.getOriginalStack();
+        Boolean bool = itemStack.get(SBData.BOSS_PICKUP);
+        if (!level.isClientSide && ArenaSavedData.isArena(level) && bool != null && bool) {
+            itemStack.set(SBData.BOSS_PICKUP, false);
 
-                    if (serverLevel.random.nextInt(100) == 0) {
-                        Hail hail = SBEntities.HAIL.get().create(serverLevel);
-                        if (hail != null) {
-                            hail.moveTo(Vec3.atBottomCenterOf(blockpos.atY(serverLevel.getMaxBuildHeight())));
-                            serverLevel.addFreshEntity(hail);
-                        }
-                    }
-                }
-            }
+            ArenaCache cache = SpellUtil.getSpellHandler(player).getLastArena();
+            DimensionCreator.get().markDimensionForUnregistration(level.getServer(), level.dimension());
+            Level portalLevel = level.getServer().getLevel(cache.getArenaLevel());
+            cache.destroyPortal(portalLevel);
         }
-    }*/
+    }
 
     @SubscribeEvent
     public static void onDatapackSync(OnDatapackSyncEvent event) {

@@ -15,6 +15,8 @@ public abstract class BossFightInstance<T extends BossFight, S extends BossFight
             .dispatch(BossFightInstance::codec, Function.identity());
 
     protected final T bossFight;
+    protected boolean defeatedBoss;
+    private boolean initialized;
 
     public BossFightInstance(T bossFight) {
         this.bossFight = bossFight;
@@ -32,13 +34,25 @@ public abstract class BossFightInstance<T extends BossFight, S extends BossFight
 
     public abstract void load(CompoundTag nbt);
 
-    public void start(ServerLevel level) {
-        this.initializeWinCondition(level, this.bossFight);
+    public boolean isInitialized() {
+        return this.initialized;
     }
 
-    public void tickFight(ServerLevel level, T bossFight) {
-        if (ArenaSavedData.isArenaEmpty(level) || this.winCondition(level, bossFight)) {
+    public void start(ServerLevel level) {
+        this.initializeWinCondition(level, this.bossFight);
+        this.initialized = true;
+    }
+
+    public void handleBossFightLogic(ServerLevel level) {
+        this.tickFight(level, this.bossFight);
+    }
+
+    protected void tickFight(ServerLevel level, T bossFight) {
+        if (!ArenaSavedData.isArenaEmpty(level) && this.winCondition(level, bossFight)) {
             this.endFight(level, bossFight);
+
+            ArenaSavedData data = ArenaSavedData.get(level);
+            data.endFight();
         }
     }
 

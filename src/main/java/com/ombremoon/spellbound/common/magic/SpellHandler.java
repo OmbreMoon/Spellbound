@@ -64,7 +64,7 @@ public class SpellHandler implements INBTSerializable<CompoundTag>, Loggable {
     private final Map<SkillBuff<?>, Integer> skillBuffs = new Object2IntOpenHashMap<>();
     private final Set<Integer> glowEntities = new IntOpenHashSet();
     private IntOpenHashSet openArenas = new IntOpenHashSet();
-    private final ArenaCache arenaCache = new ArenaCache();
+    private final ArenaCache arenaCache = new ArenaCache(this);
     public int castTick;
     private boolean channelling;
     private int stationaryTicks;
